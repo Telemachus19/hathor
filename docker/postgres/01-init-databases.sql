@@ -1,0 +1,4 @@
+CREATE DATABASE auth_db;
+CREATE DATABASE catalog_db;
+CREATE DATABASE commerce_db;
+CREATE DATABASE library_db;

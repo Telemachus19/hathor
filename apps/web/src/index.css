@@ -1,0 +1,14 @@
+:root {
+  --bg-color: #222831;
+  --card-color: #393e46;
+  --accent-color: #fd7014;
+  --text-color: #eeeeee;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}

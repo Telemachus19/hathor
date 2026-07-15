@@ -1,0 +1,20 @@
+{
+  "name": "hathor-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "db:seed": "pnpm --filter @hathor/db db:seed",
+    "db:generate": "pnpm --filter @hathor/db db:generate",
+    "db:migrate": "pnpm --filter @hathor/db db:migrate",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.5",
+    "typescript": "^5.5.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
