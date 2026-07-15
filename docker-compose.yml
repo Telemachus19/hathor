@@ -1,0 +1,153 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hathor-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/01-init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  memcached:
+    image: memcached:alpine
+    container_name: hathor-memcached
+    restart: always
+    ports:
+      - '11211:11211'
+
+  redis:
+    image: redis:7-alpine
+    container_name: hathor-redis
+    restart: always
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: hathor-rabbitmq
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: hathor-api-gateway
+    restart: always
+    ports:
+      - '5000:5000'
+    environment:
+      PORT: 5000
+      AUTH_SERVICE_URL: http://auth-service:5001
+      CATALOG_SERVICE_URL: http://catalog-service:5002
+      COMMERCE_SERVICE_URL: http://commerce-service:5003
+      LIBRARY_SERVICE_URL: http://library-service:5004
+    depends_on:
+      - auth-service
+      - catalog-service
+      - commerce-service
+      - library-service
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    container_name: hathor-auth-service
+    restart: always
+    ports:
+      - '5001:5001'
+    environment:
+      PORT: 5001
+      AUTH_DB_URL: postgresql://postgres:postgrespassword@postgres:5432/auth_db
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  catalog-service:
+    build:
+      context: .
+      dockerfile: apps/catalog-service/Dockerfile
+    container_name: hathor-catalog-service
+    restart: always
+    ports:
+      - '5002:5002'
+    environment:
+      PORT: 5002
+      CATALOG_DB_URL: postgresql://postgres:postgrespassword@postgres:5432/catalog_db
+      MEMCACHED_URL: memcached:11211
+    depends_on:
+      postgres:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+
+  commerce-service:
+    build:
+      context: .
+      dockerfile: apps/commerce-service/Dockerfile
+    container_name: hathor-commerce-service
+    restart: always
+    ports:
+      - '5003:5003'
+    environment:
+      PORT: 5003
+      COMMERCE_DB_URL: postgresql://postgres:postgrespassword@postgres:5432/commerce_db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  library-service:
+    build:
+      context: .
+      dockerfile: apps/library-service/Dockerfile
+    container_name: hathor-library-service
+    restart: always
+    ports:
+      - '5004:5004'
+    environment:
+      PORT: 5004
+      LIBRARY_DB_URL: postgresql://postgres:postgrespassword@postgres:5432/library_db
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
