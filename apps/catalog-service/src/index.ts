@@ -22,5 +22,5 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Hathor Catalog Service running on port ${PORT}`);
+  console.log(`Hathor Catalog Service running on port ${PORT}`);
 });
