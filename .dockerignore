@@ -1,0 +1,12 @@
+.git
+.github
+.turbo
+**/.turbo
+**/dist
+**/node_modules
+node_modules
+.env
+.env.*
+!.env.example
+Planning_documentation
+*.log

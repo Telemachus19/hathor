@@ -27,27 +27,30 @@ app.use(
 // 3. Rate Limiter (Max 100 requests per 15-min window per IP)
 app.use(rateLimiter);
 
-// 4. API v1 Health Router
-const apiV1Router: Router = express.Router();
-
-apiV1Router.get('/health', (req: Request, res: Response) => {
+app.get('/health/live', (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     data: {
-      status: 'healthy',
       service: 'api-gateway',
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development',
+      status: 'live',
       timestamp: new Date().toISOString(),
-      routes: {
-        user: process.env.AUTH_SERVICE_URL || 'http://localhost:5001',
-        store: process.env.CATALOG_SERVICE_URL || 'http://localhost:5002',
-        txn: process.env.COMMERCE_SERVICE_URL || 'http://localhost:5003',
-        inventory: process.env.LIBRARY_SERVICE_URL || 'http://localhost:5004',
-      },
     },
   });
 });
+
+app.get('/health/ready', (_req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    data: {
+      service: 'api-gateway',
+      status: 'ready',
+      timestamp: new Date().toISOString(),
+    },
+  });
+});
+
+// 4. API v1 Router
+const apiV1Router: Router = express.Router();
 
 // 5. Attach Proxy Sub-Router
 apiV1Router.use('/', proxyRouter);
