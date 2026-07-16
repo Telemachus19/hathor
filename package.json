@@ -9,6 +9,7 @@
     "db:seed": "docker compose exec -T -w /app/apps/auth-service auth-service ./node_modules/.bin/tsx src/infrastructure/db/seed.ts && docker compose exec -T -w /app/apps/catalog-service catalog-service ./node_modules/.bin/tsx src/infrastructure/db/seed.ts",
     "db:generate": "corepack pnpm --filter @hathor/auth-service db:generate && corepack pnpm --filter @hathor/catalog-service db:generate && corepack pnpm --filter @hathor/commerce-service db:generate && corepack pnpm --filter @hathor/library-service db:generate",
     "db:migrate": "docker compose exec -T -w /app/apps/auth-service auth-service ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts && docker compose exec -T -w /app/apps/catalog-service catalog-service ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts && docker compose exec -T -w /app/apps/commerce-service commerce-service ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts && docker compose exec -T -w /app/apps/library-service library-service ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts",
+    "verify:topology": "node scripts/verify-compose.mjs",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
