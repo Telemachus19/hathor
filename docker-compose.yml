@@ -6,7 +6,7 @@ x-postgres: &postgres-defaults
   networks:
     - backend
   healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+    test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
     interval: 5s
     timeout: 5s
     retries: 10
@@ -72,9 +72,9 @@ services:
     restart: unless-stopped
     networks:
       - backend
-    command: ["memcached", "--memory-limit=64", "--conn-limit=256"]
+    command: ['memcached', '--memory-limit=64', '--conn-limit=256']
     healthcheck:
-      test: ["CMD-SHELL", "printf 'version\\r\\n' | nc -w 1 127.0.0.1 11211 | grep -q VERSION"]
+      test: ['CMD-SHELL', "printf 'version\\r\\n' | nc -w 1 127.0.0.1 11211 | grep -q VERSION"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -84,9 +84,9 @@ services:
     restart: unless-stopped
     networks:
       - backend
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -102,7 +102,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
       interval: 10s
       timeout: 5s
       retries: 10
@@ -124,7 +124,13 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5001/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5001/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -146,7 +152,13 @@ services:
       memcached:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5002/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5002/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -171,7 +183,13 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5003/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5003/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -193,7 +211,13 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5004/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5004/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -205,7 +229,7 @@ services:
       context: .
       dockerfile: apps/api-gateway/Dockerfile
     ports:
-      - "127.0.0.1:5000:5000"
+      - '127.0.0.1:5000:5000'
     networks:
       - edge
       - backend
@@ -227,7 +251,13 @@ services:
       library-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5000/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -239,14 +269,14 @@ services:
       dockerfile: apps/web/Dockerfile
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:8080"
+      - '127.0.0.1:3000:8080'
     networks:
       - edge
     depends_on:
       api-gateway:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health/ready"]
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:8080/health/ready']
       interval: 10s
       timeout: 3s
       retries: 5

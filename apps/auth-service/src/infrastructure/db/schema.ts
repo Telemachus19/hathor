@@ -8,7 +8,10 @@ export const users = authSchema.table('users', {
   email: varchar('email', { length: 255 }).unique().notNull(),
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
   displayName: varchar('display_name', { length: 100 }).notNull(),
-  roles: text('roles').array().notNull().default(sql`ARRAY['gamer']::text[]`),
+  roles: text('roles')
+    .array()
+    .notNull()
+    .default(sql`ARRAY['gamer']::text[]`),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });

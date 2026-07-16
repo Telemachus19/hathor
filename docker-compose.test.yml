@@ -1,0 +1,144 @@
+name: hathor-test
+
+x-test-postgres: &test-postgres
+  image: postgres:16.4-alpine
+  restart: 'no'
+  networks:
+    - test-backend
+  tmpfs:
+    - /var/lib/postgresql/data
+  healthcheck:
+    test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+    interval: 2s
+    timeout: 3s
+    retries: 20
+
+services:
+  auth-postgres:
+    <<: *test-postgres
+    environment:
+      POSTGRES_USER: hathor_admin
+      POSTGRES_PASSWORD: auth_admin_test
+      POSTGRES_DB: auth
+      POSTGRES_RUNTIME_USER: auth_app
+      POSTGRES_RUNTIME_PASSWORD: auth_runtime_test
+    volumes:
+      - ./docker/postgres/init-service-db.sh:/docker-entrypoint-initdb.d/10-runtime-role.sh:ro
+
+  catalog-postgres:
+    <<: *test-postgres
+    environment:
+      POSTGRES_USER: hathor_admin
+      POSTGRES_PASSWORD: catalog_admin_test
+      POSTGRES_DB: catalog
+      POSTGRES_RUNTIME_USER: catalog_app
+      POSTGRES_RUNTIME_PASSWORD: catalog_runtime_test
+    volumes:
+      - ./docker/postgres/init-service-db.sh:/docker-entrypoint-initdb.d/10-runtime-role.sh:ro
+
+  commerce-postgres:
+    <<: *test-postgres
+    environment:
+      POSTGRES_USER: hathor_admin
+      POSTGRES_PASSWORD: commerce_admin_test
+      POSTGRES_DB: commerce
+      POSTGRES_RUNTIME_USER: commerce_app
+      POSTGRES_RUNTIME_PASSWORD: commerce_runtime_test
+    volumes:
+      - ./docker/postgres/init-service-db.sh:/docker-entrypoint-initdb.d/10-runtime-role.sh:ro
+
+  library-postgres:
+    <<: *test-postgres
+    environment:
+      POSTGRES_USER: hathor_admin
+      POSTGRES_PASSWORD: library_admin_test
+      POSTGRES_DB: library
+      POSTGRES_RUNTIME_USER: library_app
+      POSTGRES_RUNTIME_PASSWORD: library_runtime_test
+    volumes:
+      - ./docker/postgres/init-service-db.sh:/docker-entrypoint-initdb.d/10-runtime-role.sh:ro
+
+  rabbitmq:
+    image: rabbitmq:3.13.4-alpine
+    restart: 'no'
+    networks:
+      - test-backend
+    environment:
+      RABBITMQ_DEFAULT_USER: hathor_test
+      RABBITMQ_DEFAULT_PASS: rabbitmq_test
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7.2.5-alpine
+    restart: 'no'
+    networks:
+      - test-backend
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  memcached:
+    image: memcached:1.6.29-alpine
+    restart: 'no'
+    networks:
+      - test-backend
+    healthcheck:
+      test: ['CMD-SHELL', "printf 'version\\r\\n' | nc -w 1 127.0.0.1 11211 | grep -q VERSION"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  test-fixtures:
+    profiles: [fixtures]
+    build:
+      context: .
+      dockerfile: tests/fixtures/Dockerfile
+    restart: 'no'
+    networks:
+      - test-backend
+    environment:
+      AUTH_DB_URL: postgresql://auth_app:auth_runtime_test@auth-postgres:5432/auth
+      CATALOG_DB_URL: postgresql://catalog_app:catalog_runtime_test@catalog-postgres:5432/catalog
+      COMMERCE_DB_URL: postgresql://commerce_app:commerce_runtime_test@commerce-postgres:5432/commerce
+      LIBRARY_DB_URL: postgresql://library_app:library_runtime_test@library-postgres:5432/library
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+      catalog-postgres:
+        condition: service_healthy
+      commerce-postgres:
+        condition: service_healthy
+      library-postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      memcached:
+        condition: service_healthy
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        cd /app/apps/auth-service
+        ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts
+        ./node_modules/.bin/tsx src/infrastructure/db/seed.ts
+        cd /app/apps/catalog-service
+        ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts
+        ./node_modules/.bin/tsx src/infrastructure/db/seed.ts
+        cd /app/apps/commerce-service
+        ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts
+        cd /app/apps/library-service
+        ./node_modules/.bin/tsx src/infrastructure/db/migrate.ts
+        node /app/tests/fixtures/verify-fixtures.mjs
+
+networks:
+  test-backend:
+    internal: true

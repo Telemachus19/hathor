@@ -22,12 +22,7 @@ const postgresServices = [
   'commerce-postgres',
   'library-postgres',
 ];
-const domainServices = [
-  'auth-service',
-  'catalog-service',
-  'commerce-service',
-  'library-service',
-];
+const domainServices = ['auth-service', 'catalog-service', 'commerce-service', 'library-service'];
 
 const output = execFileSync('docker', ['compose', 'config', '--format', 'json'], {
   encoding: 'utf8',
@@ -40,7 +35,10 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-assert(actualServices.size === expectedServices.size, 'Compose must define exactly 13 M1.1 services');
+assert(
+  actualServices.size === expectedServices.size,
+  'Compose must define exactly 13 M1.1 services'
+);
 for (const service of expectedServices) {
   assert(actualServices.has(service), `Missing Compose service: ${service}`);
 }
@@ -70,7 +68,10 @@ for (const name of domainServices) {
   const key = `${name.split('-')[0].toUpperCase()}_DB_URL`;
   const databaseUrl = service.environment[key];
   assert(databaseUrl, `${name} must receive only its service database URL`);
-  assert(!databaseUrl.includes('hathor_admin'), `${name} must not receive a database admin credential`);
+  assert(
+    !databaseUrl.includes('hathor_admin'),
+    `${name} must not receive a database admin credential`
+  );
   databaseUrls.add(databaseUrl);
 }
 assert(databaseUrls.size === 4, 'Domain services must use distinct database credentials and hosts');

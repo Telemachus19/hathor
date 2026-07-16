@@ -5,7 +5,7 @@ RUN npm install --global pnpm@9.0.0
 
 WORKDIR /app
 COPY . .
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --filter @hathor/web... --frozen-lockfile
 RUN pnpm --filter @hathor/web build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime

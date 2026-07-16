@@ -4,7 +4,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install --global pnpm@9.0.0
 WORKDIR /app
 COPY . .
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --filter @hathor/api-gateway... --frozen-lockfile
 RUN pnpm --filter @hathor/api-gateway build
 
 FROM node:20.15-alpine AS runtime

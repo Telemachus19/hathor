@@ -63,9 +63,24 @@ Stop containers while retaining service data with `docker compose down`. Remove 
 ## Validation
 
 ```powershell
+corepack pnpm contracts:check
+corepack pnpm format:check
+corepack pnpm verify:migrations
 corepack pnpm typecheck
 corepack pnpm build
+corepack pnpm test:services
 corepack pnpm verify:topology
 ```
 
 `verify:topology` checks the expected service set, private port policy, health checks, backend network isolation, distinct database URLs, and four independent PostgreSQL volumes.
+
+The tracked HTTP and event contract sources are under `packages/contracts/openapi` and `packages/contracts/asyncapi`. Redocly and the AsyncAPI CLI are pinned exactly in the root workspace.
+
+Run the isolated migration and fixture environment with:
+
+```powershell
+corepack pnpm test:compose
+corepack pnpm test:compose:down
+```
+
+The test Compose project uses an internal-only network and tmpfs-backed PostgreSQL instances. Its fixture runner migrates all four databases, seeds auth and catalog data, verifies expected records, and exits without publishing host ports.
