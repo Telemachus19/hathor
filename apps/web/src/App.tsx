@@ -22,19 +22,19 @@ export function App() {
               <strong>API Gateway:</strong> Edge Router (Port 5000)
             </li>
             <li>
-              <strong>Auth Service:</strong> User Authentication & Access Tokens (Port 5001 - <code>auth_db</code>)
+              <strong>Auth Service:</strong> User Authentication & Access Tokens (private - <code>auth</code>)
             </li>
             <li>
-              <strong>Catalog Service:</strong> Storefront Catalog Registry & Themes (Port 5002 - <code>catalog_db</code>)
+              <strong>Catalog Service:</strong> Storefront Catalog Registry & Themes (private - <code>catalog</code>)
             </li>
             <li>
-              <strong>Commerce Service:</strong> 3-Stage Payment & Cart Engine (Port 5003 - <code>commerce_db</code>)
+              <strong>Commerce Service:</strong> Payment & Cart Engine (private - <code>commerce</code>)
             </li>
             <li>
-              <strong>Library Service:</strong> Gamer Library & License Management (Port 5004 - <code>library_db</code>)
+              <strong>Library Service:</strong> Gamer Library & License Management (private - <code>library</code>)
             </li>
             <li>
-              <strong>Infrastructure:</strong> PostgreSQL (5432), Memcached (11211), Redis (6379), RabbitMQ (5672)
+              <strong>Infrastructure:</strong> Four isolated PostgreSQL instances, Memcached, Redis, and RabbitMQ on a private network
             </li>
           </ul>
         </section>
