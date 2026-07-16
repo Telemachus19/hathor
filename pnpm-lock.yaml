@@ -17,9 +17,6 @@ importers:
 
   apps/api-gateway:
     dependencies:
-      '@hathor/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       cors:
         specifier: ^2.8.5
         version: 2.8.6
@@ -60,21 +57,21 @@ importers:
 
   apps/auth-service:
     dependencies:
-      '@hathor/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@hathor/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       cors:
         specifier: ^2.8.5
         version: 2.8.6
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
+      drizzle-orm:
+        specifier: ^0.30.0
+        version: 0.30.10(@types/pg@8.20.0)(@types/react@18.3.31)(pg@8.22.0)(react@18.3.1)
       express:
         specifier: ^4.19.2
         version: 4.22.2
+      pg:
+        specifier: ^8.12.0
+        version: 8.22.0
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -85,6 +82,12 @@ importers:
       '@types/node':
         specifier: ^20.14.9
         version: 20.19.43
+      '@types/pg':
+        specifier: ^8.11.6
+        version: 8.20.0
+      drizzle-kit:
+        specifier: ^0.20.18
+        version: 0.20.18
       tsup:
         specifier: ^8.1.0
         version: 8.5.1(postcss@8.5.19)(tsx@4.23.1)(typescript@5.9.3)
@@ -97,21 +100,21 @@ importers:
 
   apps/catalog-service:
     dependencies:
-      '@hathor/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@hathor/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       cors:
         specifier: ^2.8.5
         version: 2.8.6
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
+      drizzle-orm:
+        specifier: ^0.30.0
+        version: 0.30.10(@types/pg@8.20.0)(@types/react@18.3.31)(pg@8.22.0)(react@18.3.1)
       express:
         specifier: ^4.19.2
         version: 4.22.2
+      pg:
+        specifier: ^8.12.0
+        version: 8.22.0
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -122,6 +125,12 @@ importers:
       '@types/node':
         specifier: ^20.14.9
         version: 20.19.43
+      '@types/pg':
+        specifier: ^8.11.6
+        version: 8.20.0
+      drizzle-kit:
+        specifier: ^0.20.18
+        version: 0.20.18
       tsup:
         specifier: ^8.1.0
         version: 8.5.1(postcss@8.5.19)(tsx@4.23.1)(typescript@5.9.3)
@@ -134,21 +143,21 @@ importers:
 
   apps/commerce-service:
     dependencies:
-      '@hathor/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@hathor/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       cors:
         specifier: ^2.8.5
         version: 2.8.6
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
+      drizzle-orm:
+        specifier: ^0.30.0
+        version: 0.30.10(@types/pg@8.20.0)(@types/react@18.3.31)(pg@8.22.0)(react@18.3.1)
       express:
         specifier: ^4.19.2
         version: 4.22.2
+      pg:
+        specifier: ^8.12.0
+        version: 8.22.0
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -159,6 +168,12 @@ importers:
       '@types/node':
         specifier: ^20.14.9
         version: 20.19.43
+      '@types/pg':
+        specifier: ^8.11.6
+        version: 8.20.0
+      drizzle-kit:
+        specifier: ^0.20.18
+        version: 0.20.18
       tsup:
         specifier: ^8.1.0
         version: 8.5.1(postcss@8.5.19)(tsx@4.23.1)(typescript@5.9.3)
@@ -171,21 +186,21 @@ importers:
 
   apps/library-service:
     dependencies:
-      '@hathor/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@hathor/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       cors:
         specifier: ^2.8.5
         version: 2.8.6
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
+      drizzle-orm:
+        specifier: ^0.30.0
+        version: 0.30.10(@types/pg@8.20.0)(@types/react@18.3.31)(pg@8.22.0)(react@18.3.1)
       express:
         specifier: ^4.19.2
         version: 4.22.2
+      pg:
+        specifier: ^8.12.0
+        version: 8.22.0
     devDependencies:
       '@types/cors':
         specifier: ^2.8.17
@@ -196,6 +211,12 @@ importers:
       '@types/node':
         specifier: ^20.14.9
         version: 20.19.43
+      '@types/pg':
+        specifier: ^8.11.6
+        version: 8.20.0
+      drizzle-kit:
+        specifier: ^0.20.18
+        version: 0.20.18
       tsup:
         specifier: ^8.1.0
         version: 8.5.1(postcss@8.5.19)(tsx@4.23.1)(typescript@5.9.3)
@@ -208,9 +229,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@hathor/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       '@tanstack/react-router':
         specifier: ^1.38.0
         version: 1.170.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -237,39 +255,7 @@ importers:
         specifier: ^5.3.1
         version: 5.4.21(@types/node@20.19.43)
 
-  packages/db:
-    dependencies:
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.6.1
-      drizzle-orm:
-        specifier: ^0.30.0
-        version: 0.30.10(@types/pg@8.20.0)(@types/react@18.3.31)(pg@8.22.0)(react@18.3.1)
-      pg:
-        specifier: ^8.12.0
-        version: 8.22.0
-    devDependencies:
-      '@types/pg':
-        specifier: ^8.11.6
-        version: 8.20.0
-      drizzle-kit:
-        specifier: ^0.20.18
-        version: 0.20.18
-      tsup:
-        specifier: ^8.1.0
-        version: 8.5.1(postcss@8.5.19)(tsx@4.23.1)(typescript@5.9.3)
-      tsx:
-        specifier: ^4.16.2
-        version: 4.23.1
-      typescript:
-        specifier: ^5.5.0
-        version: 5.9.3
-
-  packages/types:
-    dependencies:
-      zod:
-        specifier: ^3.23.8
-        version: 3.25.76
+  packages/contracts:
     devDependencies:
       tsup:
         specifier: ^8.1.0
