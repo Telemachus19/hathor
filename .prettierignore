@@ -1,0 +1,6 @@
+Planning_documentation/
+node_modules/
+dist/
+.turbo/
+**/drizzle/meta/
+pnpm-lock.yaml

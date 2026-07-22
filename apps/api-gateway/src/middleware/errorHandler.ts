@@ -18,12 +18,7 @@ export class AppError extends Error {
   }
 }
 
-export function errorHandler(
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function errorHandler(err: any, req: Request, res: Response, next: NextFunction): void {
   const status = err.status || err.statusCode || 500;
   const code = err.code || (status === 503 ? 'PROXY_ERROR' : 'INTERNAL_SERVER_ERROR');
   const message = err.message || 'An unexpected server error occurred';
