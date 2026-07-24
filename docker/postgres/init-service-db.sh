@@ -9,7 +9,7 @@ psql \
   --set=runtime_user="$POSTGRES_RUNTIME_USER" \
   --set=runtime_password="$POSTGRES_RUNTIME_PASSWORD" <<-'SQL'
 CREATE ROLE :"runtime_user"
-  WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION
+  WITH LOGIN NOSUPERUSER NOCREATEROLE NOREPLICATION
   PASSWORD :'runtime_password';
 ALTER DATABASE :"database_name" OWNER TO :"runtime_user";
 GRANT ALL ON SCHEMA public TO :"runtime_user";
