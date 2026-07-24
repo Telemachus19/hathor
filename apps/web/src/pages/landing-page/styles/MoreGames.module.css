@@ -1,0 +1,145 @@
+.section {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+  box-sizing: border-box;
+}
+
+.header {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-gold-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.subtitleLine {
+  display: inline-block;
+  height: 1px;
+  width: 24px;
+  background-color: var(--border-color);
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.04em;
+  color: var(--text-cream);
+}
+
+.titleAccent {
+  color: var(--accent-orange);
+}
+
+/* Category Filters */
+.categoryFilters {
+  position: absolute;
+  right: 0;
+  bottom: 0.5rem;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.categoryBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-gold-muted);
+  padding: 0.4rem 0.875rem;
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.categoryBtn:hover {
+  border-color: var(--accent-orange);
+  color: var(--text-cream);
+}
+
+/* Active filter button: Solid Orange background with DARK/BLACK text */
+.categoryBtnActive {
+  background-color: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: #0e1116;
+  font-weight: 800;
+}
+
+/* Separator Line with Eye of Horus Icon */
+.separatorWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.25rem 0 2rem;
+}
+
+.separatorLine {
+  flex: 1;
+  height: 1px;
+  background-color: var(--accent-orange);
+  opacity: 0.6;
+}
+
+.separatorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.75rem;
+  color: var(--accent-orange);
+}
+
+/* 4-column Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+/* Browse All Button */
+.browseMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.browseMoreBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color-light);
+  color: var(--accent-orange);
+  background: transparent;
+  padding: 0.75rem 3.5rem;
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.browseMoreBtn:hover {
+  border-color: var(--accent-orange);
+  background-color: var(--accent-orange);
+  color: #0e1116;
+}

@@ -1,0 +1,139 @@
+.section {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 3rem 1.5rem 0;
+  box-sizing: border-box;
+}
+
+.header {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-gold-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.subtitleLine {
+  display: inline-block;
+  height: 1px;
+  width: 24px;
+  background-color: var(--border-color);
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.04em;
+  color: var(--text-cream);
+}
+
+.titleAccent {
+  color: var(--accent-orange);
+}
+
+/* Carousel Controls */
+.carouselControls {
+  position: absolute;
+  right: 0;
+  bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.counter {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.arrows {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.arrowBtn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.arrowBtn:hover {
+  border-color: var(--text-white);
+  color: var(--text-white);
+  background-color: var(--bg-card-hover);
+}
+
+/* Separator Line with Eye of Horus Icon */
+.separatorWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.25rem 0 2rem;
+}
+
+.separatorLine {
+  flex: 1;
+  height: 1px;
+  background-color: var(--accent-orange);
+  opacity: 0.6;
+}
+
+.separatorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.75rem;
+  color: var(--accent-orange);
+}
+
+/* Carousel Track & Mask for Smooth Horizontal Sliding */
+.carouselTrackWrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.carouselTrack {
+  display: flex;
+  gap: 1.5rem;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+.carouselItem {
+  flex: 0 0 calc((100% - 3rem) / 3);
+  min-width: 0;
+}
+
+/* Pagination Info */
+.paginationInfo {
+  text-align: right;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+}
