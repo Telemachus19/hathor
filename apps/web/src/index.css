@@ -1,14 +1,886 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ========================================
+   ROOT VARIABLES
+======================================== */
+
 :root {
-  --bg-color: #222831;
-  --card-color: #393e46;
-  --accent-color: #fd7014;
+  --bg-color: #0b0c10;
+  --card-color: #141720;
+
+  --accent-orange: #ff5500;
+  --accent-orange-hover: #ff7722;
+
+  --accent-gold: #f5b82e;
+  --accent-red: #b82e16;
+
   --text-color: #eeeeee;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --text-muted: #8e98a8;
+
+  --header-bg: rgba(12, 13, 18, 0.95);
+  --header-border: rgba(255, 255, 255, 0.08);
+
+  font-family:
+    Inter,
+    system-ui,
+    Avenir,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+/* ========================================
+   GLOBAL RESET
+======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
   padding: 0;
+
+  width: 100%;
+  min-width: 320px;
+
   background-color: var(--bg-color);
   color: var(--text-color);
+
+  font-family: 'Inter', sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   GLOBAL ELEMENTS
+======================================== */
+
+a,
+button {
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ========================================
+   HATHOR LOGO
+======================================== */
+
+.hathor-logo {
+  display: block;
+
+  width: auto;
+  height: 42px;
+
+  flex-shrink: 0;
+}
+
+/* Horns */
+
+.logo-horns path {
+  fill: #000000;
+}
+
+/* Yellow Frame */
+
+.logo-yellow-frame path {
+  fill: var(--accent-gold);
+}
+
+/* Red Cartouche */
+
+.logo-red-cartouche {
+  fill: var(--accent-red);
+}
+
+/* Ankh */
+
+.logo-ankh {
+  fill: #ffffff;
+}
+
+/* White Pill */
+
+.logo-white-pill {
+  fill: #ffffff;
+}
+
+/* Cobra */
+
+.cobra-green {
+  fill: #1e8c4e;
+}
+
+.cobra-blue {
+  fill: #1250b4;
+  stroke: #ffffff;
+  stroke-width: 7;
+}
+
+.cobra-blue-light {
+  fill: #1a60c8;
+  stroke: #ffffff;
+  stroke-width: 7;
+}
+
+.cobra-red {
+  fill: #9b321d;
+  stroke: #ffffff;
+  stroke-width: 7;
+}
+
+.cobra-eye {
+  fill: #ffffff;
+}
+
+.cobra-pupil {
+  fill: #000000;
+}
+
+/* ========================================
+   HEADER
+======================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  width: 100%;
+
+  background-color: var(--header-bg);
+
+  border-bottom:
+    1px solid var(--header-border);
+
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.header-container {
+  width: 100%;
+  height: 68px;
+
+  padding:
+    0 1.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ========================================
+   BRAND
+======================================== */
+
+.header-brand-section {
+  display: flex;
+  align-items: center;
+
+  gap: 2.5rem;
+
+  min-width: 0;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 0.85rem;
+
+  flex-shrink: 0;
+
+  text-decoration: none;
+}
+
+.brand-title {
+  font-family:
+    'Cinzel Decorative',
+    'Cinzel',
+    serif;
+
+  font-size: 1.55rem;
+  font-weight: 800;
+
+  color: var(--accent-orange);
+
+  letter-spacing: 0.18em;
+  line-height: 1;
+
+  user-select: none;
+
+  text-shadow:
+    0 0 12px rgba(255, 85, 0, 0.45);
+}
+
+/* ========================================
+   DESKTOP NAVIGATION
+======================================== */
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+
+  gap: 1.5rem;
+}
+
+.nav-link {
+  padding:
+    0.5rem 0.25rem;
+
+  font-family: 'Cinzel', serif;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+
+  color: #a0aab8;
+
+  text-decoration: none;
+
+  border-bottom:
+    2px solid transparent;
+}
+
+.nav-link:hover {
+  color: var(--accent-orange);
+}
+
+.nav-link.active {
+  color: var(--accent-orange);
+
+  border-bottom-color:
+    var(--accent-orange);
+
+  text-shadow:
+    0 0 8px rgba(255, 85, 0, 0.4);
+}
+
+/* ========================================
+   DESKTOP ACTIONS
+======================================== */
+
+.desktop-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 1.25rem;
+}
+
+/* ========================================
+   LANGUAGE SELECTOR
+======================================== */
+
+.language-selector {
+  position: relative;
+}
+
+.language-button {
+  display: flex;
+  align-items: center;
+
+  gap: 0.4rem;
+
+  padding:
+    0.4rem 0.6rem;
+
+  background: transparent;
+
+  border: none;
+  border-radius: 6px;
+
+  color: #b0b9c6;
+
+  cursor: pointer;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.language-button:hover,
+.language-button.active {
+  color: var(--accent-orange);
+}
+
+.globe-icon {
+  width: 20px;
+  height: 20px;
+
+  stroke: currentColor;
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ========================================
+   LANGUAGE DROPDOWN
+======================================== */
+
+.language-dropdown {
+  position: absolute;
+
+  top: calc(100% + 8px);
+  right: 0;
+
+  z-index: 1010;
+
+  min-width: 130px;
+
+  padding:
+    0.4rem 0;
+
+  background-color: #14161f;
+
+  border:
+    1px solid rgba(255, 85, 0, 0.3);
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.language-option {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding:
+    0.5rem 1rem;
+
+  background: transparent;
+
+  border: none;
+
+  color: #d0d7e2;
+
+  cursor: pointer;
+
+  font-family: 'Inter', sans-serif;
+
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  text-align: left;
+}
+
+.language-option:hover {
+  background-color:
+    rgba(255, 255, 255, 0.05);
+
+  color: #ffffff;
+}
+
+.language-option.selected {
+  background-color:
+    rgba(255, 85, 0, 0.15);
+
+  color: var(--accent-orange);
+
+  font-weight: 700;
+}
+
+.language-check {
+  color: var(--accent-orange);
+
+  font-size: 0.8rem;
+}
+
+/* ========================================
+   CART
+======================================== */
+
+.cart-link {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.4rem;
+
+  color: #b0b9c6;
+
+  text-decoration: none;
+
+  border-radius: 6px;
+}
+
+.cart-link:hover {
+  color: var(--accent-orange);
+}
+
+.cart-icon {
+  width: 21px;
+  height: 21px;
+
+  stroke: currentColor;
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cart-badge {
+  position: absolute;
+
+  top: -2px;
+  right: -4px;
+
+  min-width: 16px;
+  height: 16px;
+
+  padding:
+    0 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color:
+    var(--accent-orange);
+
+  color: #ffffff;
+
+  border-radius: 10px;
+
+  font-size: 0.7rem;
+  font-weight: 800;
+
+  box-shadow:
+    0 0 8px rgba(255, 85, 0, 0.8);
+}
+
+/* ========================================
+   SIGN IN
+======================================== */
+
+.sign-in-link {
+  padding:
+    0.45rem 1rem;
+
+  font-family: 'Cinzel', serif;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  color: #eeeeee;
+
+  text-decoration: none;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.2);
+
+  border-radius: 4px;
+
+  background-color:
+    rgba(255, 255, 255, 0.03);
+}
+
+.sign-in-link:hover,
+.sign-in-link.active {
+  color: var(--accent-orange);
+
+  border-color:
+    var(--accent-orange);
+
+  background-color:
+    rgba(255, 85, 0, 0.15);
+
+  box-shadow:
+    0 0 12px rgba(255, 85, 0, 0.3);
+}
+
+.sign-in-link.active {
+  text-shadow:
+    0 0 8px rgba(255, 85, 0, 0.5);
+}
+
+/* ========================================
+   MOBILE MENU BUTTON
+======================================== */
+
+.mobile-menu-button {
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.4rem;
+
+  background: transparent;
+
+  border: none;
+
+  color: #eeeeee;
+
+  cursor: pointer;
+}
+
+.mobile-menu-button:hover {
+  color: var(--accent-orange);
+}
+
+.menu-icon {
+  width: 24px;
+  height: 24px;
+
+  stroke: currentColor;
+  stroke-width: 2;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ========================================
+   MOBILE MENU
+======================================== */
+
+.mobile-menu {
+  display: none;
+
+  background-color:
+    #0c0d12;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* ========================================
+   MOBILE NAVIGATION
+======================================== */
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+
+  padding:
+    0.75rem 1rem;
+}
+
+.mobile-nav-link {
+  padding:
+    0.9rem 0.75rem;
+
+  color: #a0aab8;
+
+  font-family: 'Cinzel', serif;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+
+  text-decoration: none;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
+  color: var(--accent-orange);
+}
+
+.mobile-nav-link.active {
+  text-shadow:
+    0 0 8px rgba(255, 85, 0, 0.4);
+}
+
+/* ========================================
+   MOBILE ACTIONS
+======================================== */
+
+.mobile-actions {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.5rem;
+
+  padding:
+    0.75rem 1rem 1rem;
+}
+
+.mobile-action-button {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding:
+    0.85rem 0.75rem;
+
+  background: transparent;
+
+  border: none;
+  border-radius: 6px;
+
+  color: #b0b9c6;
+
+  cursor: pointer;
+
+  font-family: 'Inter', sans-serif;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.mobile-action-button:hover,
+.mobile-action-button.active {
+  color: var(--accent-orange);
+
+  background-color:
+    rgba(255, 85, 0, 0.08);
+}
+
+.mobile-action-content {
+  display: flex;
+  align-items: center;
+
+  gap: 0.6rem;
+}
+
+.mobile-action-icon {
+  width: 19px;
+  height: 19px;
+
+  stroke: currentColor;
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mobile-language-wrapper {
+  position: relative;
+}
+
+.mobile-language-dropdown {
+  margin-top: 0.25rem;
+
+  padding:
+    0.4rem 0;
+
+  background-color:
+    #14161f;
+
+  border:
+    1px solid rgba(255, 85, 0, 0.2);
+
+  border-radius: 6px;
+}
+
+.mobile-cart-count {
+  min-width: 22px;
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color:
+    var(--accent-orange);
+
+  color: #ffffff;
+
+  border-radius: 50%;
+
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.mobile-sign-in {
+  width: 100%;
+
+  padding:
+    0.75rem 1rem;
+
+  color: #eeeeee;
+
+  font-family: 'Cinzel', serif;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-align: center;
+
+  text-decoration: none;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.2);
+
+  border-radius: 4px;
+
+  background-color:
+    rgba(255, 255, 255, 0.03);
+}
+
+.mobile-sign-in:hover,
+.mobile-sign-in.active {
+  color: var(--accent-orange);
+
+  border-color:
+    var(--accent-orange);
+
+  background-color:
+    rgba(255, 85, 0, 0.15);
+}
+
+/* ========================================
+   TABLET
+======================================== */
+
+@media (max-width: 900px) {
+  .header-container {
+    padding:
+      0 1rem;
+  }
+
+  .header-brand-section {
+    gap: 1.5rem;
+  }
+
+  .desktop-nav {
+    gap: 1rem;
+  }
+
+  .desktop-actions {
+    gap: 0.75rem;
+  }
+
+  .brand-title {
+    font-size: 1.35rem;
+  }
+}
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 768px) {
+  .header-container {
+    height: 64px;
+
+    padding:
+      0 1rem;
+  }
+
+  .desktop-nav,
+  .desktop-actions {
+    display: none;
+  }
+
+  .header-brand-section {
+    gap: 0;
+  }
+
+  .hathor-logo {
+    height: 38px;
+  }
+
+  .brand-title {
+    font-size: 1.25rem;
+
+    letter-spacing:
+      0.14em;
+  }
+
+  .mobile-menu-button {
+    display: flex;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+}
+
+/* ========================================
+   SMALL MOBILE
+======================================== */
+
+@media (max-width: 480px) {
+  .header-container {
+    height: 60px;
+
+    padding:
+      0 0.75rem;
+  }
+
+  .hathor-logo {
+    height: 34px;
+  }
+
+  .header-brand {
+    gap: 0.55rem;
+  }
+
+  .brand-title {
+    font-size: 1rem;
+
+    letter-spacing:
+      0.1em;
+  }
+
+  .mobile-nav {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .mobile-actions {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* ========================================
+   TYPOGRAPHY UTILITIES
+======================================== */
+
+.font-hathor-brand {
+  font-family:
+    'Cinzel Decorative',
+    'Cinzel',
+    serif;
+
+  letter-spacing:
+    0.16em;
+}
+
+.font-cinzel {
+  font-family:
+    'Cinzel',
+    serif;
+
+  letter-spacing:
+    0.08em;
 }
