@@ -18,18 +18,36 @@ export class AppError extends Error {
   }
 }
 
-export function errorHandler(err: any, req: Request, res: Response, next: NextFunction): void {
+/**
+ * Final error handler. Normalizes all errors into the standard error model
+ * defined in the OpenAPI contract: { error: { code, message, correlationId } }.
+ */
+export function errorHandler(err: any, req: Request, res: Response, _next: NextFunction): void {
   const status = err.status || err.statusCode || 500;
-  const code = err.code || (status === 503 ? 'PROXY_ERROR' : 'INTERNAL_SERVER_ERROR');
-  const message = err.message || 'An unexpected server error occurred';
+  const code = err.code || (status === 503 ? 'DEPENDENCY_UNAVAILABLE' : 'INTERNAL_SERVER_ERROR');
+  const message = err.expose !== false && err.message
+    ? err.message
+    : 'An unexpected server error occurred';
 
   res.status(status).json({
-    success: false,
     error: {
       code,
       message,
-      status,
-      timestamp: new Date().toISOString(),
+      correlationId: req.correlationId,
+    },
+  });
+}
+
+/**
+ * Catch-all handler for routes that don't match any proxy namespace.
+ * Must be registered after all proxy routes but before the error handler.
+ */
+export function notFoundHandler(req: Request, res: Response): void {
+  res.status(404).json({
+    error: {
+      code: 'NOT_FOUND',
+      message: `Route ${req.method} ${req.originalUrl} not found`,
+      correlationId: req.correlationId,
     },
   });
 }
