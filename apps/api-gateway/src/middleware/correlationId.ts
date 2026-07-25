@@ -10,8 +10,7 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
  */
 export function correlationId(req: Request, res: Response, next: NextFunction): void {
   const incoming = req.headers[CORRELATION_ID_HEADER];
-  const id =
-    typeof incoming === 'string' && UUID_REGEX.test(incoming) ? incoming : randomUUID();
+  const id = typeof incoming === 'string' && UUID_REGEX.test(incoming) ? incoming : randomUUID();
 
   req.correlationId = id;
   res.setHeader(CORRELATION_ID_HEADER, id);

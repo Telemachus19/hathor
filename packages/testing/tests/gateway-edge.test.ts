@@ -20,7 +20,7 @@ function expectStandardError(body: any, expectedCode: string) {
   expect(body.error).toHaveProperty('correlationId');
   expect(body.error.correlationId).toMatch(UUID_REGEX);
   // The contract error model has exactly { code, message, correlationId }.
-  // Verify the old non-contract fields are absent. Was a tiny missauge 
+  // Verify the old non-contract fields are absent. Was a tiny missauge
   expect(body).not.toHaveProperty('success');
   expect(body.error).not.toHaveProperty('status');
   expect(body.error).not.toHaveProperty('timestamp');
@@ -47,9 +47,7 @@ describe('correlation ID', () => {
   });
 
   it('replaces an invalid correlation ID with a generated one', async () => {
-    const res = await request(app)
-      .get('/health/live')
-      .set(CORRELATION_ID_HEADER, 'not-a-uuid');
+    const res = await request(app).get('/health/live').set(CORRELATION_ID_HEADER, 'not-a-uuid');
     expect(res.status).toBe(200);
     const id = res.headers[CORRELATION_ID_HEADER];
     expect(id).toMatch(UUID_REGEX);
@@ -57,9 +55,7 @@ describe('correlation ID', () => {
   });
 
   it('replaces an empty-string correlation ID with a generated one', async () => {
-    const res = await request(app)
-      .get('/health/live')
-      .set(CORRELATION_ID_HEADER, '');
+    const res = await request(app).get('/health/live').set(CORRELATION_ID_HEADER, '');
     const id = res.headers[CORRELATION_ID_HEADER];
     expect(id).toMatch(UUID_REGEX);
     expect(id).not.toBe('');
@@ -67,9 +63,7 @@ describe('correlation ID', () => {
 
   it('replaces an oversized value with a generated UUID', async () => {
     const oversized = '12345678-1234-1234-1234-123456789012-extra-noise';
-    const res = await request(app)
-      .get('/health/live')
-      .set(CORRELATION_ID_HEADER, oversized);
+    const res = await request(app).get('/health/live').set(CORRELATION_ID_HEADER, oversized);
     const id = res.headers[CORRELATION_ID_HEADER];
     expect(id).toMatch(UUID_REGEX);
     expect(id).not.toBe(oversized);
@@ -122,9 +116,7 @@ describe('internal path isolation', () => {
 
   it('includes the propagated correlation ID in the rejection', async () => {
     const { correlationId, headers } = withCorrelationId();
-    const res = await request(app)
-      .get('/api/v1/internal/catalog/quotes')
-      .set(headers);
+    const res = await request(app).get('/api/v1/internal/catalog/quotes').set(headers);
     expect(res.status).toBe(403);
     expect(res.body.error.correlationId).toBe(correlationId);
   });
@@ -201,9 +193,7 @@ describe('CORS policy', () => {
   });
 
   it('exposes X-Correlation-ID in CORS headers', async () => {
-    const res = await request(app)
-      .get('/health/live')
-      .set('Origin', 'http://localhost:3000');
+    const res = await request(app).get('/health/live').set('Origin', 'http://localhost:3000');
     const exposed = res.headers['access-control-expose-headers'];
     expect(exposed).toBeDefined();
     expect(exposed.toLowerCase()).toContain('x-correlation-id');
@@ -248,11 +238,11 @@ describe('route namespace mapping', () => {
       // - Hang and timeout — we're ok with any non-403, non-404 response
       const req = request(app);
       const agent =
-        method === 'GET' ? req.get(path)
-          : method === 'POST' ? req.post(path)
-            : req.patch(path);
+        method === 'GET' ? req.get(path) : method === 'POST' ? req.post(path) : req.patch(path);
 
-      const res = await agent.timeout({ response: 2000 }).catch((err: any) => err.response || { status: 503 });
+      const res = await agent
+        .timeout({ response: 2000 })
+        .catch((err: any) => err.response || { status: 503 });
 
       // Must NOT be 403 (internal path block) or 404 (no route match)
       expect(res.status).not.toBe(403);

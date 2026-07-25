@@ -25,9 +25,8 @@ export class AppError extends Error {
 export function errorHandler(err: any, req: Request, res: Response, _next: NextFunction): void {
   const status = err.status || err.statusCode || 500;
   const code = err.code || (status === 503 ? 'DEPENDENCY_UNAVAILABLE' : 'INTERNAL_SERVER_ERROR');
-  const message = err.expose !== false && err.message
-    ? err.message
-    : 'An unexpected server error occurred';
+  const message =
+    err.expose !== false && err.message ? err.message : 'An unexpected server error occurred';
 
   res.status(status).json({
     error: {

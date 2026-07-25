@@ -33,10 +33,10 @@ export function createGatewayApp(): Express {
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", 'data:'],
           fontSrc: ["'self'"],
-          objectSrc: ["'none'"],       // Block <object>, <embed>, <applet>
-          baseUri: ["'self'"],          // Prevent <base> tag injection
+          objectSrc: ["'none'"], // Block <object>, <embed>, <applet>
+          baseUri: ["'self'"], // Prevent <base> tag injection
           formAction: ["'self'"],
-          frameAncestors: ["'none'"],   // CSP-level frame blocking
+          frameAncestors: ["'none'"], // CSP-level frame blocking
         },
       },
     })
