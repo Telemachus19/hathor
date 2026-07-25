@@ -1,32 +1,42 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useToast } from '../context/ToastContext.tsx';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
 });
 
 function LoginPage() {
+  const { login, user, accessToken, isAuthenticated } =
+    useAuth();
+
   const { showToast } = useToast();
+
+  async function handleLogin() {
+    await login('test@example.com', 'password');
+
+    showToast('success', 'Login successful!');
+  }
 
   return (
     <main>
       <h1>Login</h1>
 
-      <p>Login page coming soon.</p>
-
-      <button
-        type="button"
-        onClick={() => showToast('success', 'Toast system is working!')}
-      >
-        Test Success Toast
+      <button type="button" onClick={handleLogin}>
+        Test Login
       </button>
 
-      <button
-        type="button"
-        onClick={() => showToast('error', 'This is an error toast')}
-      >
-        Test Error Toast
-      </button>
+      <p>
+        Authenticated: {isAuthenticated ? 'Yes' : 'No'}
+      </p>
+
+      <p>
+        User: {user?.username ?? 'None'}
+      </p>
+
+      <p>
+        Token: {accessToken ?? 'None'}
+      </p>
     </main>
   );
 }

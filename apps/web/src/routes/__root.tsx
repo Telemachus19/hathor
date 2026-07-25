@@ -8,7 +8,7 @@ export const Route = createRootRoute({
   component: RootComponent,
   pendingComponent: LoadingScreen,
   errorComponent: ErrorScreen,
-  pendingMs: 200,
+  // pendingMs: 200,
   pendingMinMs: 300,
 });
 
