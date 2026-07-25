@@ -1,9 +1,18 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
+import { requireAuth } from '../utils/authGuard';
 
 export const Route = createFileRoute('/library')({
-  component: RouteComponent,
-})
+  beforeLoad: ({ context, location }) => {
+    requireAuth(context.auth, location.href);
+  },
+  component: LibraryPage,
+});
 
-function RouteComponent() {
-  return <div>Hello "/library"!</div>
+function LibraryPage() {
+  return (
+    <main style={{ padding: '2rem', textAlign: 'center' }}>
+      <h1>Your Library</h1>
+      <p>Welcome to your Library.</p>
+    </main>
+  );
 }

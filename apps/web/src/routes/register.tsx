@@ -1,9 +1,18 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
+import { AuthCard } from '../components/AuthCard';
+import { requireGuest } from '../utils/authGuard';
 
 export const Route = createFileRoute('/register')({
-  component: RouteComponent,
-})
+  beforeLoad: ({ context }) => {
+    requireGuest(context.auth);
+  },
+  component: RegisterPage,
+});
 
-function RouteComponent() {
-  return <div>Hello "/register"!</div>
+function RegisterPage() {
+  return (
+    <main>
+      <AuthCard mode="register" />
+    </main>
+  );
 }

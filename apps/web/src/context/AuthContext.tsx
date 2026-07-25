@@ -1,163 +1,239 @@
 import {
-    createContext,
-    useCallback,
-    useContext,
-    useMemo,
-    useState,
-    type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
 } from 'react';
 
+import type { AuthService } from '../services/auth/AuthService';
+
 type AuthStatus =
-    | 'idle'
-    | 'loading'
-    | 'authenticated'
-    | 'unauthenticated';
+  | 'idle'
+  | 'loading'
+  | 'authenticated'
+  | 'unauthenticated';
 
 export type AuthUser = {
-    id: string;
-    username: string;
-    email: string;
-    role: string;
+  id: string;
+  email: string;
+  displayName: string;
+  roles: ('gamer' | 'creator' | 'admin')[];
 };
 
-type AuthContextValue = {
-    accessToken: string | null;
-    user: AuthUser | null;
-    status: AuthStatus;
-    isAuthenticated: boolean;
+export type AuthContextValue = {
+  accessToken: string | null;
+  user: AuthUser | null;
+  status: AuthStatus;
+  isAuthenticated: boolean;
 
-    login: (identifier: string, password: string) => Promise<void>;
-    register: (
-        username: string,
-        email: string,
-        password: string,
-    ) => Promise<void>;
-    refresh: () => Promise<void>;
-    logout: () => Promise<void>;
+  login: (
+    identifier: string,
+    password: string,
+  ) => Promise<void>;
+
+  register: (
+    displayName: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
+
+  refresh: () => Promise<void>;
+
+  logout: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextValue | undefined>(
+const AuthContext =
+  createContext<AuthContextValue | undefined>(
     undefined,
-);
+  );
 
 type AuthProviderProps = {
-    children: ReactNode;
+  children: ReactNode;
+  authService: AuthService;
 };
 
 export function AuthContextProvider({
-    children,
+  children,
+  authService,
 }: AuthProviderProps) {
-    const [accessToken, setAccessToken] = useState<string | null>(
-        null,
-    );
+  const [accessToken, setAccessToken] =
+    useState<string | null>(null);
 
-    const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] =
+    useState<AuthUser | null>(null);
 
-    const [status, setStatus] =
-        useState<AuthStatus>('unauthenticated');
+  const [status, setStatus] =
+    useState<AuthStatus>('idle');
 
-    const isAuthenticated =
-        accessToken !== null && user !== null;
+  const isAuthenticated =
+    accessToken !== null && user !== null;
 
-    const login = useCallback(
-        async (identifier: string, password: string) => {
-            // Temporary implementation.
-            // Will be replaced by AuthService in the next steps.
-            console.log('Login:', identifier, password);
+  // Boot refresh check
+  useEffect(() => {
+    let isMounted = true;
+    setStatus('loading');
 
-            setStatus('loading');
+    authService
+      .refresh()
+      .then((result) => {
+        if (isMounted) {
+          setAccessToken(result.accessToken);
+          setUser(result.user);
+          setStatus('authenticated');
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setAccessToken(null);
+          setUser(null);
+          setStatus('unauthenticated');
+        }
+      });
 
-            await Promise.resolve();
+    return () => {
+      isMounted = false;
+    };
+  }, [authService]);
 
-            setAccessToken('mock-access-token');
+  const login = useCallback(
+    async (
+      identifier: string,
+      password: string,
+    ) => {
+      setStatus('loading');
 
-            setUser({
-                id: 'mock-user-id',
-                username: identifier,
-                email: identifier,
-                role: 'gamer',
-            });
+      try {
+        const result =
+          await authService.login(
+            identifier,
+            password,
+          );
 
-            setStatus('authenticated');
-        },
-        [],
-    );
+        setAccessToken(
+          result.accessToken,
+        );
 
-    const register = useCallback(
-        async (
-            username: string,
-            email: string,
-            password: string,
-        ) => {
-            // Temporary implementation.
-            // Will be replaced by AuthService in the next steps.
-            console.log('Register:', username, email, password);
+        setUser(result.user);
 
-            setStatus('loading');
-
-            await Promise.resolve();
-
-            setStatus('unauthenticated');
-        },
-        [],
-    );
-
-    const refresh = useCallback(async () => {
-        // Temporary implementation.
-        // Real refresh will use the HttpOnly refresh cookie.
-        setStatus('loading');
-
-        await Promise.resolve();
-
-        setStatus('unauthenticated');
-    }, []);
-
-    const logout = useCallback(async () => {
-        // Temporary implementation.
-        // Real logout will call the backend.
+        setStatus('authenticated');
+      } catch (error) {
         setAccessToken(null);
         setUser(null);
         setStatus('unauthenticated');
-    }, []);
 
-    const value = useMemo<AuthContextValue>(
-        () => ({
-            accessToken,
-            user,
-            status,
-            isAuthenticated,
-            login,
-            register,
-            refresh,
-            logout,
-        }),
-        [
-            accessToken,
-            user,
-            status,
-            isAuthenticated,
-            login,
-            register,
-            refresh,
-            logout,
-        ],
+        throw error;
+      }
+    },
+    [authService],
+  );
+
+  const register = useCallback(
+    async (
+      displayName: string,
+      email: string,
+      password: string,
+    ) => {
+      setStatus('loading');
+
+      try {
+        await authService.register({
+          displayName,
+          email,
+          password,
+        });
+
+        setStatus('unauthenticated');
+      } catch (error) {
+        setStatus('unauthenticated');
+
+        throw error;
+      }
+    },
+    [authService],
+  );
+
+  const refresh = useCallback(
+    async () => {
+      setStatus('loading');
+
+      try {
+        const result =
+          await authService.refresh();
+
+        setAccessToken(
+          result.accessToken,
+        );
+
+        setUser(result.user);
+
+        setStatus('authenticated');
+      } catch (error) {
+        setAccessToken(null);
+        setUser(null);
+        setStatus('unauthenticated');
+
+        throw error;
+      }
+    },
+    [authService],
+  );
+
+  const logout = useCallback(
+    async () => {
+      try {
+        await authService.logout();
+      } finally {
+        setAccessToken(null);
+        setUser(null);
+        setStatus('unauthenticated');
+      }
+    },
+    [authService],
+  );
+
+  const value =
+    useMemo<AuthContextValue>(
+      () => ({
+        accessToken,
+        user,
+        status,
+        isAuthenticated,
+        login,
+        register,
+        refresh,
+        logout,
+      }),
+      [
+        accessToken,
+        user,
+        status,
+        isAuthenticated,
+        login,
+        register,
+        refresh,
+        logout,
+      ],
     );
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-    const context = useContext(AuthContext);
+  const context =
+    useContext(AuthContext);
 
-    if (!context) {
-        throw new Error(
-            'useAuth must be used inside AuthContextProvider',
-        );
-    }
+  if (!context) {
+    throw new Error(
+      'useAuth must be used inside AuthContextProvider',
+    );
+  }
 
-    return context;
+  return context;
 }

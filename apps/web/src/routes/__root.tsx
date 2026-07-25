@@ -1,10 +1,16 @@
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   Outlet,
 } from '@tanstack/react-router';
-import { Header } from '../components/Header';
+import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
+import type { AuthContextValue } from '../context/AuthContext';
 
-export const Route = createRootRoute({
+export interface RouterContext {
+  auth: AuthContextValue;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
   pendingComponent: LoadingScreen,
   errorComponent: ErrorScreen,
@@ -15,11 +21,13 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <>
-      <Header />
+      <Navbar />
 
-      <main>
+      <main style={{ minHeight: '80vh' }}>
         <Outlet />
       </main>
+
+      <Footer />
     </>
   );
 }
