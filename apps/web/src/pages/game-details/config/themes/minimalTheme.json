@@ -1,0 +1,50 @@
+{
+  "fullHero": {
+    "tag": "div",
+    "style": { "position": "relative", "width": "100%", "height": "380px", "borderRadius": "8px", "overflow": "hidden", "marginBottom": "1.5rem" },
+    "children": [
+      { "tag": "img", "src": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop", "style": { "width": "100%", "height": "100%", "objectFit": "cover" } },
+      {
+        "tag": "div",
+        "style": { "position": "absolute", "inset": 0, "background": "linear-gradient(to top, #0f172a 0%, transparent 80%)", "display": "flex", "flexDirection": "column", "justify-content": "flex-end", "padding": "2rem" },
+        "children": [
+          { "tag": "h1", "style": { "color": "#f8fafc", "fontFamily": "Cinzel, sans-serif", "fontSize": "2.5rem", "margin": "0 0 0.5rem 0" }, "children": "ELDEN THRONE" },
+          { "tag": "p", "style": { "color": "#38bdf8", "fontSize": "0.9375rem", "margin": 0 }, "children": "SLATE EDITION • MINIMALIST ACTION RPG" }
+        ]
+      }
+    ]
+  },
+  "stickyActionBar": {
+    "tag": "div",
+    "style": { "padding": "1rem 1.5rem", "background": "#1e293b", "borderRadius": "6px", "display": "flex", "alignItems": "center", "justify-content": "space-between", "marginBottom": "2.5rem", "border": "1px solid rgba(255,255,255,0.08)" },
+    "children": [
+      { "tag": "div", "style": { "color": "#f8fafc", "fontWeight": "700" }, "children": "Base Game • Available on PC & Mac" },
+      {
+        "tag": "div",
+        "style": { "display": "flex", "gap": "1rem" },
+        "children": [
+          {
+            "tag": "button",
+            "style": { "padding": "0.6rem 1.25rem", "background": "transparent", "border": "1px solid #38bdf8", "color": "#38bdf8", "borderRadius": "4px", "fontWeight": "700", "cursor": "pointer" },
+            "hoverStyle": { "background": "rgba(56,189,248,0.1)" },
+            "children": "ADD TO WISHLIST"
+          },
+          {
+            "tag": "button",
+            "style": { "padding": "0.6rem 1.5rem", "background": "#38bdf8", "border": "none", "color": "#0f172a", "borderRadius": "4px", "fontWeight": "800", "cursor": "pointer" },
+            "hoverStyle": { "background": "#7dd3fc" },
+            "children": "PURCHASE 349 EGP"
+          }
+        ]
+      }
+    ]
+  },
+  "singleColumnNarrative": {
+    "tag": "div",
+    "style": { "maxWidth": "800px", "margin": "0 auto 3rem auto", "color": "#94a3b8", "lineHeight": 1.7 },
+    "children": [
+      { "tag": "h3", "style": { "color": "#f8fafc", "fontFamily": "Cinzel, sans-serif", "fontSize": "1.25rem" }, "children": "THE CITADEL OF ASH" },
+      { "tag": "p", "children": "Explore a seamless open world designed around patient combat, environmental storytelling, and deep build customization." }
+    ]
+  }
+}

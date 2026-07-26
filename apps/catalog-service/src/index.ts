@@ -10,6 +10,7 @@ const app = createCatalogApp(async () => {
 });
 
 
+
 app.listen(PORT, () => {
   console.log(`Hathor Catalog Service running on port ${PORT}`);
 });

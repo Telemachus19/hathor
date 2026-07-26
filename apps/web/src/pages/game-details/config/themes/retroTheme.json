@@ -1,0 +1,391 @@
+{
+  "arcadeHeader": {
+    "tag": "div",
+    "style": {
+      "padding": "2.5rem 2rem",
+      "background": "linear-gradient(135deg, #0d0714 0%, #1a0b2e 100%)",
+      "borderRadius": "8px",
+      "border": "2px solid #ff5500",
+      "boxShadow": "0 0 25px rgba(255, 85, 0, 0.25)",
+      "marginBottom": "2rem"
+    },
+    "children": [
+      {
+        "tag": "div",
+        "style": { "display": "flex", "alignItems": "center", "justify-content": "space-between", "flexWrap": "wrap", "gap": "1rem" },
+        "children": [
+          {
+            "tag": "div",
+            "children": [
+              {
+                "tag": "h1",
+                "style": {
+                  "color": "#ff5500",
+                  "fontFamily": "Cinzel, sans-serif",
+                  "fontSize": "2.75rem",
+                  "fontWeight": "900",
+                  "margin": "0 0 0.5rem 0",
+                  "letterSpacing": "0.08em"
+                },
+                "children": "SYNTH THRONE 1984"
+              },
+              {
+                "tag": "p",
+                "style": {
+                  "color": "#bd00ff",
+                  "fontWeight": "800",
+                  "letterSpacing": "0.15em",
+                  "margin": 0,
+                  "fontSize": "0.9375rem"
+                },
+                "children": "ANALOG SYNTHWAVE ACTION RPG • ARCADE OVERDRIVE EDITION"
+              }
+            ]
+          },
+          {
+            "tag": "div",
+            "style": { "display": "flex", "gap": "0.6rem" },
+            "children": [
+              {
+                "tag": "span",
+                "style": { "padding": "0.35rem 0.75rem", "background": "rgba(189, 0, 255, 0.15)", "border": "1px solid #bd00ff", "color": "#bd00ff", "borderRadius": "4px", "fontSize": "0.75rem", "fontWeight": "800" },
+                "children": "🕹️ 16-BIT RETRO"
+              },
+              {
+                "tag": "span",
+                "style": { "padding": "0.35rem 0.75rem", "background": "rgba(255, 85, 0, 0.15)", "border": "1px solid #ff5500", "color": "#ff5500", "borderRadius": "4px", "fontSize": "0.75rem", "fontWeight": "800" },
+                "children": "★ 9.8 / 10 RATING"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "splitHeroSection": {
+    "tag": "div",
+    "style": {
+      "display": "grid",
+      "gridTemplateColumns": "2fr 1fr",
+      "gap": "1.75rem",
+      "marginBottom": "2.5rem"
+    },
+    "children": [
+      {
+        "tag": "div",
+        "style": {
+          "borderRadius": "8px",
+          "overflow": "hidden",
+          "border": "2px solid #bd00ff",
+          "boxShadow": "0 0 20px rgba(189, 0, 255, 0.2)"
+        },
+        "children": [
+          {
+            "tag": "img",
+            "src": "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop",
+            "alt": "Synth Throne Gameplay",
+            "style": { "width": "100%", "height": "380px", "objectFit": "cover" }
+          }
+        ]
+      },
+      {
+        "tag": "div",
+        "style": {
+          "padding": "1.75rem",
+          "background": "#140b24",
+          "border": "2px solid #ff5500",
+          "borderRadius": "8px",
+          "boxShadow": "0 0 20px rgba(255, 85, 0, 0.2)",
+          "display": "flex",
+          "flexDirection": "column",
+          "justify-content": "space-between"
+        },
+        "hoverStyle": {
+          "borderColor": "#bd00ff",
+          "boxShadow": "0 0 30px rgba(189, 0, 255, 0.4)"
+        },
+        "children": [
+          {
+            "tag": "div",
+            "children": [
+              { "tag": "h3", "style": { "color": "#ff5500", "fontFamily": "Cinzel, sans-serif", "margin": "0 0 0.4rem 0", "fontSize": "1.25rem" }, "children": "ARCADE PASS" },
+              { "tag": "p", "style": { "color": "#bd00ff", "fontWeight": "bold", "fontSize": "0.8125rem", "margin": "0 0 1rem 0" }, "children": "Full Base Game + 72-Track OST" },
+              { "tag": "div", "style": { "fontSize": "2.25rem", "color": "#ffffff", "fontWeight": "900", "margin": "0.5rem 0" }, "children": "199.00 EGP" }
+            ]
+          },
+          {
+            "tag": "div",
+            "children": [
+              {
+                "tag": "button",
+                "style": {
+                  "width": "100%",
+                  "padding": "1rem",
+                  "background": "linear-gradient(90deg, #ff5500 0%, #bd00ff 100%)",
+                  "color": "#ffffff",
+                  "border": "none",
+                  "fontWeight": "900",
+                  "fontSize": "0.875rem",
+                  "letterSpacing": "0.12em",
+                  "borderRadius": "4px",
+                  "cursor": "pointer",
+                  "marginBottom": "1rem"
+                },
+                "hoverStyle": {
+                  "opacity": 0.95,
+                  "transform": "scale(1.02)"
+                },
+                "children": "INSERT COIN / BUY NOW"
+              },
+              { "tag": "div", "style": { "color": "#b0b9c6", "fontSize": "0.75rem", "lineHeight": 1.6 }, "children": "Developer: NeonByte Arcade\nRelease Date: Oct 1984 / Remaster 2025\nStorage Required: 14 GB NVMe SSD" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "screenshotGrid": {
+    "tag": "div",
+    "style": {
+      "display": "grid",
+      "gridTemplateColumns": "repeat(4, 1fr)",
+      "gap": "1rem",
+      "marginBottom": "2.5rem"
+    },
+    "children": [
+      {
+        "tag": "div",
+        "style": { "borderRadius": "4px", "overflow": "hidden", "border": "1px solid #bd00ff" },
+        "hoverStyle": { "borderColor": "#ff5500" },
+        "children": [{ "tag": "img", "src": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=500&auto=format&fit=crop", "style": { "width": "100%", "height": "110px", "objectFit": "cover" } }]
+      },
+      {
+        "tag": "div",
+        "style": { "borderRadius": "4px", "overflow": "hidden", "border": "1px solid #bd00ff" },
+        "hoverStyle": { "borderColor": "#ff5500" },
+        "children": [{ "tag": "img", "src": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=500&auto=format&fit=crop", "style": { "width": "100%", "height": "110px", "objectFit": "cover" } }]
+      },
+      {
+        "tag": "div",
+        "style": { "borderRadius": "4px", "overflow": "hidden", "border": "1px solid #bd00ff" },
+        "hoverStyle": { "borderColor": "#ff5500" },
+        "children": [{ "tag": "img", "src": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=500&auto=format&fit=crop", "style": { "width": "100%", "height": "110px", "objectFit": "cover" } }]
+      },
+      {
+        "tag": "div",
+        "style": { "borderRadius": "4px", "overflow": "hidden", "border": "1px solid #bd00ff" },
+        "hoverStyle": { "borderColor": "#ff5500" },
+        "children": [{ "tag": "img", "src": "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=500&auto=format&fit=crop", "style": { "width": "100%", "height": "110px", "objectFit": "cover" } }]
+      }
+    ]
+  },
+  "narrativeLoreSection": {
+    "tag": "div",
+    "style": {
+      "padding": "2rem",
+      "background": "#140b24",
+      "border": "1px solid rgba(189, 0, 255, 0.4)",
+      "borderRadius": "8px",
+      "marginBottom": "2.5rem"
+    },
+    "children": [
+      {
+        "tag": "h3",
+        "style": { "color": "#ff5500", "fontFamily": "Cinzel, sans-serif", "fontSize": "1.35rem", "margin": "0 0 1rem 0" },
+        "children": "THE NEON WASTELAND OF 1984"
+      },
+      {
+        "tag": "p",
+        "style": { "color": "#b0b9c6", "lineHeight": 1.7, "margin": "0 0 1.25rem 0", "fontSize": "0.9375rem" },
+        "children": "In an alternate 1984 where analog synth signals collapsed reality, the Synth Throne stands atop a grid of liquid laser. Awaken as a rogue Synth Knight, harness high-frequency frame parries, and battle 24 brutal lords across neon-lit CRT coliseums."
+      }
+    ]
+  },
+  "mechanicsFeatureGrid": {
+    "tag": "div",
+    "style": {
+      "display": "grid",
+      "gridTemplateColumns": "repeat(4, 1fr)",
+      "gap": "1.25rem",
+      "marginBottom": "2.5rem"
+    },
+    "children": [
+      {
+        "tag": "div",
+        "style": { "padding": "1.25rem", "background": "#1e1136", "border": "1px solid #bd00ff", "borderRadius": "6px" },
+        "hoverStyle": { "borderColor": "#ff5500", "boxShadow": "0 0 15px rgba(255,85,0,0.3)" },
+        "children": [
+          { "tag": "h4", "style": { "color": "#ff5500", "margin": "0 0 0.5rem 0", "fontSize": "0.9375rem" }, "children": "🎵 ANALOG SYNTH OST" },
+          { "tag": "p", "style": { "color": "#b0b9c6", "fontSize": "0.8125rem", "lineHeight": 1.5, "margin": 0 }, "children": "72 original tracks composed on authentic 1980s hardware synths." }
+        ]
+      },
+      {
+        "tag": "div",
+        "style": { "padding": "1.25rem", "background": "#1e1136", "border": "1px solid #bd00ff", "borderRadius": "6px" },
+        "hoverStyle": { "borderColor": "#ff5500", "boxShadow": "0 0 15px rgba(255,85,0,0.3)" },
+        "children": [
+          { "tag": "h4", "style": { "color": "#ff5500", "margin": "0 0 0.5rem 0", "fontSize": "0.9375rem" }, "children": "⚡ NEON POISE DASH" },
+          { "tag": "p", "style": { "color": "#b0b9c6", "fontSize": "0.8125rem", "lineHeight": 1.5, "margin": 0 }, "children": "Chain high-speed frame counters with sub-millisecond parry precision." }
+        ]
+      },
+      {
+        "tag": "div",
+        "style": { "padding": "1.25rem", "background": "#1e1136", "border": "1px solid #bd00ff", "borderRadius": "6px" },
+        "hoverStyle": { "borderColor": "#ff5500", "boxShadow": "0 0 15px rgba(255,85,0,0.3)" },
+        "children": [
+          { "tag": "h4", "style": { "color": "#ff5500", "margin": "0 0 0.5rem 0", "fontSize": "0.9375rem" }, "children": "👾 24 SYNTH LORDS" },
+          { "tag": "p", "style": { "color": "#b0b9c6", "fontSize": "0.8125rem", "lineHeight": 1.5, "margin": 0 }, "children": "Brutal multi-phase boss encounters featuring dynamic synth music drops." }
+        ]
+      },
+      {
+        "tag": "div",
+        "style": { "padding": "1.25rem", "background": "#1e1136", "border": "1px solid #bd00ff", "borderRadius": "6px" },
+        "hoverStyle": { "borderColor": "#ff5500", "boxShadow": "0 0 15px rgba(255,85,0,0.3)" },
+        "children": [
+          { "tag": "h4", "style": { "color": "#ff5500", "margin": "0 0 0.5rem 0", "fontSize": "0.9375rem" }, "children": "🕹️ MULTI-PLAYER MESH" },
+          { "tag": "p", "style": { "color": "#b0b9c6", "fontSize": "0.8125rem", "lineHeight": 1.5, "margin": 0 }, "children": "Drop-in 4-player arcade co-op with global leaderboard high-scores." }
+        ]
+      }
+    ]
+  },
+  "crtSystemRequirements": {
+    "tag": "div",
+    "style": {
+      "padding": "1.75rem",
+      "background": "#000000",
+      "border": "1px solid #00ff66",
+      "borderRadius": "6px",
+      "boxShadow": "0 0 20px rgba(0, 255, 102, 0.2)",
+      "fontFamily": "monospace",
+      "marginBottom": "2.5rem"
+    },
+    "children": [
+      {
+        "tag": "div",
+        "style": { "color": "#00ff66", "fontWeight": "bold", "fontSize": "1rem", "marginBottom": "1rem", "borderBottom": "1px solid rgba(0,255,102,0.3)", "paddingBottom": "0.5rem" },
+        "children": "> SYSTEM_DIAGNOSTICS // HARDWARE_REQUIREMENTS.EXE"
+      },
+      {
+        "tag": "div",
+        "style": { "display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "1rem", "color": "#00ff66", "fontSize": "0.875rem", "lineHeight": 1.8 },
+        "children": [
+          {
+            "tag": "div",
+            "children": [
+              { "tag": "div", "style": { "fontWeight": "bold", "color": "#ffffff" }, "children": "[ RECOMMENDED PROTOCOL ]" },
+              { "tag": "div", "children": "> OS: RetroOS 64-bit / Windows 11" },
+              { "tag": "div", "children": "> CPU: Intel Core i5-10400 / Ryzen 5 3600" },
+              { "tag": "div", "children": "> RAM: 16 GB High-Speed" },
+              { "tag": "div", "children": "> GPU: GTX 1660 Super / RX 5600 XT" }
+            ]
+          },
+          {
+            "tag": "div",
+            "children": [
+              { "tag": "div", "style": { "fontWeight": "bold", "color": "#ffffff" }, "children": "[ MINIMUM PROTOCOL ]" },
+              { "tag": "div", "children": "> OS: Windows 10 (64-bit)" },
+              { "tag": "div", "children": "> CPU: Intel Core i3-8100" },
+              { "tag": "div", "children": "> RAM: 8 GB RAM" },
+              { "tag": "div", "children": "> GPU: GTX 1050 Ti (4GB)" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "playerReviews": {
+    "tag": "div",
+    "style": {
+      "padding": "2rem",
+      "background": "#140b24",
+      "border": "1px solid #bd00ff",
+      "borderRadius": "8px",
+      "marginBottom": "2.5rem"
+    },
+    "children": [
+      {
+        "tag": "h3",
+        "style": { "color": "#bd00ff", "fontFamily": "Cinzel, sans-serif", "fontSize": "1.25rem", "margin": "0 0 1.25rem 0" },
+        "children": "ARCADE PLAYER REVIEWS"
+      },
+      {
+        "tag": "div",
+        "style": { "display": "flex", "flexDirection": "column", "gap": "1rem" },
+        "children": [
+          {
+            "tag": "div",
+            "style": { "padding": "1.25rem", "background": "#1e1136", "border": "1px solid rgba(255,255,255,0.08)", "borderRadius": "4px" },
+            "children": [
+              {
+                "tag": "div",
+                "style": { "display": "flex", "justify-content": "space-between", "marginBottom": "0.5rem" },
+                "children": [
+                  { "tag": "span", "style": { "color": "#ff5500", "fontWeight": "bold" }, "children": "NEON_RUNNER_84" },
+                  { "tag": "span", "style": { "color": "#bd00ff", "fontWeight": "bold" }, "children": "★ 9.8 / 10" }
+                ]
+              },
+              { "tag": "p", "style": { "color": "#b0b9c6", "fontSize": "0.875rem", "lineHeight": 1.6, "margin": 0 }, "children": "The synthwave soundtrack alone is worth every penny. Combat feels like an awesome hybrid between Dark Souls and Hotline Miami. The CRT aesthetic is breathtaking." }
+            ]
+          },
+          {
+            "tag": "div",
+            "style": { "padding": "1.25rem", "background": "#1e1136", "border": "1px solid rgba(255,255,255,0.08)", "borderRadius": "4px" },
+            "children": [
+              {
+                "tag": "div",
+                "style": { "display": "flex", "justify-content": "space-between", "marginBottom": "0.5rem" },
+                "children": [
+                  { "tag": "span", "style": { "color": "#ff5500", "fontWeight": "bold" }, "children": "CYBER_KNIGHT_X" },
+                  { "tag": "span", "style": { "color": "#bd00ff", "fontWeight": "bold" }, "children": "★ 9.5 / 10" }
+                ]
+              },
+              { "tag": "p", "style": { "color": "#b0b9c6", "fontSize": "0.875rem", "lineHeight": 1.6, "margin": 0 }, "children": "Mastering the neon poise dash counters took me an hour, but taking down the 4th Synth Lord felt incredible." }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "bottomCtaBanner": {
+    "tag": "div",
+    "style": {
+      "padding": "2.5rem",
+      "background": "linear-gradient(90deg, #ff5500 0%, #bd00ff 100%)",
+      "borderRadius": "8px",
+      "textAlign": "center",
+      "color": "#ffffff",
+      "boxShadow": "0 0 30px rgba(255, 85, 0, 0.4)"
+    },
+    "children": [
+      {
+        "tag": "h2",
+        "style": { "fontFamily": "Cinzel, sans-serif", "fontSize": "2rem", "margin": "0 0 0.75rem 0" },
+        "children": "CLAIM SYNTH THRONE 1984 TODAY"
+      },
+      {
+        "tag": "p",
+        "style": { "fontSize": "1rem", "fontWeight": "bold", "margin": "0 0 1.5rem 0", "opacity": 0.9 },
+        "children": "Instant digital download • Includes 72-track OST + Cyber Armour DLC"
+      },
+      {
+        "tag": "button",
+        "style": {
+          "padding": "1rem 3rem",
+          "background": "#0d0714",
+          "color": "#ff5500",
+          "border": "2px solid #ffffff",
+          "borderRadius": "4px",
+          "fontWeight": "900",
+          "fontSize": "1rem",
+          "letterSpacing": "0.15em",
+          "cursor": "pointer"
+        },
+        "hoverStyle": {
+          "background": "#ffffff",
+          "color": "#0d0714"
+        },
+        "children": "INSERT COIN — BUY NOW (199 EGP)"
+      }
+    ]
+  }
+}
