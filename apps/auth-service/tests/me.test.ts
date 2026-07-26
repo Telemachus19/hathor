@@ -50,7 +50,7 @@ describe('GET /user/me', () => {
 
     // 3. Make request
     const response = await request(app)
-      .get('/user/me')
+      .get('/me')
       .set('Authorization', `Bearer ${token}`);
 
     // 4. Assertions
@@ -66,7 +66,7 @@ describe('GET /user/me', () => {
   });
 
   it('rejects with 401 when Authorization header is missing', async () => {
-    const response = await request(app).get('/user/me');
+    const response = await request(app).get('/me');
 
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');
@@ -94,7 +94,7 @@ describe('GET /user/me', () => {
     ]);
 
     const response = await request(app)
-      .get('/user/me')
+      .get('/me')
       .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(401);
@@ -104,7 +104,7 @@ describe('GET /user/me', () => {
 
   it('rejects with 401 for an invalid token signature', async () => {
     const response = await request(app)
-      .get('/user/me')
+      .get('/me')
       .set('Authorization', 'Bearer invalid-token-string');
 
     expect(response.status).toBe(401);

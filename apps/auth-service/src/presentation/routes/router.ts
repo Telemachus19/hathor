@@ -6,7 +6,7 @@ export function createApiRouter(turnstileVerifier: TurnstileVerifier): Router {
   const router = Router();
 
   // Mount resources
-  router.use('/user', createUserRouter(turnstileVerifier));
+  router.use('/', createUserRouter(turnstileVerifier));
 
   return router;
 }

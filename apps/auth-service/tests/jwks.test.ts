@@ -8,7 +8,7 @@ describe('GET /user/.well-known/jwks.json', () => {
     const app = createAuthApp(async () => {});
     const keyPair = getKeyPair();
 
-    const response = await request(app).get('/user/.well-known/jwks.json');
+    const response = await request(app).get('/.well-known/jwks.json');
 
     expect(response.status).toBe(200);
     expect(response.body).toBeDefined();

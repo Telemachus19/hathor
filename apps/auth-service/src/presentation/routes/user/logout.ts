@@ -36,7 +36,7 @@ export async function logoutHandler(req: Request, res: Response) {
     if (!result) {
       // Clear cookie anyway to prevent loops
       res.clearCookie('refreshToken', {
-        path: '/api/v1/user/refresh',
+        path: '/api/v1/user',
       });
       return res.status(401).json({
         success: false,
@@ -69,7 +69,7 @@ export async function logoutHandler(req: Request, res: Response) {
 
     // 3. Clear cookie
     res.clearCookie('refreshToken', {
-      path: '/api/v1/user/refresh',
+      path: '/api/v1/user',
     });
 
     // 4. Return 204 No Content

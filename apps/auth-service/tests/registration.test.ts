@@ -52,7 +52,7 @@ describe('POST /user/register', () => {
 
     // 2. Send registration request
     const response = await request(app)
-      .post('/user/register')
+      .post('/register')
       .send({
         email: 'gamer@example.com',
         password: 'SuperSecurePassword123!',
@@ -82,7 +82,7 @@ describe('POST /user/register', () => {
 
   it('rejects registration with 422 if Turnstile validation fails', async () => {
     const response = await request(app)
-      .post('/user/register')
+      .post('/register')
       .send({
         email: 'gamer@example.com',
         password: 'SuperSecurePassword123!',
@@ -97,7 +97,7 @@ describe('POST /user/register', () => {
 
   it('rejects registration with 422 if input validation fails (e.g. password too short)', async () => {
     const response = await request(app)
-      .post('/user/register')
+      .post('/register')
       .send({
         email: 'gamer@example.com',
         password: 'short', // Too short (min 12 chars required)
@@ -117,7 +117,7 @@ describe('POST /user/register', () => {
     ]);
 
     const response = await request(app)
-      .post('/user/register')
+      .post('/register')
       .send({
         email: 'gamer@example.com',
         password: 'SuperSecurePassword123!',

@@ -82,7 +82,7 @@ describe('Refresh Token Rotation & Logout', () => {
 
       // 3. Make refresh request
       const response = await request(app)
-        .post('/user/refresh')
+        .post('/refresh')
         .set('Cookie', [`refreshToken=${rawToken}`]);
 
       // 4. Assertions
@@ -97,7 +97,7 @@ describe('Refresh Token Rotation & Logout', () => {
       const cookies = response.headers['set-cookie'];
       expect(cookies).toBeDefined();
       expect(cookies[0]).toContain('refreshToken=');
-      expect(cookies[0]).toContain('Path=/api/v1/user/refresh');
+      expect(cookies[0]).toContain('Path=/api/v1/user');
 
       // Verify database transactions were executed
       expect(authDb.transaction).toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe('Refresh Token Rotation & Logout', () => {
       ]);
 
       const response = await request(app)
-        .post('/user/refresh')
+        .post('/refresh')
         .set('Cookie', [`refreshToken=${rawToken}`]);
 
       // Assertions
@@ -167,7 +167,7 @@ describe('Refresh Token Rotation & Logout', () => {
 
       // 2. Make logout request
       const response = await request(app)
-        .post('/user/logout')
+        .post('/logout')
         .set('Cookie', [`refreshToken=${rawToken}`]);
 
       // 3. Assertions

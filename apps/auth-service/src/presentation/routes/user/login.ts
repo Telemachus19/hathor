@@ -88,7 +88,7 @@ export async function loginHandler(req: Request, res: Response) {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
-      path: '/api/v1/user/refresh',
+      path: '/api/v1/user',
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 

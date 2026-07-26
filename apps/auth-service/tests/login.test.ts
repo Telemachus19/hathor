@@ -59,7 +59,7 @@ describe('POST /user/login', () => {
 
     // 3. Make login request
     const response = await request(app)
-      .post('/user/login')
+      .post('/login')
       .send({
         email: 'gamer@example.com',
         password,
@@ -82,7 +82,7 @@ describe('POST /user/login', () => {
     expect(cookies[0]).toContain('HttpOnly');
     expect(cookies[0]).toContain('Secure');
     expect(cookies[0]).toContain('SameSite=Lax');
-    expect(cookies[0]).toContain('Path=/api/v1/user/refresh');
+    expect(cookies[0]).toContain('Path=/api/v1/user');
 
     // Verify DB calls
     expect(authDb.select).toHaveBeenCalled();
@@ -102,7 +102,7 @@ describe('POST /user/login', () => {
     ]);
 
     const response = await request(app)
-      .post('/user/login')
+      .post('/login')
       .send({
         email: 'gamer@example.com',
         password: 'WrongPassword!',
@@ -116,7 +116,7 @@ describe('POST /user/login', () => {
     mockSelectChain.limit.mockResolvedValue([]); // user not found
 
     const response = await request(app)
-      .post('/user/login')
+      .post('/login')
       .send({
         email: 'nonexistent@example.com',
         password: 'Password123!',
