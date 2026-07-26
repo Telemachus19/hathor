@@ -1,8 +1,9 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
+import cookieParser from 'cookie-parser';
 import { TurnstileVerifier } from './domain/turnstile.js';
 import { FakeTurnstileVerifier } from './infrastructure/turnstile/fake.js';
-import { createUserRouter } from './routes/user.js';
+import { createApiRouter } from './presentation/routes/router.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -14,9 +15,10 @@ export function createAuthApp(
 
   app.use(cors());
   app.use(express.json());
+  app.use(cookieParser());
 
-  // Mount routes
-  app.use('/user', createUserRouter(turnstileVerifier));
+  // Mount presentation API router at the root
+  app.use('/', createApiRouter(turnstileVerifier));
 
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({
