@@ -1,13 +1,22 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
+import { TurnstileVerifier } from './domain/turnstile.js';
+import { FakeTurnstileVerifier } from './infrastructure/turnstile/fake.js';
+import { createUserRouter } from './routes/user.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
-export function createAuthApp(checkDatabase: ReadinessCheck): Express {
+export function createAuthApp(
+  checkDatabase: ReadinessCheck,
+  turnstileVerifier: TurnstileVerifier = new FakeTurnstileVerifier()
+): Express {
   const app = express();
 
   app.use(cors());
   app.use(express.json());
+
+  // Mount routes
+  app.use('/user', createUserRouter(turnstileVerifier));
 
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({
@@ -42,3 +51,4 @@ export function createAuthApp(checkDatabase: ReadinessCheck): Express {
 
   return app;
 }
+
