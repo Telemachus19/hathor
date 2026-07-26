@@ -1,0 +1,114 @@
+.reqsWrap {
+  margin-bottom: 3.5rem;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sectionHeader {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 900;
+  color: var(--text-cream);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.headerLine {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.segmentControl {
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.segmentBtn {
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text-muted);
+  font-family: var(--font-heading);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.55rem 1.25rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.segmentBtn:not(:first-child) {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.segmentBtn:hover {
+  color: var(--text-cream);
+}
+
+.segmentActive {
+  background: rgba(242, 107, 33, 0.18);
+  color: var(--accent-orange);
+}
+
+.specGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.specCard {
+  background: #141820;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.iconWrap {
+  color: var(--accent-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.specTextStack {
+  display: flex;
+  flex-direction: column;
+}
+
+.specLabel {
+  font-size: 0.625rem;
+  font-weight: 800;
+  color: var(--text-gold-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.2rem;
+}
+
+.specValue {
+  font-family: var(--font-heading);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--text-cream);
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 768px) {
+  .specGrid {
+    grid-template-columns: 1fr;
+  }
+}

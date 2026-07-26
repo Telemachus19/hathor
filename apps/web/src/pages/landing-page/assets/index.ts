@@ -11,5 +11,17 @@ export {
   TrendingIcon,
   HeartIcon,
   StarIcon,
+  ThumbsUpIcon,
+  CheckIcon,
+  UserIcon,
+  ClockIcon,
+  MonitorIcon,
+  CpuIcon,
+  RamIcon,
+  GpuIcon,
+  HardDriveIcon,
+  DownloadIcon,
+  LibraryIcon,
+  CloseIcon,
+  ZoomIcon,
 } from './Icons';
-

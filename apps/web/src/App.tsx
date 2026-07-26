@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from './pages/landing-page/LandingPage';
+import GameDetailsPage from './pages/game-details/GameDetailsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,9 +14,61 @@ const queryClient = new QueryClient({
 });
 
 export function App() {
+  const [currentView, setCurrentView] = useState<'landing' | 'details'>('details');
+
   return (
     <QueryClientProvider client={queryClient}>
-      <LandingPage />
+      <div style={{ position: 'relative' }}>
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '1.5rem',
+            right: '1.5rem',
+            zIndex: 9999,
+            display: 'flex',
+            gap: '0.5rem',
+            background: 'rgba(14, 17, 22, 0.95)',
+            padding: '0.5rem',
+            borderRadius: '6px',
+            border: '1px solid var(--accent-orange, #f4b183)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <button
+            onClick={() => setCurrentView('landing')}
+            style={{
+              background: currentView === 'landing' ? 'var(--accent-orange, #f4b183)' : 'transparent',
+              color: currentView === 'landing' ? '#0e1116' : '#ffffff',
+              border: 'none',
+              padding: '0.4rem 0.8rem',
+              borderRadius: '4px',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+            }}
+          >
+            Landing Page
+          </button>
+          <button
+            onClick={() => setCurrentView('details')}
+            style={{
+              background: currentView === 'details' ? 'var(--accent-orange, #f4b183)' : 'transparent',
+              color: currentView === 'details' ? '#0e1116' : '#ffffff',
+              border: 'none',
+              padding: '0.4rem 0.8rem',
+              borderRadius: '4px',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+            }}
+          >
+            Game Details
+          </button>
+        </div>
+
+        {currentView === 'landing' ? <LandingPage /> : <GameDetailsPage />}
+      </div>
     </QueryClientProvider>
   );
 }

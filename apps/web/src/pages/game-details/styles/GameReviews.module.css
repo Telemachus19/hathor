@@ -1,0 +1,182 @@
+.reviewsWrap {
+  margin-bottom: 3.5rem;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.sectionHeader {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 900;
+  color: var(--text-cream);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 0;
+}
+
+.totalBadge {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.scoreBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stars {
+  color: var(--accent-orange);
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+}
+
+.scoreNum {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-cream);
+}
+
+.scoreMax {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.reviewsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.reviewCard {
+  background: #151a23;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 1.5rem;
+}
+
+.cardTopRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.squareAvatar {
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--accent-orange);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.userTextStack {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--text-cream);
+  letter-spacing: 0.05em;
+}
+
+.ratingSubRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.cardStars {
+  color: var(--accent-orange);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+}
+
+.cardScore {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-cream);
+}
+
+.rightMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.recommendedPill {
+  border: 1px solid rgba(46, 204, 113, 0.35);
+  background: rgba(46, 204, 113, 0.06);
+  color: #2ecc71;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  letter-spacing: 0.05em;
+}
+
+.date {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+}
+
+.reviewBody {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 1.25rem 0 1rem 0;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.helpfulFooter {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
