@@ -1,18 +1,41 @@
 import { rateLimit } from 'express-rate-limit';
 
-export const rateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+/**
+ * General rate limiter for all routes.
+ * 100 requests per 15-minute window per IP.
+ */
+export const globalRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
   handler: (req, res) => {
     res.status(429).json({
-      success: false,
       error: {
         code: 'RATE_LIMIT_EXCEEDED',
         message: 'Too many requests from this IP, please try again after 15 minutes',
-        status: 429,
-        timestamp: new Date().toISOString(),
+        correlationId: req.correlationId,
+      },
+    });
+  },
+});
+
+/**
+ * Stricter rate limiter for authentication routes (/user/register, /user/login).
+ * 20 requests per 15-minute window per IP to mitigate credential stuffing
+ * and registration abuse.
+ */
+export const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Too many authentication attempts, please try again after 15 minutes',
+        correlationId: req.correlationId,
       },
     });
   },
