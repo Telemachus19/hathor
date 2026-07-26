@@ -6,6 +6,7 @@ import { refreshHandler } from './user/refresh.js';
 import { logoutHandler } from './user/logout.js';
 import { jwksHandler } from './user/jwks.js';
 import { meHandler } from './user/me.js';
+import { passwordResetHandler } from './user/password-reset.js';
 import { requireAuth } from '../middlewares/auth.js';
 
 export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
@@ -15,6 +16,7 @@ export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
   router.post('/login', loginHandler);
   router.post('/refresh', refreshHandler);
   router.post('/logout', logoutHandler);
+  router.post('/password/reset', passwordResetHandler);
   router.get('/me', requireAuth, meHandler);
   router.get('/.well-known/jwks.json', jwksHandler);
 
