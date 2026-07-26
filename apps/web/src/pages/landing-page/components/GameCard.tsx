@@ -2,71 +2,91 @@ import React from 'react';
 import styles from '../styles/GameCard.module.css';
 import { StarIcon, CartIcon } from '../assets';
 
-interface GameCardProps {
+/**
+ * Component props for rendering an individual game storefront card.
+ */
+export interface GameCardProps {
   title: string;
-  category: string;
-  rating: number;
-  price?: number;
-  oldPrice?: number;
-  free?: boolean;
-  imageUrl: string;
+  category?: string;
+  tags?: Array<{ name: string; slug: string }>;
+  rating?: number;
+  priceEgp?: string | number;
+  discountPercent?: number;
+  imageUrl?: string;
   tag?: string;
   discountTag?: string;
   showAddButton?: boolean;
 }
 
+/**
+ * Presentational GameCard component handling EGP pricing, discounts, and ratings.
+ */
 export const GameCard: React.FC<GameCardProps> = ({
   title,
   category,
-  rating,
-  price,
-  oldPrice,
-  free = false,
+  tags,
+  rating = 4.8,
+  priceEgp,
+  discountPercent = 0,
   imageUrl,
   tag,
   discountTag,
   showAddButton = false,
 }) => {
+  const numericPrice = typeof priceEgp === 'number' ? priceEgp : parseFloat(priceEgp || '0');
+  const isFree = numericPrice === 0;
+
+  let originalPrice: number | null = null;
+  if (discountPercent > 0 && numericPrice > 0) {
+    originalPrice = numericPrice / (1 - discountPercent / 100);
+  }
+
+  const computedDiscountTag = discountTag || (discountPercent > 0 ? `-${discountPercent}%` : undefined);
+  const fallbackImage = 'https://placehold.co/600x350/1c1917/a4b0be?text=Game+Placeholder';
+
+  const primaryCategory = tags && tags.length > 0
+    ? tags[0].name.toUpperCase()
+    : (category ? category.toUpperCase() : 'GAME');
+
   return (
     <div className={styles.card}>
       <div className={styles.imageWrap}>
-        <img className={styles.image} src={imageUrl} alt={title} loading="lazy" />
+        <img className={styles.image} src={imageUrl || fallbackImage} alt={title} loading="lazy" />
         {tag && (
           <div className={styles.tagsLeft}>
             <span className={styles.tag}>{tag}</span>
           </div>
         )}
-        {discountTag && (
+        {computedDiscountTag && (
           <div className={styles.tagsRight}>
-            <span className={`${styles.tag} ${styles.tagDiscount}`}>{discountTag}</span>
+            <span className={`${styles.tag} ${styles.tagDiscount}`}>{computedDiscountTag}</span>
           </div>
         )}
       </div>
 
       <div className={styles.contentBar}>
-        {/* Genre and Rating on the Left */}
         <div className={styles.leftGroup}>
-          <span className={styles.category}>{category}</span>
+          <span className={styles.category}>{primaryCategory}</span>
+
           <span className={styles.rating}>
             <StarIcon className={styles.starIcon} width={11} height={11} /> {rating.toFixed(1)}
           </span>
         </div>
 
-        {/* Price and Optional ADD Button on the Right */}
         <div className={styles.rightGroup}>
           <div className={styles.priceWrap}>
-            {free ? (
+            {isFree ? (
               <span className={styles.priceFree}>FREE</span>
             ) : (
               <>
-                <span className={styles.price}>${price?.toFixed(2)}</span>
-                {oldPrice != null && (
-                  <span className={styles.priceOld}>${oldPrice.toFixed(2)}</span>
+                <span className={styles.price}>{numericPrice.toFixed(2)} EGP</span>
+                {originalPrice != null && (
+                  <span className={styles.priceOld}>{originalPrice.toFixed(2)} EGP</span>
                 )}
               </>
             )}
           </div>
-          {showAddButton && !free && (
+          {showAddButton && !isFree && (
             <button className={styles.addBtn}>
               <CartIcon width={11} height={11} /> ADD
             </button>

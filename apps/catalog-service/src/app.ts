@@ -47,7 +47,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
     try {
       const page = Math.max(1, parseInt(req.query.page as string) || 1);
       const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
-      const offset = (page - 1) * limit;
+      const skip = (page - 1) * limit;
 
       const rawTags = req.query.tags || req.query.tag;
       let tagSlugs: string[] = [];
@@ -83,6 +83,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
 
       const gameRecords = await catalogDb
         .select({
+          id: games.id,
           slug: games.slug,
           title: games.title,
           shortDescription: games.shortDescription,
@@ -96,7 +97,35 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         .from(games)
         .where(and(...whereConditions))
         .limit(limit)
-        .offset(offset);
+        .offset(skip);
+
+
+      const gameIds = gameRecords.map((g) => g.id);
+      const tagsByGameId: Record<string | number, Array<{ name: string; slug: string }>> = {};
+
+      if (gameIds.length > 0) {
+        const allGameTags = await catalogDb
+          .select({
+            gameId: gameTags.gameId,
+            name: tags.name,
+            slug: tags.slug,
+          })
+          .from(gameTags)
+          .innerJoin(tags, eq(gameTags.tagId, tags.id))
+          .where(inArray(gameTags.gameId, gameIds));
+
+        for (const gt of allGameTags) {
+          if (!tagsByGameId[gt.gameId]) {
+            tagsByGameId[gt.gameId] = [];
+          }
+          tagsByGameId[gt.gameId].push({ name: gt.name, slug: gt.slug });
+        }
+      }
+
+      const itemsWithTags = gameRecords.map(({ id, ...g }) => ({
+        ...g,
+        tags: tagsByGameId[id] || [],
+      }));
 
       const [totalResult] = await catalogDb
         .select({ total: count(games.id) })
@@ -109,7 +138,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       res.status(200).json({
         success: true,
         data: {
-          items: gameRecords,
+          items: itemsWithTags,
           pagination: {
             page,
             limit,
@@ -118,6 +147,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
           },
         },
       });
+
     } catch (error) {
       console.error('Error fetching games catalog:', error);
       res.status(500).json({

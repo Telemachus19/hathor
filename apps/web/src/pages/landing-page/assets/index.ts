@@ -1,4 +1,5 @@
 export { EyeOfHorusIcon } from './EyeOfHorus';
+export { LogoSolidSmallIcon } from './LogoSolidSmall';
 export {
   SearchIcon,
   GlobeIcon,
@@ -11,3 +12,4 @@ export {
   HeartIcon,
   StarIcon,
 } from './Icons';
+
