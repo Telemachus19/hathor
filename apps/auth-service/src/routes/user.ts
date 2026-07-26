@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createPublicKey } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { authDb } from '../infrastructure/db/client.js';
 import { users } from '../infrastructure/db/schema.js';
 import { hashPassword } from '../domain/password.js';
 import { TurnstileVerifier } from '../domain/turnstile.js';
+import { getKeyPair } from '../infrastructure/keys/key-manager.js';
 
 export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
   const router = Router();
@@ -96,6 +97,25 @@ export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
         },
       });
     }
+  });
+
+  router.get('/.well-known/jwks.json', (_req: Request, res: Response) => {
+    const { publicKeyPem, kid } = getKeyPair();
+    const keyObject = createPublicKey(publicKeyPem);
+    const jwk = keyObject.export({ format: 'jwk' });
+
+    return res.status(200).json({
+      keys: [
+        {
+          kty: jwk.kty,
+          use: 'sig',
+          alg: 'RS256',
+          kid,
+          n: jwk.n,
+          e: jwk.e,
+        },
+      ],
+    });
   });
 
   return router;
