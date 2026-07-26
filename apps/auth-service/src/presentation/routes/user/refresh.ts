@@ -97,6 +97,17 @@ export async function refreshHandler(req: Request, res: Response) {
       });
     }
 
+    if (user.disabled) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'This account has been disabled',
+          correlationId,
+        },
+      });
+    }
+
     // 6. Rotate token: generate new token and update database in transaction
     const newRawRefreshToken = randomBytes(40).toString('hex');
     const newTokenHash = createHash('sha256').update(newRawRefreshToken).digest('hex');

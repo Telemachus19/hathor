@@ -141,6 +141,48 @@ describe('Refresh Token Rotation & Logout', () => {
       expect(authDb.update).toHaveBeenCalled();
       expect(mockUpdateChain.set).toHaveBeenCalledWith({ revoked: true });
     });
+
+    it('rejects token refresh if user is disabled', async () => {
+      const rawToken = 'active-refresh-token';
+      const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+
+      // 1. Mock DB select for Token and Family join
+      mockSelectChain.limit.mockResolvedValueOnce([
+        {
+          token: {
+            id: 'token-uuid-1',
+            userId: 'user-uuid-123',
+            familyId: 'family-uuid-1',
+            tokenHash,
+            used: false,
+            expiresAt: new Date(Date.now() + 60000),
+          },
+          family: {
+            id: 'family-uuid-1',
+            userId: 'user-uuid-123',
+            revoked: false,
+          },
+        },
+      ]);
+
+      // 2. Mock DB select for user fetch (returns user with disabled: true)
+      mockSelectChain.limit.mockResolvedValueOnce([
+        {
+          id: 'user-uuid-123',
+          roles: ['gamer'],
+          authorizationVersion: 1,
+          disabled: true, // disabled user!
+        },
+      ]);
+
+      const response = await request(app)
+        .post('/refresh')
+        .set('Cookie', [`refreshToken=${rawToken}`]);
+
+      expect(response.status).toBe(403);
+      expect(response.body.error.code).toBe('FORBIDDEN');
+      expect(response.body.error.message).toContain('disabled');
+    });
   });
 
   describe('POST /user/logout', () => {

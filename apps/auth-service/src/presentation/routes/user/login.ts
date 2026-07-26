@@ -42,6 +42,17 @@ export async function loginHandler(req: Request, res: Response) {
       });
     }
 
+    if (user.disabled) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'This account has been disabled',
+          correlationId,
+        },
+      });
+    }
+
     // 2. Verify password using Argon2id
     const isPasswordValid = await verifyPassword(password, user.passwordHash);
     if (!isPasswordValid) {

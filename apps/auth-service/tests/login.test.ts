@@ -125,4 +125,28 @@ describe('POST /user/login', () => {
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');
   });
+
+  it('rejects disabled user with 403', async () => {
+    mockSelectChain.limit.mockResolvedValue([
+      {
+        id: 'user-uuid-123',
+        email: 'gamer@example.com',
+        passwordHash: 'dummy-hash',
+        roles: ['gamer'],
+        authorizationVersion: 1,
+        disabled: true, // User is disabled!
+      },
+    ]);
+
+    const response = await request(app)
+      .post('/login')
+      .send({
+        email: 'gamer@example.com',
+        password: 'any-password',
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe('FORBIDDEN');
+    expect(response.body.error.message).toContain('disabled');
+  });
 });

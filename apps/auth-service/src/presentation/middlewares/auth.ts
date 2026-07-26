@@ -52,6 +52,17 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       });
     }
 
+    if (user.disabled) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'User account is disabled',
+          correlationId,
+        },
+      });
+    }
+
     // 3. Check authorization version
     if (claims.authorizationVersion < user.authorizationVersion) {
       return res.status(401).json({

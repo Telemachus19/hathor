@@ -110,4 +110,34 @@ describe('GET /user/me', () => {
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');
   });
+
+  it('rejects with 401 if user is disabled', async () => {
+    const userPayload = {
+      id: 'user-uuid-123',
+      roles: ['gamer'],
+      authorizationVersion: 1,
+    };
+
+    const token = generateAccessToken(userPayload);
+
+    // Mock DB select returning user with disabled: true
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: 'user-uuid-123',
+        email: 'gamer@example.com',
+        displayName: 'GamerOne',
+        roles: ['gamer'],
+        authorizationVersion: 1,
+        disabled: true, // disabled user!
+      },
+    ]);
+
+    const response = await request(app)
+      .get('/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body.error.code).toBe('UNAUTHENTICATED');
+    expect(response.body.error.message).toContain('disabled');
+  });
 });

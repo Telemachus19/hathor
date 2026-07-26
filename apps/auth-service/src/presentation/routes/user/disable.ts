@@ -53,11 +53,12 @@ export async function disableAccountHandler(req: AuthenticatedRequest, res: Resp
       });
     }
 
-    // 3. Increment authorizationVersion to immediately revoke active sessions
+    // 3. Increment authorizationVersion and set disabled to true to revoke active sessions
     const nextAuthVersion = targetUser.authorizationVersion + 1;
     await authDb
       .update(users)
       .set({
+        disabled: true,
         authorizationVersion: nextAuthVersion,
       })
       .where(eq(users.id, userId));

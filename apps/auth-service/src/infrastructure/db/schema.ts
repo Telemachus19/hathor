@@ -15,6 +15,9 @@ export const users = authSchema.table('users', {
   authorizationVersion: integer('authorization_version')
     .notNull()
     .default(1),
+  disabled: boolean('disabled')
+    .notNull()
+    .default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });

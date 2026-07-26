@@ -25,6 +25,12 @@ vi.mock('../src/infrastructure/db/client.js', () => {
 
 import { authDb } from '../src/infrastructure/db/client.js';
 
+// Real UUIDs for tests
+const ADMIN_ID = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
+const GAMER_ID = 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22';
+const TARGET_ID = '14ab3487-6415-4054-a491-df3acd7a15bf';
+const NONEXISTENT_ID = '24ab3487-6415-4054-a491-df3acd7a15bf';
+
 describe('POST /:userId/disable', () => {
   let app: any;
 
@@ -35,7 +41,7 @@ describe('POST /:userId/disable', () => {
 
   it('allows admins to disable a user and increment their authorizationVersion', async () => {
     const adminToken = generateAccessToken({
-      id: 'admin-uuid',
+      id: ADMIN_ID,
       roles: ['admin'],
       authorizationVersion: 1,
     });
@@ -43,27 +49,29 @@ describe('POST /:userId/disable', () => {
     // 1. Mock DB select for requireAuth (admin caller)
     mockSelectChain.limit.mockResolvedValueOnce([
       {
-        id: 'admin-uuid',
+        id: ADMIN_ID,
         email: 'admin@example.com',
         displayName: 'AdminUser',
         roles: ['admin'],
         authorizationVersion: 1,
+        disabled: false,
       },
     ]);
 
     // 2. Mock DB select for disableAccountHandler (target user)
     mockSelectChain.limit.mockResolvedValueOnce([
       {
-        id: 'target-uuid',
+        id: TARGET_ID,
         email: 'gamer@example.com',
         displayName: 'GamerUser',
         roles: ['gamer'],
         authorizationVersion: 5,
+        disabled: false,
       },
     ]);
 
     const response = await request(app)
-      .post('/target-uuid/disable')
+      .post(`/${TARGET_ID}/disable`)
       .set('Authorization', `Bearer ${adminToken}`);
 
     expect(response.status).toBe(200);
@@ -72,6 +80,7 @@ describe('POST /:userId/disable', () => {
     expect(authDb.update).toHaveBeenCalled();
     expect(mockUpdateChain.set).toHaveBeenCalledWith(
       expect.objectContaining({
+        disabled: true,
         authorizationVersion: 6, // 5 + 1
       })
     );
@@ -79,7 +88,7 @@ describe('POST /:userId/disable', () => {
 
   it('rejects disable action if requester is not an admin', async () => {
     const gamerToken = generateAccessToken({
-      id: 'gamer-uuid',
+      id: GAMER_ID,
       roles: ['gamer'], // Not admin
       authorizationVersion: 1,
     });
@@ -87,16 +96,17 @@ describe('POST /:userId/disable', () => {
     // Mock DB select for requireAuth (gamer caller)
     mockSelectChain.limit.mockResolvedValueOnce([
       {
-        id: 'gamer-uuid',
+        id: GAMER_ID,
         email: 'gamer@example.com',
         displayName: 'GamerUser',
         roles: ['gamer'],
         authorizationVersion: 1,
+        disabled: false,
       },
     ]);
 
     const response = await request(app)
-      .post('/target-uuid/disable')
+      .post(`/${TARGET_ID}/disable`)
       .set('Authorization', `Bearer ${gamerToken}`);
 
     expect(response.status).toBe(403);
@@ -105,7 +115,7 @@ describe('POST /:userId/disable', () => {
 
   it('returns 404 if target user does not exist', async () => {
     const adminToken = generateAccessToken({
-      id: 'admin-uuid',
+      id: ADMIN_ID,
       roles: ['admin'],
       authorizationVersion: 1,
     });
@@ -113,11 +123,12 @@ describe('POST /:userId/disable', () => {
     // 1. Mock DB select for requireAuth (admin caller)
     mockSelectChain.limit.mockResolvedValueOnce([
       {
-        id: 'admin-uuid',
+        id: ADMIN_ID,
         email: 'admin@example.com',
         displayName: 'AdminUser',
         roles: ['admin'],
         authorizationVersion: 1,
+        disabled: false,
       },
     ]);
 
@@ -125,10 +136,37 @@ describe('POST /:userId/disable', () => {
     mockSelectChain.limit.mockResolvedValueOnce([]);
 
     const response = await request(app)
-      .post('/nonexistent-uuid/disable')
+      .post(`/${NONEXISTENT_ID}/disable`)
       .set('Authorization', `Bearer ${adminToken}`);
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe('USER_NOT_FOUND');
+  });
+
+  it('returns 422 if userId path parameter is not a valid UUID', async () => {
+    const adminToken = generateAccessToken({
+      id: ADMIN_ID,
+      roles: ['admin'],
+      authorizationVersion: 1,
+    });
+
+    // Mock DB select for requireAuth (admin caller)
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: ADMIN_ID,
+        email: 'admin@example.com',
+        displayName: 'AdminUser',
+        roles: ['admin'],
+        authorizationVersion: 1,
+        disabled: false,
+      },
+    ]);
+
+    const response = await request(app)
+      .post('/invalid-uuid-string/disable')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(response.status).toBe(422);
+    expect(response.body.error.code).toBe('VALIDATION_FAILED');
   });
 });

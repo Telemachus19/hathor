@@ -46,6 +46,17 @@ export async function passwordResetHandler(req: Request, res: Response) {
       });
     }
 
+    if (user.disabled) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'This account has been disabled',
+          correlationId,
+        },
+      });
+    }
+
     // 3. Hash the new password
     const newPasswordHash = await hashPassword(newPassword);
 

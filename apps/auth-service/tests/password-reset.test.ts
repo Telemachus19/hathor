@@ -91,4 +91,27 @@ describe('POST /password/reset', () => {
     expect(response.status).toBe(422);
     expect(response.body.error.code).toBe('VALIDATION_FAILED');
   });
+
+  it('returns 403 if user account is disabled', async () => {
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: 'gamer-uuid',
+        email: 'gamer@example.com',
+        passwordHash: 'old-hash',
+        authorizationVersion: 2,
+        disabled: true, // disabled user!
+      },
+    ]);
+
+    const response = await request(app)
+      .post('/password/reset')
+      .send({
+        email: 'gamer@example.com',
+        newPassword: 'BrandNewPassword123!',
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe('FORBIDDEN');
+    expect(response.body.error.message).toContain('disabled');
+  });
 });
