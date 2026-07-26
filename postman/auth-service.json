@@ -109,7 +109,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"gamer.test@example.com\",\n  \"password\": \"SuperSecurePassword123!\",\n  \"displayName\": \"Tester Gamer\",\n  \"captchaToken\": \"any-valid-mock-token\"\n}"
+              "raw": "{\n  // \"email\": \"gamer@hathor.com\", \"password\": \"Gamer123!\", \"displayName\": \"Demo Gamer\", \"captchaToken\": \"any-valid-mock-token\"\n  // \"email\": \"creator@hathor.com\", \"password\": \"Creator123!\", \"displayName\": \"Demo Creator\", \"captchaToken\": \"any-valid-mock-token\"\n  \"email\": \"admin@hathor.com\",\n  \"password\": \"Admin123!\",\n  \"displayName\": \"Demo Admin\",\n  \"captchaToken\": \"any-valid-mock-token\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/register",
@@ -205,7 +205,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"gamer.test@example.com\",\n  \"password\": \"SuperSecurePassword123!\"\n}"
+              "raw": "{\n  // \"email\": \"gamer@hathor.com\", \"password\": \"Gamer123!\"\n  // \"email\": \"creator@hathor.com\", \"password\": \"Creator123!\"\n  \"email\": \"admin@hathor.com\",\n  \"password\": \"Admin123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/login",
@@ -427,7 +427,12 @@
             "description": "Revokes the active refresh token family, increments user's authorization version, and clears the cookie."
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Admin Management",
+      "item": [
         {
           "name": "Disable Account (Admin Only)",
           "event": [
@@ -476,6 +481,67 @@
               ]
             },
             "description": "Disables a user account. This endpoint can only be called by an administrator, and immediately increments the target user's authorization_version, revoking all active sessions."
+          },
+          "response": []
+        },
+        {
+          "name": "Change User Roles (Admin Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roles\": [\"gamer\", \"creator\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/:userId/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                ":userId",
+                "roles"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "user-id-to-modify-roles"
+                }
+              ]
+            },
+            "description": "Modifies the roles of a user. This endpoint can only be called by an administrator, executes in a transaction, writes to the role_change_audit trail, and immediately increments the target user's authorization_version."
           },
           "response": []
         }
