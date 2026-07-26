@@ -1,29 +1,24 @@
-import crypto from 'node:crypto';
 import { authDb, authPool } from './client.js';
 import { users } from './schema.js';
-
-function hashPassword(password: string): string {
-  const salt = 'hathor_demo_salt';
-  return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-}
+import { hashPassword } from '../../domain/password.js';
 
 async function seed() {
   const defaultUsers = [
     {
       email: 'gamer@hathor.com',
-      passwordHash: hashPassword('Gamer123!'),
+      passwordHash: await hashPassword('Gamer123!'),
       displayName: 'Demo Gamer',
       roles: ['gamer'],
     },
     {
       email: 'creator@hathor.com',
-      passwordHash: hashPassword('Creator123!'),
+      passwordHash: await hashPassword('Creator123!'),
       displayName: 'Demo Creator',
       roles: ['gamer', 'creator'],
     },
     {
       email: 'admin@hathor.com',
-      passwordHash: hashPassword('Admin123!'),
+      passwordHash: await hashPassword('Admin123!'),
       displayName: 'Demo Admin',
       roles: ['gamer', 'creator', 'admin'],
     },
@@ -31,7 +26,17 @@ async function seed() {
 
   try {
     for (const user of defaultUsers) {
-      await authDb.insert(users).values(user).onConflictDoNothing({ target: users.email });
+      await authDb
+        .insert(users)
+        .values(user)
+        .onConflictDoUpdate({
+          target: users.email,
+          set: {
+            passwordHash: user.passwordHash,
+            displayName: user.displayName,
+            roles: user.roles,
+          },
+        });
     }
 
     console.log('Auth database seeding completed successfully!');
