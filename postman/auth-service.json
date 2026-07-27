@@ -546,6 +546,63 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Internal Services (Dev Only)",
+      "item": [
+        {
+          "name": "Get Service Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Hathor-Service-Credential",
+                "value": "commerce-service:commerce-service-secret-phrase",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  // SUCCESS: commerce-service is authorized to access catalog-service (scopes: catalog.quote.read, catalog.build.read)\n  \"audience\": \"catalog-service\"\n\n  // SUCCESS: commerce-service is authorized to access library-service (scopes: library.ownership.read)\n  // \"audience\": \"library-service\"\n\n  // FAILS (403 Forbidden): commerce-service is not authorized for commerce-service audience\n  // \"audience\": \"commerce-service\"\n\n  // FAILS (422 Unprocessable Entity): Unknown target service audience\n  // \"audience\": \"nonexistent-service\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/internal/v1/auth/service-tokens",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                "internal",
+                "v1",
+                "auth",
+                "service-tokens"
+              ]
+            },
+            "description": "Requests a short-lived internal service JWT token. This endpoint is private and bypasses the gateway; we publish port 5001 directly to test it locally."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
