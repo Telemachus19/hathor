@@ -55,14 +55,5 @@ export const roleChangeAudit = authSchema.table('role_change_audit', {
   timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow().notNull(),
 });
 
-export const passwordResetTokens = authSchema.table('password_reset_tokens', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  tokenHash: varchar('token_hash', { length: 255 }).notNull(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-  used: boolean('used').default(false).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-});
+
 

@@ -6,8 +6,6 @@ import { refreshHandler } from './user/refresh.js';
 import { logoutHandler } from './user/logout.js';
 import { jwksHandler } from './user/jwks.js';
 import { meHandler } from './user/me.js';
-import { forgotPasswordHandler } from './user/forgot.js';
-import { passwordResetHandler } from './user/password-reset.js';
 import { disableAccountHandler } from './user/disable.js';
 import { enableAccountHandler } from './user/enable.js';
 import { changeRolesHandler } from './user/roles.js';
@@ -20,8 +18,6 @@ export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
   router.post('/login', loginHandler);
   router.post('/refresh', refreshHandler);
   router.post('/logout', logoutHandler);
-  router.post('/password/forgot', forgotPasswordHandler);
-  router.post('/password/reset', passwordResetHandler);
   router.post('/:userId/disable', requireAuth, disableAccountHandler);
   router.post('/:userId/enable', requireAuth, enableAccountHandler);
   router.put('/:userId/roles', requireAuth, changeRolesHandler);

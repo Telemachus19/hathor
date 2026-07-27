@@ -24,8 +24,4 @@ export interface AuthService {
   refresh(): Promise<LoginResult>;
 
   logout(): Promise<void>;
-
-  requestPasswordReset(email: string): Promise<void>;
-
-  confirmPasswordReset(token: string, newPassword: string): Promise<void>;
 }

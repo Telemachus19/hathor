@@ -20,7 +20,7 @@ interface AuthCardProps {
 }
 
 export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
-  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot'>(mode);
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>(mode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -29,16 +29,14 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
 
-  const { login, register, requestPasswordReset } = useAuth();
+  const { login, register } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const handleTabSwitch = (newTab: 'login' | 'register' | 'forgot') => {
+  const handleTabSwitch = (newTab: 'login' | 'register') => {
     setActiveTab(newTab);
     setFieldErrors({});
-    if (newTab === 'login' || newTab === 'register') {
-      navigate({ to: newTab === 'login' ? '/login' : '/register' });
-    }
+    navigate({ to: newTab === 'login' ? '/login' : '/register' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,10 +52,6 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
       } else if (activeTab === 'register') {
         await register(displayName, email, password);
         showToast('success', 'Account registered successfully! Please sign in.');
-        handleTabSwitch('login');
-      } else if (activeTab === 'forgot') {
-        await requestPasswordReset(email);
-        showToast('success', 'If an account exists with that email address, a password reset link has been sent.');
         handleTabSwitch('login');
       }
     } catch (error: unknown) {
@@ -142,22 +136,16 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                 <>
                   WELCOME <span className={styles.highlightText}>BACK</span>
                 </>
-              ) : activeTab === 'register' ? (
-                <>
-                  CREATE <span className={styles.highlightText}>ACCOUNT</span>
-                </>
               ) : (
                 <>
-                  FORGOT <span className={styles.highlightText}>PASSWORD</span>
+                  CREATE <span className={styles.highlightText}>ACCOUNT</span>
                 </>
               )}
             </h2>
             <p className={styles.formSubtitle}>
               {activeTab === 'login'
                 ? 'Sign in to access your library and wishlist.'
-                : activeTab === 'register'
-                ? 'Join Hathor gaming platform and start playing today.'
-                : 'Enter your email address to receive a secure password reset link.'}
+                : 'Join Hathor gaming platform and start playing today.'}
             </p>
           </div>
 
@@ -207,47 +195,36 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
               )}
             </div>
 
-            {/* Password Input (Login & Register Only) */}
-            {activeTab !== 'forgot' && (
-              <div className={styles.inputGroup}>
-                <div className={styles.labelRow}>
-                  <label className={styles.inputLabel}>PASSWORD</label>
-                  {activeTab === 'login' && (
-                    <button
-                      type="button"
-                      className={styles.forgotLink}
-                      onClick={() => handleTabSwitch('forgot')}
-                    >
-                      Forgot?
-                    </button>
-                  )}
-                </div>
-                <div className={styles.inputFieldWrap}>
-                  <span className={styles.inputIcon}>
-                    <LockIcon />
-                  </span>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className={`${styles.inputControl} ${fieldErrors.password ? styles.inputControlError : ''}`}
-                  />
-                  <button
-                    type="button"
-                    className={styles.eyeToggleBtn}
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label="Toggle Password Visibility"
-                  >
-                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                  </button>
-                </div>
-                {fieldErrors.password && (
-                  <span className={styles.fieldErrorText}>{fieldErrors.password}</span>
-                )}
+            {/* Password Input */}
+            <div className={styles.inputGroup}>
+              <div className={styles.labelRow}>
+                <label className={styles.inputLabel}>PASSWORD</label>
               </div>
-            )}
+              <div className={styles.inputFieldWrap}>
+                <span className={styles.inputIcon}>
+                  <LockIcon />
+                </span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className={`${styles.inputControl} ${fieldErrors.password ? styles.inputControlError : ''}`}
+                />
+                <button
+                  type="button"
+                  className={styles.eyeToggleBtn}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label="Toggle Password Visibility"
+                >
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+              {fieldErrors.password && (
+                <span className={styles.fieldErrorText}>{fieldErrors.password}</span>
+              )}
+            </div>
 
             {/* Keep Signed In Checkbox */}
             {activeTab === 'login' && (
@@ -271,11 +248,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
               ) : (
                 <>
                   <ArrowRightIcon />{' '}
-                  {activeTab === 'login'
-                    ? 'SIGN IN'
-                    : activeTab === 'register'
-                    ? 'CREATE ACCOUNT'
-                    : 'SEND RESET LINK'}
+                  {activeTab === 'login' ? 'SIGN IN' : 'CREATE ACCOUNT'}
                 </>
               )}
             </button>
