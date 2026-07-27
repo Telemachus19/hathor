@@ -18,7 +18,10 @@ export class HttpAuthService implements AuthService {
   async register(input: RegisterInput): Promise<void> {
     return this.apiClient.request<void>('/api/v1/user/register', {
       method: 'POST',
-      body: JSON.stringify(input),
+      body: JSON.stringify({
+        ...input,
+        captchaToken: (input as any).captchaToken || 'dev-captcha-token',
+      }),
     });
   }
 

@@ -27,7 +27,7 @@ export function parseApiError(error: unknown): ProcessedApiError {
 
     switch (error.code) {
       case 'UNAUTHENTICATED':
-        userMessage = 'Your session has expired. Please sign in again.';
+        userMessage = error.message || 'Your session has expired. Please sign in again.';
         break;
       case 'INVALID_CREDENTIALS':
         userMessage = 'Invalid email address or password. Please check your credentials.';
