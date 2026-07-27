@@ -86,6 +86,35 @@ describe('POST /:userId/disable', () => {
     );
   });
 
+  it('prevents admins from disabling their own accounts', async () => {
+    const adminToken = generateAccessToken({
+      id: ADMIN_ID,
+      roles: ['admin'],
+      authorizationVersion: 1,
+    });
+
+    // Mock DB select for requireAuth (admin caller)
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: ADMIN_ID,
+        email: 'admin@example.com',
+        displayName: 'AdminUser',
+        roles: ['admin'],
+        authorizationVersion: 1,
+        disabled: false,
+      },
+    ]);
+
+    const response = await request(app)
+      .post(`/${ADMIN_ID}/disable`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('SELF_DISABLE_REJECTED');
+    expect(response.body.error.message).toContain('not allowed to disable their own accounts');
+    expect(authDb.update).not.toHaveBeenCalled();
+  });
+
   it('rejects disable action if requester is not an admin', async () => {
     const gamerToken = generateAccessToken({
       id: GAMER_ID,

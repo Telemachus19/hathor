@@ -21,6 +21,18 @@ export async function disableAccountHandler(req: AuthenticatedRequest, res: Resp
     });
   }
 
+  // Safeguard: Prevent administrators from disabling their own accounts
+  if (req.user.id === userId) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'SELF_DISABLE_REJECTED',
+        message: 'Administrators are not allowed to disable their own accounts',
+        correlationId,
+      },
+    });
+  }
+
   // 2. Validate userId format (UUID)
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(userId)) {
