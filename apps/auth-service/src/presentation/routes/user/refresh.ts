@@ -80,11 +80,7 @@ export async function refreshHandler(req: Request, res: Response) {
     }
 
     // 5. Query user to get current roles and authorizationVersion
-    const [user] = await authDb
-      .select()
-      .from(users)
-      .where(eq(users.id, token.userId))
-      .limit(1);
+    const [user] = await authDb.select().from(users).where(eq(users.id, token.userId)).limit(1);
 
     if (!user) {
       return res.status(401).json({
@@ -114,10 +110,7 @@ export async function refreshHandler(req: Request, res: Response) {
 
     await authDb.transaction(async (tx) => {
       // Mark old token as used
-      await tx
-        .update(refreshTokens)
-        .set({ used: true })
-        .where(eq(refreshTokens.id, token.id));
+      await tx.update(refreshTokens).set({ used: true }).where(eq(refreshTokens.id, token.id));
 
       // Insert new token in same family
       await tx.insert(refreshTokens).values({

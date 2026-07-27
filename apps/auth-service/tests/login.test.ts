@@ -58,12 +58,10 @@ describe('POST /user/login', () => {
     mockInsertChain.returning.mockResolvedValue([{ id: 'family-uuid' }]); // mock family insert
 
     // 3. Make login request
-    const response = await request(app)
-      .post('/login')
-      .send({
-        email: 'gamer@example.com',
-        password,
-      });
+    const response = await request(app).post('/login').send({
+      email: 'gamer@example.com',
+      password,
+    });
 
     // 4. Assertions
     expect(response.status).toBe(200);
@@ -101,12 +99,10 @@ describe('POST /user/login', () => {
       },
     ]);
 
-    const response = await request(app)
-      .post('/login')
-      .send({
-        email: 'gamer@example.com',
-        password: 'WrongPassword!',
-      });
+    const response = await request(app).post('/login').send({
+      email: 'gamer@example.com',
+      password: 'WrongPassword!',
+    });
 
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');
@@ -115,12 +111,10 @@ describe('POST /user/login', () => {
   it('rejects unregistered email with 401', async () => {
     mockSelectChain.limit.mockResolvedValue([]); // user not found
 
-    const response = await request(app)
-      .post('/login')
-      .send({
-        email: 'nonexistent@example.com',
-        password: 'Password123!',
-      });
+    const response = await request(app).post('/login').send({
+      email: 'nonexistent@example.com',
+      password: 'Password123!',
+    });
 
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');
@@ -138,12 +132,10 @@ describe('POST /user/login', () => {
       },
     ]);
 
-    const response = await request(app)
-      .post('/login')
-      .send({
-        email: 'gamer@example.com',
-        password: 'any-password',
-      });
+    const response = await request(app).post('/login').send({
+      email: 'gamer@example.com',
+      password: 'any-password',
+    });
 
     expect(response.status).toBe(403);
     expect(response.body.error.code).toBe('FORBIDDEN');

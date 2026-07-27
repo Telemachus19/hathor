@@ -12,8 +12,14 @@ export async function passwordResetHandler(req: Request, res: Response) {
   // 1. Input Validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (
-    !email || typeof email !== 'string' || email.length > 255 || !emailRegex.test(email) ||
-    !newPassword || typeof newPassword !== 'string' || newPassword.length < 12 || newPassword.length > 128
+    !email ||
+    typeof email !== 'string' ||
+    email.length > 255 ||
+    !emailRegex.test(email) ||
+    !newPassword ||
+    typeof newPassword !== 'string' ||
+    newPassword.length < 12 ||
+    newPassword.length > 128
   ) {
     return res.status(422).json({
       success: false,

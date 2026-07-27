@@ -16,13 +16,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health/live",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health",
-                "live"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "live"]
             },
             "description": "Verifies if the API Gateway or sub-service container is running."
           },
@@ -35,13 +30,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health/ready",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health",
-                "ready"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
             },
             "description": "Verifies if the database and external connections are ready."
           },
@@ -59,16 +49,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/.well-known/jwks.json",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                ".well-known",
-                "jwks.json"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", ".well-known", "jwks.json"]
             },
             "description": "Exposes the active public keys in JWKS format used by downstream microservices to verify user JWTs."
           },
@@ -113,15 +95,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "register"]
             },
             "description": "Registers a new user. The role defaults strictly to 'gamer' only."
           },
@@ -161,15 +136,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "register"]
             },
             "description": "Fails registration because it uses 'fail-token' which simulates a failed Turnstile verification check."
           },
@@ -209,15 +177,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "login"]
             },
             "description": "Authenticates user credentials, sets the refresh token cookie, and saves the accessToken as an environment variable."
           },
@@ -253,15 +214,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "login"]
             },
             "description": "Fails authentication due to an incorrect password."
           },
@@ -297,16 +251,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/password/reset",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "password",
-                "reset"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "password", "reset"]
             },
             "description": "Resets the user's password and increments their authorization_version, instantly invalidating any active access tokens."
           },
@@ -336,15 +282,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "refresh"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "refresh"]
             },
             "description": "Sends the HttpOnly cookie, marks the old token as used, issues a new access token, and sets a rotated refresh token cookie."
           },
@@ -380,15 +319,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "me"]
             },
             "description": "Fetches the current user profile. It parses the Bearer JWT token from the Authorization header and performs signature and authorization version verification."
           },
@@ -414,15 +346,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "logout"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "logout"]
             },
             "description": "Revokes the active refresh token family, increments user's authorization version, and clears the cookie."
           },
@@ -463,16 +388,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/:userId/disable",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                ":userId",
-                "disable"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", ":userId", "disable"],
               "variable": [
                 {
                   "key": "userId",
@@ -514,16 +431,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/:userId/enable",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                ":userId",
-                "enable"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", ":userId", "enable"],
               "variable": [
                 {
                   "key": "userId",
@@ -575,16 +484,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/:userId/roles",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                ":userId",
-                "roles"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", ":userId", "roles"],
               "variable": [
                 {
                   "key": "userId",
@@ -636,18 +537,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/user/internal/v1/auth/service-tokens",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "user",
-                "internal",
-                "v1",
-                "auth",
-                "service-tokens"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "internal", "v1", "auth", "service-tokens"]
             },
             "description": "Requests a short-lived internal service JWT token. This endpoint is private and bypasses the gateway; we publish port 5001 directly to test it locally."
           },

@@ -29,7 +29,7 @@ describe('POST /internal/v1/auth/service-tokens', () => {
     expect(claims.iss).toBe('hathor-auth-service');
     expect(claims.sub).toBe('commerce-service');
     expect(claims.aud).toBe('catalog-service');
-    
+
     // Check scopes format in JWT
     const typedClaims = claims as any;
     expect(typedClaims.scopes).toEqual(['catalog.quote.read', 'catalog.build.read']);
@@ -38,11 +38,9 @@ describe('POST /internal/v1/auth/service-tokens', () => {
   });
 
   it('rejects request if X-Hathor-Service-Credential header is missing', async () => {
-    const response = await request(app)
-      .post('/internal/v1/auth/service-tokens')
-      .send({
-        audience: 'catalog-service',
-      });
+    const response = await request(app).post('/internal/v1/auth/service-tokens').send({
+      audience: 'catalog-service',
+    });
 
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');
@@ -108,6 +106,8 @@ describe('POST /internal/v1/auth/service-tokens', () => {
 
     expect(response.status).toBe(403);
     expect(response.body.error.code).toBe('FORBIDDEN');
-    expect(response.body.error.message).toContain('not allowed to obtain a token for this audience');
+    expect(response.body.error.message).toContain(
+      'not allowed to obtain a token for this audience'
+    );
   });
 });

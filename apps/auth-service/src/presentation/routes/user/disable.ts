@@ -48,11 +48,7 @@ export async function disableAccountHandler(req: AuthenticatedRequest, res: Resp
 
   try {
     // 3. Fetch target user
-    const [targetUser] = await authDb
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
+    const [targetUser] = await authDb.select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (!targetUser) {
       return res.status(404).json({

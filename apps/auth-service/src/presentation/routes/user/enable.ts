@@ -36,11 +36,7 @@ export async function enableAccountHandler(req: AuthenticatedRequest, res: Respo
 
   try {
     // 3. Fetch target user
-    const [targetUser] = await authDb
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
+    const [targetUser] = await authDb.select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (!targetUser) {
       return res.status(404).json({

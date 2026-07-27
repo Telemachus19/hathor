@@ -12,12 +12,8 @@ export const users = authSchema.table('users', {
     .array()
     .notNull()
     .default(sql`ARRAY['gamer']::text[]`),
-  authorizationVersion: integer('authorization_version')
-    .notNull()
-    .default(1),
-  disabled: boolean('disabled')
-    .notNull()
-    .default(false),
+  authorizationVersion: integer('authorization_version').notNull().default(1),
+  disabled: boolean('disabled').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
@@ -49,8 +45,7 @@ export const refreshTokens = authSchema.table('refresh_tokens', {
 
 export const roleChangeAudit = authSchema.table('role_change_audit', {
   id: uuid('id').defaultRandom().primaryKey(),
-  actorId: uuid('actor_id')
-    .references(() => users.id, { onDelete: 'set null' }), // Nullable for bootstrap command
+  actorId: uuid('actor_id').references(() => users.id, { onDelete: 'set null' }), // Nullable for bootstrap command
   targetId: uuid('target_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),

@@ -49,7 +49,9 @@ export async function changeRolesHandler(req: AuthenticatedRequest, res: Respons
 
   // Validate allowed roles enum values
   const allowedRoles = ['gamer', 'creator', 'admin'];
-  const isValidRoles = roles.every((role) => typeof role === 'string' && allowedRoles.includes(role));
+  const isValidRoles = roles.every(
+    (role) => typeof role === 'string' && allowedRoles.includes(role)
+  );
   if (!isValidRoles) {
     return res.status(422).json({
       success: false,
@@ -64,11 +66,7 @@ export async function changeRolesHandler(req: AuthenticatedRequest, res: Respons
   try {
     const updatedUser = await authDb.transaction(async (tx) => {
       // 4. Fetch target user
-      const [targetUser] = await tx
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
+      const [targetUser] = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
 
       if (!targetUser) {
         throw new Error('USER_NOT_FOUND');

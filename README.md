@@ -69,11 +69,12 @@ corepack pnpm db:bootstrap-admin --email <gamer-email> --secret <bootstrap-secre
 ```
 
 **Example:**
+
 ```bash
 corepack pnpm db:bootstrap-admin --email gamer@hathor.com --secret SuperSecretKey123
 ```
 
-*Note: The bootstrap command is gated by the `INITIAL_ADMIN_BOOTSTRAP_SECRET` environment variable and will lock itself out on subsequent executions if any user with the `admin` role already exists in the database.*
+_Note: The bootstrap command is gated by the `INITIAL_ADMIN_BOOTSTRAP_SECRET` environment variable and will lock itself out on subsequent executions if any user with the `admin` role already exists in the database._
 
 ## Validation
 

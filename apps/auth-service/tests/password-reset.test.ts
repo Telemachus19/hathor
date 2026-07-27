@@ -45,12 +45,10 @@ describe('POST /password/reset', () => {
     ]);
 
     // 2. Make reset request
-    const response = await request(app)
-      .post('/password/reset')
-      .send({
-        email: 'gamer@example.com',
-        newPassword: 'BrandNewPassword123!', // Valid >= 12 chars
-      });
+    const response = await request(app).post('/password/reset').send({
+      email: 'gamer@example.com',
+      newPassword: 'BrandNewPassword123!', // Valid >= 12 chars
+    });
 
     // 3. Assertions
     expect(response.status).toBe(200);
@@ -69,24 +67,20 @@ describe('POST /password/reset', () => {
   it('returns 404 if user with email is not found', async () => {
     mockSelectChain.limit.mockResolvedValueOnce([]); // No user
 
-    const response = await request(app)
-      .post('/password/reset')
-      .send({
-        email: 'nobody@example.com',
-        newPassword: 'BrandNewPassword123!',
-      });
+    const response = await request(app).post('/password/reset').send({
+      email: 'nobody@example.com',
+      newPassword: 'BrandNewPassword123!',
+    });
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe('USER_NOT_FOUND');
   });
 
   it('returns 422 if password is too short', async () => {
-    const response = await request(app)
-      .post('/password/reset')
-      .send({
-        email: 'gamer@example.com',
-        newPassword: 'short', // invalid < 12 chars
-      });
+    const response = await request(app).post('/password/reset').send({
+      email: 'gamer@example.com',
+      newPassword: 'short', // invalid < 12 chars
+    });
 
     expect(response.status).toBe(422);
     expect(response.body.error.code).toBe('VALIDATION_FAILED');
@@ -103,12 +97,10 @@ describe('POST /password/reset', () => {
       },
     ]);
 
-    const response = await request(app)
-      .post('/password/reset')
-      .send({
-        email: 'gamer@example.com',
-        newPassword: 'BrandNewPassword123!',
-      });
+    const response = await request(app).post('/password/reset').send({
+      email: 'gamer@example.com',
+      newPassword: 'BrandNewPassword123!',
+    });
 
     expect(response.status).toBe(403);
     expect(response.body.error.code).toBe('FORBIDDEN');

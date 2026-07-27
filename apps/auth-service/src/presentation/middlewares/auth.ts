@@ -14,7 +14,8 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const correlationId = (req.headers['x-correlation-id'] as string) || req.headers['correlation-id'] || '';
+  const correlationId =
+    (req.headers['x-correlation-id'] as string) || req.headers['correlation-id'] || '';
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -35,11 +36,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     const claims = verifyAccessToken(token);
 
     // 2. Query user from DB to check current authorization version
-    const [user] = await authDb
-      .select()
-      .from(users)
-      .where(eq(users.id, claims.sub))
-      .limit(1);
+    const [user] = await authDb.select().from(users).where(eq(users.id, claims.sub)).limit(1);
 
     if (!user) {
       return res.status(401).json({

@@ -49,9 +49,7 @@ describe('GET /user/me', () => {
     ]);
 
     // 3. Make request
-    const response = await request(app)
-      .get('/me')
-      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).get('/me').set('Authorization', `Bearer ${token}`);
 
     // 4. Assertions
     expect(response.status).toBe(200);
@@ -93,9 +91,7 @@ describe('GET /user/me', () => {
       },
     ]);
 
-    const response = await request(app)
-      .get('/me')
-      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).get('/me').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');
@@ -132,9 +128,7 @@ describe('GET /user/me', () => {
       },
     ]);
 
-    const response = await request(app)
-      .get('/me')
-      .set('Authorization', `Bearer ${token}`);
+    const response = await request(app).get('/me').set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHENTICATED');

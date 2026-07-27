@@ -7,7 +7,7 @@ export class FakeTurnstileVerifier implements TurnstileVerifier {
     if (!token) {
       return false;
     }
-    
+
     if (token === 'fail-token' || token === 'invalid-token') {
       return false;
     }

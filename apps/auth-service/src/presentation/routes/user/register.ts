@@ -14,10 +14,22 @@ export function registerHandler(turnstileVerifier: TurnstileVerifier) {
     // 1. Input Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (
-      !email || typeof email !== 'string' || email.length > 255 || !emailRegex.test(email) ||
-      !password || typeof password !== 'string' || password.length < 12 || password.length > 128 ||
-      !displayName || typeof displayName !== 'string' || displayName.length < 3 || displayName.length > 100 ||
-      !captchaToken || typeof captchaToken !== 'string' || captchaToken.length < 1 || captchaToken.length > 4096
+      !email ||
+      typeof email !== 'string' ||
+      email.length > 255 ||
+      !emailRegex.test(email) ||
+      !password ||
+      typeof password !== 'string' ||
+      password.length < 12 ||
+      password.length > 128 ||
+      !displayName ||
+      typeof displayName !== 'string' ||
+      displayName.length < 3 ||
+      displayName.length > 100 ||
+      !captchaToken ||
+      typeof captchaToken !== 'string' ||
+      captchaToken.length < 1 ||
+      captchaToken.length > 4096
     ) {
       return res.status(422).json({
         success: false,

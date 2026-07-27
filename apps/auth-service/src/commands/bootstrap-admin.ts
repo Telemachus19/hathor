@@ -14,12 +14,18 @@ interface BootstrapParams {
 /**
  * Core testable logic for the One-Time Admin Bootstrap.
  */
-export async function runBootstrap({ email, secret, envSecret, db }: BootstrapParams): Promise<{ success: boolean; message: string }> {
+export async function runBootstrap({
+  email,
+  secret,
+  envSecret,
+  db,
+}: BootstrapParams): Promise<{ success: boolean; message: string }> {
   // 1. Check if bootstrap secret is configured in environment
   if (!envSecret) {
     return {
       success: false,
-      message: 'Bootstrap error: INITIAL_ADMIN_BOOTSTRAP_SECRET is not configured in the environment.',
+      message:
+        'Bootstrap error: INITIAL_ADMIN_BOOTSTRAP_SECRET is not configured in the environment.',
     };
   }
 
@@ -81,7 +87,10 @@ export async function runBootstrap({ email, secret, envSecret, db }: BootstrapPa
         correlationId: randomUUID(),
       });
 
-      return { success: true, message: `Successfully bootstrapped user "${email}" with initial admin role.` };
+      return {
+        success: true,
+        message: `Successfully bootstrapped user "${email}" with initial admin role.`,
+      };
     });
 
     return result;
@@ -114,7 +123,8 @@ export async function runBootstrap({ email, secret, envSecret, db }: BootstrapPa
 }
 
 // Self-executing CLI wrapper when run directly from Node
-const isMain = process.argv[1] && basename(process.argv[1]).replace(/\.[jt]sx?$/, '') === 'bootstrap-admin';
+const isMain =
+  process.argv[1] && basename(process.argv[1]).replace(/\.[jt]sx?$/, '') === 'bootstrap-admin';
 if (isMain) {
   const runCli = async () => {
     // Basic argument parsing: --email <email> --secret <secret>

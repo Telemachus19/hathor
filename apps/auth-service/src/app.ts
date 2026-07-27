@@ -53,4 +53,3 @@ export function createAuthApp(
 
   return app;
 }
-
