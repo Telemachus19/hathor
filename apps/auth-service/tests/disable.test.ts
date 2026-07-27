@@ -170,3 +170,143 @@ describe('POST /:userId/disable', () => {
     expect(response.body.error.code).toBe('VALIDATION_FAILED');
   });
 });
+
+describe('POST /:userId/enable', () => {
+  let app: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    app = createAuthApp(async () => {});
+  });
+
+  it('allows admins to enable a user and increment their authorizationVersion', async () => {
+    const adminToken = generateAccessToken({
+      id: ADMIN_ID,
+      roles: ['admin'],
+      authorizationVersion: 1,
+    });
+
+    // 1. Mock DB select for requireAuth (admin caller)
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: ADMIN_ID,
+        email: 'admin@example.com',
+        displayName: 'AdminUser',
+        roles: ['admin'],
+        authorizationVersion: 1,
+        disabled: false,
+      },
+    ]);
+
+    // 2. Mock DB select for enableAccountHandler (target user)
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: TARGET_ID,
+        email: 'gamer@example.com',
+        displayName: 'GamerUser',
+        roles: ['gamer'],
+        authorizationVersion: 5,
+        disabled: true, // disabled originally
+      },
+    ]);
+
+    const response = await request(app)
+      .post(`/${TARGET_ID}/enable`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+
+    expect(authDb.update).toHaveBeenCalled();
+    expect(mockUpdateChain.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        disabled: false,
+        authorizationVersion: 6, // 5 + 1
+      })
+    );
+  });
+
+  it('rejects enable action if requester is not an admin', async () => {
+    const gamerToken = generateAccessToken({
+      id: GAMER_ID,
+      roles: ['gamer'],
+      authorizationVersion: 1,
+    });
+
+    // Mock DB select for requireAuth (gamer caller)
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: GAMER_ID,
+        email: 'gamer@example.com',
+        displayName: 'GamerUser',
+        roles: ['gamer'],
+        authorizationVersion: 1,
+        disabled: false,
+      },
+    ]);
+
+    const response = await request(app)
+      .post(`/${TARGET_ID}/enable`)
+      .set('Authorization', `Bearer ${gamerToken}`);
+
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe('FORBIDDEN');
+  });
+
+  it('returns 404 if target user does not exist', async () => {
+    const adminToken = generateAccessToken({
+      id: ADMIN_ID,
+      roles: ['admin'],
+      authorizationVersion: 1,
+    });
+
+    // 1. Mock DB select for requireAuth (admin caller)
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: ADMIN_ID,
+        email: 'admin@example.com',
+        displayName: 'AdminUser',
+        roles: ['admin'],
+        authorizationVersion: 1,
+        disabled: false,
+      },
+    ]);
+
+    // 2. Mock DB select for enableAccountHandler (target user not found)
+    mockSelectChain.limit.mockResolvedValueOnce([]);
+
+    const response = await request(app)
+      .post(`/${NONEXISTENT_ID}/enable`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('USER_NOT_FOUND');
+  });
+
+  it('returns 422 if userId path parameter is not a valid UUID', async () => {
+    const adminToken = generateAccessToken({
+      id: ADMIN_ID,
+      roles: ['admin'],
+      authorizationVersion: 1,
+    });
+
+    // Mock DB select for requireAuth (admin caller)
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: ADMIN_ID,
+        email: 'admin@example.com',
+        displayName: 'AdminUser',
+        roles: ['admin'],
+        authorizationVersion: 1,
+        disabled: false,
+      },
+    ]);
+
+    const response = await request(app)
+      .post('/invalid-uuid-string/enable')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(response.status).toBe(422);
+    expect(response.body.error.code).toBe('VALIDATION_FAILED');
+  });
+});

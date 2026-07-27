@@ -485,6 +485,57 @@
           "response": []
         },
         {
+          "name": "Enable Account (Admin Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/:userId/enable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user",
+                ":userId",
+                "enable"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "user-id-to-enable"
+                }
+              ]
+            },
+            "description": "Enables a disabled user account. This endpoint can only be called by an administrator, and immediately increments the target user's authorization_version, updating all active sessions."
+          },
+          "response": []
+        },
+        {
           "name": "Change User Roles (Admin Only)",
           "event": [
             {
