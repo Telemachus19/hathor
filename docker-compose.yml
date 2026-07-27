@@ -118,6 +118,7 @@ services:
       PORT: 5001
       AUTH_DB_URL: postgresql://auth_app:${AUTH_DB_PASSWORD}@auth-postgres:5432/auth
       REDIS_URL: redis://redis:6379
+      INITIAL_ADMIN_BOOTSTRAP_SECRET: ${INITIAL_ADMIN_BOOTSTRAP_SECRET:-}
     depends_on:
       auth-postgres:
         condition: service_healthy

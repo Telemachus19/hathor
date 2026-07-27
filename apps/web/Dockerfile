@@ -5,6 +5,7 @@ RUN npm install --global pnpm@9.0.0
 
 WORKDIR /app
 COPY . .
+RUN apk add --no-cache python3 make g++
 RUN pnpm install --filter @hathor/web... --frozen-lockfile
 RUN pnpm --filter @hathor/web build
 

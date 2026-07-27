@@ -8,6 +8,20 @@
       "when": 1784138953626,
       "tag": "0000_mushy_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1785082600108,
+      "tag": "0001_bright_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1785099246232,
+      "tag": "0002_quick_lady_ursula",
+      "breakpoints": true
     }
   ]
 }
