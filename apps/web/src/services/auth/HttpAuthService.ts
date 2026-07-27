@@ -33,4 +33,11 @@ export class HttpAuthService implements AuthService {
       method: 'POST',
     });
   }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    return this.apiClient.request<void>('/api/v1/user/password/reset', {
+      method: 'POST',
+      body: JSON.stringify({ email, newPassword }),
+    });
+  }
 }

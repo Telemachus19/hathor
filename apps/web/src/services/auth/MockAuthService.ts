@@ -87,4 +87,20 @@ export class MockAuthService implements AuthService {
   async logout(): Promise<void> {
     await Promise.resolve();
   }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    console.log('Mock Password Reset:', email, newPassword);
+    if (!email.includes('@') || newPassword.length < 12) {
+      throw new GatewayApiError(
+        'VALIDATION_FAILED',
+        'Email must be valid and password must be at least 12 characters long',
+        422,
+        'corr-reset-422',
+        {
+          password: 'Password must be at least 12 characters long',
+        },
+      );
+    }
+    await new Promise((res) => setTimeout(res, 300));
+  }
 }

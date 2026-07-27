@@ -43,6 +43,11 @@ export type AuthContextValue = {
   refresh: () => Promise<void>;
 
   logout: () => Promise<void>;
+
+  resetPassword: (
+    email: string,
+    newPassword: string,
+  ) => Promise<void>;
 };
 
 const AuthContext =
@@ -194,6 +199,13 @@ export function AuthContextProvider({
     [authService],
   );
 
+  const resetPassword = useCallback(
+    async (email: string, newPassword: string) => {
+      await authService.resetPassword(email, newPassword);
+    },
+    [authService],
+  );
+
   const value =
     useMemo<AuthContextValue>(
       () => ({
@@ -205,6 +217,7 @@ export function AuthContextProvider({
         register,
         refresh,
         logout,
+        resetPassword,
       }),
       [
         accessToken,
@@ -215,6 +228,7 @@ export function AuthContextProvider({
         register,
         refresh,
         logout,
+        resetPassword,
       ],
     );
 
