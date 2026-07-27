@@ -72,6 +72,66 @@ paths:
       responses:
         '204': { description: Refresh-token family revoked }
         '401': { $ref: '#/components/responses/Unauthenticated' }
+  /user/password/forgot:
+    post:
+      tags: [User]
+      operationId: requestPasswordReset
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Generic anti-enumeration response confirming request received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+  /user/password/reset:
+    post:
+      tags: [User]
+      operationId: confirmPasswordReset
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token: { type: string }
+                newPassword: { type: string, minLength: 12, maxLength: 128 }
+      responses:
+        '200': { description: Password reset successfully }
+        '400': { description: Invalid, expired, or used reset token }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+  /user/oauth/google:
+    get:
+      tags: [User]
+      operationId: initiateGoogleOAuth
+      security: []
+      responses:
+        '302': { description: Redirects browser to Google OAuth consent page }
+  /user/oauth/google/callback:
+    get:
+      tags: [User]
+      operationId: handleGoogleOAuthCallback
+      security: []
+      parameters:
+        - { name: code, in: query, required: true, schema: { type: string } }
+        - { name: state, in: query, required: true, schema: { type: string } }
+      responses:
+        '302': { description: Sets HttpOnly refresh token cookie and redirects browser to frontend }
   /user/me:
     get:
       tags: [User]

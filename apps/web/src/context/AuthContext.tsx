@@ -44,10 +44,11 @@ export type AuthContextValue = {
 
   logout: () => Promise<void>;
 
-  resetPassword: (
-    email: string,
-    newPassword: string,
-  ) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+
+  confirmPasswordReset: (token: string, newPassword: string) => Promise<void>;
+
+  getGoogleOAuthUrl: () => string;
 };
 
 const AuthContext =
@@ -199,10 +200,22 @@ export function AuthContextProvider({
     [authService],
   );
 
-  const resetPassword = useCallback(
-    async (email: string, newPassword: string) => {
-      await authService.resetPassword(email, newPassword);
+  const requestPasswordReset = useCallback(
+    async (email: string) => {
+      await authService.requestPasswordReset(email);
     },
+    [authService],
+  );
+
+  const confirmPasswordReset = useCallback(
+    async (token: string, newPassword: string) => {
+      await authService.confirmPasswordReset(token, newPassword);
+    },
+    [authService],
+  );
+
+  const getGoogleOAuthUrl = useCallback(
+    () => authService.getGoogleOAuthUrl(),
     [authService],
   );
 
@@ -217,7 +230,9 @@ export function AuthContextProvider({
         register,
         refresh,
         logout,
-        resetPassword,
+        requestPasswordReset,
+        confirmPasswordReset,
+        getGoogleOAuthUrl,
       }),
       [
         accessToken,
@@ -228,7 +243,9 @@ export function AuthContextProvider({
         register,
         refresh,
         logout,
-        resetPassword,
+        requestPasswordReset,
+        confirmPasswordReset,
+        getGoogleOAuthUrl,
       ],
     );
 

@@ -88,12 +88,17 @@ export class MockAuthService implements AuthService {
     await Promise.resolve();
   }
 
-  async resetPassword(email: string, newPassword: string): Promise<void> {
-    console.log('Mock Password Reset:', email, newPassword);
-    if (!email.includes('@') || newPassword.length < 12) {
+  async requestPasswordReset(email: string): Promise<void> {
+    console.log('Mock Request Password Reset:', email);
+    await new Promise((res) => setTimeout(res, 300));
+  }
+
+  async confirmPasswordReset(token: string, newPassword: string): Promise<void> {
+    console.log('Mock Confirm Password Reset:', token, newPassword);
+    if (!token || newPassword.length < 12) {
       throw new GatewayApiError(
         'VALIDATION_FAILED',
-        'Email must be valid and password must be at least 12 characters long',
+        'Token is required and new password must be at least 12 characters long',
         422,
         'corr-reset-422',
         {
@@ -102,5 +107,9 @@ export class MockAuthService implements AuthService {
       );
     }
     await new Promise((res) => setTimeout(res, 300));
+  }
+
+  getGoogleOAuthUrl(): string {
+    return 'http://localhost:5000/api/v1/user/oauth/google';
   }
 }

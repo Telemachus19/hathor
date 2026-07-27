@@ -25,5 +25,9 @@ export interface AuthService {
 
   logout(): Promise<void>;
 
-  resetPassword(email: string, newPassword: string): Promise<void>;
+  requestPasswordReset(email: string): Promise<void>;
+
+  confirmPasswordReset(token: string, newPassword: string): Promise<void>;
+
+  getGoogleOAuthUrl(): string;
 }

@@ -29,6 +29,10 @@ export class GatewayApiError extends Error {
 export class ApiClient {
   constructor(private readonly config: ApiClientConfig) {}
 
+  getBaseUrl(): string {
+    return this.config.baseUrl;
+  }
+
   async request<T>(path: string, options?: RequestInit): Promise<T> {
     let response: Response;
     try {

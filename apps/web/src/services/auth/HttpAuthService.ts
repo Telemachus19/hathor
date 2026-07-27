@@ -34,10 +34,21 @@ export class HttpAuthService implements AuthService {
     });
   }
 
-  async resetPassword(email: string, newPassword: string): Promise<void> {
+  async requestPasswordReset(email: string): Promise<void> {
+    return this.apiClient.request<void>('/api/v1/user/password/forgot', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async confirmPasswordReset(token: string, newPassword: string): Promise<void> {
     return this.apiClient.request<void>('/api/v1/user/password/reset', {
       method: 'POST',
-      body: JSON.stringify({ email, newPassword }),
+      body: JSON.stringify({ token, newPassword }),
     });
+  }
+
+  getGoogleOAuthUrl(): string {
+    return `${this.apiClient.getBaseUrl()}/api/v1/user/oauth/google`;
   }
 }

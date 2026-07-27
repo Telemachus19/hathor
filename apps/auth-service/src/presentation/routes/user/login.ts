@@ -53,6 +53,17 @@ export async function loginHandler(req: Request, res: Response) {
       });
     }
 
+    if (!user.passwordHash) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'This account was created with Google OAuth. Please sign in with Google.',
+          correlationId,
+        },
+      });
+    }
+
     // 2. Verify password using Argon2id
     const isPasswordValid = await verifyPassword(password, user.passwordHash);
     if (!isPasswordValid) {

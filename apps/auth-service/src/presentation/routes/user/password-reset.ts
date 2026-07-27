@@ -1,21 +1,18 @@
 import { Request, Response } from 'express';
-import { randomUUID } from 'node:crypto';
-import { eq } from 'drizzle-orm';
+import { randomUUID, createHash } from 'node:crypto';
+import { eq, and, gt } from 'drizzle-orm';
 import { authDb } from '../../../infrastructure/db/client.js';
-import { users } from '../../../infrastructure/db/schema.js';
+import { users, passwordResetTokens } from '../../../infrastructure/db/schema.js';
 import { hashPassword } from '../../../domain/password.js';
 
 export async function passwordResetHandler(req: Request, res: Response) {
   const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
-  const { email, newPassword } = req.body;
+  const { token, newPassword } = req.body;
 
   // 1. Input Validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (
-    !email ||
-    typeof email !== 'string' ||
-    email.length > 255 ||
-    !emailRegex.test(email) ||
+    !token ||
+    typeof token !== 'string' ||
     !newPassword ||
     typeof newPassword !== 'string' ||
     newPassword.length < 12 ||
@@ -25,20 +22,46 @@ export async function passwordResetHandler(req: Request, res: Response) {
       success: false,
       error: {
         code: 'VALIDATION_FAILED',
-        message: 'Invalid email or password constraints',
+        message: 'Password reset token is required, and new password must be between 12 and 128 characters',
         correlationId,
       },
     });
   }
 
   try {
-    const normalizedEmail = email.toLowerCase();
+    // 2. Hash raw token with SHA-256 to lookup stored record
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+    const now = new Date();
 
-    // 2. Fetch User
+    // 3. Find valid reset token in DB
+    const [resetRecord] = await authDb
+      .select()
+      .from(passwordResetTokens)
+      .where(
+        and(
+          eq(passwordResetTokens.tokenHash, tokenHash),
+          eq(passwordResetTokens.used, false),
+          gt(passwordResetTokens.expiresAt, now)
+        )
+      )
+      .limit(1);
+
+    if (!resetRecord) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_RESET_TOKEN',
+          message: 'Password reset token is invalid, expired, or has already been used.',
+          correlationId,
+        },
+      });
+    }
+
+    // 4. Fetch target User
     const [user] = await authDb
       .select()
       .from(users)
-      .where(eq(users.email, normalizedEmail))
+      .where(eq(users.id, resetRecord.userId))
       .limit(1);
 
     if (!user) {
@@ -46,7 +69,7 @@ export async function passwordResetHandler(req: Request, res: Response) {
         success: false,
         error: {
           code: 'USER_NOT_FOUND',
-          message: 'No user registered with this email address',
+          message: 'Associated user account no longer exists',
           correlationId,
         },
       });
@@ -63,22 +86,30 @@ export async function passwordResetHandler(req: Request, res: Response) {
       });
     }
 
-    // 3. Hash the new password
+    // 5. Hash new password & prepare next authorization version
     const newPasswordHash = await hashPassword(newPassword);
-
-    // 4. Update password and increment authorizationVersion
     const nextAuthVersion = user.authorizationVersion + 1;
-    await authDb
-      .update(users)
-      .set({
-        passwordHash: newPasswordHash,
-        authorizationVersion: nextAuthVersion,
-      })
-      .where(eq(users.id, user.id));
+
+    // 6. Perform atomic update: mark token used, update passwordHash, increment authorizationVersion
+    await authDb.transaction(async (tx) => {
+      await tx
+        .update(passwordResetTokens)
+        .set({ used: true })
+        .where(eq(passwordResetTokens.id, resetRecord.id));
+
+      await tx
+        .update(users)
+        .set({
+          passwordHash: newPasswordHash,
+          authorizationVersion: nextAuthVersion,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, user.id));
+    });
 
     return res.status(200).json({
       success: true,
-      message: 'Password reset successfully, and active sessions have been invalidated.',
+      message: 'Password reset successfully. Active sessions have been invalidated.',
     });
   } catch (error) {
     console.error('Password reset error:', error);

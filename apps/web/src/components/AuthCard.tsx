@@ -21,7 +21,7 @@ interface AuthCardProps {
 }
 
 export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
-  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'reset'>(mode);
+  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot'>(mode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -30,11 +30,11 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
 
-  const { login, register, resetPassword } = useAuth();
+  const { login, register, requestPasswordReset, getGoogleOAuthUrl } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const handleTabSwitch = (newTab: 'login' | 'register' | 'reset') => {
+  const handleTabSwitch = (newTab: 'login' | 'register' | 'forgot') => {
     setActiveTab(newTab);
     setFieldErrors({});
     if (newTab === 'login' || newTab === 'register') {
@@ -56,9 +56,9 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
         await register(displayName, email, password);
         showToast('success', 'Account registered successfully! Please sign in.');
         handleTabSwitch('login');
-      } else if (activeTab === 'reset') {
-        await resetPassword(email, password);
-        showToast('success', 'Password reset successfully! Please sign in with your new password.');
+      } else if (activeTab === 'forgot') {
+        await requestPasswordReset(email);
+        showToast('success', 'If an account exists with that email address, a password reset link has been sent.');
         handleTabSwitch('login');
       }
     } catch (error: unknown) {
@@ -75,24 +75,9 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsSubmitting(true);
-    try {
-      const googleEmail = 'google.gamer@hathor.app';
-      const googleName = 'Google Gamer';
-      try {
-        await register(googleName, googleEmail, 'GoogleSSOPassword123!');
-      } catch {
-        // User already registered, proceed to login
-      }
-      await login(googleEmail, 'GoogleSSOPassword123!');
-      showToast('success', 'Signed in with Google Account successfully!');
-      navigate({ to: '/' });
-    } catch {
-      showToast('info', 'Google Single Sign-On initialized.');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleGoogleLogin = () => {
+    // Redirect browser to backend Google OAuth 2.0 endpoint
+    window.location.href = getGoogleOAuthUrl();
   };
 
   return (
@@ -169,7 +154,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                 </>
               ) : (
                 <>
-                  RESET <span className={styles.highlightText}>PASSWORD</span>
+                  FORGOT <span className={styles.highlightText}>PASSWORD</span>
                 </>
               )}
             </h2>
@@ -178,7 +163,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                 ? 'Sign in to access your library and wishlist.'
                 : activeTab === 'register'
                 ? 'Join Hathor gaming platform and start playing today.'
-                : 'Enter your email and a new password (min 12 characters).'}
+                : 'Enter your email address to receive a secure password reset link.'}
             </p>
           </div>
 
@@ -228,47 +213,47 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
               )}
             </div>
 
-            {/* Password Input */}
-            <div className={styles.inputGroup}>
-              <div className={styles.labelRow}>
-                <label className={styles.inputLabel}>
-                  {activeTab === 'reset' ? 'NEW PASSWORD' : 'PASSWORD'}
-                </label>
-                {activeTab === 'login' && (
+            {/* Password Input (Login & Register Only) */}
+            {activeTab !== 'forgot' && (
+              <div className={styles.inputGroup}>
+                <div className={styles.labelRow}>
+                  <label className={styles.inputLabel}>PASSWORD</label>
+                  {activeTab === 'login' && (
+                    <button
+                      type="button"
+                      className={styles.forgotLink}
+                      onClick={() => handleTabSwitch('forgot')}
+                    >
+                      Forgot?
+                    </button>
+                  )}
+                </div>
+                <div className={styles.inputFieldWrap}>
+                  <span className={styles.inputIcon}>
+                    <LockIcon />
+                  </span>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className={`${styles.inputControl} ${fieldErrors.password ? styles.inputControlError : ''}`}
+                  />
                   <button
                     type="button"
-                    className={styles.forgotLink}
-                    onClick={() => handleTabSwitch('reset')}
+                    className={styles.eyeToggleBtn}
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label="Toggle Password Visibility"
                   >
-                    Forgot?
+                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
+                </div>
+                {fieldErrors.password && (
+                  <span className={styles.fieldErrorText}>{fieldErrors.password}</span>
                 )}
               </div>
-              <div className={styles.inputFieldWrap}>
-                <span className={styles.inputIcon}>
-                  <LockIcon />
-                </span>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className={`${styles.inputControl} ${fieldErrors.password ? styles.inputControlError : ''}`}
-                />
-                <button
-                  type="button"
-                  className={styles.eyeToggleBtn}
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label="Toggle Password Visibility"
-                >
-                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                </button>
-              </div>
-              {fieldErrors.password && (
-                <span className={styles.fieldErrorText}>{fieldErrors.password}</span>
-              )}
-            </div>
+            )}
 
             {/* Keep Signed In Checkbox */}
             {activeTab === 'login' && (
@@ -296,7 +281,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                     ? 'SIGN IN'
                     : activeTab === 'register'
                     ? 'CREATE ACCOUNT'
-                    : 'RESET PASSWORD'}
+                    : 'SEND RESET LINK'}
                 </>
               )}
             </button>
