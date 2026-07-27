@@ -11,7 +11,7 @@ export class HttpAuthService implements AuthService {
   async login(identifier: string, password: string): Promise<LoginResult> {
     return this.apiClient.request<LoginResult>('/api/v1/user/login', {
       method: 'POST',
-      body: JSON.stringify({ identifier, password }),
+      body: JSON.stringify({ email: identifier, password }),
     });
   }
 
