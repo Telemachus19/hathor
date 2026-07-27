@@ -41,15 +41,7 @@ export const HathorLogo: React.FC<{
       </g>
 
       {/* Red Cartouche Oval */}
-      <rect
-        fill="#B82E16"
-        x="270"
-        y="195"
-        width="600"
-        height="350"
-        rx="175"
-        ry="175"
-      />
+      <rect fill="#B82E16" x="270" y="195" width="600" height="350" rx="175" ry="175" />
 
       {/* Ankh Symbol */}
       <g fill="#FFFFFF">
@@ -81,12 +73,38 @@ export const HathorLogo: React.FC<{
         <path fill="#1E8C4E" d="M 0 200 C 20 185 55 185 75 205 C 55 212 35 212 10 210 Z" />
         <ellipse fill="#FFFFFF" cx="50" cy="198" rx="8" ry="6" />
         <circle fill="#000000" cx="48" cy="198" r="3" />
-        <path fill="#1250B4" stroke="#FFFFFF" strokeWidth="7" d="M 45 235 C 75 235 105 250 125 280 L 75 330 C 60 300 50 270 45 235 Z" />
-        <path fill="#1A60C8" stroke="#FFFFFF" strokeWidth="7" d="M 125 280 C 155 310 175 350 190 390 L 125 390 C 115 360 100 330 75 330 Z" />
-        <path fill="#9B321D" stroke="#FFFFFF" strokeWidth="7" d="M 30 350 C 45 350 75 360 105 390 L 65 460 C 45 430 35 390 30 350 Z" />
-        <path fill="#9B321D" stroke="#FFFFFF" strokeWidth="7" d="M 105 390 C 135 420 160 460 175 500 L 115 500 C 100 470 85 430 65 460 Z" />
-        <path fill="#1E8C4E" d="M 20 470 C 35 470 55 490 70 530 L 35 590 C 25 550 20 510 20 470 Z" />
-        <path fill="#1E8C4E" d="M 70 530 C 90 570 105 620 110 660 L 65 660 C 60 620 50 570 35 590 Z" />
+        <path
+          fill="#1250B4"
+          stroke="#FFFFFF"
+          strokeWidth="7"
+          d="M 45 235 C 75 235 105 250 125 280 L 75 330 C 60 300 50 270 45 235 Z"
+        />
+        <path
+          fill="#1A60C8"
+          stroke="#FFFFFF"
+          strokeWidth="7"
+          d="M 125 280 C 155 310 175 350 190 390 L 125 390 C 115 360 100 330 75 330 Z"
+        />
+        <path
+          fill="#9B321D"
+          stroke="#FFFFFF"
+          strokeWidth="7"
+          d="M 30 350 C 45 350 75 360 105 390 L 65 460 C 45 430 35 390 30 350 Z"
+        />
+        <path
+          fill="#9B321D"
+          stroke="#FFFFFF"
+          strokeWidth="7"
+          d="M 105 390 C 135 420 160 460 175 500 L 115 500 C 100 470 85 430 65 460 Z"
+        />
+        <path
+          fill="#1E8C4E"
+          d="M 20 470 C 35 470 55 490 70 530 L 35 590 C 25 550 20 510 20 470 Z"
+        />
+        <path
+          fill="#1E8C4E"
+          d="M 70 530 C 90 570 105 620 110 660 L 65 660 C 60 620 50 570 35 590 Z"
+        />
       </g>
     </svg>
   );

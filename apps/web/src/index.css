@@ -28,13 +28,7 @@
   --border-color: rgba(53, 60, 77, 0.4);
   --bg-input: #1a1e28;
 
-  font-family:
-    Inter,
-    system-ui,
-    Avenir,
-    Helvetica,
-    Arial,
-    sans-serif;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 /* ========================================
@@ -89,20 +83,13 @@ button {
 ======================================== */
 
 .font-hathor-brand {
-  font-family:
-    'Cinzel Decorative',
-    'Cinzel',
-    serif;
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
 
-  letter-spacing:
-    0.16em;
+  letter-spacing: 0.16em;
 }
 
 .font-cinzel {
-  font-family:
-    'Cinzel',
-    serif;
+  font-family: 'Cinzel', serif;
 
-  letter-spacing:
-    0.08em;
+  letter-spacing: 0.08em;
 }

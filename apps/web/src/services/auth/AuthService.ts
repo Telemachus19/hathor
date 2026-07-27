@@ -12,14 +12,9 @@ export type RegisterInput = {
 };
 
 export interface AuthService {
-  login(
-    identifier: string,
-    password: string,
-  ): Promise<LoginResult>;
+  login(identifier: string, password: string): Promise<LoginResult>;
 
-  register(
-    input: RegisterInput,
-  ): Promise<void>;
+  register(input: RegisterInput): Promise<void>;
 
   refresh(): Promise<LoginResult>;
 

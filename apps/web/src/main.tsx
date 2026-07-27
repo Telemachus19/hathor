@@ -1,13 +1,7 @@
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import {
-  RouterProvider,
-  createRouter,
-} from '@tanstack/react-router';
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
+import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthContextProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
@@ -37,9 +31,7 @@ function AppWithRouter() {
   return <RouterProvider router={router} context={{ auth }} />;
 }
 
-ReactDOM.createRoot(
-  document.getElementById('root')!,
-).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -50,5 +42,5 @@ ReactDOM.createRoot(
         </ToastProvider>
       </QueryClientProvider>
     </ErrorBoundary>
-  </StrictMode>,
+  </StrictMode>
 );

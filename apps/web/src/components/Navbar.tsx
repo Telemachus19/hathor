@@ -3,13 +3,7 @@ import { Link, useLocation } from '@tanstack/react-router';
 import styles from '../styles/Navbar.module.css';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import {
-  GlobeIcon,
-  CartIcon,
-  LoginIcon,
-  UserIcon,
-  HathorLogo,
-} from '../assets';
+import { GlobeIcon, CartIcon, LoginIcon, UserIcon, HathorLogo } from '../assets';
 
 export const Navbar: React.FC<{ initialCartCount?: number }> = ({ initialCartCount = 2 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -136,11 +130,7 @@ export const Navbar: React.FC<{ initialCartCount?: number }> = ({ initialCartCou
                     <UserIcon /> {user?.displayName ? user.displayName.toUpperCase() : 'PROFILE'}
                   </Link>
 
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className={styles.logoutBtn}
-                  >
+                  <button type="button" onClick={handleLogout} className={styles.logoutBtn}>
                     LOGOUT
                   </button>
                 </>
@@ -161,9 +151,15 @@ export const Navbar: React.FC<{ initialCartCount?: number }> = ({ initialCartCou
               onClick={() => setMobileMenuOpen((prev) => !prev)}
               aria-label="Toggle Menu"
             >
-              <span className={`${styles.hamburgerLine} ${mobileMenuOpen ? styles.lineTopOpen : ''}`} />
-              <span className={`${styles.hamburgerLine} ${mobileMenuOpen ? styles.lineMidOpen : ''}`} />
-              <span className={`${styles.hamburgerLine} ${mobileMenuOpen ? styles.lineBotOpen : ''}`} />
+              <span
+                className={`${styles.hamburgerLine} ${mobileMenuOpen ? styles.lineTopOpen : ''}`}
+              />
+              <span
+                className={`${styles.hamburgerLine} ${mobileMenuOpen ? styles.lineMidOpen : ''}`}
+              />
+              <span
+                className={`${styles.hamburgerLine} ${mobileMenuOpen ? styles.lineBotOpen : ''}`}
+              />
             </button>
           </div>
         </div>
@@ -235,18 +231,10 @@ export const Navbar: React.FC<{ initialCartCount?: number }> = ({ initialCartCou
             {/* Dynamic Mobile Auth Controls */}
             {isAuthenticated ? (
               <div className={styles.mobileUserRow}>
-                <Link
-                  to="/profile"
-                  onClick={closeMobileMenu}
-                  className={styles.mobileUserBtn}
-                >
+                <Link to="/profile" onClick={closeMobileMenu} className={styles.mobileUserBtn}>
                   <UserIcon /> {user?.displayName || 'PROFILE'}
                 </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className={styles.mobileLogoutBtn}
-                >
+                <button type="button" onClick={handleLogout} className={styles.mobileLogoutBtn}>
                   LOGOUT
                 </button>
               </div>

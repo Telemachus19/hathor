@@ -15,7 +15,7 @@ export class GatewayApiError extends Error {
     message: string,
     status: number,
     correlationId?: string,
-    details?: Record<string, string | string[]>,
+    details?: Record<string, string | string[]>
   ) {
     super(message);
     this.name = 'GatewayApiError';
@@ -48,7 +48,7 @@ export class ApiClient {
       throw new GatewayApiError(
         'NETWORK_ERROR',
         'Unable to connect to gateway service. Please check your network connection.',
-        0,
+        0
       );
     }
 
@@ -79,14 +79,14 @@ export class ApiClient {
           message || response.statusText || 'API request failed',
           response.status,
           correlationId,
-          Object.keys(detailsMap).length > 0 ? detailsMap : undefined,
+          Object.keys(detailsMap).length > 0 ? detailsMap : undefined
         );
       }
 
       throw new GatewayApiError(
         `HTTP_${response.status}`,
         `API request failed with status ${response.status}`,
-        response.status,
+        response.status
       );
     }
 
@@ -95,7 +95,13 @@ export class ApiClient {
     }
 
     const data = await response.json();
-    if (data && typeof data === 'object' && 'success' in data && data.success === true && 'data' in data) {
+    if (
+      data &&
+      typeof data === 'object' &&
+      'success' in data &&
+      data.success === true &&
+      'data' in data
+    ) {
       return data.data as T;
     }
 

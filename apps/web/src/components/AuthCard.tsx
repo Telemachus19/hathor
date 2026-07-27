@@ -247,8 +247,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                 <span className={styles.spinner}>Processing...</span>
               ) : (
                 <>
-                  <ArrowRightIcon />{' '}
-                  {activeTab === 'login' ? 'SIGN IN' : 'CREATE ACCOUNT'}
+                  <ArrowRightIcon /> {activeTab === 'login' ? 'SIGN IN' : 'CREATE ACCOUNT'}
                 </>
               )}
             </button>

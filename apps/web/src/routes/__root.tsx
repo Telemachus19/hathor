@@ -1,7 +1,4 @@
-import {
-  createRootRouteWithContext,
-  Outlet,
-} from '@tanstack/react-router';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import type { AuthContextValue } from '../context/AuthContext';
@@ -58,10 +55,7 @@ function ErrorScreen({ error }: { error: Error }) {
 
       <p>{error.message}</p>
 
-      <button
-        type="button"
-        onClick={() => window.location.reload()}
-      >
+      <button type="button" onClick={() => window.location.reload()}>
         Try Again
       </button>
     </main>

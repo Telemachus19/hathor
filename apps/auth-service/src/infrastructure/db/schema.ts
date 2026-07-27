@@ -54,6 +54,3 @@ export const roleChangeAudit = authSchema.table('role_change_audit', {
   correlationId: uuid('correlation_id').notNull(),
   timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow().notNull(),
 });
-
-
-

@@ -1,9 +1,5 @@
 import type { ApiClient } from '../api/ApiClient';
-import type {
-  AuthService,
-  LoginResult,
-  RegisterInput,
-} from './AuthService';
+import type { AuthService, LoginResult, RegisterInput } from './AuthService';
 
 export class HttpAuthService implements AuthService {
   constructor(private readonly apiClient: ApiClient) {}

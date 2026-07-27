@@ -13,9 +13,15 @@ export const Footer: React.FC = () => {
         </Link>
 
         <div className={styles.links}>
-          <a href="#" className={styles.link}>PRIVACY POLICY</a>
-          <a href="#" className={styles.link}>TERMS</a>
-          <a href="#" className={styles.link}>SUPPORT</a>
+          <a href="#" className={styles.link}>
+            PRIVACY POLICY
+          </a>
+          <a href="#" className={styles.link}>
+            TERMS
+          </a>
+          <a href="#" className={styles.link}>
+            SUPPORT
+          </a>
         </div>
 
         <span className={styles.copy}>&copy; 2026 Hathor Game Emporium</span>

@@ -1,8 +1,4 @@
-import type {
-  AuthService,
-  LoginResult,
-  RegisterInput,
-} from './AuthService';
+import type { AuthService, LoginResult, RegisterInput } from './AuthService';
 import { GatewayApiError } from '../api/ApiClient';
 
 export class MockAuthService implements AuthService {
@@ -15,7 +11,7 @@ export class MockAuthService implements AuthService {
         'INVALID_CREDENTIALS',
         'Invalid email address or password.',
         401,
-        'corr-login-401',
+        'corr-login-401'
       );
     }
 
@@ -28,7 +24,7 @@ export class MockAuthService implements AuthService {
         {
           email: 'Enter a valid email address format',
           password: 'Password must contain at least one uppercase letter',
-        },
+        }
       );
     }
 
@@ -54,7 +50,7 @@ export class MockAuthService implements AuthService {
         'An account with this email address already exists.',
         409,
         'corr-reg-409',
-        { email: 'Email already registered' },
+        { email: 'Email already registered' }
       );
     }
 
@@ -67,7 +63,7 @@ export class MockAuthService implements AuthService {
         {
           displayName: 'Display name must be at least 3 characters',
           password: 'Password must be at least 6 characters long',
-        },
+        }
       );
     }
 
@@ -80,7 +76,7 @@ export class MockAuthService implements AuthService {
       'UNAUTHENTICATED',
       'Session expired or refresh token invalid',
       401,
-      'corr-ref-401',
+      'corr-ref-401'
     );
   }
 
