@@ -108,8 +108,4 @@ export class MockAuthService implements AuthService {
     }
     await new Promise((res) => setTimeout(res, 300));
   }
-
-  getGoogleOAuthUrl(): string {
-    return 'http://localhost:5000/api/v1/user/oauth/google';
-  }
 }

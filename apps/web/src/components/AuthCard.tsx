@@ -11,7 +11,6 @@ import {
   EyeIcon,
   EyeOffIcon,
   UserIcon,
-  GoogleIcon,
   ArrowRightIcon,
 } from '../assets';
 import authHeroBg from '../assets/auth-hero-bg.png';
@@ -30,7 +29,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
 
-  const { login, register, requestPasswordReset, getGoogleOAuthUrl } = useAuth();
+  const { login, register, requestPasswordReset } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -73,11 +72,6 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    // Redirect browser to backend Google OAuth 2.0 endpoint
-    window.location.href = getGoogleOAuthUrl();
   };
 
   return (
@@ -286,18 +280,6 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
               )}
             </button>
           </form>
-
-          {/* Social Login Divider */}
-          <div className={styles.dividerWrap}>
-            <span className={styles.dividerLine} />
-            <span className={styles.dividerText}>OR CONTINUE WITH</span>
-            <span className={styles.dividerLine} />
-          </div>
-
-          {/* Google SSO Button */}
-          <button type="button" className={styles.googleBtn} onClick={handleGoogleLogin}>
-            <GoogleIcon /> CONTINUE WITH GOOGLE
-          </button>
 
           {/* Footer Callout */}
           <div className={styles.cardFooter}>

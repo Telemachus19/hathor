@@ -16,6 +16,5 @@ export {
   EyeIcon,
   EyeOffIcon,
   UserIcon,
-  GoogleIcon,
   ArrowRightIcon,
 } from './Icons';

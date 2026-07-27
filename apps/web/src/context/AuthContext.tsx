@@ -47,8 +47,6 @@ export type AuthContextValue = {
   requestPasswordReset: (email: string) => Promise<void>;
 
   confirmPasswordReset: (token: string, newPassword: string) => Promise<void>;
-
-  getGoogleOAuthUrl: () => string;
 };
 
 const AuthContext =
@@ -214,11 +212,6 @@ export function AuthContextProvider({
     [authService],
   );
 
-  const getGoogleOAuthUrl = useCallback(
-    () => authService.getGoogleOAuthUrl(),
-    [authService],
-  );
-
   const value =
     useMemo<AuthContextValue>(
       () => ({
@@ -232,7 +225,6 @@ export function AuthContextProvider({
         logout,
         requestPasswordReset,
         confirmPasswordReset,
-        getGoogleOAuthUrl,
       }),
       [
         accessToken,
@@ -245,7 +237,6 @@ export function AuthContextProvider({
         logout,
         requestPasswordReset,
         confirmPasswordReset,
-        getGoogleOAuthUrl,
       ],
     );
 

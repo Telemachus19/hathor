@@ -115,23 +115,6 @@ paths:
         '200': { description: Password reset successfully }
         '400': { description: Invalid, expired, or used reset token }
         '422': { $ref: '#/components/responses/ValidationFailed' }
-  /user/oauth/google:
-    get:
-      tags: [User]
-      operationId: initiateGoogleOAuth
-      security: []
-      responses:
-        '302': { description: Redirects browser to Google OAuth consent page }
-  /user/oauth/google/callback:
-    get:
-      tags: [User]
-      operationId: handleGoogleOAuthCallback
-      security: []
-      parameters:
-        - { name: code, in: query, required: true, schema: { type: string } }
-        - { name: state, in: query, required: true, schema: { type: string } }
-      responses:
-        '302': { description: Sets HttpOnly refresh token cookie and redirects browser to frontend }
   /user/me:
     get:
       tags: [User]

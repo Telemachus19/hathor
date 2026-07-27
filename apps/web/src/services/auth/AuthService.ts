@@ -28,6 +28,4 @@ export interface AuthService {
   requestPasswordReset(email: string): Promise<void>;
 
   confirmPasswordReset(token: string, newPassword: string): Promise<void>;
-
-  getGoogleOAuthUrl(): string;
 }

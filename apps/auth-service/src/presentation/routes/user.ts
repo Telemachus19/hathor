@@ -8,8 +8,6 @@ import { jwksHandler } from './user/jwks.js';
 import { meHandler } from './user/me.js';
 import { forgotPasswordHandler } from './user/forgot.js';
 import { passwordResetHandler } from './user/password-reset.js';
-import { googleOAuthRedirectHandler } from './user/oauth-google.js';
-import { googleOAuthCallbackHandler } from './user/oauth-google-callback.js';
 import { disableAccountHandler } from './user/disable.js';
 import { enableAccountHandler } from './user/enable.js';
 import { changeRolesHandler } from './user/roles.js';
@@ -24,8 +22,6 @@ export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
   router.post('/logout', logoutHandler);
   router.post('/password/forgot', forgotPasswordHandler);
   router.post('/password/reset', passwordResetHandler);
-  router.get('/oauth/google', googleOAuthRedirectHandler);
-  router.get('/oauth/google/callback', googleOAuthCallbackHandler);
   router.post('/:userId/disable', requireAuth, disableAccountHandler);
   router.post('/:userId/enable', requireAuth, enableAccountHandler);
   router.put('/:userId/roles', requireAuth, changeRolesHandler);

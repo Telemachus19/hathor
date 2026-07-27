@@ -50,8 +50,4 @@ export class HttpAuthService implements AuthService {
       body: JSON.stringify({ token, newPassword }),
     });
   }
-
-  getGoogleOAuthUrl(): string {
-    return `${this.apiClient.getBaseUrl()}/api/v1/user/oauth/google`;
-  }
 }
