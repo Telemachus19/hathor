@@ -161,10 +161,14 @@ export async function googleOAuthCallbackHandler(req: Request, res: Response) {
     });
 
     // 7. Set HttpOnly Cookie
-    const isProd = process.env.NODE_ENV === 'production';
+    const isSecure =
+      process.env.COOKIE_SECURE !== undefined
+        ? process.env.COOKIE_SECURE === 'true'
+        : process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test';
+
     res.cookie('refreshToken', rawRefreshToken, {
       httpOnly: true,
-      secure: isProd,
+      secure: isSecure,
       sameSite: 'lax',
       path: '/api/v1/user',
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),

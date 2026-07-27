@@ -33,12 +33,17 @@ export async function logoutHandler(req: Request, res: Response) {
       .where(eq(refreshTokens.tokenHash, tokenHash))
       .limit(1);
 
+    const isSecure =
+      process.env.COOKIE_SECURE !== undefined
+        ? process.env.COOKIE_SECURE === 'true'
+        : process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test';
+
     if (!result) {
       // Clear cookie anyway to prevent loops
       res.clearCookie('refreshToken', {
         path: '/api/v1/user',
         httpOnly: true,
-        secure: true,
+        secure: isSecure,
         sameSite: 'lax',
       });
       return res.status(401).json({
@@ -74,7 +79,7 @@ export async function logoutHandler(req: Request, res: Response) {
     res.clearCookie('refreshToken', {
       path: '/api/v1/user',
       httpOnly: true,
-      secure: true,
+      secure: isSecure,
       sameSite: 'lax',
     });
 

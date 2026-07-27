@@ -106,9 +106,14 @@ export async function loginHandler(req: Request, res: Response) {
     });
 
     // 5. Set HTTP-Only Cookie scoped to refresh route
+    const isSecure =
+      process.env.COOKIE_SECURE !== undefined
+        ? process.env.COOKIE_SECURE === 'true'
+        : process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test';
+
     res.cookie('refreshToken', rawRefreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: isSecure,
       sameSite: 'lax',
       path: '/api/v1/user',
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
