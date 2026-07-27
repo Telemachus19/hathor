@@ -4,7 +4,7 @@ import { HttpAuthService } from './HttpAuthService';
 import { MockAuthService } from './MockAuthService';
 
 const apiBaseUrl = (import.meta.env.VITE_API_URL as string) || '';
-const useMockAuth = import.meta.env.VITE_USE_MOCK_AUTH !== 'false';
+const useMockAuth = import.meta.env.VITE_USE_MOCK_AUTH === 'true';
 
 const apiClient = new ApiClient({ baseUrl: apiBaseUrl });
 

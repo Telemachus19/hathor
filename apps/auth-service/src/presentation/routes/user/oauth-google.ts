@@ -24,7 +24,7 @@ export async function googleOAuthRedirectHandler(_req: Request, res: Response) {
     httpOnly: true,
     secure: isProd,
     sameSite: 'lax',
-    path: '/api/v1/user/oauth/google/callback',
+    path: '/',
     maxAge: 10 * 60 * 1000, // 10 minutes
   });
 

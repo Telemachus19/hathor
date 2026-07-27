@@ -7,6 +7,12 @@ WORKDIR /app
 COPY . .
 RUN apk add --no-cache python3 make g++
 RUN pnpm install --filter @hathor/web... --frozen-lockfile
+
+ARG VITE_API_URL=""
+ARG VITE_USE_MOCK_AUTH="false"
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_USE_MOCK_AUTH=$VITE_USE_MOCK_AUTH
+
 RUN pnpm --filter @hathor/web build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime

@@ -16,7 +16,7 @@ export async function googleOAuthCallbackHandler(req: Request, res: Response) {
 
   // Clear state cookie
   res.clearCookie('oauth_state', {
-    path: '/api/v1/user/oauth/google/callback',
+    path: '/',
   });
 
   if (googleError || !code || typeof code !== 'string') {
