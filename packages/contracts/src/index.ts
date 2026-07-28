@@ -1,8 +1,6 @@
 export type { ApiError, ApiErrorDetail, ApiSuccess, HealthStatus } from './http.js';
 export type { DomainEventEnvelope } from './events.js';
-<<<<<<< Updated upstream
-
-export { ApiClient, createApiClient, GatewayApiError, type ApiClientConfig } from './client.js';
+export { createApiClient, GatewayApiError, type ApiClient, type ApiClientConfig } from './client.js';
 
 import type { components } from './generated/openapi.js';
 export type { paths, components, operations } from './generated/openapi.js';
@@ -27,6 +25,3 @@ export type AiThemeProposal = components['schemas']['AiThemeProposal'];
 export type RoleChangeRequest = components['schemas']['RoleChangeRequest'];
 export type GameStatusChangeRequest = components['schemas']['GameStatusChangeRequest'];
 export type ApiErrorResponse = components['schemas']['Error'];
-=======
-export { ApiClient, createApiClient, GatewayApiError, type ApiClientConfig } from './client.js';
->>>>>>> Stashed changes

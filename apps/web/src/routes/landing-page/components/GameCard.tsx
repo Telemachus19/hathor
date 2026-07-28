@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@tanstack/react-router';
 import styles from '../styles/GameCard.module.css';
 import { StarIcon, CartIcon } from '../assets';
 
@@ -6,6 +7,7 @@ import { StarIcon, CartIcon } from '../assets';
  * Component props for rendering an individual game storefront card.
  */
 export interface GameCardProps {
+  slug?: string;
   title: string;
   category?: string;
   tags?: Array<{ name: string; slug: string }>;
@@ -16,12 +18,14 @@ export interface GameCardProps {
   tag?: string;
   discountTag?: string;
   showAddButton?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 /**
- * Presentational GameCard component handling EGP pricing, discounts, and ratings.
+ * Presentational GameCard component handling EGP pricing, discounts, ratings, and navigation.
  */
 export const GameCard: React.FC<GameCardProps> = ({
+  slug,
   title,
   category,
   tags,
@@ -32,6 +36,7 @@ export const GameCard: React.FC<GameCardProps> = ({
   tag,
   discountTag,
   showAddButton = false,
+  onClick,
 }) => {
   const numericPrice = typeof priceEgp === 'number' ? priceEgp : parseFloat(priceEgp || '0');
   const isFree = numericPrice === 0;
@@ -48,8 +53,8 @@ export const GameCard: React.FC<GameCardProps> = ({
     ? tags[0].name.toUpperCase()
     : (category ? category.toUpperCase() : 'GAME');
 
-  return (
-    <div className={styles.card}>
+  const cardInner = (
+    <div className={styles.card} onClick={onClick}>
       <div className={styles.imageWrap}>
         <img className={styles.image} src={imageUrl || fallbackImage} alt={title} loading="lazy" />
         {tag && (
@@ -87,7 +92,13 @@ export const GameCard: React.FC<GameCardProps> = ({
             )}
           </div>
           {showAddButton && !isFree && (
-            <button className={styles.addBtn}>
+            <button
+              className={styles.addBtn}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
               <CartIcon width={11} height={11} /> ADD
             </button>
           )}
@@ -95,4 +106,14 @@ export const GameCard: React.FC<GameCardProps> = ({
       </div>
     </div>
   );
+
+  if (slug) {
+    return (
+      <Link to="/store/games/$slug" params={{ slug }} className={styles.cardLink}>
+        {cardInner}
+      </Link>
+    );
+  }
+
+  return cardInner;
 };

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from '../styles/FeaturedGames.module.css';
 import { GameCard } from './GameCard';
 import { EyeOfHorusIcon } from '../assets';
-import { useCatalogGames } from '../../../api/catalog';
+import { useCatalogGames } from '../../../services/api/catalog';
 
 /**
  * Featured games carousel section displaying curated storefront catalog items.
@@ -81,6 +81,7 @@ export const FeaturedGames: React.FC = () => {
             {fetchedGames.map((game, index) => (
               <div key={game.slug || index} className={styles.carouselItem}>
                 <GameCard
+                  slug={game.slug}
                   title={game.title}
                   tags={game.tags}
                   priceEgp={game.priceEgp}

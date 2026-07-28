@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from '../styles/MoreGames.module.css';
 import { GameCard } from './GameCard';
 import { EyeOfHorusIcon, LogoSolidSmallIcon } from '../assets';
-import { useInfiniteCatalogGames } from '../../../api/catalog';
+import { useInfiniteCatalogGames } from '../../../services/api/catalog';
 
 const categories = ['ALL', 'RPG', 'ACTION', 'INDIE', 'STRATEGY', 'CYBERPUNK'];
 
@@ -104,6 +104,7 @@ export const MoreGames: React.FC = () => {
           {gamesList.map((game, idx) => (
             <GameCard
               key={`${game.slug}-${idx}`}
+              slug={game.slug}
               title={game.title}
               tags={game.tags}
               priceEgp={game.priceEgp}

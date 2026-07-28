@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import GameDetailsPage from './game-details/GameDetailsPage';
-import { useGameBySlug } from '../api/catalog';
+import { useGameBySlug } from '../services/api/catalog';
 
 export const Route = createFileRoute('/store/games/$slug')({
   component: GameDetailsRouteComponent,

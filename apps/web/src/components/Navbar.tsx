@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import styles from '../styles/Navbar.module.css';
 import {
   HathorLogo,
@@ -17,8 +17,16 @@ import { useAuth } from '../context/AuthContext';
 
 export const Navbar: React.FC = () => {
   const auth = useAuth();
+  const navigate = useNavigate();
   const isAuthenticated = auth?.isAuthenticated ?? false;
   const user = auth?.user;
+
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.logout();
+    }
+    void navigate({ to: '/' });
+  };
 
   return (
     <nav className={styles.navbarWrapper}>
@@ -44,7 +52,7 @@ export const Navbar: React.FC = () => {
                 {user?.displayName ? user.displayName.toUpperCase() : 'PROFILE'}
               </Link>
             ) : (
-              <Link to="/login" className={styles.navLink} activeProps={{ className: styles.navLinkActive }}>
+              <Link to="/login" className={styles.navLink}>
                 GUEST
               </Link>
             )}
@@ -59,7 +67,7 @@ export const Navbar: React.FC = () => {
             </button>
 
             {isAuthenticated ? (
-              <button className={styles.loginBtn} onClick={() => auth?.logout()}>
+              <button className={styles.loginBtn} onClick={handleLogout}>
                 LOGOUT
               </button>
             ) : (

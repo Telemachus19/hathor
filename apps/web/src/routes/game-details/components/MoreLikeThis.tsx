@@ -30,6 +30,7 @@ export const MoreLikeThis: React.FC<MoreLikeThisProps> = ({ games }) => {
         {games.map((game, idx) => (
           <GameCard
             key={`${game.slug}-${idx}`}
+            slug={game.slug}
             title={game.title}
             tags={game.tags}
             priceEgp={game.priceEgp}

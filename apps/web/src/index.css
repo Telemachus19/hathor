@@ -4,13 +4,19 @@
    ROOT THEME VARIABLES
 ======================================== */
 :root {
-  --bg-main: #212631;         /* Main page background */
-  --bg-topbar: #0e1116;       /* Top navbar */
-  --bg-subbar: #181c24;       /* Sub-navbar */
-  --bg-darkest: #07080b;      /* Footer background */
-  --bg-card: #282e3c;         /* Card container background */
+  --bg-main: #212631;
+  /* Main page background */
+  --bg-topbar: #0e1116;
+  /* Top navbar */
+  --bg-subbar: #181c24;
+  /* Sub-navbar */
+  --bg-darkest: #07080b;
+  /* Footer background */
+  --bg-card: #282e3c;
+  /* Card container background */
   --bg-card-hover: #2e3545;
-  --bg-banner: #252b37;       /* Offer section background */
+  --bg-banner: #252b37;
+  /* Offer section background */
   --bg-input: #12151d;
 
   /* Accent colors */

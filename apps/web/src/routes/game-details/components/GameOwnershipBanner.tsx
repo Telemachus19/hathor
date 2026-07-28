@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@tanstack/react-router';
 import styles from '../styles/GameOwnershipBanner.module.css';
 import { CheckIcon, LibraryIcon, DownloadIcon } from '../../landing-page/assets';
 
@@ -27,10 +28,10 @@ export const GameOwnershipBanner: React.FC<GameOwnershipBannerProps> = ({
       </div>
 
       <div className={styles.actionGroup}>
-        <button className={styles.libraryBtn}>
+        <Link to="/library" className={styles.libraryBtn}>
           <LibraryIcon width={14} height={14} />
           <span>GO TO LIBRARY</span>
-        </button>
+        </Link>
         <button className={styles.downloadBtn}>
           <DownloadIcon width={14} height={14} />
           <span>DOWNLOAD</span>

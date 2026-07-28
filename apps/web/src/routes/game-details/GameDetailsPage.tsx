@@ -9,6 +9,7 @@ import { GameReviews } from './components/GameReviews';
 import { GameDetailsSidebar } from './components/GameDetailsSidebar';
 import { MoreLikeThis } from './components/MoreLikeThis';
 import { parseAndRenderPureJson } from '../../utils/pureJsonRenderer';
+import { useAuth } from '../../context/AuthContext';
 
 import cyberpunkTheme from './config/themes/cyberpunkTheme.json';
 import fantasyTheme from './config/themes/fantasyTheme.json';
@@ -151,6 +152,8 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
   slug,
   themeConfig,
 }) => {
+  const auth = useAuth();
+  const isAuthenticated = auth?.isAuthenticated ?? false;
   const [activeThemeMode] = useState<ThemeMode>('default');
   const currentGameData = getGameDataForSlug(slug);
 
@@ -262,7 +265,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                   tags={currentGameData.tags}
                   description={currentGameData.shortDescription}
                 />
-                <GameOwnershipBanner />
+                {isAuthenticated && <GameOwnershipBanner />}
                 <GameAbout sections={activeAboutSections} />
                 <GameSystemReqs
                   minimum={currentGameData.systemReqs.minimum}
@@ -276,6 +279,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
               </div>
               <div className={styles.sidebarColumn}>
                 <GameDetailsSidebar
+                  isAuthenticated={isAuthenticated}
+                  priceEgp={currentGameData.priceEgp}
+                  discountPercent={currentGameData.discountPercent}
                   developer={currentGameData.developer}
                   publisher={currentGameData.publisher}
                   releaseDate={currentGameData.releaseDate}

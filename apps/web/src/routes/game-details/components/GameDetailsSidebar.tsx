@@ -1,13 +1,18 @@
 import React from 'react';
+import { Link } from '@tanstack/react-router';
 import styles from '../styles/GameDetailsSidebar.module.css';
 import {
   DownloadIcon,
   LibraryIcon,
   UserIcon,
   ThumbsUpIcon,
+  CartIcon,
 } from '../../landing-page/assets';
 
 export interface GameDetailsSidebarProps {
+  isAuthenticated?: boolean;
+  priceEgp?: string | number;
+  discountPercent?: number;
   developer: string;
   publisher: string;
   releaseDate: string;
@@ -24,6 +29,9 @@ export interface GameDetailsSidebarProps {
  * Right-hand sidebar matching the Hathor reference design.
  */
 export const GameDetailsSidebar: React.FC<GameDetailsSidebarProps> = ({
+  isAuthenticated = false,
+  priceEgp = '299.99',
+  discountPercent = 0,
   developer,
   publisher,
   releaseDate,
@@ -32,21 +40,56 @@ export const GameDetailsSidebar: React.FC<GameDetailsSidebarProps> = ({
   ratingsBreakdown,
   communityStats,
 }) => {
+  const numericPrice = typeof priceEgp === 'number' ? priceEgp : parseFloat(priceEgp || '0');
+  const isFree = numericPrice === 0;
+
+  let originalPrice: number | null = null;
+  if (discountPercent > 0 && numericPrice > 0) {
+    originalPrice = numericPrice / (1 - discountPercent / 100);
+  }
+
   return (
     <div className={styles.sidebarWrap}>
-      {/* 1. OWNED CTA Card */}
-      <div className={`${styles.card} ${styles.ownedCard}`}>
-        <h4 className={styles.ownedTitle}>OWNED</h4>
-        <span className={styles.ownedSub}>In your library</span>
-        <button className={styles.downloadBtn}>
-          <DownloadIcon width={14} height={14} />
-          <span>DOWNLOAD NOW</span>
-        </button>
-        <button className={styles.viewLibraryBtn}>
-          <LibraryIcon width={14} height={14} />
-          <span>VIEW IN LIBRARY</span>
-        </button>
-      </div>
+      {/* 1. CTA Card: OWNED when authenticated, BUY when unauthenticated */}
+      {isAuthenticated ? (
+        <div className={`${styles.card} ${styles.ownedCard}`}>
+          <h4 className={styles.ownedTitle}>OWNED</h4>
+          <span className={styles.ownedSub}>In your library</span>
+          <button className={styles.downloadBtn}>
+            <DownloadIcon width={14} height={14} />
+            <span>DOWNLOAD NOW</span>
+          </button>
+          <Link to="/library" className={styles.viewLibraryBtn}>
+            <LibraryIcon width={14} height={14} />
+            <span>VIEW IN LIBRARY</span>
+          </Link>
+        </div>
+      ) : (
+        <div className={`${styles.card} ${styles.buyCard}`}>
+          <div className={styles.priceContainer}>
+            {isFree ? (
+              <span className={styles.priceFree}>FREE</span>
+            ) : (
+              <>
+                <span className={styles.priceVal}>{numericPrice.toFixed(2)} EGP</span>
+                {originalPrice != null && (
+                  <span className={styles.priceOld}>{originalPrice.toFixed(2)} EGP</span>
+                )}
+              </>
+            )}
+            {discountPercent > 0 && (
+              <span className={styles.discountBadge}>-{discountPercent}%</span>
+            )}
+          </div>
+          <button
+            className={styles.addToCartBtn}
+            onClick={() => alert('Cart feature coming soon!')}
+          >
+            <CartIcon width={14} height={14} />
+            <span>ADD TO CART</span>
+          </button>
+        </div>
+      )}
 
       {/* 2. GAME DETAILS Card */}
       <div className={styles.card}>
