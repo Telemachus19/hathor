@@ -9,7 +9,7 @@ export interface GameDetailsHeaderProps {
   reviewCount: string;
   developer: string;
   releaseDate: string;
-  tags: string[];
+  tags: Array<{ name: string; slug: string }> | string[];
   description: string;
 }
 
@@ -46,7 +46,7 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = ({
       <div className={styles.tagPills}>
         {tags.map((tag, idx) => (
           <span key={idx} className={styles.tagPill}>
-            {tag}
+            {typeof tag === 'string' ? tag : tag.name}
           </span>
         ))}
       </div>

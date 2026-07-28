@@ -1,12 +1,12 @@
 import React from 'react';
-import { GameDetailsHero } from '../components/GameDetailsHero';
-import { GameDetailsHeader } from '../components/GameDetailsHeader';
-import { GameOwnershipBanner } from '../components/GameOwnershipBanner';
-import { GameAbout } from '../components/GameAbout';
-import { GameSystemReqs } from '../components/GameSystemReqs';
-import { GameReviews } from '../components/GameReviews';
-import { GameDetailsSidebar } from '../components/GameDetailsSidebar';
-import { MoreLikeThis } from '../components/MoreLikeThis';
+import { GameDetailsHero } from '../routes/game-details/components/GameDetailsHero';
+import { GameDetailsHeader } from '../routes/game-details/components/GameDetailsHeader';
+import { GameOwnershipBanner } from '../routes/game-details/components/GameOwnershipBanner';
+import { GameAbout } from '../routes/game-details/components/GameAbout';
+import { GameSystemReqs } from '../routes/game-details/components/GameSystemReqs';
+import { GameReviews } from '../routes/game-details/components/GameReviews';
+import { GameDetailsSidebar } from '../routes/game-details/components/GameDetailsSidebar';
+import { MoreLikeThis } from '../routes/game-details/components/MoreLikeThis';
 
 export interface JsonLayoutNode {
   id: string;
@@ -81,7 +81,6 @@ export function convertJsonToReactLayout(
   jsonInput: string | Record<string, any>,
   gameData: any
 ): ReactLayoutStructure {
-  // Step 1: Convert raw string JSON -> valid JSON object
   let parsedJson: JsonLayoutStructure;
 
   if (typeof jsonInput === 'string') {
@@ -95,7 +94,6 @@ export function convertJsonToReactLayout(
     parsedJson = jsonInput as JsonLayoutStructure;
   }
 
-  // Step 2: Component resolver mapping JSON string names to actual React JSX instances
   const resolveComponent = (node: JsonLayoutNode): React.ReactNode => {
     if (!node || node.enabled === false) return null;
 
@@ -162,7 +160,6 @@ export function convertJsonToReactLayout(
         return <MoreLikeThis key={node.id} games={gameData.moreLikeThisGames} />;
 
       default:
-        // Dynamic RAW JSX component fallback rendered directly from JSON props
         return (
           <div
             key={node.id}
@@ -186,7 +183,6 @@ export function convertJsonToReactLayout(
     }
   };
 
-  // Step 3: Return React JSON object containing actual React component instances
   return {
     hero: parsedJson.hero
       ? { id: parsedJson.hero.id, component: resolveComponent(parsedJson.hero) }
