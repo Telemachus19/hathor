@@ -1,6 +1,6 @@
 export type { ApiError, ApiErrorDetail, ApiSuccess, HealthStatus } from './http.js';
 export type { DomainEventEnvelope } from './events.js';
-export { createApiClient, GatewayApiError, type ApiClient, type ApiClientConfig } from './client.js';
+export { createApiClient, GatewayApiError, ApiClient, type ApiClientConfig } from './client.js';
 
 import type { components } from './generated/openapi.js';
 export type { paths, components, operations } from './generated/openapi.js';
