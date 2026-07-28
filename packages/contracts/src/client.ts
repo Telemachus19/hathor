@@ -78,8 +78,8 @@ export class ApiClient {
           request.headers.set('Authorization', `Bearer ${token}`);
         }
 
-        // Attach Anti-CSRF headers for mutating actions / SPA security
-        if (this.enableAntiCsrfHeader && (isMutatingMethod || method === 'GET')) {
+        // Automatically add Anti-CSRF headers only for mutating HTTP methods (POST, PUT, PATCH, DELETE)
+        if (this.enableAntiCsrfHeader && isMutatingMethod) {
           request.headers.set('X-Requested-With', 'XMLHttpRequest');
           request.headers.set('X-Hathor-CSRF', '1');
         }
