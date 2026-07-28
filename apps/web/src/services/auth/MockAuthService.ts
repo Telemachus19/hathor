@@ -2,6 +2,8 @@ import type { AuthService, LoginResult, RegisterInput } from './AuthService';
 import { GatewayApiError } from '../api/ApiClient';
 
 export class MockAuthService implements AuthService {
+  private registeredEmails = new Set<string>(['existing@example.com']);
+
   async login(identifier: string, password: string): Promise<LoginResult> {
     console.log('Mock Login:', identifier, password);
 
@@ -43,18 +45,19 @@ export class MockAuthService implements AuthService {
 
   async register(input: RegisterInput): Promise<void> {
     console.log('Mock Register:', input.displayName, input.email, input.password);
+    const normalizedEmail = input.email.toLowerCase().trim();
 
-    if (input.email.includes('existing')) {
+    if (this.registeredEmails.has(normalizedEmail) || normalizedEmail.includes('existing')) {
       throw new GatewayApiError(
-        'CONFLICT',
+        'EMAIL_ALREADY_EXISTS',
         'An account with this email address already exists.',
         409,
         'corr-reg-409',
-        { email: 'Email already registered' }
+        { email: 'An account with this email address already exists.' }
       );
     }
 
-    if (input.email.includes('validation') || input.password.length < 6) {
+    if (normalizedEmail.includes('validation') || input.password.length < 6) {
       throw new GatewayApiError(
         'VALIDATION_FAILED',
         'Validation failed for registration input.',
@@ -62,11 +65,12 @@ export class MockAuthService implements AuthService {
         'corr-reg-422',
         {
           displayName: 'Display name must be at least 3 characters',
-          password: 'Password must be at least 6 characters long',
+          password: 'Password must be at least 12 characters long',
         }
       );
     }
 
+    this.registeredEmails.add(normalizedEmail);
     await new Promise((res) => setTimeout(res, 300));
   }
 

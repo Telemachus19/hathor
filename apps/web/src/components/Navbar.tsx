@@ -41,8 +41,8 @@ export const Navbar: React.FC<{ initialCartCount?: number }> = ({ initialCartCou
       await logout();
       showToast('info', 'Logged out successfully.');
       closeMobileMenu();
-    } catch {
-      showToast('error', 'Failed to log out.');
+    } catch (err) {
+      console.error('[Logout Error]', err);
     }
   };
 

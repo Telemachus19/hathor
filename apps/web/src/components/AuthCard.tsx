@@ -39,9 +39,49 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
     navigate({ to: newTab === 'login' ? '/login' : '/register' });
   };
 
+  const clearFieldError = (fieldName: string) => {
+    if (fieldErrors[fieldName]) {
+      setFieldErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[fieldName];
+        return updated;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: FormFieldErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (activeTab === 'register') {
+      if (!displayName.trim()) {
+        errors.displayName = 'Display name is required.';
+      } else if (displayName.trim().length < 3 || displayName.trim().length > 100) {
+        errors.displayName = 'Display name must be between 3 and 100 characters.';
+      }
+    }
+
+    if (!email.trim()) {
+      errors.email = 'Email address is required.';
+    } else if (!emailRegex.test(email.trim())) {
+      errors.email = 'Please enter a valid email address (e.g. name@example.com).';
+    }
+
+    if (!password) {
+      errors.password = 'Password is required.';
+    } else if (activeTab === 'register' && password.length < 12) {
+      errors.password = 'Password must be at least 12 characters long.';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFieldErrors({});
+    if (!validateForm()) {
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -62,7 +102,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
         ? `${parsed.userMessage} (Ref: ${parsed.correlationId})`
         : parsed.userMessage;
 
-      showToast('error', alertMessage);
+      console.error('[Auth Error]', alertMessage, error);
     } finally {
       setIsSubmitting(false);
     }
@@ -150,7 +190,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
           </div>
 
           {/* Authentication Form */}
-          <form onSubmit={handleSubmit} className={styles.authForm}>
+          <form onSubmit={handleSubmit} noValidate className={styles.authForm}>
             {/* Display Name Input (Register Only) */}
             {activeTab === 'register' && (
               <div className={styles.inputGroup}>
@@ -161,10 +201,13 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                   </span>
                   <input
                     type="text"
-                    required
                     value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
+                    onChange={(e) => {
+                      setDisplayName(e.target.value);
+                      clearFieldError('displayName');
+                    }}
                     placeholder="Enter your gamer tag"
+                    aria-invalid={!!fieldErrors.displayName}
                     className={`${styles.inputControl} ${fieldErrors.displayName ? styles.inputControlError : ''}`}
                   />
                 </div>
@@ -183,10 +226,13 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                 </span>
                 <input
                   type="email"
-                  required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    clearFieldError('email');
+                  }}
                   placeholder="your@email.com"
+                  aria-invalid={!!fieldErrors.email}
                   className={`${styles.inputControl} ${fieldErrors.email ? styles.inputControlError : ''}`}
                 />
               </div>
@@ -206,10 +252,13 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
                 </span>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    clearFieldError('password');
+                  }}
                   placeholder="••••••••"
+                  aria-invalid={!!fieldErrors.password}
                   className={`${styles.inputControl} ${fieldErrors.password ? styles.inputControlError : ''}`}
                 />
                 <button

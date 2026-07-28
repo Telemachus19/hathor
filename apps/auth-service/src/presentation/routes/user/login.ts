@@ -17,6 +17,10 @@ export async function loginHandler(req: Request, res: Response) {
         code: 'UNAUTHENTICATED',
         message: 'Invalid email or password format',
         correlationId,
+        details: {
+          email: 'Invalid email address or password format',
+          password: 'Invalid email address or password format',
+        },
       },
     });
   }
@@ -38,6 +42,10 @@ export async function loginHandler(req: Request, res: Response) {
           code: 'UNAUTHENTICATED',
           message: 'Invalid email or password',
           correlationId,
+          details: {
+            email: 'Invalid email address or password.',
+            password: 'Invalid email address or password.',
+          },
         },
       });
     }
@@ -60,6 +68,9 @@ export async function loginHandler(req: Request, res: Response) {
           code: 'UNAUTHENTICATED',
           message: 'This account was created with Google OAuth. Please sign in with Google.',
           correlationId,
+          details: {
+            email: 'This account was created with Google OAuth. Please sign in with Google.',
+          },
         },
       });
     }
@@ -73,6 +84,10 @@ export async function loginHandler(req: Request, res: Response) {
           code: 'UNAUTHENTICATED',
           message: 'Invalid email or password',
           correlationId,
+          details: {
+            email: 'Invalid email address or password.',
+            password: 'Invalid email address or password.',
+          },
         },
       });
     }

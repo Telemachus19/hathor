@@ -28,9 +28,19 @@ export function parseApiError(error: unknown): ProcessedApiError {
     switch (error.code) {
       case 'UNAUTHENTICATED':
         userMessage = error.message || 'Your session has expired. Please sign in again.';
+        if (!fieldErrors.email && !fieldErrors.password) {
+          fieldErrors.email = 'Invalid email address or password.';
+          fieldErrors.password = 'Invalid email address or password.';
+        }
         break;
       case 'INVALID_CREDENTIALS':
         userMessage = 'Invalid email address or password. Please check your credentials.';
+        if (!fieldErrors.email) {
+          fieldErrors.email = 'Invalid email address or password.';
+        }
+        if (!fieldErrors.password) {
+          fieldErrors.password = 'Invalid email address or password.';
+        }
         break;
       case 'VALIDATION_FAILED':
         userMessage = error.message || 'Please correct the highlighted form errors.';
@@ -40,7 +50,11 @@ export function parseApiError(error: unknown): ProcessedApiError {
         break;
       case 'CONFLICT':
       case 'USER_EXISTS':
+      case 'EMAIL_ALREADY_EXISTS':
         userMessage = error.message || 'An account with this email address already exists.';
+        if (!fieldErrors.email) {
+          fieldErrors.email = 'An account with this email address already exists.';
+        }
         break;
       case 'RATE_LIMITED':
         userMessage = 'Too many requests. Please wait a moment before trying again.';

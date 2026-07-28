@@ -305,10 +305,25 @@
 .fieldErrorText {
   color: #ef4444;
   font-family: var(--font-body, 'Inter', sans-serif);
-  font-size: 0.6875rem;
+  font-size: 0.725rem;
   font-weight: 600;
-  margin-top: 0.2rem;
-  display: block;
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  line-height: 1.3;
+  animation: fieldErrorFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fieldErrorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .eyeToggleBtn {
