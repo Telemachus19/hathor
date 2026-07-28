@@ -279,7 +279,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api/v1}
         VITE_USE_MOCK_AUTH: ${VITE_USE_MOCK_AUTH:-false}
     restart: unless-stopped
     ports:

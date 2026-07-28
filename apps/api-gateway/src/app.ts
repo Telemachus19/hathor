@@ -57,7 +57,15 @@ export function createGatewayApp(): Express {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID', 'Idempotency-Key'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Correlation-ID',
+        'Idempotency-Key',
+        'X-Requested-With',
+        'X-CSRF-Token',
+        'X-Hathor-CSRF',
+      ],
       exposedHeaders: ['X-Correlation-ID'],
     })
   );

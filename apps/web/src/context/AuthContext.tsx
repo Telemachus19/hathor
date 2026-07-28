@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import type { AuthService } from '../services/auth/AuthService';
+import { apiClient } from '../services/api/index';
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated';
 
@@ -49,6 +50,11 @@ export function AuthContextProvider({ children, authService }: AuthProviderProps
   const [status, setStatus] = useState<AuthStatus>('idle');
 
   const isAuthenticated = accessToken !== null && user !== null;
+
+  // Sync token with API Client for Authorization Bearer header
+  useEffect(() => {
+    apiClient.setAccessToken(accessToken);
+  }, [accessToken]);
 
   // Boot refresh check
   useEffect(() => {
