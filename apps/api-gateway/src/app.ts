@@ -49,7 +49,7 @@ export function createGatewayApp(): Express {
     cors({
       origin: (origin, callback) => {
         // Allow requests with no Origin header (e.g. same-origin, server-to-server, health checks)
-        if (!origin || origin === corsOrigin) {
+        if (!origin || origin === corsOrigin || origin.startsWith('http://localhost:')) {
           callback(null, true);
         } else {
           callback(null, false);
@@ -57,7 +57,15 @@ export function createGatewayApp(): Express {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID', 'Idempotency-Key'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Correlation-ID',
+        'Idempotency-Key',
+        'X-Requested-With',
+        'X-CSRF-Token',
+        'X-Hathor-CSRF',
+      ],
       exposedHeaders: ['X-Correlation-ID'],
     })
   );

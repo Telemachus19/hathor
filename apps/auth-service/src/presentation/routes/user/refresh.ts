@@ -129,9 +129,14 @@ export async function refreshHandler(req: Request, res: Response) {
     });
 
     // 8. Set rotated cookie
+    const isSecure =
+      process.env.COOKIE_SECURE !== undefined
+        ? process.env.COOKIE_SECURE === 'true'
+        : process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test';
+
     res.cookie('refreshToken', newRawRefreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: isSecure,
       sameSite: 'lax',
       path: '/api/v1/user',
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),

@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts",
+    "generate:api": "openapi-typescript openapi/public-api.openapi.yaml -o src/generated/openapi.ts",
+    "build": "pnpm generate:api && tsup src/index.ts --format esm --dts",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
@@ -22,7 +23,11 @@
   "devDependencies": {
     "@asyncapi/parser": "3.6.0",
     "@redocly/cli": "2.39.0",
+    "openapi-typescript": "^7.13.0",
     "tsup": "^8.1.0",
     "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.17.0"
   }
 }

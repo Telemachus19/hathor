@@ -1,14 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ========================================
+   ROOT VARIABLES
+======================================== */
+
 :root {
-  --bg-color: #222831;
-  --card-color: #393e46;
-  --accent-color: #fd7014;
+  --bg-color: #0b0c10;
+  --bg-darkest: #07080b;
+  --card-color: #141720;
+
+  --bg-topbar: #0e1116;
+  --bg-subbar: #161a23;
+  --container-max-width: 1300px;
+  --font-logo: 'Cinzel Decorative', 'Cinzel', serif;
+  --font-body: 'Inter', sans-serif;
+
+  --accent-orange: #ff5500;
+  --accent-orange-hover: #ff7722;
+
+  --accent-gold: #f5b82e;
+  --accent-red: #b82e16;
+
   --text-color: #eeeeee;
+  --text-white: #ffffff;
+  --text-muted: #8e98a8;
+  --text-subtle: #5a6578;
+  --border-color: rgba(53, 60, 77, 0.4);
+  --bg-input: #1a1e28;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* ========================================
+   GLOBAL RESET
+======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
   padding: 0;
+
+  width: 100%;
+  min-width: 320px;
+
   background-color: var(--bg-color);
   color: var(--text-color);
+
+  font-family: 'Inter', sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   GLOBAL ELEMENTS
+======================================== */
+
+a,
+button {
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ========================================
+   TYPOGRAPHY UTILITIES
+======================================== */
+
+.font-hathor-brand {
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+
+  letter-spacing: 0.16em;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+
+  letter-spacing: 0.08em;
 }

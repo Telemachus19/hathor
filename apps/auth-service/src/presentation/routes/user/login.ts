@@ -17,6 +17,10 @@ export async function loginHandler(req: Request, res: Response) {
         code: 'UNAUTHENTICATED',
         message: 'Invalid email or password format',
         correlationId,
+        details: {
+          email: 'Invalid email address or password format',
+          password: 'Invalid email address or password format',
+        },
       },
     });
   }
@@ -38,6 +42,10 @@ export async function loginHandler(req: Request, res: Response) {
           code: 'UNAUTHENTICATED',
           message: 'Invalid email or password',
           correlationId,
+          details: {
+            email: 'Invalid email address or password.',
+            password: 'Invalid email address or password.',
+          },
         },
       });
     }
@@ -53,6 +61,20 @@ export async function loginHandler(req: Request, res: Response) {
       });
     }
 
+    if (!user.passwordHash) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'This account was created with Google OAuth. Please sign in with Google.',
+          correlationId,
+          details: {
+            email: 'This account was created with Google OAuth. Please sign in with Google.',
+          },
+        },
+      });
+    }
+
     // 2. Verify password using Argon2id
     const isPasswordValid = await verifyPassword(password, user.passwordHash);
     if (!isPasswordValid) {
@@ -62,6 +84,10 @@ export async function loginHandler(req: Request, res: Response) {
           code: 'UNAUTHENTICATED',
           message: 'Invalid email or password',
           correlationId,
+          details: {
+            email: 'Invalid email address or password.',
+            password: 'Invalid email address or password.',
+          },
         },
       });
     }
@@ -95,9 +121,14 @@ export async function loginHandler(req: Request, res: Response) {
     });
 
     // 5. Set HTTP-Only Cookie scoped to refresh route
+    const isSecure =
+      process.env.COOKIE_SECURE !== undefined
+        ? process.env.COOKIE_SECURE === 'true'
+        : process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test';
+
     res.cookie('refreshToken', rawRefreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: isSecure,
       sameSite: 'lax',
       path: '/api/v1/user',
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),

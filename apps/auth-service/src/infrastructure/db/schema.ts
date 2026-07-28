@@ -6,7 +6,7 @@ export const authSchema = pgSchema('auth');
 export const users = authSchema.table('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).unique().notNull(),
-  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+  passwordHash: varchar('password_hash', { length: 255 }), // Nullable for Google OAuth users
   displayName: varchar('display_name', { length: 100 }).notNull(),
   roles: text('roles')
     .array()

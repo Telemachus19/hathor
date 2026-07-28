@@ -13,30 +13,44 @@ export function registerHandler(turnstileVerifier: TurnstileVerifier) {
 
     // 1. Input Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const details: Record<string, string> = {};
+
     if (
-      !email ||
-      typeof email !== 'string' ||
-      email.length > 255 ||
-      !emailRegex.test(email) ||
-      !password ||
-      typeof password !== 'string' ||
-      password.length < 12 ||
-      password.length > 128 ||
       !displayName ||
       typeof displayName !== 'string' ||
       displayName.length < 3 ||
-      displayName.length > 100 ||
+      displayName.length > 100
+    ) {
+      details.displayName = 'Display name must be between 3 and 100 characters.';
+    }
+    if (!email || typeof email !== 'string' || email.length > 255 || !emailRegex.test(email)) {
+      details.email = 'Please enter a valid email address.';
+    }
+    if (
+      !password ||
+      typeof password !== 'string' ||
+      password.length < 12 ||
+      password.length > 128
+    ) {
+      details.password = 'Password must be between 12 and 128 characters long.';
+    }
+    if (
       !captchaToken ||
       typeof captchaToken !== 'string' ||
       captchaToken.length < 1 ||
       captchaToken.length > 4096
     ) {
+      details.captchaToken = 'Invalid or missing CAPTCHA token.';
+    }
+
+    if (Object.keys(details).length > 0) {
       return res.status(422).json({
         success: false,
         error: {
           code: 'VALIDATION_FAILED',
           message: 'Invalid registration request inputs',
           correlationId,
+          details,
         },
       });
     }
@@ -52,6 +66,7 @@ export function registerHandler(turnstileVerifier: TurnstileVerifier) {
             code: 'VALIDATION_FAILED',
             message: 'Invalid CAPTCHA token',
             correlationId,
+            details: { captchaToken: 'Invalid CAPTCHA token' },
           },
         });
       }
@@ -71,6 +86,9 @@ export function registerHandler(turnstileVerifier: TurnstileVerifier) {
             code: 'EMAIL_ALREADY_EXISTS',
             message: 'A user with this email already exists',
             correlationId,
+            details: {
+              email: 'A user with this email address already exists.',
+            },
           },
         });
       }
