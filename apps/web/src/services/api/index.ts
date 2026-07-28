@@ -12,4 +12,3 @@ export const apiClient: ApiClient = createApiClient({
 });
 
 export { ApiClient };
-export * from './catalog';

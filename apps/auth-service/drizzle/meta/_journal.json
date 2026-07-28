@@ -8,6 +8,34 @@
       "when": 1784138953626,
       "tag": "0000_mushy_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1785082600108,
+      "tag": "0001_bright_bloodstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1785099246232,
+      "tag": "0002_quick_lady_ursula",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1785176289571,
+      "tag": "0003_superb_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1785177463711,
+      "tag": "0004_silent_guardsmen",
+      "breakpoints": true
     }
   ]
 }

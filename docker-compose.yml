@@ -118,6 +118,17 @@ services:
       PORT: 5001
       AUTH_DB_URL: postgresql://auth_app:${AUTH_DB_PASSWORD}@auth-postgres:5432/auth
       REDIS_URL: redis://redis:6379
+      INITIAL_ADMIN_BOOTSTRAP_SECRET: ${INITIAL_ADMIN_BOOTSTRAP_SECRET:-}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-log}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@hathor.example}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:5000/api/v1/user/oauth/google/callback}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -267,6 +278,9 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000/api/v1}
+        VITE_USE_MOCK_AUTH: ${VITE_USE_MOCK_AUTH:-false}
     restart: unless-stopped
     ports:
       - '127.0.0.1:3000:8080'

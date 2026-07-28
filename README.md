@@ -58,7 +58,23 @@ docker compose exec commerce-service node -e "fetch('http://127.0.0.1:5003/healt
 docker compose exec library-service node -e "fetch('http://127.0.0.1:5004/health/ready').then(async r => console.log(r.status, await r.text()))"
 ```
 
-Stop containers while retaining service data with `docker compose down`. Remove local data only when an intentional clean reset is needed with `docker compose down --volumes`.
+## Administrative Commands
+
+### One-Time Admin Bootstrap
+
+To grant the initial `admin` role to a registered gamer user, make sure `INITIAL_ADMIN_BOOTSTRAP_SECRET` is set in your `.env` file, and run the bootstrap shortcut command from the root folder of your host machine:
+
+```bash
+corepack pnpm db:bootstrap-admin --email <gamer-email> --secret <bootstrap-secret>
+```
+
+**Example:**
+
+```bash
+corepack pnpm db:bootstrap-admin --email gamer@hathor.com --secret SuperSecretKey123
+```
+
+_Note: The bootstrap command is gated by the `INITIAL_ADMIN_BOOTSTRAP_SECRET` environment variable and will lock itself out on subsequent executions if any user with the `admin` role already exists in the database._
 
 ## Validation
 

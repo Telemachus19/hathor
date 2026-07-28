@@ -1,10 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
-import LandingPage from './landing-page/LandingPage';
 
 export const Route = createFileRoute('/')({
-  component: IndexPage,
+  component: HomePage,
 });
 
-function IndexPage() {
-  return <LandingPage />;
+function HomePage() {
+  return (
+    <main>
+      <h1>Hathor Platform</h1>
+      <p>Welcome to Hathor.</p>
+    </main>
+  );
 }

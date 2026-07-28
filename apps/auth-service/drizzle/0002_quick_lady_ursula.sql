@@ -1,0 +1,1 @@
+ALTER TABLE "auth"."users" ADD COLUMN IF NOT EXISTS "disabled" boolean DEFAULT false NOT NULL;
