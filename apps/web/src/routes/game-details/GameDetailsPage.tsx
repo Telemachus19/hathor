@@ -46,7 +46,8 @@ export function getGameDataForSlug(slug?: string) {
     ],
     shortDescription: `A vast open-world experience set in ${formattedTitle}. Forge your path, face relentless enemies, and uncover ancient secrets behind the kingdom's collapse.`,
     fullDescription: `The world of ${formattedTitle} stretches across centuries of fallen magic. Explore decaying sanctuaries and face legendary boss guardians in unforgiving, patient combat.`,
-    bannerUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
+    bannerUrl:
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
     heroImages: [
       'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
@@ -104,15 +105,20 @@ export function getGameDataForSlug(slug?: string) {
         slug: 'shattered-realm',
         priceEgp: '349.00',
         discountPercent: 20,
-        bannerUrl: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop',
-        tags: [{ name: 'Action', slug: 'action' }, { name: 'RPG', slug: 'rpg' }],
+        bannerUrl:
+          'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop',
+        tags: [
+          { name: 'Action', slug: 'action' },
+          { name: 'RPG', slug: 'rpg' },
+        ],
       },
       {
         title: 'CRIMSON ACCORD',
         slug: 'crimson-accord',
         priceEgp: '524.99',
         discountPercent: 0,
-        bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop',
+        bannerUrl:
+          'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop',
         tags: [{ name: 'Dark Fantasy', slug: 'dark-fantasy' }],
       },
       {
@@ -120,7 +126,8 @@ export function getGameDataForSlug(slug?: string) {
         slug: 'ashen-tale',
         priceEgp: '529.99',
         discountPercent: 0,
-        bannerUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop',
+        bannerUrl:
+          'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop',
         tags: [{ name: 'Adventure', slug: 'adventure' }],
       },
       {
@@ -128,7 +135,8 @@ export function getGameDataForSlug(slug?: string) {
         slug: 'moon-requiem',
         priceEgp: '169.99',
         discountPercent: 50,
-        bannerUrl: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=600&auto=format&fit=crop',
+        bannerUrl:
+          'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=600&auto=format&fit=crop',
         tags: [{ name: 'Gothic', slug: 'gothic' }],
       },
     ],
@@ -137,10 +145,13 @@ export function getGameDataForSlug(slug?: string) {
 
 export interface GameDetailsPageProps {
   slug?: string;
-  themeConfig?: {
-    theme?: 'default' | 'custom';
-    layout?: Record<string, any>;
-  } | Record<string, any> | string;
+  themeConfig?:
+    | {
+        theme?: 'default' | 'custom';
+        layout?: Record<string, any>;
+      }
+    | Record<string, any>
+    | string;
 }
 
 type ThemeMode = 'default' | 'cyberpunk' | 'fantasy' | 'retro' | 'minimal' | 'scifi';
@@ -148,10 +159,7 @@ type ThemeMode = 'default' | 'cyberpunk' | 'fantasy' | 'retro' | 'minimal' | 'sc
 /**
  * GameDetailsPage orchestrator located inside src/routes/game-details/.
  */
-export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
-  slug,
-  themeConfig,
-}) => {
+export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeConfig }) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated ?? false;
   const [activeThemeMode] = useState<ThemeMode>('default');

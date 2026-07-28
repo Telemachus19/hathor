@@ -96,7 +96,9 @@ export const FeaturedGames: React.FC = () => {
       )}
 
       <div className={styles.paginationInfo}>
-        {fetchedGames.length > 0 ? `${pageIndex * 3 + 1}-${Math.min((pageIndex + 1) * 3, fetchedGames.length)} of ${totalCount} games` : '0 games'}
+        {fetchedGames.length > 0
+          ? `${pageIndex * 3 + 1}-${Math.min((pageIndex + 1) * 3, fetchedGames.length)} of ${totalCount} games`
+          : '0 games'}
       </div>
     </section>
   );

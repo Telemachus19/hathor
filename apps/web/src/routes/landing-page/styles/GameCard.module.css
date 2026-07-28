@@ -11,7 +11,9 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
   overflow: hidden;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
   display: flex;
   flex-direction: column;
 }
@@ -159,7 +161,6 @@
   white-space: nowrap;
   margin-top: 1px;
 }
-
 
 /* Button: Solid Orange background with DARK/BLACK text */
 .addBtn {

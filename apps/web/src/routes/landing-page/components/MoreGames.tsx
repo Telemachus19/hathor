@@ -13,17 +13,11 @@ export const MoreGames: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const observerTargetRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteCatalogGames({
-    tag: activeCategory === 'ALL' ? undefined : activeCategory.toLowerCase(),
-    limit: 8,
-  });
+  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteCatalogGames({
+      tag: activeCategory === 'ALL' ? undefined : activeCategory.toLowerCase(),
+      limit: 8,
+    });
 
   const gamesList = data?.pages.flatMap((page) => page.data.items) || [];
 

@@ -6,7 +6,6 @@
   box-sizing: border-box;
 }
 
-
 .header {
   position: relative;
   margin-bottom: 1.25rem;
@@ -177,7 +176,6 @@
   }
 }
 
-
 .loadingText {
   font-family: var(--font-body);
   font-size: 0.6875rem;
@@ -186,4 +184,3 @@
   text-transform: uppercase;
   color: var(--accent-orange);
 }
-

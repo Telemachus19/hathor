@@ -39,16 +39,29 @@ export const Navbar: React.FC = () => {
           </Link>
 
           <div className={styles.navLinks}>
-            <Link to="/" className={styles.navLink} activeProps={{ className: styles.navLinkActive }} activeOptions={{ exact: true }}>
+            <Link
+              to="/"
+              className={styles.navLink}
+              activeProps={{ className: styles.navLinkActive }}
+              activeOptions={{ exact: true }}
+            >
               STORE
             </Link>
 
-            <Link to="/library" className={styles.navLink} activeProps={{ className: styles.navLinkActive }}>
+            <Link
+              to="/library"
+              className={styles.navLink}
+              activeProps={{ className: styles.navLinkActive }}
+            >
               LIBRARY
             </Link>
 
             {isAuthenticated ? (
-              <Link to="/profile" className={styles.navLink} activeProps={{ className: styles.navLinkActive }}>
+              <Link
+                to="/profile"
+                className={styles.navLink}
+                activeProps={{ className: styles.navLinkActive }}
+              >
                 {user?.displayName ? user.displayName.toUpperCase() : 'PROFILE'}
               </Link>
             ) : (
@@ -101,11 +114,7 @@ export const Navbar: React.FC = () => {
             <span className={styles.searchIcon}>
               <SearchIcon />
             </span>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Search games..."
-            />
+            <input type="text" className={styles.searchInput} placeholder="Search games..." />
           </div>
 
           <Link to="/" className={styles.wishlistLink}>

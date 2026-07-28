@@ -46,12 +46,16 @@ export const GameCard: React.FC<GameCardProps> = ({
     originalPrice = numericPrice / (1 - discountPercent / 100);
   }
 
-  const computedDiscountTag = discountTag || (discountPercent > 0 ? `-${discountPercent}%` : undefined);
+  const computedDiscountTag =
+    discountTag || (discountPercent > 0 ? `-${discountPercent}%` : undefined);
   const fallbackImage = 'https://placehold.co/600x350/1c1917/a4b0be?text=Game+Placeholder';
 
-  const primaryCategory = tags && tags.length > 0
-    ? tags[0].name.toUpperCase()
-    : (category ? category.toUpperCase() : 'GAME');
+  const primaryCategory =
+    tags && tags.length > 0
+      ? tags[0].name.toUpperCase()
+      : category
+        ? category.toUpperCase()
+        : 'GAME';
 
   const cardInner = (
     <div className={styles.card} onClick={onClick}>

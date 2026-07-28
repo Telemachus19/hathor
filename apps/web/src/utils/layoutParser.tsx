@@ -61,7 +61,11 @@ export const CUSTOM_LAYOUT_JSON_STRING = JSON.stringify(
   {
     hero: { id: 'hero', component: 'GameDetailsHero', enabled: true },
     mainColumn: [
-      { id: 'custom_banner', component: 'CustomAnnouncement', props: { title: 'NEON EDITION UNLOCKED', text: 'Exclusive Digital Soundtrack Included.' } },
+      {
+        id: 'custom_banner',
+        component: 'CustomAnnouncement',
+        props: { title: 'NEON EDITION UNLOCKED', text: 'Exclusive Digital Soundtrack Included.' },
+      },
       { id: 'about', component: 'GameAbout', enabled: true },
       { id: 'header', component: 'GameDetailsHeader', enabled: true },
       { id: 'reviews', component: 'GameReviews', enabled: true },

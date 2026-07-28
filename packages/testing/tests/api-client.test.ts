@@ -128,7 +128,12 @@ describe('ApiClient & OpenAPI Generated Contract Client', () => {
       const mockFetch = vi.fn().mockImplementation(async (input: any, init?: any) => {
         capturedHeaders = extractHeaders(input, init);
         return new Response(
-          JSON.stringify({ id: 'u-1', email: 'test@hathor.dev', displayName: 'User', roles: ['gamer'] }),
+          JSON.stringify({
+            id: 'u-1',
+            email: 'test@hathor.dev',
+            displayName: 'User',
+            roles: ['gamer'],
+          }),
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
       });
@@ -153,7 +158,12 @@ describe('ApiClient & OpenAPI Generated Contract Client', () => {
       const mockFetch = vi.fn().mockImplementation(async (input: any, init?: any) => {
         capturedHeaders = extractHeaders(input, init);
         return new Response(
-          JSON.stringify({ id: 'u-1', email: 'test@hathor.dev', displayName: 'User', roles: ['gamer'] }),
+          JSON.stringify({
+            id: 'u-1',
+            email: 'test@hathor.dev',
+            displayName: 'User',
+            roles: ['gamer'],
+          }),
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
       });
@@ -175,7 +185,10 @@ describe('ApiClient & OpenAPI Generated Contract Client', () => {
       const mockFetch = vi.fn().mockImplementation(async (input: any, init?: any) => {
         capturedHeaders = extractHeaders(input, init);
         return new Response(
-          JSON.stringify({ items: [], pagination: { page: 1, limit: 10, totalItems: 0, totalPages: 0 } }),
+          JSON.stringify({
+            items: [],
+            pagination: { page: 1, limit: 10, totalItems: 0, totalPages: 0 },
+          }),
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
       });

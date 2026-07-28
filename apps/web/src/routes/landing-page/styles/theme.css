@@ -2,12 +2,12 @@
 
 :root {
   /* Exact color scheme from Hathor screenshot */
-  --bg-topbar: #0e1116;       /* Top navbar (black) */
-  --bg-subbar: #181c24;       /* Bottom navbar (slate blue) */
-  --bg-main: #212631;         /* Page background (dark blue-gray) */
-  --bg-card: #282e3c;         /* Card container background */
+  --bg-topbar: #0e1116; /* Top navbar (black) */
+  --bg-subbar: #181c24; /* Bottom navbar (slate blue) */
+  --bg-main: #212631; /* Page background (dark blue-gray) */
+  --bg-card: #282e3c; /* Card container background */
   --bg-card-hover: #2e3545;
-  --bg-banner: #252b37;       /* Offer section background */
+  --bg-banner: #252b37; /* Offer section background */
   --bg-input: #12151d;
 
   /* Accent colors */

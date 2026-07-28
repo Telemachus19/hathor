@@ -50,7 +50,11 @@ export interface FetchCatalogParams {
 /**
  * Fetches published games from the Catalog Service via API Gateway.
  */
-export async function fetchStoreGames({ tag, page = 1, limit = 10 }: FetchCatalogParams): Promise<CatalogResponse> {
+export async function fetchStoreGames({
+  tag,
+  page = 1,
+  limit = 10,
+}: FetchCatalogParams): Promise<CatalogResponse> {
   const queryParams = new URLSearchParams();
   if (page) queryParams.set('page', String(page));
   if (limit) queryParams.set('limit', String(limit));

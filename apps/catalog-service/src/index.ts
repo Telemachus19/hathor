@@ -9,8 +9,6 @@ const app = createCatalogApp(async () => {
   await catalogPool.query('SELECT 1');
 });
 
-
-
 app.listen(PORT, () => {
   console.log(`Hathor Catalog Service running on port ${PORT}`);
 });

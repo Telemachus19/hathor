@@ -1,10 +1,30 @@
 {
   "topHeader": {
     "tag": "div",
-    "style": { "textAlign": "center", "padding": "2rem 1rem", "background": "#121212", "borderBottom": "2px solid #d4af37", "marginBottom": "2rem" },
+    "style": {
+      "textAlign": "center",
+      "padding": "2rem 1rem",
+      "background": "#121212",
+      "borderBottom": "2px solid #d4af37",
+      "marginBottom": "2rem"
+    },
     "children": [
-      { "tag": "h1", "style": { "color": "#d4af37", "fontFamily": "Cinzel, serif", "fontSize": "3rem", "margin": "0 0 0.5rem 0", "letterSpacing": "0.12em" }, "children": "ELDEN THRONE: FORGOTTEN LORDS" },
-      { "tag": "p", "style": { "color": "#8b0000", "fontStyle": "italic", "margin": 0, "fontSize": "1.125rem" }, "children": "“In the ashes of forgotten kings, only blood remembers the throne.”" }
+      {
+        "tag": "h1",
+        "style": {
+          "color": "#d4af37",
+          "fontFamily": "Cinzel, serif",
+          "fontSize": "3rem",
+          "margin": "0 0 0.5rem 0",
+          "letterSpacing": "0.12em"
+        },
+        "children": "ELDEN THRONE: FORGOTTEN LORDS"
+      },
+      {
+        "tag": "p",
+        "style": { "color": "#8b0000", "fontStyle": "italic", "margin": 0, "fontSize": "1.125rem" },
+        "children": "“In the ashes of forgotten kings, only blood remembers the throne.”"
+      }
     ]
   },
   "interactiveCarousel": {
@@ -19,45 +39,105 @@
   },
   "threeColumnGrid": {
     "tag": "div",
-    "style": { "display": "grid", "gridTemplateColumns": "1fr 1fr 1fr", "gap": "1.5rem", "marginBottom": "2.5rem" },
+    "style": {
+      "display": "grid",
+      "gridTemplateColumns": "1fr 1fr 1fr",
+      "gap": "1.5rem",
+      "marginBottom": "2.5rem"
+    },
     "children": [
       {
         "tag": "div",
-        "style": { "padding": "1.5rem", "background": "#1a1a1a", "border": "1px solid rgba(212,175,55,0.3)" },
+        "style": {
+          "padding": "1.5rem",
+          "background": "#1a1a1a",
+          "border": "1px solid rgba(212,175,55,0.3)"
+        },
         "hoverStyle": { "borderColor": "#d4af37", "boxShadow": "0 0 15px rgba(212,175,55,0.2)" },
         "children": [
-          { "tag": "h3", "style": { "color": "#d4af37", "fontFamily": "Cinzel, serif", "margin": "0 0 1rem 0" }, "children": "ANCIENT LORE" },
-          { "tag": "p", "style": { "color": "#a0a0a0", "lineHeight": 1.6, "margin": 0 }, "children": "Awaken in the cursed Citadel of Ash. Uncover tragic storylines, relic weapon arts, and legendary boss encounters." }
+          {
+            "tag": "h3",
+            "style": { "color": "#d4af37", "fontFamily": "Cinzel, serif", "margin": "0 0 1rem 0" },
+            "children": "ANCIENT LORE"
+          },
+          {
+            "tag": "p",
+            "style": { "color": "#a0a0a0", "lineHeight": 1.6, "margin": 0 },
+            "children": "Awaken in the cursed Citadel of Ash. Uncover tragic storylines, relic weapon arts, and legendary boss encounters."
+          }
         ]
       },
       {
         "tag": "div",
-        "style": { "padding": "1.5rem", "background": "#1a1a1a", "border": "1px solid rgba(212,175,55,0.3)" },
+        "style": {
+          "padding": "1.5rem",
+          "background": "#1a1a1a",
+          "border": "1px solid rgba(212,175,55,0.3)"
+        },
         "hoverStyle": { "borderColor": "#d4af37", "boxShadow": "0 0 15px rgba(212,175,55,0.2)" },
         "children": [
-          { "tag": "h3", "style": { "color": "#d4af37", "fontFamily": "Cinzel, serif", "margin": "0 0 1rem 0" }, "children": "REALM REQUIREMENTS" },
-          { "tag": "p", "style": { "color": "#a0a0a0", "lineHeight": 1.6, "margin": 0 }, "children": "OS: Windows 11 64-bit\nCPU: Ryzen 7 7800X3D\nRAM: 16 GB\nGPU: RTX 4070 (12GB)" }
+          {
+            "tag": "h3",
+            "style": { "color": "#d4af37", "fontFamily": "Cinzel, serif", "margin": "0 0 1rem 0" },
+            "children": "REALM REQUIREMENTS"
+          },
+          {
+            "tag": "p",
+            "style": { "color": "#a0a0a0", "lineHeight": 1.6, "margin": 0 },
+            "children": "OS: Windows 11 64-bit\nCPU: Ryzen 7 7800X3D\nRAM: 16 GB\nGPU: RTX 4070 (12GB)"
+          }
         ]
       },
       {
         "tag": "div",
-        "style": { "padding": "1.5rem", "background": "#1a1a1a", "border": "1px solid rgba(212,175,55,0.3)" },
+        "style": {
+          "padding": "1.5rem",
+          "background": "#1a1a1a",
+          "border": "1px solid rgba(212,175,55,0.3)"
+        },
         "hoverStyle": { "borderColor": "#d4af37", "boxShadow": "0 0 15px rgba(212,175,55,0.2)" },
         "children": [
-          { "tag": "h3", "style": { "color": "#d4af37", "fontFamily": "Cinzel, serif", "margin": "0 0 1rem 0" }, "children": "PLAYER SANCTUM" },
-          { "tag": "p", "style": { "color": "#a0a0a0", "lineHeight": 1.6, "margin": 0 }, "children": "Rating: 9.8 / 10\n“An unmatched dark fantasy masterpiece with breathtaking art design.”" }
+          {
+            "tag": "h3",
+            "style": { "color": "#d4af37", "fontFamily": "Cinzel, serif", "margin": "0 0 1rem 0" },
+            "children": "PLAYER SANCTUM"
+          },
+          {
+            "tag": "p",
+            "style": { "color": "#a0a0a0", "lineHeight": 1.6, "margin": 0 },
+            "children": "Rating: 9.8 / 10\n“An unmatched dark fantasy masterpiece with breathtaking art design.”"
+          }
         ]
       }
     ]
   },
   "goldenCta": {
     "tag": "div",
-    "style": { "padding": "2rem", "background": "#d4af37", "color": "#121212", "textAlign": "center", "borderRadius": "4px" },
+    "style": {
+      "padding": "2rem",
+      "background": "#d4af37",
+      "color": "#121212",
+      "textAlign": "center",
+      "borderRadius": "4px"
+    },
     "children": [
-      { "tag": "h2", "style": { "fontFamily": "Cinzel, serif", "margin": "0 0 0.5rem 0" }, "children": "CLAIM YOUR SOUL THRONE TODAY" },
+      {
+        "tag": "h2",
+        "style": { "fontFamily": "Cinzel, serif", "margin": "0 0 0.5rem 0" },
+        "children": "CLAIM YOUR SOUL THRONE TODAY"
+      },
       {
         "tag": "button",
-        "style": { "padding": "0.875rem 2.5rem", "background": "#8b0000", "color": "#ffffff", "border": "none", "borderRadius": "3px", "fontWeight": "900", "fontSize": "0.9375rem", "cursor": "pointer" },
+        "style": {
+          "padding": "0.875rem 2.5rem",
+          "background": "#8b0000",
+          "color": "#ffffff",
+          "border": "none",
+          "borderRadius": "3px",
+          "fontWeight": "900",
+          "fontSize": "0.9375rem",
+          "cursor": "pointer"
+        },
         "hoverStyle": { "background": "#a00000" },
         "children": "BUY SHATTERED LANDS EDITION"
       }

@@ -3,4 +3,5 @@ node_modules/
 dist/
 .turbo/
 **/drizzle/meta/
+apps/web/src/routeTree.gen.ts
 pnpm-lock.yaml

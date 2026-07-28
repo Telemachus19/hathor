@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import styles from '../styles/GameSystemReqs.module.css';
-import {
-  MonitorIcon,
-  CpuIcon,
-  RamIcon,
-  GpuIcon,
-  HardDriveIcon,
-} from '../../landing-page/assets';
+import { MonitorIcon, CpuIcon, RamIcon, GpuIcon, HardDriveIcon } from '../../landing-page/assets';
 
 export interface SystemSpec {
   os: string;
@@ -24,10 +18,7 @@ export interface GameSystemReqsProps {
 /**
  * Segmented System Requirements component with hardware SVG icons and merged control tabs.
  */
-export const GameSystemReqs: React.FC<GameSystemReqsProps> = ({
-  minimum,
-  recommended,
-}) => {
+export const GameSystemReqs: React.FC<GameSystemReqsProps> = ({ minimum, recommended }) => {
   const [activeTab, setActiveTab] = useState<'recommended' | 'minimum'>('recommended');
 
   const currentSpec = activeTab === 'recommended' ? recommended : minimum;

@@ -80,7 +80,10 @@ export function parseAndRenderPureJson(jsonInput: string | Record<string, any>):
     } catch (e) {
       console.error('Failed to parse layout JSON:', e);
       return [
-        <div key="err" style={{ color: '#ff4d4d', padding: '1rem', background: 'rgba(255,0,0,0.1)' }}>
+        <div
+          key="err"
+          style={{ color: '#ff4d4d', padding: '1rem', background: 'rgba(255,0,0,0.1)' }}
+        >
           Invalid Layout JSON Payload
         </div>,
       ];

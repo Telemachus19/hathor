@@ -52,7 +52,10 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       const rawTags = req.query.tags || req.query.tag;
       let tagSlugs: string[] = [];
       if (typeof rawTags === 'string') {
-        tagSlugs = rawTags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+        tagSlugs = rawTags
+          .split(',')
+          .map((t) => t.trim().toLowerCase())
+          .filter(Boolean);
       } else if (Array.isArray(rawTags)) {
         tagSlugs = rawTags.map((t) => String(t).trim().toLowerCase()).filter(Boolean);
       }
@@ -98,7 +101,6 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         .where(and(...whereConditions))
         .limit(limit)
         .offset(skip);
-
 
       const gameIds = gameRecords.map((g) => g.id);
       const tagsByGameId: Record<string | number, Array<{ name: string; slug: string }>> = {};
@@ -147,7 +149,6 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
           },
         },
       });
-
     } catch (error) {
       console.error('Error fetching games catalog:', error);
       res.status(500).json({
@@ -162,10 +163,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       const { slug } = req.params;
 
       const game = await catalogDb.query.games.findFirst({
-        where: and(
-          eq(games.status, 'published'),
-          eq(games.slug, slug)
-        ),
+        where: and(eq(games.status, 'published'), eq(games.slug, slug)),
       });
 
       if (!game) {

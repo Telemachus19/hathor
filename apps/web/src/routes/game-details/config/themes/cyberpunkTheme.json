@@ -11,12 +11,22 @@
     "children": [
       {
         "tag": "h1",
-        "style": { "color": "#00f0ff", "fontFamily": "Cinzel, sans-serif", "margin": "0 0 0.5rem 0", "fontSize": "2.5rem" },
+        "style": {
+          "color": "#00f0ff",
+          "fontFamily": "Cinzel, sans-serif",
+          "margin": "0 0 0.5rem 0",
+          "fontSize": "2.5rem"
+        },
         "children": "CYBER THRONE 2099"
       },
       {
         "tag": "p",
-        "style": { "color": "#ff0055", "fontWeight": "bold", "letterSpacing": "0.15em", "margin": 0 },
+        "style": {
+          "color": "#ff0055",
+          "fontWeight": "bold",
+          "letterSpacing": "0.15em",
+          "margin": 0
+        },
         "children": "NEON OVERDRIVE EDITION • HIGH-SPEED KINETIC COMBAT"
       }
     ]
@@ -63,16 +73,50 @@
           "boxShadow": "0 0 15px rgba(0,240,255,0.2)"
         },
         "children": [
-          { "tag": "h3", "style": { "color": "#ffffff", "fontFamily": "Cinzel, sans-serif", "margin": "0 0 0.5rem 0" }, "children": "NEON PASS" },
-          { "tag": "div", "style": { "fontSize": "1.75rem", "fontWeight": "900", "color": "#00f0ff", "margin": "0.5rem 0" }, "children": "499.00 EGP" },
+          {
+            "tag": "h3",
+            "style": {
+              "color": "#ffffff",
+              "fontFamily": "Cinzel, sans-serif",
+              "margin": "0 0 0.5rem 0"
+            },
+            "children": "NEON PASS"
+          },
+          {
+            "tag": "div",
+            "style": {
+              "fontSize": "1.75rem",
+              "fontWeight": "900",
+              "color": "#00f0ff",
+              "margin": "0.5rem 0"
+            },
+            "children": "499.00 EGP"
+          },
           {
             "tag": "button",
-            "style": { "width": "100%", "padding": "0.875rem", "background": "#ff0055", "color": "#000", "fontWeight": "900", "border": "none", "borderRadius": "3px", "cursor": "pointer", "marginTop": "1rem" },
+            "style": {
+              "width": "100%",
+              "padding": "0.875rem",
+              "background": "#ff0055",
+              "color": "#000",
+              "fontWeight": "900",
+              "border": "none",
+              "borderRadius": "3px",
+              "cursor": "pointer",
+              "marginTop": "1rem"
+            },
             "hoverStyle": { "background": "#00f0ff", "color": "#0a0c10" },
             "children": "CLAIM ACCESS"
           },
-          { "tag": "hr", "style": { "borderColor": "rgba(255,255,255,0.08)", "margin": "1.5rem 0" } },
-          { "tag": "div", "style": { "color": "#b0b9c6", "fontSize": "0.8125rem", "lineHeight": 1.6 }, "children": "Dev: CyberByte Studios\nRelease: March 2025\nPlatform: Windows PC" }
+          {
+            "tag": "hr",
+            "style": { "borderColor": "rgba(255,255,255,0.08)", "margin": "1.5rem 0" }
+          },
+          {
+            "tag": "div",
+            "style": { "color": "#b0b9c6", "fontSize": "0.8125rem", "lineHeight": 1.6 },
+            "children": "Dev: CyberByte Studios\nRelease: March 2025\nPlatform: Windows PC"
+          }
         ]
       },
       {
@@ -81,11 +125,28 @@
         "children": [
           {
             "tag": "div",
-            "style": { "padding": "1.5rem", "background": "#12141c", "border": "1px solid rgba(255,255,255,0.08)", "borderRadius": "4px" },
+            "style": {
+              "padding": "1.5rem",
+              "background": "#12141c",
+              "border": "1px solid rgba(255,255,255,0.08)",
+              "borderRadius": "4px"
+            },
             "hoverStyle": { "borderColor": "#00f0ff" },
             "children": [
-              { "tag": "h3", "style": { "color": "#00f0ff", "fontFamily": "Cinzel, sans-serif", "margin": "0 0 1rem 0" }, "children": "THE NEON UNDERWORLD" },
-              { "tag": "p", "style": { "color": "#b0b9c6", "lineHeight": 1.65, "margin": 0 }, "children": "Navigate the electric alleys of Citadel 9. Custom cybernetic augmentations, wall-running poise counters, and high-frequency energy blades." }
+              {
+                "tag": "h3",
+                "style": {
+                  "color": "#00f0ff",
+                  "fontFamily": "Cinzel, sans-serif",
+                  "margin": "0 0 1rem 0"
+                },
+                "children": "THE NEON UNDERWORLD"
+              },
+              {
+                "tag": "p",
+                "style": { "color": "#b0b9c6", "lineHeight": 1.65, "margin": 0 },
+                "children": "Navigate the electric alleys of Citadel 9. Custom cybernetic augmentations, wall-running poise counters, and high-frequency energy blades."
+              }
             ]
           }
         ]

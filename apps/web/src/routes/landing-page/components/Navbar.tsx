@@ -25,14 +25,24 @@ export const Navbar: React.FC = () => {
           </a>
 
           <div className={styles.navLinks}>
-            <a href="#" className={`${styles.navLink} ${styles.navLinkActive}`}>STORE</a>
-            <a href="#" className={styles.navLink}>LIBRARY</a>
-            <a href="#" className={styles.navLink}>GUEST</a>
+            <a href="#" className={`${styles.navLink} ${styles.navLinkActive}`}>
+              STORE
+            </a>
+            <a href="#" className={styles.navLink}>
+              LIBRARY
+            </a>
+            <a href="#" className={styles.navLink}>
+              GUEST
+            </a>
           </div>
 
           <div className={styles.navActions}>
-            <button className={styles.iconBtn} aria-label="Language"><GlobeIcon /></button>
-            <button className={styles.iconBtn} aria-label="Cart"><CartIcon /></button>
+            <button className={styles.iconBtn} aria-label="Language">
+              <GlobeIcon />
+            </button>
+            <button className={styles.iconBtn} aria-label="Cart">
+              <CartIcon />
+            </button>
             <button className={styles.loginBtn}>
               <LoginIcon /> LOGIN
             </button>
@@ -59,12 +69,10 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}><SearchIcon /></span>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Search games..."
-            />
+            <span className={styles.searchIcon}>
+              <SearchIcon />
+            </span>
+            <input type="text" className={styles.searchInput} placeholder="Search games..." />
           </div>
 
           <a href="#" className={styles.wishlistLink}>

@@ -61,7 +61,7 @@ export const GameDetailsHero: React.FC<GameDetailsHeroProps> = ({ images }) => {
           className={styles.bannerImg}
         />
         <div className={styles.bannerOverlay} />
-        
+
         <div className={styles.zoomIconBtn}>
           <ZoomIcon width={16} height={16} />
         </div>
@@ -99,10 +99,7 @@ export const GameDetailsHero: React.FC<GameDetailsHeroProps> = ({ images }) => {
 
       {/* Steam-Style Full Screen Lightbox Modal Popup */}
       {isLightboxOpen && (
-        <div
-          className={styles.lightboxModal}
-          onClick={() => setIsLightboxOpen(false)}
-        >
+        <div className={styles.lightboxModal} onClick={() => setIsLightboxOpen(false)}>
           <div className={styles.lightboxTopBar}>
             <span className={styles.lightboxCounter}>
               SCREENSHOT {activeIndex + 1} OF {images.length}
@@ -124,10 +121,7 @@ export const GameDetailsHero: React.FC<GameDetailsHeroProps> = ({ images }) => {
             &lt;
           </button>
 
-          <div
-            className={styles.lightboxImgWrap}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className={styles.lightboxImgWrap} onClick={(e) => e.stopPropagation()}>
             <img
               src={images[activeIndex]}
               alt={`Full size screenshot ${activeIndex + 1}`}
