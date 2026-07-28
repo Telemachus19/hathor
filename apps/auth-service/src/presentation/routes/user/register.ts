@@ -15,16 +15,31 @@ export function registerHandler(turnstileVerifier: TurnstileVerifier) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const details: Record<string, string> = {};
 
-    if (!displayName || typeof displayName !== 'string' || displayName.length < 3 || displayName.length > 100) {
+    if (
+      !displayName ||
+      typeof displayName !== 'string' ||
+      displayName.length < 3 ||
+      displayName.length > 100
+    ) {
       details.displayName = 'Display name must be between 3 and 100 characters.';
     }
     if (!email || typeof email !== 'string' || email.length > 255 || !emailRegex.test(email)) {
       details.email = 'Please enter a valid email address.';
     }
-    if (!password || typeof password !== 'string' || password.length < 12 || password.length > 128) {
+    if (
+      !password ||
+      typeof password !== 'string' ||
+      password.length < 12 ||
+      password.length > 128
+    ) {
       details.password = 'Password must be between 12 and 128 characters long.';
     }
-    if (!captchaToken || typeof captchaToken !== 'string' || captchaToken.length < 1 || captchaToken.length > 4096) {
+    if (
+      !captchaToken ||
+      typeof captchaToken !== 'string' ||
+      captchaToken.length < 1 ||
+      captchaToken.length > 4096
+    ) {
       details.captchaToken = 'Invalid or missing CAPTCHA token.';
     }
 

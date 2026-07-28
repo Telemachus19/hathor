@@ -4,1195 +4,1215 @@
  */
 
 export interface paths {
-    "/user/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["registerUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  '/user/register': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/user/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["loginUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['registerUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/user/login': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/user/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["refreshSession"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['loginUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/user/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/user/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["logoutUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['refreshSession'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/user/logout': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/user/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getCurrentUser"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['logoutUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/user/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/store/apps": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listGames"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['getCurrentUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/store/apps': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/store/apps/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getGameBySlug"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['listGames'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/store/apps/{slug}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/cart": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getCart"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['getGameBySlug'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/cart': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/cart/{gameId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["addCartItem"];
-        delete: operations["removeCartItem"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['getCart'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/cart/{gameId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/txn/init": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["initializeTransaction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['addCartItem'];
+    delete: operations['removeCartItem'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/txn/init': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/txn/{orderId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getOrder"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['initializeTransaction'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/txn/{orderId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/txn/{orderId}/simulate-payment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["simulatePayment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['getOrder'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/txn/{orderId}/simulate-payment': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/txn/webhooks/simulator": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Private provider-shaped callback routed through the gateway */
-        post: operations["receiveSimulatorWebhook"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['simulatePayment'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/txn/webhooks/simulator': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/inventory/apps": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listLibraryGames"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Private provider-shaped callback routed through the gateway */
+    post: operations['receiveSimulatorWebhook'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/inventory/apps': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/inventory/check/{gameId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["checkLibraryOwnership"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['listLibraryGames'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/inventory/check/{gameId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/inventory/download-token": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["issueDownloadToken"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['checkLibraryOwnership'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/inventory/download-token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/creator/games": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listCreatorGames"];
-        put?: never;
-        post: operations["createCreatorGame"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['issueDownloadToken'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/creator/games': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/creator/games/{gameId}/theme": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["updateCreatorTheme"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['listCreatorGames'];
+    put?: never;
+    post: operations['createCreatorGame'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/creator/games/{gameId}/theme': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/creator/games/{gameId}/ai/theme-proposals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Optional provider-backed, creator-owned theme suggestion. It never saves or publishes a revision. */
-        post: operations["proposeAiTheme"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put: operations['updateCreatorTheme'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/creator/games/{gameId}/ai/theme-proposals': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/users/{userId}/roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["grantRole"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Optional provider-backed, creator-owned theme suggestion. It never saves or publishes a revision. */
+    post: operations['proposeAiTheme'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/users/{userId}/roles': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/games/{gameId}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["moderateGameStatus"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['grantRole'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/games/{gameId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/admin/transactions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["listTransactions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations['moderateGameStatus'];
+    trace?: never;
+  };
+  '/admin/transactions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get: operations['listTransactions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** Format: uuid */
-        Uuid: string;
-        Error: {
-            error: {
-                code: string;
-                message: string;
-                correlationId: components["schemas"]["Uuid"];
-            };
-        };
-        RegisterRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
-            displayName: string;
-            /** @description One-time Cloudflare Turnstile token */
-            captchaToken: string;
-        };
-        LoginRequest: {
-            /** Format: email */
-            email: string;
-            password: string;
-        };
-        User: {
-            id: components["schemas"]["Uuid"];
-            /** Format: email */
-            email: string;
-            displayName: string;
-            roles: ("gamer" | "creator" | "admin")[];
-        };
-        AuthSession: {
-            /** @description Store only in browser memory */
-            accessToken: string;
-            user: components["schemas"]["User"];
-        };
-        Game: {
-            id: components["schemas"]["Uuid"];
-            slug: string;
-            title: string;
-            shortDescription?: string;
-            priceEgp: string;
-            /** @constant */
-            currency: "EGP";
-            /** @enum {string} */
-            status: "draft" | "pending_review" | "published" | "rejected" | "suspended";
-            theme: components["schemas"]["ThemeDocument"];
-        };
-        GamePage: {
-            items: components["schemas"]["Game"][];
-            nextCursor?: string | null;
-        };
-        ThemeDocument: {
-            /** @constant */
-            schemaVersion: 1;
-            palette: {
-                background: string;
-                surface: string;
-                text: string;
-                accent: string;
-            };
-            typography: {
-                /** @enum {string} */
-                headingFont: "inter" | "cairo";
-                /** @enum {string} */
-                bodyFont: "inter" | "cairo";
-                /** @enum {string} */
-                headingScale: "normal" | "large";
-            };
-            layout: {
-                /** @enum {string} */
-                template: "standard" | "cinematic" | "compact";
-                /** @enum {string} */
-                heroAlignment: "left" | "center";
-                /** @enum {string} */
-                cardStyle: "flat" | "elevated";
-                /** @default true */
-                showTrailer: boolean;
-            };
-            contentOrder: ("hero" | "description" | "screenshots" | "systemRequirements")[];
-        };
-        Cart: {
-            version: number;
-            items: {
-                gameId: components["schemas"]["Uuid"];
-            }[];
-        };
-        InitializeTransactionRequest: {
-            /** @enum {string} */
-            paymentMethod: "sim_fawry" | "sim_vodafone_cash" | "sim_instapay";
-            cartVersion: number;
-        };
-        Order: {
-            id: components["schemas"]["Uuid"];
-            /** @enum {string} */
-            status: "payment_pending" | "payment_confirmed" | "fulfillment_pending" | "fulfilled" | "expired" | "payment_failed" | "cancelled" | "revoked";
-            /** @enum {string} */
-            paymentMethod: "sim_fawry" | "sim_vodafone_cash" | "sim_instapay";
-            paymentReference?: string;
-            totalAmountEgp: string;
-            /** @constant */
-            currency: "EGP";
-            /** Format: date-time */
-            expiresAt: string;
-        };
-        SimulatorWebhook: {
-            eventId: components["schemas"]["Uuid"];
-            /** Format: date-time */
-            occurredAt: string;
-            merchantId: string;
-            orderReference: string;
-            amountEgp: string;
-            /** @constant */
-            currency: "EGP";
-            /** @enum {string} */
-            status: "paid" | "failed";
-        };
-        SimulatePaymentRequest: {
-            /** @enum {string} */
-            outcome: "paid" | "failed";
-        };
-        Library: {
-            items: {
-                gameId: components["schemas"]["Uuid"];
-                /** Format: date-time */
-                acquiredAt: string;
-            }[];
-        };
-        DownloadTokenRequest: {
-            gameId: components["schemas"]["Uuid"];
-        };
-        DownloadToken: {
-            /** Format: uri */
-            url: string;
-            /** Format: date-time */
-            expiresAt: string;
-            sha256: string;
-        };
-        CreateGameRequest: {
-            title: string;
-            slug: string;
-            shortDescription: string;
-            priceEgp: string;
-        };
-        AiThemeProposalRequest: {
-            prompt: string;
-            currentTheme: components["schemas"]["ThemeDocument"];
-        };
-        AiThemeProposal: {
-            summary: string;
-            patch: {
-                /** @constant */
-                op: "replace";
-                /** @enum {string} */
-                path: "/palette/background" | "/palette/surface" | "/palette/text" | "/palette/accent" | "/typography/headingFont" | "/typography/bodyFont" | "/typography/headingScale" | "/layout/template" | "/layout/heroAlignment" | "/layout/cardStyle" | "/layout/showTrailer" | "/contentOrder";
-                value: unknown;
-            }[];
-        };
-        RoleChangeRequest: {
-            /** @enum {string} */
-            role: "creator" | "admin";
-            /** @enum {string} */
-            action: "grant" | "revoke";
-        };
-        GameStatusChangeRequest: {
-            /** @enum {string} */
-            status: "published" | "rejected" | "suspended";
-            reason?: string;
-        };
-        OrderPage: {
-            items: components["schemas"]["Order"][];
-            nextCursor?: string | null;
-        };
+  schemas: {
+    /** Format: uuid */
+    Uuid: string;
+    Error: {
+      error: {
+        code: string;
+        message: string;
+        correlationId: components['schemas']['Uuid'];
+      };
     };
-    responses: {
-        /** @description Missing, invalid, expired, or revoked credentials */
-        Unauthenticated: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Authenticated caller lacks required role or object ownership */
-        Forbidden: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Resource not found */
-        NotFound: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Invalid state, duplicate request, already-owned game, or disallowed transition */
-        Conflict: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Invalid request */
-        ValidationFailed: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
-        /** @description Required internal service unavailable */
-        DependencyUnavailable: {
-            headers: {
-                [name: string]: unknown;
-            };
-            content: {
-                "application/json": components["schemas"]["Error"];
-            };
-        };
+    RegisterRequest: {
+      /** Format: email */
+      email: string;
+      password: string;
+      displayName: string;
+      /** @description One-time Cloudflare Turnstile token */
+      captchaToken: string;
     };
-    parameters: {
-        GameId: components["schemas"]["Uuid"];
-        OrderId: components["schemas"]["Uuid"];
-        UserId: components["schemas"]["Uuid"];
-        Slug: string;
+    LoginRequest: {
+      /** Format: email */
+      email: string;
+      password: string;
     };
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    User: {
+      id: components['schemas']['Uuid'];
+      /** Format: email */
+      email: string;
+      displayName: string;
+      roles: ('gamer' | 'creator' | 'admin')[];
+    };
+    AuthSession: {
+      /** @description Store only in browser memory */
+      accessToken: string;
+      user: components['schemas']['User'];
+    };
+    Game: {
+      id: components['schemas']['Uuid'];
+      slug: string;
+      title: string;
+      shortDescription?: string;
+      priceEgp: string;
+      /** @constant */
+      currency: 'EGP';
+      /** @enum {string} */
+      status: 'draft' | 'pending_review' | 'published' | 'rejected' | 'suspended';
+      theme: components['schemas']['ThemeDocument'];
+    };
+    GamePage: {
+      items: components['schemas']['Game'][];
+      nextCursor?: string | null;
+    };
+    ThemeDocument: {
+      /** @constant */
+      schemaVersion: 1;
+      palette: {
+        background: string;
+        surface: string;
+        text: string;
+        accent: string;
+      };
+      typography: {
+        /** @enum {string} */
+        headingFont: 'inter' | 'cairo';
+        /** @enum {string} */
+        bodyFont: 'inter' | 'cairo';
+        /** @enum {string} */
+        headingScale: 'normal' | 'large';
+      };
+      layout: {
+        /** @enum {string} */
+        template: 'standard' | 'cinematic' | 'compact';
+        /** @enum {string} */
+        heroAlignment: 'left' | 'center';
+        /** @enum {string} */
+        cardStyle: 'flat' | 'elevated';
+        /** @default true */
+        showTrailer: boolean;
+      };
+      contentOrder: ('hero' | 'description' | 'screenshots' | 'systemRequirements')[];
+    };
+    Cart: {
+      version: number;
+      items: {
+        gameId: components['schemas']['Uuid'];
+      }[];
+    };
+    InitializeTransactionRequest: {
+      /** @enum {string} */
+      paymentMethod: 'sim_fawry' | 'sim_vodafone_cash' | 'sim_instapay';
+      cartVersion: number;
+    };
+    Order: {
+      id: components['schemas']['Uuid'];
+      /** @enum {string} */
+      status:
+        | 'payment_pending'
+        | 'payment_confirmed'
+        | 'fulfillment_pending'
+        | 'fulfilled'
+        | 'expired'
+        | 'payment_failed'
+        | 'cancelled'
+        | 'revoked';
+      /** @enum {string} */
+      paymentMethod: 'sim_fawry' | 'sim_vodafone_cash' | 'sim_instapay';
+      paymentReference?: string;
+      totalAmountEgp: string;
+      /** @constant */
+      currency: 'EGP';
+      /** Format: date-time */
+      expiresAt: string;
+    };
+    SimulatorWebhook: {
+      eventId: components['schemas']['Uuid'];
+      /** Format: date-time */
+      occurredAt: string;
+      merchantId: string;
+      orderReference: string;
+      amountEgp: string;
+      /** @constant */
+      currency: 'EGP';
+      /** @enum {string} */
+      status: 'paid' | 'failed';
+    };
+    SimulatePaymentRequest: {
+      /** @enum {string} */
+      outcome: 'paid' | 'failed';
+    };
+    Library: {
+      items: {
+        gameId: components['schemas']['Uuid'];
+        /** Format: date-time */
+        acquiredAt: string;
+      }[];
+    };
+    DownloadTokenRequest: {
+      gameId: components['schemas']['Uuid'];
+    };
+    DownloadToken: {
+      /** Format: uri */
+      url: string;
+      /** Format: date-time */
+      expiresAt: string;
+      sha256: string;
+    };
+    CreateGameRequest: {
+      title: string;
+      slug: string;
+      shortDescription: string;
+      priceEgp: string;
+    };
+    AiThemeProposalRequest: {
+      prompt: string;
+      currentTheme: components['schemas']['ThemeDocument'];
+    };
+    AiThemeProposal: {
+      summary: string;
+      patch: {
+        /** @constant */
+        op: 'replace';
+        /** @enum {string} */
+        path:
+          | '/palette/background'
+          | '/palette/surface'
+          | '/palette/text'
+          | '/palette/accent'
+          | '/typography/headingFont'
+          | '/typography/bodyFont'
+          | '/typography/headingScale'
+          | '/layout/template'
+          | '/layout/heroAlignment'
+          | '/layout/cardStyle'
+          | '/layout/showTrailer'
+          | '/contentOrder';
+        value: unknown;
+      }[];
+    };
+    RoleChangeRequest: {
+      /** @enum {string} */
+      role: 'creator' | 'admin';
+      /** @enum {string} */
+      action: 'grant' | 'revoke';
+    };
+    GameStatusChangeRequest: {
+      /** @enum {string} */
+      status: 'published' | 'rejected' | 'suspended';
+      reason?: string;
+    };
+    OrderPage: {
+      items: components['schemas']['Order'][];
+      nextCursor?: string | null;
+    };
+  };
+  responses: {
+    /** @description Missing, invalid, expired, or revoked credentials */
+    Unauthenticated: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['Error'];
+      };
+    };
+    /** @description Authenticated caller lacks required role or object ownership */
+    Forbidden: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['Error'];
+      };
+    };
+    /** @description Resource not found */
+    NotFound: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['Error'];
+      };
+    };
+    /** @description Invalid state, duplicate request, already-owned game, or disallowed transition */
+    Conflict: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['Error'];
+      };
+    };
+    /** @description Invalid request */
+    ValidationFailed: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['Error'];
+      };
+    };
+    /** @description Required internal service unavailable */
+    DependencyUnavailable: {
+      headers: {
+        [name: string]: unknown;
+      };
+      content: {
+        'application/json': components['schemas']['Error'];
+      };
+    };
+  };
+  parameters: {
+    GameId: components['schemas']['Uuid'];
+    OrderId: components['schemas']['Uuid'];
+    UserId: components['schemas']['Uuid'];
+    Slug: string;
+  };
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    registerUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterRequest"];
-            };
-        };
-        responses: {
-            /** @description Gamer account created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            409: components["responses"]["Conflict"];
-            422: components["responses"]["ValidationFailed"];
-        };
+  registerUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    loginUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description Access token and user. The refresh token is set as an HttpOnly cookie. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthSession"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RegisterRequest'];
+      };
     };
-    refreshSession: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description Gamer account created */
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Rotated session */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthSession"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
+        content: {
+          'application/json': components['schemas']['User'];
         };
+      };
+      409: components['responses']['Conflict'];
+      422: components['responses']['ValidationFailed'];
     };
-    logoutUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Refresh-token family revoked */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
+  };
+  loginUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getCurrentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Current user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LoginRequest'];
+      };
     };
-    listGames: {
-        parameters: {
-            query?: {
-                query?: string;
-                tag?: string;
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description Access token and user. The refresh token is set as an HttpOnly cookie. */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Published games */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GamePage"];
-                };
-            };
-            400: components["responses"]["ValidationFailed"];
+        content: {
+          'application/json': components['schemas']['AuthSession'];
         };
+      };
+      401: components['responses']['Unauthenticated'];
     };
-    getGameBySlug: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                slug: components["parameters"]["Slug"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Published game */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Game"];
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
+  };
+  refreshSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getCart: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Rotated session */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Caller cart */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Cart"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
+        content: {
+          'application/json': components['schemas']['AuthSession'];
         };
+      };
+      401: components['responses']['Unauthenticated'];
     };
-    addCartItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                gameId: components["parameters"]["GameId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Updated cart */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Cart"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-            409: components["responses"]["Conflict"];
-        };
+  };
+  logoutUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    removeCartItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                gameId: components["parameters"]["GameId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Refresh-token family revoked */
+      204: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Updated cart */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Cart"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
+        content?: never;
+      };
+      401: components['responses']['Unauthenticated'];
     };
-    initializeTransaction: {
-        parameters: {
-            query?: never;
-            header: {
-                "Idempotency-Key": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InitializeTransactionRequest"];
-            };
-        };
-        responses: {
-            /** @description Idempotent replay of an existing order */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Order"];
-                };
-            };
-            /** @description Payment-pending order */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Order"];
-                };
-            };
-            409: components["responses"]["Conflict"];
-            503: components["responses"]["DependencyUnavailable"];
-        };
+  };
+  getCurrentUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    getOrder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orderId: components["parameters"]["OrderId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Current user */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Caller order */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Order"];
-                };
-            };
-            404: components["responses"]["NotFound"];
+        content: {
+          'application/json': components['schemas']['User'];
         };
+      };
+      401: components['responses']['Unauthenticated'];
     };
-    simulatePayment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orderId: components["parameters"]["OrderId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SimulatePaymentRequest"];
-            };
-        };
-        responses: {
-            /** @description A demo-provider callback was scheduled for the caller's pending simulator order */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            403: components["responses"]["Forbidden"];
-            409: components["responses"]["Conflict"];
-        };
+  };
+  listGames: {
+    parameters: {
+      query?: {
+        query?: string;
+        tag?: string;
+        cursor?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    receiveSimulatorWebhook: {
-        parameters: {
-            query?: never;
-            header: {
-                "X-Hathor-Signature": string;
-            };
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Published games */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SimulatorWebhook"];
-            };
+        content: {
+          'application/json': components['schemas']['GamePage'];
         };
-        responses: {
-            /** @description Valid callback processed or safely deduplicated */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid signature */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            422: components["responses"]["ValidationFailed"];
-        };
+      };
+      400: components['responses']['ValidationFailed'];
     };
-    listLibraryGames: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Caller licenses */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Library"];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
-        };
+  };
+  getGameBySlug: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        slug: components['parameters']['Slug'];
+      };
+      cookie?: never;
     };
-    checkLibraryOwnership: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                gameId: components["parameters"]["GameId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Published game */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Caller ownership result */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        gameId: components["schemas"]["Uuid"];
-                        owned: boolean;
-                    };
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
+        content: {
+          'application/json': components['schemas']['Game'];
         };
+      };
+      404: components['responses']['NotFound'];
     };
-    issueDownloadToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DownloadTokenRequest"];
-            };
-        };
-        responses: {
-            /** @description Exact-object temporary download access */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DownloadToken"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-        };
+  };
+  getCart: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    listCreatorGames: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Caller cart */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Caller-owned games */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Game"][];
-                };
-            };
-            401: components["responses"]["Unauthenticated"];
+        content: {
+          'application/json': components['schemas']['Cart'];
         };
+      };
+      401: components['responses']['Unauthenticated'];
     };
-    createCreatorGame: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateGameRequest"];
-            };
-        };
-        responses: {
-            /** @description Draft game */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Game"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-        };
+  };
+  addCartItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
     };
-    updateCreatorTheme: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                gameId: components["parameters"]["GameId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Updated cart */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ThemeDocument"];
-            };
+        content: {
+          'application/json': components['schemas']['Cart'];
         };
-        responses: {
-            /** @description Validated draft theme saved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            403: components["responses"]["Forbidden"];
-        };
+      };
+      401: components['responses']['Unauthenticated'];
+      409: components['responses']['Conflict'];
     };
-    proposeAiTheme: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                gameId: components["parameters"]["GameId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AiThemeProposalRequest"];
-            };
-        };
-        responses: {
-            /** @description Schema-valid proposal for preview and explicit creator acceptance */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AiThemeProposal"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-            503: components["responses"]["DependencyUnavailable"];
-        };
+  };
+  removeCartItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
     };
-    grantRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userId: components["parameters"]["UserId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Updated cart */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RoleChangeRequest"];
-            };
+        content: {
+          'application/json': components['schemas']['Cart'];
         };
-        responses: {
-            /** @description Role updated and audit record written */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            403: components["responses"]["Forbidden"];
-        };
+      };
+      401: components['responses']['Unauthenticated'];
     };
-    moderateGameStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                gameId: components["parameters"]["GameId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GameStatusChangeRequest"];
-            };
-        };
-        responses: {
-            /** @description Allowed status transition recorded */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            403: components["responses"]["Forbidden"];
-            409: components["responses"]["Conflict"];
-        };
+  };
+  initializeTransaction: {
+    parameters: {
+      query?: never;
+      header: {
+        'Idempotency-Key': string;
+      };
+      path?: never;
+      cookie?: never;
     };
-    listTransactions: {
-        parameters: {
-            query?: {
-                cursor?: string;
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Paginated redacted financial audit records */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderPage"];
-                };
-            };
-            403: components["responses"]["Forbidden"];
-        };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['InitializeTransactionRequest'];
+      };
     };
+    responses: {
+      /** @description Idempotent replay of an existing order */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Order'];
+        };
+      };
+      /** @description Payment-pending order */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Order'];
+        };
+      };
+      409: components['responses']['Conflict'];
+      503: components['responses']['DependencyUnavailable'];
+    };
+  };
+  getOrder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        orderId: components['parameters']['OrderId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Caller order */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Order'];
+        };
+      };
+      404: components['responses']['NotFound'];
+    };
+  };
+  simulatePayment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        orderId: components['parameters']['OrderId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SimulatePaymentRequest'];
+      };
+    };
+    responses: {
+      /** @description A demo-provider callback was scheduled for the caller's pending simulator order */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+      409: components['responses']['Conflict'];
+    };
+  };
+  receiveSimulatorWebhook: {
+    parameters: {
+      query?: never;
+      header: {
+        'X-Hathor-Signature': string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SimulatorWebhook'];
+      };
+    };
+    responses: {
+      /** @description Valid callback processed or safely deduplicated */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid signature */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      422: components['responses']['ValidationFailed'];
+    };
+  };
+  listLibraryGames: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Caller licenses */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Library'];
+        };
+      };
+      401: components['responses']['Unauthenticated'];
+    };
+  };
+  checkLibraryOwnership: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Caller ownership result */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            gameId: components['schemas']['Uuid'];
+            owned: boolean;
+          };
+        };
+      };
+      401: components['responses']['Unauthenticated'];
+    };
+  };
+  issueDownloadToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DownloadTokenRequest'];
+      };
+    };
+    responses: {
+      /** @description Exact-object temporary download access */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DownloadToken'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  listCreatorGames: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Caller-owned games */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Game'][];
+        };
+      };
+      401: components['responses']['Unauthenticated'];
+    };
+  };
+  createCreatorGame: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateGameRequest'];
+      };
+    };
+    responses: {
+      /** @description Draft game */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Game'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  updateCreatorTheme: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ThemeDocument'];
+      };
+    };
+    responses: {
+      /** @description Validated draft theme saved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  proposeAiTheme: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AiThemeProposalRequest'];
+      };
+    };
+    responses: {
+      /** @description Schema-valid proposal for preview and explicit creator acceptance */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AiThemeProposal'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+      503: components['responses']['DependencyUnavailable'];
+    };
+  };
+  grantRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userId: components['parameters']['UserId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RoleChangeRequest'];
+      };
+    };
+    responses: {
+      /** @description Role updated and audit record written */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  moderateGameStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GameStatusChangeRequest'];
+      };
+    };
+    responses: {
+      /** @description Allowed status transition recorded */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+      409: components['responses']['Conflict'];
+    };
+  };
+  listTransactions: {
+    parameters: {
+      query?: {
+        cursor?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated redacted financial audit records */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OrderPage'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
 }
