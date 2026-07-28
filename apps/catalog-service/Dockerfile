@@ -4,7 +4,6 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install --global pnpm@9.0.0
 WORKDIR /app
 COPY . .
-RUN apk add --no-cache python3 make g++
 RUN pnpm install --filter @hathor/catalog-service... --frozen-lockfile
 RUN pnpm --filter @hathor/catalog-service build
 

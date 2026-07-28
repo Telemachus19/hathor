@@ -13,7 +13,6 @@
   max-width: var(--container-max-width, 1300px);
   margin: 0 auto;
   padding: 0 1.5rem;
-  box-sizing: border-box;
 }
 
 .logoArea {
@@ -32,20 +31,12 @@
   flex-shrink: 0;
 }
 
-.logoSvg {
-  display: block;
-  width: 34px;
-  height: 28px;
-  flex-shrink: 0;
-}
-
 .logoText {
-  font-family: var(--font-logo, 'Cinzel Decorative', 'Cinzel', serif);
+  font-family: var(--font-logo, 'Cinzel', serif);
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--accent-orange, #ff5500);
+  color: var(--accent-orange, #f26b21);
   letter-spacing: 0.15em;
-  text-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
 }
 
 .links {
@@ -69,34 +60,7 @@
 }
 
 .copy {
-  color: var(--text-subtle, #5a6578);
+  color: var(--text-subtle, #576275);
   font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.6875rem;
-  letter-spacing: 0.04em;
-}
-
-/* ===== Responsive Breakpoints ===== */
-@media (max-width: 768px) {
-  .inner {
-    flex-direction: column;
-    gap: 1.5rem;
-    text-align: center;
-  }
-
-  .links {
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .footer {
-    padding: 1.5rem 0;
-    margin-top: 2.5rem;
-  }
-
-  .links {
-    gap: 1.2rem;
-  }
 }
