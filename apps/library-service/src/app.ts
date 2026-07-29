@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
+import internalRouter from './routes/internal.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -22,6 +23,8 @@ export function createLibraryApp(checkDependencies: ReadinessCheck): Express {
     })
   );
   app.use(express.json());
+
+  app.use('/internal/v1/library', internalRouter);
 
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({
