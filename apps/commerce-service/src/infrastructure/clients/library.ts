@@ -17,7 +17,7 @@ export class DependencyUnavailableError extends Error {
  */
 async function getServiceToken(): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  
+
   // Re-use token if it is still valid for at least 10 more seconds
   if (cachedToken && cachedTokenExpiry > now + 10) {
     return cachedToken;
@@ -75,7 +75,7 @@ export async function checkLibraryOwnership(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'X-Correlation-ID': correlationId,
       },
       body: JSON.stringify({ userId, gameIds }),

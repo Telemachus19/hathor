@@ -18,7 +18,9 @@ function signJwt(payload: object, privateKeyPem: string): string {
   const base64UrlHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
   const base64UrlPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
   const signatureInput = `${base64UrlHeader}.${base64UrlPayload}`;
-  const signature = sign('sha256', Buffer.from(signatureInput), privateKeyPem).toString('base64url');
+  const signature = sign('sha256', Buffer.from(signatureInput), privateKeyPem).toString(
+    'base64url'
+  );
   return `${signatureInput}.${signature}`;
 }
 
@@ -38,9 +40,7 @@ vi.mock('../../../apps/commerce-service/src/infrastructure/db/client.js', () => 
       // A custom then method makes this object a Promise/thenable.
       // It executes getNextSelectMock only once when the query chain is awaited.
       then: vi.fn((onFulfilled, onRejected) => {
-        return Promise.resolve()
-          .then(getNextSelectMock)
-          .then(onFulfilled, onRejected);
+        return Promise.resolve().then(getNextSelectMock).then(onFulfilled, onRejected);
       }),
     };
     return chain;
@@ -97,7 +97,7 @@ describe('Commerce Cart API Endpoints', () => {
     vi.clearAllMocks();
     (globalThis as any).selectMockQueue = [];
     app = createCommerceApp(async () => {});
-    
+
     // Generate valid JWT token signed with our private key
     token = signJwt(
       {
@@ -145,9 +145,7 @@ describe('Commerce Cart API Endpoints', () => {
 
     it('rejects requests with invalid token signature', async () => {
       const wrongToken = token + 'invalid';
-      const res = await request(app)
-        .get('/cart')
-        .set('Authorization', `Bearer ${wrongToken}`);
+      const res = await request(app).get('/cart').set('Authorization', `Bearer ${wrongToken}`);
       expect(res.status).toBe(401);
       expect(res.body.error.code).toBe('UNAUTHENTICATED');
     });
@@ -162,9 +160,7 @@ describe('Commerce Cart API Endpoints', () => {
         [{ gameId }], // Query 3: items retrieval in getCartResponse
       ];
 
-      const res = await request(app)
-        .get('/cart')
-        .set('Authorization', `Bearer ${token}`);
+      const res = await request(app).get('/cart').set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -265,9 +261,7 @@ describe('Commerce Cart API Endpoints', () => {
         [{ gameId }], // Query 3: items retrieval in getCartResponse
       ];
 
-      const res = await request(app)
-        .get('/cart')
-        .set('Authorization', `Bearer ${token}`);
+      const res = await request(app).get('/cart').set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
@@ -299,9 +293,7 @@ describe('Commerce Cart API Endpoints', () => {
         [{ gameId }], // Query 3: items in response
       ];
 
-      const res = await request(app)
-        .get('/cart')
-        .set('Authorization', `Bearer ${token}`);
+      const res = await request(app).get('/cart').set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(503);
       expect(res.body.error.code).toBe('DEPENDENCY_UNAVAILABLE');

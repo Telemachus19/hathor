@@ -9,7 +9,8 @@ import { randomUUID } from 'node:crypto';
 const router: Router = Router();
 
 const checkOwnershipHandler = async (req: AuthenticatedServiceRequest, res: Response) => {
-  const correlationId = (req.headers['x-correlation-id'] as string) || req.headers['correlation-id'] || randomUUID();
+  const correlationId =
+    (req.headers['x-correlation-id'] as string) || req.headers['correlation-id'] || randomUUID();
   const { userId, gameIds } = req.body;
 
   // Validate request parameters
@@ -34,12 +35,7 @@ const checkOwnershipHandler = async (req: AuthenticatedServiceRequest, res: Resp
     const results = await libraryDb
       .select({ gameId: userLicenses.gameId })
       .from(userLicenses)
-      .where(
-        and(
-          eq(userLicenses.userId, userId),
-          inArray(userLicenses.gameId, gameIds)
-        )
-      );
+      .where(and(eq(userLicenses.userId, userId), inArray(userLicenses.gameId, gameIds)));
 
     const ownedGameIds = results.map((r) => r.gameId);
     return res.status(200).json({ ownedGameIds });

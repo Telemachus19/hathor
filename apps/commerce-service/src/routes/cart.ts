@@ -4,7 +4,10 @@ import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { commerceDb } from '../infrastructure/db/client.js';
 import { carts, cartItems } from '../infrastructure/db/schema.js';
 import { randomUUID } from 'node:crypto';
-import { checkLibraryOwnership, DependencyUnavailableError } from '../infrastructure/clients/library.js';
+import {
+  checkLibraryOwnership,
+  DependencyUnavailableError,
+} from '../infrastructure/clients/library.js';
 
 const router: Router = Router();
 
@@ -16,15 +19,15 @@ async function getCartResponse(userId: string, correlationId?: string) {
     .from(cartItems)
     .where(eq(cartItems.userId, userId));
 
-  const gameIds = items.map(item => item.gameId);
+  const gameIds = items.map((item) => item.gameId);
   const ownedGameIds = await checkLibraryOwnership(userId, gameIds, correlationId);
 
   return {
     version: cart ? cart.version : 1,
-    items: items.map(item => ({
+    items: items.map((item) => ({
       gameId: item.gameId,
-      already_owned: ownedGameIds.includes(item.gameId)
-    }))
+      already_owned: ownedGameIds.includes(item.gameId),
+    })),
   };
 }
 
@@ -49,8 +52,8 @@ router.get('/', requireAuth, async (req: AuthenticatedRequest, res: Response) =>
         error: {
           code: 'DEPENDENCY_UNAVAILABLE',
           message: 'Library service is currently unavailable',
-          correlationId
-        }
+          correlationId,
+        },
       });
     }
     console.error('Error fetching cart:', error);
@@ -59,8 +62,8 @@ router.get('/', requireAuth, async (req: AuthenticatedRequest, res: Response) =>
       error: {
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to fetch cart',
-        correlationId
-      }
+        correlationId,
+      },
     });
   }
 });
@@ -79,8 +82,8 @@ router.post('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Resp
       error: {
         code: 'VALIDATION_FAILED',
         message: 'Invalid gameId format (must be a valid UUID)',
-        correlationId
-      }
+        correlationId,
+      },
     });
   }
 
@@ -98,8 +101,8 @@ router.post('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Resp
         error: {
           code: 'CONFLICT',
           message: 'Game is already in the cart',
-          correlationId
-        }
+          correlationId,
+        },
       });
     }
 
@@ -113,7 +116,7 @@ router.post('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Resp
           .update(carts)
           .set({
             version: sql`${carts.version} + 1`,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(eq(carts.userId, userId));
       }
@@ -130,8 +133,8 @@ router.post('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Resp
         error: {
           code: 'DEPENDENCY_UNAVAILABLE',
           message: 'Library service is currently unavailable',
-          correlationId
-        }
+          correlationId,
+        },
       });
     }
     console.error('Error adding item to cart:', error);
@@ -140,8 +143,8 @@ router.post('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Resp
       error: {
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to add item to cart',
-        correlationId
-      }
+        correlationId,
+      },
     });
   }
 });
@@ -160,8 +163,8 @@ router.delete('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Re
       error: {
         code: 'VALIDATION_FAILED',
         message: 'Invalid gameId format (must be a valid UUID)',
-        correlationId
-      }
+        correlationId,
+      },
     });
   }
 
@@ -183,7 +186,7 @@ router.delete('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Re
           .update(carts)
           .set({
             version: sql`${carts.version} + 1`,
-            updatedAt: new Date()
+            updatedAt: new Date(),
           })
           .where(eq(carts.userId, userId));
       });
@@ -198,8 +201,8 @@ router.delete('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Re
         error: {
           code: 'DEPENDENCY_UNAVAILABLE',
           message: 'Library service is currently unavailable',
-          correlationId
-        }
+          correlationId,
+        },
       });
     }
     console.error('Error removing item from cart:', error);
@@ -208,8 +211,8 @@ router.delete('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Re
       error: {
         code: 'INTERNAL_SERVER_ERROR',
         message: 'Failed to remove item from cart',
-        correlationId
-      }
+        correlationId,
+      },
     });
   }
 });

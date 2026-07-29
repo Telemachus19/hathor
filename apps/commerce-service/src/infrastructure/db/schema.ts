@@ -11,15 +11,12 @@ import {
 
 export const commerceSchema = pgSchema('commerce');
 
-export const carts = commerceSchema.table(
-  'carts',
-  {
-    userId: uuid('user_id').primaryKey(),
-    version: integer('version').default(1).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-  }
-);
+export const carts = commerceSchema.table('carts', {
+  userId: uuid('user_id').primaryKey(),
+  version: integer('version').default(1).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+});
 
 export const cartItems = commerceSchema.table(
   'cart_items',
