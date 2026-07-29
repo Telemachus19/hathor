@@ -1,0 +1,111 @@
+.aboutWrap {
+  margin-bottom: 3.5rem;
+  position: relative;
+}
+
+.sectionHeader {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--accent-orange);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sectionHeader::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 2px;
+  background-color: var(--accent-orange);
+}
+
+.contentContainer {
+  position: relative;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.contentCollapsed {
+  max-height: 480px;
+  overflow: hidden;
+}
+
+.fadeOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  background: linear-gradient(to bottom, transparent 0%, #181c24 100%);
+  pointer-events: none;
+}
+
+.subSection {
+  margin-bottom: 2rem;
+}
+
+.subHeading {
+  font-family: var(--font-heading);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--text-cream);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.75rem 0;
+}
+
+.paragraph {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0 0 1rem 0;
+}
+
+.showcaseImgWrap {
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1.25rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.showcaseImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.readMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.readMoreBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--accent-orange);
+  padding: 0.6rem 2.25rem;
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.readMoreBtn:hover {
+  background: var(--accent-orange);
+  color: #0e1116;
+  border-color: var(--accent-orange);
+}

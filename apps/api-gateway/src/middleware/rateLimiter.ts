@@ -6,7 +6,7 @@ import { rateLimit } from 'express-rate-limit';
  */
 export const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === 'development' ? 5000 : 100,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
@@ -27,7 +27,7 @@ export const globalRateLimiter = rateLimit({
  */
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: process.env.NODE_ENV === 'development' ? 1000 : 20,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {

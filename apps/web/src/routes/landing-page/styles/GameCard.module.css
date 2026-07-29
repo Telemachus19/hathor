@@ -1,0 +1,187 @@
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover,
+.cardLink:hover .card {
+  transform: translateY(-3px);
+  border-color: var(--border-color-light);
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: #12151c;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tagsLeft {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.tagsRight {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+/* Tag: Dark semi-transparent background with orange border and orange text */
+.tag {
+  background-color: rgba(18, 21, 29, 0.85);
+  border: 1px solid var(--accent-orange);
+  color: var(--accent-orange);
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.tagDiscount {
+  background-color: rgba(18, 21, 29, 0.85);
+  border: 1px solid var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+/* Single Horizontal Row for Card Bottom Bar */
+.contentBar {
+  padding: 0.625rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--bg-card);
+  min-height: 2.75rem;
+}
+
+.leftGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.category {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.rating {
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.starIcon {
+  color: var(--accent-orange);
+  flex-shrink: 0;
+}
+
+.rightGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.priceWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.price {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-orange);
+  white-space: nowrap;
+}
+
+.priceFree {
+  color: var(--accent-orange);
+  font-weight: 700;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.priceOld {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  color: var(--text-subtle);
+  text-decoration: line-through;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+
+/* Button: Solid Orange background with DARK/BLACK text */
+.addBtn {
+  background-color: var(--accent-orange);
+  color: #0e1116;
+  border: none;
+  padding: 0.3rem 0.65rem;
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.625rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: background-color 0.2s ease;
+}
+
+.addBtn:hover {
+  background-color: var(--accent-orange-hover);
+  color: #0e1116;
+}

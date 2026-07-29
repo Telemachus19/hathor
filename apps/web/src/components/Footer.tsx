@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link } from '@tanstack/react-router';
 import styles from '../styles/Footer.module.css';
-import { HathorLogo } from '../assets';
+import logoSvg from '../assets/hathor-logo.svg';
 
 export const Footer: React.FC = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <Link to="/" className={styles.logoArea}>
-          <HathorLogo width={36} height={30} className={styles.logoSvg} />
+          <img src={logoSvg} alt="Hathor Logo" className={styles.logoPlaceholder} />
           <span className={styles.logoText}>HATHOR</span>
         </Link>
 

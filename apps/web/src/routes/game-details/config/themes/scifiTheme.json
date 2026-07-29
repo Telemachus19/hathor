@@ -1,0 +1,124 @@
+{
+  "scifiTopBar": {
+    "tag": "div",
+    "style": {
+      "padding": "1.5rem 2rem",
+      "background": "#030712",
+      "borderBottom": "1px solid #10b981",
+      "marginBottom": "2rem",
+      "display": "flex",
+      "alignItems": "center",
+      "justify-content": "space-between"
+    },
+    "children": [
+      {
+        "tag": "div",
+        "children": [
+          {
+            "tag": "h1",
+            "style": {
+              "color": "#10b981",
+              "fontFamily": "Cinzel, sans-serif",
+              "margin": "0 0 0.25rem 0",
+              "fontSize": "2rem"
+            },
+            "children": "QUANTUM THRONE 3000"
+          },
+          {
+            "tag": "span",
+            "style": { "color": "#06b6d4", "fontSize": "0.8125rem", "letterSpacing": "0.1em" },
+            "children": "HOLOGRAM PROTOCOL V3.4"
+          }
+        ]
+      },
+      {
+        "tag": "div",
+        "style": {
+          "padding": "0.5rem 1rem",
+          "background": "rgba(16,185,129,0.1)",
+          "border": "1px solid #10b981",
+          "color": "#10b981",
+          "borderRadius": "4px",
+          "fontWeight": "bold"
+        },
+        "children": "VERIFIED QUANTUM"
+      }
+    ]
+  },
+  "scifiHeroShowcase": {
+    "tag": "div",
+    "style": {
+      "display": "grid",
+      "gridTemplateColumns": "2fr 1fr",
+      "gap": "1.5rem",
+      "marginBottom": "2.5rem"
+    },
+    "children": [
+      {
+        "tag": "div",
+        "style": {
+          "padding": "1.5rem",
+          "background": "#0b1329",
+          "border": "1px solid #10b981",
+          "borderRadius": "6px"
+        },
+        "hoverStyle": { "borderColor": "#06b6d4", "boxShadow": "0 0 20px rgba(6,182,212,0.2)" },
+        "children": [
+          {
+            "tag": "h3",
+            "style": {
+              "color": "#10b981",
+              "fontFamily": "Cinzel, sans-serif",
+              "margin": "0 0 0.5rem 0"
+            },
+            "children": "QUANTUM ACCESS PASS"
+          },
+          {
+            "tag": "p",
+            "style": { "color": "#94a3b8", "fontSize": "0.875rem", "lineHeight": 1.5 },
+            "children": "Includes full quantum network expansion, 12 cyber frames, and real-time mesh matchmaking."
+          }
+        ]
+      },
+      {
+        "tag": "div",
+        "style": {
+          "padding": "1.5rem",
+          "background": "#0b1329",
+          "border": "1px solid #06b6d4",
+          "borderRadius": "6px",
+          "display": "flex",
+          "flexDirection": "column",
+          "justify-content": "center"
+        },
+        "children": [
+          {
+            "tag": "div",
+            "style": {
+              "fontSize": "1.85rem",
+              "color": "#06b6d4",
+              "fontWeight": "900",
+              "marginBottom": "0.75rem"
+            },
+            "children": "599.00 EGP"
+          },
+          {
+            "tag": "button",
+            "style": {
+              "width": "100%",
+              "padding": "0.875rem",
+              "background": "#10b981",
+              "color": "#030712",
+              "fontWeight": "900",
+              "border": "none",
+              "borderRadius": "4px",
+              "cursor": "pointer"
+            },
+            "hoverStyle": { "background": "#06b6d4", "color": "#ffffff" },
+            "children": "INITIALIZE QUANTUM LINK"
+          }
+        ]
+      }
+    ]
+  }
+}
