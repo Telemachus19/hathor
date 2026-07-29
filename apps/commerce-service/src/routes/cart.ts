@@ -4,20 +4,27 @@ import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { commerceDb } from '../infrastructure/db/client.js';
 import { carts, cartItems } from '../infrastructure/db/schema.js';
 import { randomUUID } from 'node:crypto';
+import { checkLibraryOwnership, DependencyUnavailableError } from '../infrastructure/clients/library.js';
 
 const router: Router = Router();
 
 // Helper to query the cart state in the format expected by the OpenAPI schema
-async function getCartResponse(userId: string) {
+async function getCartResponse(userId: string, correlationId?: string) {
   const [cart] = await commerceDb.select().from(carts).where(eq(carts.userId, userId)).limit(1);
   const items = await commerceDb
     .select({ gameId: cartItems.gameId })
     .from(cartItems)
     .where(eq(cartItems.userId, userId));
 
+  const gameIds = items.map(item => item.gameId);
+  const ownedGameIds = await checkLibraryOwnership(userId, gameIds, correlationId);
+
   return {
     version: cart ? cart.version : 1,
-    items: items.map(item => ({ gameId: item.gameId }))
+    items: items.map(item => ({
+      gameId: item.gameId,
+      already_owned: ownedGameIds.includes(item.gameId)
+    }))
   };
 }
 
@@ -33,9 +40,19 @@ router.get('/', requireAuth, async (req: AuthenticatedRequest, res: Response) =>
       await commerceDb.insert(carts).values({ userId, version: 1 }).onConflictDoNothing();
     }
 
-    const responseData = await getCartResponse(userId);
+    const responseData = await getCartResponse(userId, correlationId);
     return res.status(200).json(responseData);
   } catch (error) {
+    if (error instanceof DependencyUnavailableError) {
+      return res.status(503).json({
+        success: false,
+        error: {
+          code: 'DEPENDENCY_UNAVAILABLE',
+          message: 'Library service is currently unavailable',
+          correlationId
+        }
+      });
+    }
     console.error('Error fetching cart:', error);
     return res.status(500).json({
       success: false,
@@ -104,9 +121,19 @@ router.post('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Resp
       await tx.insert(cartItems).values({ userId, gameId });
     });
 
-    const responseData = await getCartResponse(userId);
+    const responseData = await getCartResponse(userId, correlationId);
     return res.status(200).json(responseData);
   } catch (error) {
+    if (error instanceof DependencyUnavailableError) {
+      return res.status(503).json({
+        success: false,
+        error: {
+          code: 'DEPENDENCY_UNAVAILABLE',
+          message: 'Library service is currently unavailable',
+          correlationId
+        }
+      });
+    }
     console.error('Error adding item to cart:', error);
     return res.status(500).json({
       success: false,
@@ -162,9 +189,19 @@ router.delete('/:gameId', requireAuth, async (req: AuthenticatedRequest, res: Re
       });
     }
 
-    const responseData = await getCartResponse(userId);
+    const responseData = await getCartResponse(userId, correlationId);
     return res.status(200).json(responseData);
   } catch (error) {
+    if (error instanceof DependencyUnavailableError) {
+      return res.status(503).json({
+        success: false,
+        error: {
+          code: 'DEPENDENCY_UNAVAILABLE',
+          message: 'Library service is currently unavailable',
+          correlationId
+        }
+      });
+    }
     console.error('Error removing item from cart:', error);
     return res.status(500).json({
       success: false,

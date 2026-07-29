@@ -187,6 +187,7 @@ services:
       REDIS_URL: redis://redis:6379
       RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
       AUTH_SERVICE_URL: http://auth-service:5001
+      LIBRARY_SERVICE_URL: http://library-service:5004
     depends_on:
       commerce-postgres:
         condition: service_healthy
@@ -217,6 +218,7 @@ services:
       PORT: 5004
       LIBRARY_DB_URL: postgresql://library_app:${LIBRARY_DB_PASSWORD}@library-postgres:5432/library
       RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      AUTH_SERVICE_URL: http://auth-service:5001
     depends_on:
       library-postgres:
         condition: service_healthy
