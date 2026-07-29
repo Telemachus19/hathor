@@ -25,7 +25,7 @@ async function getPublicKey(): Promise<string> {
 
   // 3. Otherwise, fetch it dynamically from the auth-service JWKS endpoint
   const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
-  const jwksUrl = `${authServiceUrl}/api/v1/user/.well-known/jwks.json`;
+  const jwksUrl = `${authServiceUrl}/user/.well-known/jwks.json`;
 
   try {
     const response = await fetch(jwksUrl);
