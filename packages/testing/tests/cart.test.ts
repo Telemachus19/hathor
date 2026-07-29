@@ -109,6 +109,31 @@ describe('Commerce Cart API Endpoints', () => {
       },
       privateKey
     );
+
+    // Mock global fetch for service-to-service calls
+    globalThis.fetch = vi.fn(async (url: any, options: any) => {
+      const urlStr = String(url);
+      if (urlStr.includes('/internal/v1/auth/service-tokens')) {
+        return {
+          ok: true,
+          json: async () => ({ accessToken: 'mock-service-token', expiresIn: 300 }),
+        } as any;
+      }
+      if (urlStr.includes('/internal/v1/library/ownership-check')) {
+        const owned = (globalThis as any).mockOwnedGameIds || [];
+        return {
+          ok: true,
+          json: async () => ({ ownedGameIds: owned }),
+        } as any;
+      }
+      return {
+        ok: false,
+        status: 404,
+        statusText: 'Not Found',
+      } as any;
+    });
+
+    (globalThis as any).mockOwnedGameIds = [];
   });
 
   describe('1. Authentication and Identity Enforcement', () => {
@@ -144,7 +169,7 @@ describe('Commerce Cart API Endpoints', () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
         version: 1,
-        items: [{ gameId }],
+        items: [{ gameId, already_owned: false }],
       });
 
       // Verify cart insertion occurred since it was not found
@@ -182,7 +207,7 @@ describe('Commerce Cart API Endpoints', () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
         version: 2,
-        items: [{ gameId }],
+        items: [{ gameId, already_owned: false }],
       });
 
       // Verify transaction was used and version increment occurred
@@ -226,6 +251,60 @@ describe('Commerce Cart API Endpoints', () => {
       const mockTx = (globalThis as any).mockTx;
       expect(mockTx.delete).toHaveBeenCalled();
       expect(mockTx.update).toHaveBeenCalled();
+    });
+  });
+
+  describe('5. Inter-service Ownership Integration & Fail-Closed Behavior', () => {
+    it('marks matching cart items as already_owned: true', async () => {
+      // Configure mock library ownership to return that gameId is owned
+      (globalThis as any).mockOwnedGameIds = [gameId];
+
+      (globalThis as any).selectMockQueue = [
+        [], // Query 1: cart check in GET route (not found)
+        [{ userId, version: 1 }], // Query 2: cart retrieval in getCartResponse
+        [{ gameId }], // Query 3: items retrieval in getCartResponse
+      ];
+
+      const res = await request(app)
+        .get('/cart')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        version: 1,
+        items: [{ gameId, already_owned: true }],
+      });
+    });
+
+    it('fails closed and returns 503 if library ownership check fails', async () => {
+      // Simulate library service returning failure status
+      globalThis.fetch = vi.fn(async (url: any) => {
+        const urlStr = String(url);
+        if (urlStr.includes('/internal/v1/auth/service-tokens')) {
+          return {
+            ok: true,
+            json: async () => ({ accessToken: 'mock-service-token', expiresIn: 300 }),
+          } as any;
+        }
+        return {
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error',
+        } as any;
+      });
+
+      (globalThis as any).selectMockQueue = [
+        [], // Query 1: cart check in GET route (not found)
+        [{ userId, version: 1 }], // Query 2: cart in response
+        [{ gameId }], // Query 3: items in response
+      ];
+
+      const res = await request(app)
+        .get('/cart')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(503);
+      expect(res.body.error.code).toBe('DEPENDENCY_UNAVAILABLE');
     });
   });
 });
