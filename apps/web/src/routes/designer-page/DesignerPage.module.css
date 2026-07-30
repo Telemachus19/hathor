@@ -1,0 +1,603 @@
+/* Designer Page CSS Module */
+
+.designerContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #222831;
+  color: #EEEEEE;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #1C2028;
+  border: 1px solid rgba(253, 112, 20, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  font-size: 11px;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  color: #EEEEEE;
+}
+
+/* Top Toolbar */
+.topToolbar {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background-color: #1C2028;
+  border-bottom: 1px solid #393E46;
+  flex-shrink: 0;
+}
+
+.logo {
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 20px;
+  background-color: #393E46;
+}
+
+.titleTag {
+  font-size: 9px;
+  font-family: monospace;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(140, 154, 170, 0.6);
+  flex-shrink: 0;
+}
+
+.gameTitleInput {
+  background: transparent;
+  font-size: 12px;
+  font-weight: 900;
+  font-family: 'Cinzel', serif;
+  color: #EEEEEE;
+  border: none;
+  border-bottom: 1px solid transparent;
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 140px;
+}
+
+.gameTitleInput:focus {
+  border-bottom-color: #FD7014;
+}
+
+.toolbarSpacer {
+  flex: 1;
+}
+
+.deviceToggleGroup {
+  display: flex;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.deviceBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  color: #8C9AAA;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.deviceBtn:not(:last-child) {
+  border-right: 1px solid #393E46;
+}
+
+.deviceBtnActive {
+  background-color: rgba(253, 112, 20, 0.15);
+  color: #FD7014;
+}
+
+.iconActionBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #8C9AAA;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.iconActionBtn:hover:not(:disabled) {
+  color: #EEEEEE;
+}
+
+.iconActionBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.saveDraftBtn {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  color: #8C9AAA;
+  background: transparent;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.saveDraftBtn:hover {
+  color: #EEEEEE;
+  border-color: #8C9AAA;
+}
+
+.publishBtn {
+  height: 30px;
+  padding: 0 16px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  background-color: #FD7014;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.publishBtn:hover {
+  background-color: #e05c13;
+}
+
+/* Editor Main Body Layout */
+.editorBody {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Left Sidebar — Block Palette */
+.leftSidebar {
+  width: 240px;
+  background-color: #1C2028;
+  border-right: 1px solid #393E46;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.paletteHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #393E46;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.15em;
+  color: #8C9AAA;
+  text-transform: uppercase;
+}
+
+.groupTitle {
+  padding: 16px 16px 6px;
+  font-size: 9px;
+  font-family: monospace;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(140, 154, 170, 0.6);
+}
+
+.groupGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 8px;
+}
+
+.paletteCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background-color: rgba(34, 40, 49, 0.6);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.paletteCard:hover {
+  background-color: #222831;
+  border-color: #393E46;
+  transform: translateX(2px);
+}
+
+.paletteIconWrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: #1C2028;
+  border: 1px solid #393E46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FD7014;
+  flex-shrink: 0;
+}
+
+.paletteCardLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #EEEEEE;
+}
+
+.paletteCardDesc {
+  font-size: 10px;
+  color: #8C9AAA;
+  margin-top: 2px;
+}
+
+/* Center Canvas Area */
+.canvasArea {
+  flex: 1;
+  background-color: #12151B;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+}
+
+.canvasWrapper {
+  width: 100%;
+  transition: max-width 0.3s ease;
+  background-color: #000000;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.emptyCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: #8C9AAA;
+  gap: 12px;
+}
+
+/* Section Wrapper in Canvas */
+.sectionWrapper {
+  position: relative;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+
+.sectionWrapper:hover {
+  border-color: rgba(253, 112, 20, 0.4);
+}
+
+.sectionSelected {
+  border-color: #FD7014 !important;
+}
+
+.sectionTag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #FD7014;
+  color: #ffffff;
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: 800;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  z-index: 10;
+  letter-spacing: 0.1em;
+}
+
+.sectionToolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #1C2028;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  padding: 2px;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.sectionToolBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #8C9AAA;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sectionToolBtn:hover:not(:disabled) {
+  background-color: #222831;
+  color: #EEEEEE;
+}
+
+.sectionToolBtn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* Right Sidebar — Properties Panel */
+.rightSidebar {
+  width: 300px;
+  background-color: #1C2028;
+  border-left: 1px solid #393E46;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.propsHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #393E46;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  color: #FD7014;
+  text-transform: uppercase;
+}
+
+.emptyProps {
+  padding: 60px 20px;
+  text-align: center;
+  color: #8C9AAA;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.propSection {
+  border-bottom: 1px solid #393E46;
+}
+
+.propSectionTitle {
+  padding: 12px 16px 6px;
+  font-size: 8px;
+  font-family: monospace;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(140, 154, 170, 0.9);
+}
+
+.propSectionContent {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.propRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.propLabel {
+  font-size: 10px;
+  font-family: monospace;
+  color: #8C9AAA;
+}
+
+.colorField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #393E46;
+  padding: 4px 8px;
+  background-color: #222831;
+}
+
+.colorSwatch {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 1px solid rgba(57, 62, 70, 0.8);
+}
+
+.colorInput {
+  flex: 1;
+  background: transparent;
+  font-size: 11px;
+  font-family: monospace;
+  color: #EEEEEE;
+  border: none;
+  outline: none;
+}
+
+.numField {
+  display: flex;
+  align-items: center;
+  border: 1px solid #393E46;
+  background-color: #222831;
+}
+
+.numBtn {
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  color: #8C9AAA;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.numBtn:hover {
+  color: #EEEEEE;
+}
+
+.numInput {
+  flex: 1;
+  background: transparent;
+  text-align: center;
+  font-size: 11px;
+  font-family: monospace;
+  color: #EEEEEE;
+  border: none;
+  outline: none;
+  padding: 6px 0;
+  min-width: 0;
+}
+
+.unitSpan {
+  font-size: 9px;
+  font-family: monospace;
+  padding: 0 6px;
+  color: #8C9AAA;
+}
+
+.txtInput {
+  border: 1px solid #393E46;
+  background-color: #222831;
+}
+
+.txtInput input {
+  width: 100%;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #EEEEEE;
+  border: none;
+  outline: none;
+}
+
+.txtArea {
+  border: 1px solid #393E46;
+  background-color: #222831;
+}
+
+.txtArea textarea {
+  width: 100%;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #EEEEEE;
+  border: none;
+  outline: none;
+  resize: vertical;
+}
+
+.selField {
+  border: 1px solid #393E46;
+  background-color: #222831;
+}
+
+.selField select {
+  width: 100%;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #EEEEEE;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.alignGroup {
+  display: flex;
+  border: 1px solid #393E46;
+}
+
+.alignBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+  background: transparent;
+  color: #8C9AAA;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.alignBtn:not(:last-child) {
+  border-right: 1px solid #393E46;
+}
+
+.alignBtnActive {
+  background-color: rgba(253, 112, 20, 0.15);
+  color: #FD7014;
+}
+
+.sliderHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.sliderValue {
+  font-size: 10px;
+  font-family: monospace;
+  color: #FD7014;
+}
+
+.sliderInput {
+  width: 100%;
+  accent-color: #FD7014;
+  cursor: pointer;
+}

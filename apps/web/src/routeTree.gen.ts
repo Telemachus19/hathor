@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DesignerPageRouteImport } from './routes/designer-page'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -19,6 +20,11 @@ import { Route as StoreGamesSlugRouteImport } from './routes/store.games.$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignerPageRoute = DesignerPageRouteImport.update({
+  id: '/designer-page',
+  path: '/designer-page',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryRoute = LibraryRouteImport.update({
@@ -49,6 +55,7 @@ const StoreGamesSlugRoute = StoreGamesSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/designer-page': typeof DesignerPageRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/designer-page': typeof DesignerPageRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/designer-page': typeof DesignerPageRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/designer-page'
     | '/library'
     | '/login'
     | '/profile'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/designer-page'
     | '/library'
     | '/login'
     | '/profile'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/designer-page'
     | '/library'
     | '/login'
     | '/profile'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DesignerPageRoute: typeof DesignerPageRoute
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/designer-page': {
+      id: '/designer-page'
+      path: '/designer-page'
+      fullPath: '/designer-page'
+      preLoaderRoute: typeof DesignerPageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library': {
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DesignerPageRoute: DesignerPageRoute,
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
