@@ -305,17 +305,100 @@
 /* Section Wrapper in Canvas */
 .sectionWrapper {
   position: relative;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   transition: border-color 0.2s;
-  cursor: pointer;
+  margin-top: 24px;
+}
+
+.sectionWrapper:first-child {
+  margin-top: 28px;
 }
 
 .sectionWrapper:hover {
-  border-color: rgba(253, 112, 20, 0.4);
+  border-color: rgba(242, 107, 33, 0.3);
 }
 
 .sectionSelected {
-  border-color: #FD7014 !important;
+  border-color: rgba(242, 107, 33, 0.7) !important;
+}
+
+.sectionHandleBadge {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  background-color: #1C2028;
+  border: 1px solid #f26b21;
+  color: #f26b21;
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 4px 4px 0 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 90;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.sectionHandleBadge:hover {
+  background-color: #f26b21;
+  color: #FFFFFF;
+}
+
+/* Child Element Hover & Interactive Outlines */
+.childElementWrapper {
+  position: relative;
+  outline: 1px dashed transparent;
+  transition: outline-color 0.15s, background-color 0.15s;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.childElementWrapper:hover {
+  outline: 1px dashed rgba(253, 112, 20, 0.7);
+  background-color: rgba(253, 112, 20, 0.05);
+}
+
+.childElementSelected {
+  outline: 2px solid #FD7014 !important;
+  background-color: rgba(253, 112, 20, 0.08) !important;
+}
+
+.childElementTag {
+  position: absolute;
+  top: -16px;
+  left: 4px;
+  background-color: #FD7014;
+  color: #FFFFFF;
+  font-size: 8px;
+  font-family: monospace;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 2px 2px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.gridColWrapper {
+  position: relative;
+  transition: outline-color 0.15s;
+  outline: 1px dashed transparent;
+  border-radius: 4px;
+}
+
+.gridColWrapper:hover {
+  outline: 1px dashed rgba(76, 175, 128, 0.5);
+}
+
+.gridColSelected {
+  outline: 2px solid #4caf80 !important;
 }
 
 .sectionTag {
@@ -336,16 +419,16 @@
 .sectionToolbar {
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 12px;
   display: flex;
   align-items: center;
   gap: 4px;
   background-color: #1C2028;
-  border: 1px solid #393E46;
+  border: 1px solid #353c4d;
   border-radius: 4px;
-  padding: 2px;
-  z-index: 20;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  padding: 3px;
+  z-index: 100;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
 }
 
 .sectionToolBtn {
@@ -600,4 +683,688 @@
   width: 100%;
   accent-color: #FD7014;
   cursor: pointer;
+}
+
+/* Custom Grid Controls */
+.gridColTabs {
+  display: flex;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.gridColTab {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 10px;
+  font-family: monospace;
+  background: transparent;
+  color: #8C9AAA;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gridColTab:not(:last-child) {
+  border-right: 1px solid #393E46;
+}
+
+.gridColTabActive {
+  background-color: rgba(253, 112, 20, 0.15);
+  color: #FD7014;
+  font-weight: 700;
+}
+
+.addElementGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.addElementBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background-color: #222831;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  color: #8C9AAA;
+  font-size: 9px;
+  font-family: monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.addElementBtn:hover {
+  border-color: #FD7014;
+  color: #FD7014;
+  background-color: rgba(253, 112, 20, 0.08);
+}
+
+.elementCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background-color: #222831;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #EEEEEE;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.elementCard:hover {
+  border-color: #8C9AAA;
+}
+
+.elementCardActive {
+  border-color: #FD7014 !important;
+  background-color: rgba(253, 112, 20, 0.08);
+}
+
+.elementControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.elementBtn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #8C9AAA;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: color 0.15s;
+}
+
+.elementBtn:hover {
+  color: #ffffff;
+}
+
+/* Game Details Specific CSS Module Styles */
+.gameHeaderCategory {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.25em;
+  color: #FD7014;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.gameHeaderTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 42px;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+}
+
+.gameHeaderSubtitle {
+  font-size: 11px;
+  font-family: monospace;
+  letter-spacing: 0.2em;
+  color: #8C9AAA;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.gameHeaderRatingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.starGroup {
+  color: #FD7014;
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+
+.ratingScoreText {
+  color: #FFFFFF;
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.reviewCountText {
+  color: #8C9AAA;
+  font-size: 12px;
+}
+
+.dotDivider {
+  color: #393E46;
+}
+
+.metaText {
+  color: #EEEEEE;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.tagPillsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.tagPillItem {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid #393E46;
+  color: #8C9AAA;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-family: monospace;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gameHeaderDesc {
+  color: #CCCCCC;
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Ownership Banner */
+.ownershipCard {
+  background: linear-gradient(135deg, rgba(76, 175, 128, 0.08) 0%, rgba(13, 13, 20, 0.8) 100%);
+  border: 1px solid rgba(76, 175, 128, 0.3);
+  border-radius: 4px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ownershipBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4caf80;
+  font-weight: 800;
+  font-size: 13px;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+}
+
+.ownershipSubText {
+  color: #8C9AAA;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.ownershipBtnGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.greenBtn {
+  background-color: #4caf80;
+  color: #0d0d14;
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.outlineBtn {
+  background-color: transparent;
+  border: 1px solid rgba(76, 175, 128, 0.5);
+  color: #4caf80;
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+/* System Requirements */
+.sysReqWrap {
+  background-color: #12161f;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  padding: 24px;
+}
+
+.sysReqHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #393E46;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.sysReqTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.sysReqTabGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.sysReqTab {
+  padding: 6px 14px;
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 700;
+  border-radius: 2px;
+  border: 1px solid #393E46;
+  background: transparent;
+  color: #8C9AAA;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+}
+
+.sysReqTabActive {
+  background-color: #FD7014;
+  color: #FFFFFF;
+  border-color: #FD7014;
+}
+
+.sysReqGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.sysReqCard {
+  background-color: #0d0d14;
+  border: 1px solid #393E46;
+  padding: 12px 14px;
+  border-radius: 2px;
+}
+
+.sysReqLabel {
+  font-size: 9px;
+  font-family: monospace;
+  color: #FD7014;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+
+.sysReqVal {
+  font-size: 12px;
+  color: #EEEEEE;
+  font-weight: 600;
+}
+
+/* User Reviews */
+.reviewsWrap {
+  background-color: #12161f;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  padding: 24px;
+}
+
+.reviewCard {
+  background-color: #0d0d14;
+  border: 1px solid #393E46;
+  padding: 16px;
+  border-radius: 4px;
+  margin-top: 14px;
+}
+
+.reviewUserRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.reviewAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #393E46;
+  object-fit: cover;
+}
+
+.reviewUserName {
+  font-size: 12px;
+  font-family: monospace;
+  font-weight: 700;
+  color: #EEEEEE;
+}
+
+.reviewDate {
+  font-size: 10px;
+  color: #8C9AAA;
+  margin-left: auto;
+}
+
+.reviewBody {
+  font-size: 13px;
+  color: #CCCCCC;
+  line-height: 1.6;
+}
+
+/* Sidebar Cards */
+.sideCard {
+  background-color: #12161f;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.sideCardTitle {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: #FD7014;
+  text-transform: uppercase;
+  margin: 0 0 16px 0;
+  border-bottom: 1px solid #393E46;
+  padding-bottom: 8px;
+}
+
+.sideInfoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(57, 62, 70, 0.5);
+}
+
+.sideInfoLabel {
+  color: #8C9AAA;
+  font-family: monospace;
+}
+
+.sideInfoVal {
+  color: #EEEEEE;
+  font-weight: 600;
+}
+
+.ratingBarRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-family: monospace;
+  color: #8C9AAA;
+}
+
+.ratingTrack {
+  flex: 1;
+  height: 6px;
+  background-color: #0d0d14;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid #393E46;
+}
+
+.ratingFill {
+  height: 100%;
+  background-color: #FD7014;
+  border-radius: 3px;
+}
+
+/* Recommendations Grid */
+.recsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.recCard {
+  background-color: #12161f;
+  border: 1px solid #393E46;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.recCard:hover {
+  transform: translateY(-4px);
+  border-color: #FD7014;
+}
+
+.recImgWrap {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background-color: #0d0d14;
+}
+
+.recImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.recDiscountBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: #FD7014;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: monospace;
+  padding: 3px 6px;
+  border-radius: 2px;
+}
+
+.recBody {
+  padding: 14px;
+}
+
+.recGenre {
+  font-size: 9px;
+  font-family: monospace;
+  color: #8C9AAA;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.recTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 10px 0;
+}
+
+.recPriceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-family: monospace;
+  font-weight: 800;
+  color: #4caf80;
+}
+
+/* Template Choice Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modalCard {
+  background-color: #141820;
+  border: 1px solid #393E46;
+  border-radius: 8px;
+  max-width: 760px;
+  width: 100%;
+  padding: 36px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  text-align: center;
+}
+
+.modalTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+.modalSub {
+  font-size: 13px;
+  color: #8C9AAA;
+  margin: 0 0 32px 0;
+  font-family: 'Raleway', sans-serif;
+}
+
+.modalOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.modalOptionCard {
+  background-color: #0d0d14;
+  border: 1px solid #393E46;
+  border-radius: 6px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalOptionCard:hover {
+  border-color: #FD7014;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(253, 112, 20, 0.15);
+}
+
+.modalIconWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.modalOptionCard h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.modalOptionCard p {
+  font-size: 12px;
+  color: #8C9AAA;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+  flex: 1;
+}
+
+.modalBtnPrimary {
+  width: 100%;
+  background-color: #FD7014;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modalBtnPrimary:hover {
+  background-color: #e05e07;
+}
+
+.modalBtnSecondary {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid #4caf80;
+  color: #4caf80;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalBtnSecondary:hover {
+  background-color: rgba(76, 175, 128, 0.1);
 }
