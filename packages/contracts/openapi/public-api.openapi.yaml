@@ -330,6 +330,22 @@ paths:
       responses:
         '200': { description: Validated draft theme saved }
         '403': { $ref: '#/components/responses/Forbidden' }
+  /creator/games/{gameId}/status:
+    patch:
+      tags: [Creator]
+      operationId: updateCreatorGameStatus
+      summary: Creator requests game status transition (e.g. submitting draft for review or retracting to draft).
+      security: [{ bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GameStatusChangeRequest' }
+      responses:
+        '204': { description: Status transition recorded }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /creator/games/{gameId}/ai/theme-proposals:
     post:
       tags: [Creator]
