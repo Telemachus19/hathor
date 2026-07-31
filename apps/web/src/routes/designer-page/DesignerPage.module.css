@@ -1368,3 +1368,40 @@
 .modalBtnSecondary:hover {
   background-color: rgba(76, 175, 128, 0.1);
 }
+
+.hideScrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hideScrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.themedScrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #FD7014 rgba(28, 32, 40, 0.6);
+}
+
+.themedScrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.themedScrollbar::-webkit-scrollbar-track {
+  background: rgba(28, 32, 40, 0.8);
+  border-radius: 99px;
+  margin: 0 4px;
+}
+
+.themedScrollbar::-webkit-scrollbar-thumb {
+  background: #FD7014;
+  border-radius: 99px;
+  box-shadow: 0 0 8px rgba(253, 112, 20, 0.4);
+}
+
+.themedScrollbar::-webkit-scrollbar-thumb:hover {
+  background: #e05e07;
+}

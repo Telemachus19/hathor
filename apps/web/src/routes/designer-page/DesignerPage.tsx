@@ -10,7 +10,7 @@ import {
   Image as ImageIcon, Award, MessageSquare, MonitorCheck,
   BarChart2, Users, ShoppingBag, Info, LucideIcon,
   Download, Library, ThumbsUp, ShoppingCart, Maximize2,
-  Database
+  Database, FileJson
 } from "lucide-react";
 import { HathorLogo } from "../../assets";
 import styles from "./DesignerPage.module.css";
@@ -183,8 +183,8 @@ export interface GridElement {
   // Text props
   textContent?: string; textFont?: string; textSize?: number; textWeight?: string; textColor?: string; textAlign?: string; textLineHeight?: number; textMaxWidth?: number;
 
-  // Carousel
-  carouselImages?: string[]; carouselHeight?: number; carouselRadius?: number;
+  // Carousel & Hero
+  carouselImages?: string[]; carouselHeight?: number; carouselRadius?: number; showThumbnails?: boolean;
 
   // Features
   featuresTitle?: string; featuresTitleFont?: string; featuresTitleColor?: string; featuresCols?: number; featuresItems?: FeatureItem[];
@@ -250,7 +250,7 @@ interface Section {
   pt: number; pb: number; ph: number; radius: number;
   borderTopColor?: string;
   // Game Hero
-  heroImages?: string[]; heroHeight?: number;
+  heroImages?: string[]; heroHeight?: number; showThumbnails?: boolean;
   // Game Header
   gameCategory?: string; gameTitle?: string; gameSubtitle?: string;
   gameRatingScore?: number; gameReviewCount?: string; gameDev?: string;
@@ -518,39 +518,39 @@ const PALETTE: { group: string; items: { type: SectionType | ElementType; label:
     group: "Game Details Components",
     items: [
       { type: "game-hero", label: "Media Showcase", desc: "Top hero slider & thumbnail strip", Icon: Film },
-      { type: "game-header", label: "Game Header", desc: "Title, rating, dev, tags & synopsis (Designer Input)", Icon: Award },
-      { type: "system-reqs", label: "System Reqs", desc: "Min vs Recommended specs (Designer Input)", Icon: MonitorCheck },
-      { type: "about-game", label: "About Section", desc: "Game lore, features & screenshots (Designer Input)", Icon: Info },
-      { type: "ownership-banner", label: "Ownership Bar (DB)", desc: "Owned status & buy/download actions", Icon: ShoppingBag },
-      { type: "user-reviews", label: "User Reviews (DB)", desc: "Dynamic reviews list & styling", Icon: MessageSquare },
-      { type: "recommendations", label: "More Like This (DB)", desc: "Dynamic game recommendations", Icon: LayoutGrid },
+      { type: "game-header", label: "Game Header", desc: "Title, rating, dev, tags & synopsis", Icon: Award },
+      { type: "system-reqs", label: "System Reqs", desc: "Min vs Recommended specifications", Icon: MonitorCheck },
+      { type: "about-game", label: "About Section", desc: "Game lore, features & screenshots", Icon: Info },
+      { type: "ownership-banner", label: "Ownership Bar", desc: "Owned status & buy/download actions", Icon: ShoppingBag },
+      { type: "user-reviews", label: "User Reviews", desc: "Reviews list & star ratings", Icon: MessageSquare },
+      { type: "recommendations", label: "More Like This", desc: "Recommended similar games grid", Icon: LayoutGrid },
     ],
   },
   {
-    group: "Game Sidebar Cards",
+    group: "Sidebar Components",
     items: [
-      { type: "sidebar-cta", label: "Sidebar Buy/Owned (DB)", desc: "Owned status / price & Add to Cart", Icon: ShoppingCart },
-      { type: "sidebar-info", label: "Sidebar Details (DB)", desc: "Dev, publisher, date & platforms", Icon: Info },
-      { type: "sidebar-ratings", label: "Sidebar Ratings (DB)", desc: "5-star rating progress bars", Icon: BarChart2 },
-      { type: "sidebar-community", label: "Sidebar Community (DB)", desc: "Players & positive rating %", Icon: Users },
+      { type: "sidebar-cta", label: "Sidebar Purchase Card", desc: "Price, discount & Add to Cart", Icon: ShoppingCart },
+      { type: "sidebar-info", label: "Sidebar Game Info", desc: "Dev, publisher, date & platforms", Icon: Info },
+      { type: "sidebar-ratings", label: "Sidebar Ratings", desc: "5-star rating progress bars", Icon: BarChart2 },
+      { type: "sidebar-community", label: "Sidebar Community", desc: "Players count & positive rating %", Icon: Users },
     ],
   },
   {
     group: "Layout & Grids",
     items: [
-      { type: "grid", label: "Custom Grid", desc: "Rows, cols & free elements", Icon: LayoutGrid },
-      { type: "two-col", label: "Two Columns", desc: "Preset side-by-side", Icon: Layers },
+      { type: "grid", label: "Multi-Column Layout", desc: "Custom 1, 2, 3, or 4 column grid", Icon: LayoutGrid },
+      { type: "two-col", label: "Two Columns Preset", desc: "Preset side-by-side content", Icon: Layers },
     ],
   },
   {
     group: "Media & Content",
     items: [
-      { type: "text", label: "Text Block", desc: "Paragraph or heading", Icon: Type },
+      { type: "text", label: "Text Block", desc: "Paragraph or heading text", Icon: Type },
       { type: "image", label: "Image Block", desc: "Single image / screenshot", Icon: ImageIcon },
       { type: "features", label: "Features Grid", desc: "Icon feature cards", Icon: LayoutGrid },
-      { type: "cta", label: "CTA Block", desc: "Price & buy card", Icon: Zap },
-      { type: "divider", label: "Divider", desc: "Horizontal rule", Icon: Minus },
-      { type: "spacer", label: "Spacer", desc: "Vertical spacing", Icon: Hash },
+      { type: "cta", label: "CTA Block", desc: "Price & buy banner", Icon: Zap },
+      { type: "divider", label: "Divider", desc: "Horizontal divider line", Icon: Minus },
+      { type: "spacer", label: "Spacer", desc: "Vertical spacing block", Icon: Hash },
     ],
   },
 ];
@@ -558,21 +558,21 @@ const PALETTE: { group: string; items: { type: SectionType | ElementType; label:
 const BLOCK_META: Record<string, { label: string; Icon: LucideIcon }> = {
   "game-hero": { label: "Media Showcase Hero", Icon: Film },
   "game-header": { label: "Game Header", Icon: Award },
-  "ownership-banner": { label: "Ownership Bar (DB)", Icon: ShoppingBag },
+  "ownership-banner": { label: "Ownership Bar", Icon: ShoppingBag },
   "about-game": { label: "About Game", Icon: Info },
   "system-reqs": { label: "System Reqs", Icon: MonitorCheck },
-  "user-reviews": { label: "User Reviews (DB)", Icon: MessageSquare },
-  "sidebar-cta": { label: "Sidebar CTA Card (DB)", Icon: ShoppingCart },
-  "sidebar-info": { label: "Sidebar Game Info (DB)", Icon: Info },
-  "sidebar-ratings": { label: "Sidebar Ratings (DB)", Icon: BarChart2 },
-  "sidebar-community": { label: "Sidebar Community (DB)", Icon: Users },
-  recommendations: { label: "More Like This (DB Widget)", Icon: LayoutGrid },
+  "user-reviews": { label: "User Reviews", Icon: MessageSquare },
+  "sidebar-cta": { label: "Sidebar Purchase Card", Icon: ShoppingCart },
+  "sidebar-info": { label: "Sidebar Game Info", Icon: Info },
+  "sidebar-ratings": { label: "Sidebar Ratings", Icon: BarChart2 },
+  "sidebar-community": { label: "Sidebar Community", Icon: Users },
+  recommendations: { label: "More Like This", Icon: LayoutGrid },
   text: { label: "Text Block", Icon: Type },
   image: { label: "Image Block", Icon: ImageIcon },
   carousel: { label: "Carousel Showcase", Icon: Film },
   features: { label: "Features Grid", Icon: LayoutGrid },
-  "two-col": { label: "Two Columns", Icon: Layers },
-  grid: { label: "Custom Grid", Icon: LayoutGrid },
+  "two-col": { label: "Two Columns Preset", Icon: Layers },
+  grid: { label: "Multi-Column Layout", Icon: LayoutGrid },
   divider: { label: "Divider", Icon: Minus },
   spacer: { label: "Spacer", Icon: Hash },
   cta: { label: "CTA Block", Icon: Zap },
@@ -597,7 +597,7 @@ function PropRow({ label, children }: { label: string; children: React.ReactNode
 }
 
 // ── Solid & Gradient Color Selector Component ─────────────────────────────────
-function ColorField({ value, onChange, placeholder = "#000000 or transparent" }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+function ColorField({ value, onChange, placeholder = "#000000 or transparent" }: { value: string; onChange: (v: string, skipHistory?: boolean) => void; placeholder?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<"solid" | "gradient">(value && value.includes("gradient") ? "gradient" : "solid");
 
@@ -641,7 +641,7 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
 
   const pureHueHex = hsvToHex(hue, 100, 100);
 
-  const handleRectPointer = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
+  const handleRectPointer = (e: React.MouseEvent<HTMLDivElement> | MouseEvent, skipHistory = true) => {
     if (!rectRef.current) return;
     const rect = rectRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
@@ -652,20 +652,23 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
 
     setSat(newSat);
     setVal(newVal);
-    onChange(hsvToHex(hue, newSat, newVal));
+    onChange(hsvToHex(hue, newSat, newVal), skipHistory);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     isDraggingRef.current = true;
-    handleRectPointer(e);
+    handleRectPointer(e, true);
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (isDraggingRef.current) {
-        handleRectPointer(moveEvent);
+        handleRectPointer(moveEvent, true);
       }
     };
-    const handleMouseUp = () => {
-      isDraggingRef.current = false;
+    const handleMouseUp = (upEvent: MouseEvent) => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        handleRectPointer(upEvent, false);
+      }
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
@@ -674,11 +677,11 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const updateCustomGradient = (angle: number, c1: string, c2: string) => {
+  const updateCustomGradient = (angle: number, c1: string, c2: string, skipHistory = false) => {
     setGradAngle(angle);
     setGradColor1(c1);
     setGradColor2(c2);
-    onChange(`linear-gradient(${angle}deg, ${c1} 0%, ${c2} 100%)`);
+    onChange(`linear-gradient(${angle}deg, ${c1} 0%, ${c2} 100%)`, skipHistory);
   };
 
   const PRESETS = [
@@ -817,8 +820,10 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
                   onChange={e => {
                     const newHue = Number(e.target.value);
                     setHue(newHue);
-                    onChange(hsvToHex(newHue, sat, val));
+                    onChange(hsvToHex(newHue, sat, val), true);
                   }}
+                  onMouseUp={() => onChange(hsvToHex(hue, sat, val), false)}
+                  onTouchEnd={() => onChange(hsvToHex(hue, sat, val), false)}
                   style={{
                     width: "100%", height: 8, borderRadius: 4, appearance: "none", outline: "none", cursor: "pointer",
                     background: "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
@@ -833,7 +838,7 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 5 }}>
                   {PRESETS.map((p, idx) => (
                     <button
-                      key={idx} type="button" onClick={() => onChange(p)}
+                      key={idx} type="button" onClick={() => onChange(p, false)}
                       style={{
                         width: "100%", aspectRatio: "1", borderRadius: 3, background: p,
                         border: value === p ? `2px solid ${HATHOR_ORANGE}` : "1px solid rgba(255,255,255,0.15)",
@@ -861,7 +866,9 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
                 </div>
                 <input
                   type="range" min={0} max={360} step={5} value={gradAngle}
-                  onChange={e => updateCustomGradient(Number(e.target.value), gradColor1, gradColor2)}
+                  onChange={e => updateCustomGradient(Number(e.target.value), gradColor1, gradColor2, true)}
+                  onMouseUp={() => updateCustomGradient(gradAngle, gradColor1, gradColor2, false)}
+                  onTouchEnd={() => updateCustomGradient(gradAngle, gradColor1, gradColor2, false)}
                   style={{
                     width: "100%", height: 8, borderRadius: 4, appearance: "none", outline: "none", cursor: "pointer",
                     background: `linear-gradient(to right, #393E46, ${HATHOR_ORANGE})`
@@ -980,12 +987,24 @@ function AlignField({ value, onChange }: { value: string; onChange: (v: string) 
 function GameHeroRenderer({ s, device }: { s: any; device: Device }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [isLightbox, setIsLightbox] = useState(false);
+  const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
   const imgs = s.heroImages || [
     "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop",
   ];
+
+  useEffect(() => {
+    if (thumbRefs.current[activeIdx]) {
+      thumbRefs.current[activeIdx]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  }, [activeIdx]);
 
   const handlePrev = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -1022,9 +1041,9 @@ function GameHeroRenderer({ s, device }: { s: any; device: Device }) {
 
       {showThumbnails && (
         <div style={{ maxWidth: 1280, margin: device === "mobile" ? "-1.5rem auto 0" : "-3rem auto 0", position: "relative", zIndex: 5, padding: device === "mobile" ? "0 12px" : "0 24px" }}>
-          <div style={{ display: "flex", gap: device === "mobile" ? 8 : 16, overflowX: "auto", paddingBottom: 8 }}>
+          <div className={styles.themedScrollbar} style={{ display: "flex", gap: device === "mobile" ? 8 : 16, overflowX: "auto", paddingBottom: device === "mobile" ? 8 : 12 }}>
             {imgs.map((img: string, idx: number) => (
-              <button key={idx} onClick={e => { e.stopPropagation(); setActiveIdx(idx); }}
+              <button key={idx} ref={el => { thumbRefs.current[idx] = el; }} onClick={e => { e.stopPropagation(); setActiveIdx(idx); }}
                 style={{ width: thumbWidth, height: thumbHeight, flexShrink: 0, borderRadius: 4, overflow: "hidden", border: idx === activeIdx ? `2px solid ${HATHOR_ORANGE}` : "2px solid transparent", opacity: idx === activeIdx ? 1 : 0.7, cursor: "pointer", background: SURFACE, padding: 0 }}>
                 <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </button>
@@ -1100,29 +1119,39 @@ function GameHeaderRenderer({ s, device }: { s: any; device: Device }) {
 
 function OwnershipBannerRenderer({ s, device }: { s: any; device: Device }) {
   const isMobile = device === "mobile";
+  const bg = s.ownershipBg || "#181c24";
+  const border = s.ownershipBorder || "rgba(56, 211, 159, 0.35)";
+  const titleFont = s.ownershipTitleFont || "'Cinzel', serif";
+  const titleColor = s.ownershipTitleColor || GREEN_ACCENT;
+  const subColor = s.ownershipSubColor || TEXT_MUTED;
+  const btn1Bg = s.ownershipBtn1Bg || GREEN_ACCENT;
+  const btn1Color = s.ownershipBtn1Color || "#0e1116";
+  const btn2Bg = s.ownershipBtn2Bg || "transparent";
+  const btn2Color = s.ownershipBtn2Color || GREEN_ACCENT;
+
   return (
     <div style={{
-      background: "#181c24", border: "1px solid rgba(56, 211, 159, 0.35)", borderRadius: 4,
+      background: bg, border: `1px solid ${border}`, borderRadius: 4,
       padding: isMobile ? 14 : "18px 20px", marginBottom: 24,
       display: "flex", flexWrap: "wrap",
       alignItems: "center", justifyContent: "space-between", gap: 16, width: "100%", boxSizing: "border-box"
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, flex: "1 1 220px", minWidth: 0 }}>
-        <div style={{ width: 36, height: 36, border: "1px solid rgba(56, 211, 159, 0.4)", background: "rgba(56, 211, 159, 0.05)", color: GREEN_ACCENT, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 2, flexShrink: 0 }}>
+        <div style={{ width: 36, height: 36, border: `1px solid ${border}`, background: "rgba(56, 211, 159, 0.05)", color: titleColor, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 2, flexShrink: 0 }}>
           <Check size={18} />
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: isMobile ? 13 : 14, fontWeight: 800, color: GREEN_ACCENT, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2, wordBreak: "break-word" }}>
+          <div style={{ fontFamily: titleFont, fontSize: isMobile ? 13 : 14, fontWeight: 800, color: titleColor, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2, wordBreak: "break-word" }}>
             {s.ownershipStatus || "YOU OWN THIS GAME"}
           </div>
-          <div style={{ fontSize: 11, color: TEXT_MUTED, fontFamily: "monospace", wordBreak: "break-word" }}>{s.ownershipSub || "Purchased Jun 10, 2025 • Available in your library"}</div>
+          <div style={{ fontSize: 11, color: subColor, fontFamily: "monospace", wordBreak: "break-word" }}>{s.ownershipSub || "Purchased Jun 10, 2025 • Available in your library"}</div>
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 180px", justifyContent: "flex-end", flexWrap: "wrap" }}>
-        <button style={{ flex: "1 1 90px", background: "transparent", border: "1px solid rgba(56, 211, 159, 0.35)", color: GREEN_ACCENT, padding: "10px 12px", borderRadius: 3, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, whiteSpace: "nowrap", boxSizing: "border-box" }}>
+        <button style={{ flex: "1 1 90px", background: btn2Bg, border: `1px solid ${border}`, color: btn2Color, padding: "10px 12px", borderRadius: 3, fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, whiteSpace: "nowrap", boxSizing: "border-box" }}>
           <Library size={13} /> {s.ownershipBtn2 || "LIBRARY"}
         </button>
-        <button style={{ flex: "1 1 100px", background: GREEN_ACCENT, border: `1px solid ${GREEN_ACCENT}`, color: "#0e1116", padding: "10px 14px", borderRadius: 3, fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, whiteSpace: "nowrap", boxSizing: "border-box" }}>
+        <button style={{ flex: "1 1 100px", background: btn1Bg, border: `1px solid ${btn1Bg}`, color: btn1Color, padding: "10px 14px", borderRadius: 3, fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, whiteSpace: "nowrap", boxSizing: "border-box" }}>
           <Download size={13} /> {s.ownershipBtn1 || "DOWNLOAD"}
         </button>
       </div>
@@ -1132,10 +1161,17 @@ function OwnershipBannerRenderer({ s, device }: { s: any; device: Device }) {
 
 function AboutGameRenderer({ s, device }: { s: any; device: Device }) {
   const sections = s.aboutSections || [];
+  const titleFont = s.aboutTitleFont || "'Cinzel', serif";
+  const titleColor = s.aboutTitleColor || TEXT_PRIMARY;
+  const subheadingFont = s.aboutSubheadingFont || "'Cinzel', serif";
+  const subheadingColor = s.aboutSubheadingColor || HATHOR_ORANGE;
+  const bodyFont = s.aboutBodyFont || "'Raleway', sans-serif";
+  const bodyColor = s.aboutBodyColor || TEXT_MUTED;
+
   return (
     <div style={{ marginBottom: 40, width: "100%", boxSizing: "border-box" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-        <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: device === "mobile" ? 15 : 18, fontWeight: 900, color: TEXT_PRIMARY, textTransform: "uppercase", letterSpacing: "0.12em", margin: 0, whiteSpace: "nowrap" }}>
+        <h2 style={{ fontFamily: titleFont, fontSize: device === "mobile" ? 15 : 18, fontWeight: 900, color: titleColor, textTransform: "uppercase", letterSpacing: "0.12em", margin: 0, whiteSpace: "nowrap" }}>
           {s.aboutTitle || "ABOUT THIS GAME"}
         </h2>
         <div style={{ flex: 1, height: 1, background: BORDER }} />
@@ -1143,10 +1179,10 @@ function AboutGameRenderer({ s, device }: { s: any; device: Device }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {sections.map((sec: any, i: number) => (
           <div key={i}>
-            <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: device === "mobile" ? 14 : 16, fontWeight: 800, color: HATHOR_ORANGE, marginBottom: 6, letterSpacing: "0.12em", textTransform: "uppercase", wordBreak: "break-word" }}>
+            <h3 style={{ fontFamily: subheadingFont, fontSize: device === "mobile" ? 14 : 16, fontWeight: 800, color: subheadingColor, marginBottom: 6, letterSpacing: "0.12em", textTransform: "uppercase", wordBreak: "break-word" }}>
               {sec.title}
             </h3>
-            <p style={{ color: TEXT_MUTED, fontFamily: "'Raleway', sans-serif", fontSize: device === "mobile" ? 13 : 14, lineHeight: 1.65, margin: 0, wordBreak: "break-word" }}>
+            <p style={{ color: bodyColor, fontFamily: bodyFont, fontSize: device === "mobile" ? 13 : 14, lineHeight: 1.65, margin: 0, wordBreak: "break-word" }}>
               {sec.text}
             </p>
             {sec.img && (
@@ -1164,47 +1200,56 @@ function SystemReqsRenderer({ s, device }: { s: any; device: Device }) {
   const data = activeTab === "rec" ? (s.reqsRec || { os: "Windows 11 (64-bit)", cpu: "Intel Core i7-12700K / AMD Ryzen 7 7800X3D", ram: "16 GB RAM", gpu: "NVIDIA GeForce RTX 4070 (12GB) / AMD Radeon RX 7800 XT", storage: "85 GB NVMe SSD" }) : (s.reqsMin || { os: "Windows 10 (64-bit)", cpu: "Intel Core i5-8400 / AMD Ryzen 5 2600", ram: "12 GB RAM", gpu: "NVIDIA GeForce GTX 1070 (8GB) / AMD Radeon RX 590", storage: "85 GB Available Space" });
 
   const isMobile = device === "mobile";
+  const titleFont = s.reqsTitleFont || "'Cinzel', serif";
+  const titleColor = s.reqsTitleColor || TEXT_PRIMARY;
+  const tabActiveBg = s.reqsTabActiveBg || "rgba(242, 107, 33, 0.22)";
+  const tabActiveColor = s.reqsTabActiveColor || HATHOR_ORANGE;
+  const cardBg = s.reqsCardBg || SURFACE;
+  const cardBorder = s.reqsCardBorder || BORDER;
+  const labelColor = s.reqsLabelColor || HATHOR_ORANGE;
+  const valueColor = s.reqsValueColor || TEXT_PRIMARY;
+  const valueFont = s.reqsValueFont || "'Cinzel', serif";
 
   return (
     <div style={{ marginBottom: 40, width: "100%", boxSizing: "border-box" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-        <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: isMobile ? 15 : 18, fontWeight: 900, color: TEXT_PRIMARY, textTransform: "uppercase", letterSpacing: "0.12em", margin: 0, whiteSpace: "nowrap" }}>
+        <h2 style={{ fontFamily: titleFont, fontSize: isMobile ? 15 : 18, fontWeight: 900, color: titleColor, textTransform: "uppercase", letterSpacing: "0.12em", margin: 0, whiteSpace: "nowrap" }}>
           SYSTEM REQUIREMENTS
         </h2>
-        <div style={{ flex: 1, height: 1, background: BORDER }} />
+        <div style={{ flex: 1, height: 1, background: cardBorder }} />
       </div>
 
-      <div style={{ display: "inline-flex", border: `1px solid ${BORDER}`, borderRadius: 2, overflow: "hidden", marginBottom: 20 }}>
+      <div style={{ display: "inline-flex", border: `1px solid ${cardBorder}`, borderRadius: 2, overflow: "hidden", marginBottom: 20 }}>
         <button onClick={() => setActiveTab("rec")}
-          style={{ background: activeTab === "rec" ? "rgba(242, 107, 33, 0.22)" : "rgba(0,0,0,0.25)", color: activeTab === "rec" ? HATHOR_ORANGE : TEXT_MUTED, fontFamily: "'Cinzel', serif", fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", padding: isMobile ? "7px 14px" : "9px 20px", border: "none", cursor: "pointer" }}>
+          style={{ background: activeTab === "rec" ? tabActiveBg : "rgba(0,0,0,0.25)", color: activeTab === "rec" ? tabActiveColor : TEXT_MUTED, fontFamily: "'Cinzel', serif", fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", padding: isMobile ? "7px 14px" : "9px 20px", border: "none", cursor: "pointer" }}>
           RECOMMENDED
         </button>
         <button onClick={() => setActiveTab("min")}
-          style={{ background: activeTab === "min" ? "rgba(242, 107, 33, 0.22)" : "rgba(0,0,0,0.25)", color: activeTab === "min" ? HATHOR_ORANGE : TEXT_MUTED, fontFamily: "'Cinzel', serif", fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", padding: isMobile ? "7px 14px" : "9px 20px", border: "none", borderLeft: `1px solid ${BORDER}`, cursor: "pointer" }}>
+          style={{ background: activeTab === "min" ? tabActiveBg : "rgba(0,0,0,0.25)", color: activeTab === "min" ? tabActiveColor : TEXT_MUTED, fontFamily: "'Cinzel', serif", fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", padding: isMobile ? "7px 14px" : "9px 20px", border: "none", borderLeft: `1px solid ${cardBorder}`, cursor: "pointer" }}>
           MINIMUM
         </button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: 12 }}>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 16px" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: HATHOR_ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>OS</div>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 12, fontWeight: 800, color: TEXT_PRIMARY, wordBreak: "break-word" }}>{data.os}</div>
+        <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: "14px 16px" }}>
+          <div style={{ fontSize: 9, fontWeight: 800, color: labelColor, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>OS</div>
+          <div style={{ fontFamily: valueFont, fontSize: 12, fontWeight: 800, color: valueColor, wordBreak: "break-word" }}>{data.os}</div>
         </div>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 16px" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: HATHOR_ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>CPU</div>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 12, fontWeight: 800, color: TEXT_PRIMARY, wordBreak: "break-word" }}>{data.cpu}</div>
+        <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: "14px 16px" }}>
+          <div style={{ fontSize: 9, fontWeight: 800, color: labelColor, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>CPU</div>
+          <div style={{ fontFamily: valueFont, fontSize: 12, fontWeight: 800, color: valueColor, wordBreak: "break-word" }}>{data.cpu}</div>
         </div>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 16px" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: HATHOR_ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>RAM</div>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 12, fontWeight: 800, color: TEXT_PRIMARY, wordBreak: "break-word" }}>{data.ram}</div>
+        <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: "14px 16px" }}>
+          <div style={{ fontSize: 9, fontWeight: 800, color: labelColor, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>RAM</div>
+          <div style={{ fontFamily: valueFont, fontSize: 12, fontWeight: 800, color: valueColor, wordBreak: "break-word" }}>{data.ram}</div>
         </div>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 16px" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: HATHOR_ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>GPU</div>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 12, fontWeight: 800, color: TEXT_PRIMARY, wordBreak: "break-word" }}>{data.gpu}</div>
+        <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: "14px 16px" }}>
+          <div style={{ fontSize: 9, fontWeight: 800, color: labelColor, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>GPU</div>
+          <div style={{ fontFamily: valueFont, fontSize: 12, fontWeight: 800, color: valueColor, wordBreak: "break-word" }}>{data.gpu}</div>
         </div>
-        <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: "14px 16px", gridColumn: isMobile ? "span 1" : "span 2" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: HATHOR_ORANGE, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>STORAGE</div>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: 12, fontWeight: 800, color: TEXT_PRIMARY, wordBreak: "break-word" }}>{data.storage}</div>
+        <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: "14px 16px", gridColumn: isMobile ? "span 1" : "span 2" }}>
+          <div style={{ fontSize: 9, fontWeight: 800, color: labelColor, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 4, fontFamily: "monospace" }}>STORAGE</div>
+          <div style={{ fontFamily: valueFont, fontSize: 12, fontWeight: 800, color: valueColor, wordBreak: "break-word" }}>{data.storage}</div>
         </div>
       </div>
     </div>
@@ -1272,32 +1317,68 @@ function UserReviewsRenderer({ s, device }: { s: any; device: Device }) {
 }
 
 function SidebarCtaRenderer({ s, device }: { s: any; device: Device }) {
+  const isMobile = device === "mobile";
   const isOwned = s.sidebarOwned ?? true;
+
+  const cardBg = s.sideCardBg || SURFACE;
+  const cardBorder = s.sideCardBorder || BORDER;
+  const accentColor = s.sideAccentColor || HATHOR_ORANGE;
+  const headerFont = s.sideHeaderFont || "'Cinzel', serif";
+  const bodyColor = s.sideBodyColor || TEXT_MUTED;
+  
+  // State-specific styling & text (saved independently)
+  const headerColor = isOwned 
+    ? (s.ownedHeaderColor || s.sideHeaderColor || GREEN_ACCENT) 
+    : (s.unownedHeaderColor || s.sideHeaderColor || HATHOR_ORANGE);
+
+  const primaryBtnText = isOwned 
+    ? (s.ownedPrimaryBtnText || (s.ctaPrimaryBtnText && s.sidebarOwned === true ? s.ctaPrimaryBtnText : "DOWNLOAD NOW")) 
+    : (s.unownedPrimaryBtnText || (s.ctaPrimaryBtnText && s.sidebarOwned === false ? s.ctaPrimaryBtnText : "ADD TO CART"));
+
+  const primaryBtnBg = isOwned 
+    ? (s.ownedPrimaryBtnBg || (s.ctaPrimaryBtnBg && s.sidebarOwned === true ? s.ctaPrimaryBtnBg : GREEN_ACCENT)) 
+    : (s.unownedPrimaryBtnBg || (s.ctaPrimaryBtnBg && s.sidebarOwned === false ? s.ctaPrimaryBtnBg : HATHOR_ORANGE));
+
+  const primaryBtnTextColor = isOwned 
+    ? (s.ownedPrimaryBtnTextColor || (s.ctaPrimaryBtnTextColor && s.sidebarOwned === true ? s.ctaPrimaryBtnTextColor : "#0e1116")) 
+    : (s.unownedPrimaryBtnTextColor || (s.ctaPrimaryBtnTextColor && s.sidebarOwned === false ? s.ctaPrimaryBtnTextColor : "#ffffff"));
+
+  const primaryBtnRadius = s.ctaBtnRadius ?? 3;
+
+  const secondaryBtnText = s.ctaSecondaryBtnText || "VIEW IN LIBRARY";
+  const secondaryBtnBg = s.ctaSecondaryBtnBg || "transparent";
+  const secondaryBtnTextColor = s.ctaSecondaryBtnTextColor || GREEN_ACCENT;
+  const secondaryBtnBorder = s.ctaSecondaryBtnBorder || "rgba(56, 211, 159, 0.35)";
+
   return (
-    <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderTop: `3px solid ${HATHOR_ORANGE}`, borderRadius: 4, padding: device === "mobile" ? 16 : 24, marginBottom: 24, width: "100%", boxSizing: "border-box" }}>
+    <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderTop: `3px solid ${accentColor}`, borderRadius: 4, padding: isMobile ? 16 : 24, marginBottom: 24, width: "100%", boxSizing: "border-box" }}>
       {isOwned ? (
         <>
-          <h4 style={{ fontFamily: "'Cinzel', serif", fontSize: device === "mobile" ? 22 : 26, fontWeight: 900, color: GREEN_ACCENT, letterSpacing: "0.06em", margin: "0 0 4px 0" }}>OWNED</h4>
-          <span style={{ fontSize: 11, color: TEXT_MUTED, display: "block", marginBottom: 16, fontFamily: "monospace" }}>In your library</span>
-          <button style={{ width: "100%", background: GREEN_ACCENT, border: `1px solid ${GREEN_ACCENT}`, color: "#0e1116", padding: "12px 16px", borderRadius: 3, fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10, boxSizing: "border-box" }}>
-            <Download size={14} /> DOWNLOAD NOW
+          <h4 style={{ fontFamily: headerFont, fontSize: isMobile ? 22 : 26, fontWeight: 900, color: headerColor, letterSpacing: "0.06em", margin: "0 0 4px 0" }}>
+            {s.ownedTitle || "OWNED"}
+          </h4>
+          <span style={{ fontSize: 11, color: bodyColor, display: "block", marginBottom: 16, fontFamily: "monospace" }}>
+            {s.ownedSubtext || "In your library"}
+          </span>
+          <button style={{ width: "100%", background: primaryBtnBg, border: `1px solid ${primaryBtnBg}`, color: primaryBtnTextColor, padding: "12px 16px", borderRadius: primaryBtnRadius, fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10, boxSizing: "border-box" }}>
+            <Download size={14} /> {primaryBtnText}
           </button>
-          <button style={{ width: "100%", background: "transparent", border: "1px solid rgba(56, 211, 159, 0.35)", color: GREEN_ACCENT, padding: "12px 16px", borderRadius: 3, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxSizing: "border-box" }}>
-            <Library size={14} /> VIEW IN LIBRARY
+          <button style={{ width: "100%", background: secondaryBtnBg, border: `1px solid ${secondaryBtnBorder}`, color: secondaryBtnTextColor, padding: "12px 16px", borderRadius: primaryBtnRadius, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxSizing: "border-box" }}>
+            <Library size={14} /> {secondaryBtnText}
           </button>
         </>
       ) : (
         <>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 16 }}>
-            <span style={{ fontFamily: "'Cinzel', serif", fontSize: 22, fontWeight: 900, color: HATHOR_ORANGE }}>{s.sidebarPrice || "299.99"} EGP</span>
+            <span style={{ fontFamily: headerFont, fontSize: 22, fontWeight: 900, color: headerColor }}>{s.sidebarPrice || "299.99"} EGP</span>
             {(s.sidebarDiscount || 0) > 0 && (
-              <span style={{ border: `1px solid ${HATHOR_ORANGE}`, background: "rgba(18,21,29,0.85)", color: HATHOR_ORANGE, fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 2 }}>
+              <span style={{ border: `1px solid ${accentColor}`, background: "rgba(18,21,29,0.85)", color: accentColor, fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 2 }}>
                 -{s.sidebarDiscount}%
               </span>
             )}
           </div>
-          <button style={{ width: "100%", background: HATHOR_ORANGE, border: "none", color: "#ffffff", padding: "12px 16px", borderRadius: 3, fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxSizing: "border-box" }}>
-            <ShoppingCart size={14} /> ADD TO CART
+          <button style={{ width: "100%", background: primaryBtnBg, border: `1px solid ${primaryBtnBg}`, color: primaryBtnTextColor, padding: "12px 16px", borderRadius: primaryBtnRadius, fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxSizing: "border-box" }}>
+            <ShoppingCart size={14} /> {primaryBtnText}
           </button>
         </>
       )}
@@ -1306,31 +1387,40 @@ function SidebarCtaRenderer({ s, device }: { s: any; device: Device }) {
 }
 
 function SidebarInfoRenderer({ s, device }: { s: any; device: Device }) {
+  const cardBg = s.infoCardBg || SURFACE;
+  const cardBorder = s.infoCardBorder || BORDER;
+  const titleFont = s.infoTitleFont || "'Cinzel', serif";
+  const titleColor = s.infoTitleColor || HATHOR_ORANGE;
+  const labelFont = s.infoLabelFont || "monospace";
+  const labelColor = s.infoLabelColor || TEXT_MUTED;
+  const valueFont = s.infoValueFont || "monospace";
+  const valueColor = s.infoValueColor || TEXT_PRIMARY;
+
   return (
-    <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: device === "mobile" ? 16 : 24, marginBottom: 24, width: "100%", boxSizing: "border-box" }}>
-      <h4 style={{ fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 900, color: HATHOR_ORANGE, letterSpacing: "0.12em", borderBottom: `1px solid ${BORDER}`, paddingBottom: 10, margin: "0 0 14px 0" }}>
-        GAME DETAILS
+    <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: device === "mobile" ? 16 : 24, marginBottom: 24, width: "100%", boxSizing: "border-box" }}>
+      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: "0.12em", borderBottom: `1px solid ${cardBorder}`, paddingBottom: 10, margin: "0 0 14px 0" }}>
+        {s.infoTitle || "GAME DETAILS"}
       </h4>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: TEXT_MUTED, fontFamily: "monospace" }}>Developer</span>
-          <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontFamily: "monospace" }}>{s.sideDev || "Irongate Studios"}</span>
+          <span style={{ color: labelColor, fontFamily: labelFont }}>Developer</span>
+          <span style={{ color: valueColor, fontWeight: 700, fontFamily: valueFont }}>{s.sideDev || "Irongate Studios"}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: TEXT_MUTED, fontFamily: "monospace" }}>Publisher</span>
-          <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontFamily: "monospace" }}>{s.sidePub || "Obsidian Arc"}</span>
+          <span style={{ color: labelColor, fontFamily: labelFont }}>Publisher</span>
+          <span style={{ color: valueColor, fontWeight: 700, fontFamily: valueFont }}>{s.sidePub || "Obsidian Arc"}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: TEXT_MUTED, fontFamily: "monospace" }}>Release Date</span>
-          <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontFamily: "monospace" }}>{s.sideDate || "March 12, 2025"}</span>
+          <span style={{ color: labelColor, fontFamily: labelFont }}>Release Date</span>
+          <span style={{ color: valueColor, fontWeight: 700, fontFamily: valueFont }}>{s.sideDate || "March 12, 2025"}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: TEXT_MUTED, fontFamily: "monospace" }}>Genre</span>
-          <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontFamily: "monospace" }}>{s.sideGenre || "Action RPG"}</span>
+          <span style={{ color: labelColor, fontFamily: labelFont }}>Genre</span>
+          <span style={{ color: valueColor, fontWeight: 700, fontFamily: valueFont }}>{s.sideGenre || "Action RPG"}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: TEXT_MUTED, fontFamily: "monospace" }}>Platforms</span>
-          <span style={{ color: TEXT_PRIMARY, fontWeight: 700, fontFamily: "monospace" }}>{(s.sidePlatforms || ["Windows, macOS"]).join(", ")}</span>
+          <span style={{ color: labelColor, fontFamily: labelFont }}>Platforms</span>
+          <span style={{ color: valueColor, fontWeight: 700, fontFamily: valueFont }}>{(s.sidePlatforms || ["Windows, macOS"]).join(", ")}</span>
         </div>
       </div>
     </div>
@@ -1338,22 +1428,32 @@ function SidebarInfoRenderer({ s, device }: { s: any; device: Device }) {
 }
 
 function SidebarRatingsRenderer({ s, device }: { s: any; device: Device }) {
+  const cardBg = s.ratingsCardBg || SURFACE;
+  const cardBorder = s.ratingsCardBorder || BORDER;
+  const titleFont = s.ratingsTitleFont || "'Cinzel', serif";
+  const titleColor = s.ratingsTitleColor || HATHOR_ORANGE;
+  const labelFont = s.ratingsLabelFont || "monospace";
+  const labelColor = s.ratingsLabelColor || TEXT_MUTED;
+  const fillColor = s.ratingsFillColor || HATHOR_ORANGE;
+  const trackColor = s.ratingsTrackColor || "rgba(0,0,0,0.3)";
+  const pctColor = s.ratingsPctColor || TEXT_PRIMARY;
+
   const list = s.sideRatings || [
     { stars: 5, pct: 82 }, { stars: 4, pct: 12 }, { stars: 3, pct: 4 }, { stars: 2, pct: 1 }, { stars: 1, pct: 1 }
   ];
   return (
-    <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: device === "mobile" ? 16 : 24, marginBottom: 24, width: "100%", boxSizing: "border-box" }}>
-      <h4 style={{ fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 900, color: HATHOR_ORANGE, letterSpacing: "0.12em", borderBottom: `1px solid ${BORDER}`, paddingBottom: 10, margin: "0 0 14px 0" }}>
-        RATING BREAKDOWN
+    <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: device === "mobile" ? 16 : 24, marginBottom: 24, width: "100%", boxSizing: "border-box" }}>
+      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: "0.12em", borderBottom: `1px solid ${cardBorder}`, paddingBottom: 10, margin: "0 0 14px 0" }}>
+        {s.ratingsTitle || "RATING BREAKDOWN"}
       </h4>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {list.map((item: any) => (
-          <div key={item.stars} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 11, color: TEXT_MUTED, fontFamily: "monospace" }}>
+          <div key={item.stars} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 11, color: labelColor, fontFamily: labelFont }}>
             <span style={{ width: 40 }}>{item.stars} Star</span>
-            <div style={{ flex: 1, height: 6, background: "rgba(0,0,0,0.3)", borderRadius: 3, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${item.pct}%`, background: HATHOR_ORANGE, borderRadius: 3 }} />
+            <div style={{ flex: 1, height: 6, background: trackColor, borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${item.pct}%`, background: fillColor, borderRadius: 3 }} />
             </div>
-            <span style={{ width: 30, textAlign: "right", color: TEXT_PRIMARY, fontWeight: 600 }}>{item.pct}%</span>
+            <span style={{ width: 30, textAlign: "right", color: pctColor, fontWeight: 600 }}>{item.pct}%</span>
           </div>
         ))}
       </div>
@@ -1362,19 +1462,28 @@ function SidebarRatingsRenderer({ s, device }: { s: any; device: Device }) {
 }
 
 function SidebarCommunityRenderer({ s, device }: { s: any; device: Device }) {
+  const cardBg = s.communityCardBg || SURFACE;
+  const cardBorder = s.communityCardBorder || BORDER;
+  const titleFont = s.communityTitleFont || "'Cinzel', serif";
+  const titleColor = s.communityTitleColor || HATHOR_ORANGE;
+  const labelFont = s.communityLabelFont || "monospace";
+  const labelColor = s.communityLabelColor || TEXT_MUTED;
+  const playersColor = s.communityPlayersColor || TEXT_PRIMARY;
+  const positiveColor = s.communityPositiveColor || GREEN_ACCENT;
+
   return (
-    <div style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 4, padding: device === "mobile" ? 16 : 24, width: "100%", boxSizing: "border-box" }}>
-      <h4 style={{ fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 900, color: HATHOR_ORANGE, letterSpacing: "0.12em", borderBottom: `1px solid ${BORDER}`, paddingBottom: 10, margin: "0 0 14px 0" }}>
-        COMMUNITY
+    <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: device === "mobile" ? 16 : 24, width: "100%", boxSizing: "border-box" }}>
+      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: "0.12em", borderBottom: `1px solid ${cardBorder}`, paddingBottom: 10, margin: "0 0 14px 0" }}>
+        {s.communityTitle || "COMMUNITY"}
       </h4>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 12, fontFamily: "monospace" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 12, fontFamily: labelFont }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ color: TEXT_MUTED }}>Players</span>
-          <span style={{ color: TEXT_PRIMARY, fontWeight: 800 }}>{s.sideOwners || "250,000+"}</span>
+          <span style={{ color: labelColor }}>Players</span>
+          <span style={{ color: playersColor, fontWeight: 800 }}>{s.sideOwners || "250,000+"}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ color: TEXT_MUTED }}>Positive Rating</span>
-          <span style={{ color: GREEN_ACCENT, fontWeight: 800 }}>{s.sidePositive || "94%"}</span>
+          <span style={{ color: labelColor }}>Positive Rating</span>
+          <span style={{ color: positiveColor, fontWeight: 800 }}>{s.sidePositive || "94%"}</span>
         </div>
       </div>
     </div>
@@ -1549,6 +1658,8 @@ function GridRenderer({ s, device, selectedColIdx, selectedElementId, onSelectCh
     "2:1": "1fr 340px",
     "1:1:1": "1fr 1fr 1fr",
     "1:2:1": "1fr 2fr 1fr",
+    "2:1:1": "2fr 1fr 1fr",
+    "1:1:2": "1fr 1fr 2fr",
     "1:1:1:1": "1fr 1fr 1fr 1fr",
   };
 
@@ -1847,7 +1958,7 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
   section: Section | null;
   selectedColIdx?: number | null;
   selectedElementId?: string | null;
-  onChange: (id: string, updates: Partial<Section>) => void;
+  onChange: (id: string, updates: Partial<Section>, skipHistory?: boolean) => void;
 }) {
   const [gridColIdx, setGridColIdx] = useState<number>(selectedColIdx ?? 0);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(propElementId ?? null);
@@ -1876,7 +1987,7 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
     );
   }
 
-  const u = (updates: Partial<Section>) => onChange(section.id, updates);
+  const u = (updates: Partial<Section>, skipHistory?: boolean) => onChange(section.id, updates, skipHistory);
   const s = section;
   const { Icon } = BLOCK_META[s.type] || { Icon: Settings };
 
@@ -1892,13 +2003,13 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
     setSelectedElementId(newEl.id);
   };
 
-  const updateGridElement = (elId: string, updates: Partial<GridElement>) => {
+  const updateGridElement = (elId: string, updates: Partial<GridElement>, skipHistory?: boolean) => {
     if (!activeCol) return;
     const updatedCols = cols.map((c, idx) => idx === gridColIdx ? {
       ...c,
       elements: c.elements.map(e => e.id === elId ? { ...e, ...updates } : e)
     } : c);
-    u({ gridCols: updatedCols });
+    u({ gridCols: updatedCols }, skipHistory);
   };
 
   const moveGridElement = (elIdx: number, dir: -1 | 1) => {
@@ -1922,8 +2033,13 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
   };
 
   const setGridTemplateRatio = (templateStr: string) => {
-    const colCountMap: Record<string, number> = { "1": 1, "1:1": 2, "1:2": 2, "2:1": 2, "1:1:1": 3, "1:2:1": 3, "1:1:1:1": 4 };
-    const reqCols = colCountMap[templateStr] || 2;
+    const colCountMap: Record<string, number> = {
+      "1": 1,
+      "1:1": 2, "1:2": 2, "2:1": 2,
+      "1:1:1": 3, "1:2:1": 3, "2:1:1": 3, "1:1:2": 3,
+      "1:1:1:1": 4
+    };
+    const reqCols = colCountMap[templateStr] || templateStr.split(":").length || 2;
     let newCols = [...cols];
     while (newCols.length < reqCols) {
       newCols.push({ id: uid(), bg: "transparent", pt: 0, pb: 0, ph: 0, radius: 0, elements: [] });
@@ -1940,11 +2056,11 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
   const targetObj: any = activeElement || s;
   const isEditingGridElement = !!activeElement;
 
-  const updateTarget = (updates: any) => {
+  const updateTarget = (updates: any, skipHistory?: boolean) => {
     if (isEditingGridElement && activeElement) {
-      updateGridElement(activeElement.id, updates);
+      updateGridElement(activeElement.id, updates, skipHistory);
     } else {
-      u(updates);
+      u(updates, skipHistory);
     }
   };
 
@@ -2171,21 +2287,30 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
         {/* ── OWNERSHIP BANNER ── */}
         {targetObj.type === "ownership-banner" && (
-          <PropSection title="Ownership Bar Info">
-            <div style={{ background: "rgba(56, 211, 159, 0.08)", border: "1px solid rgba(56, 211, 159, 0.3)", padding: 8, borderRadius: 4, marginBottom: 12, fontSize: 10, color: GREEN_ACCENT, display: "flex", alignItems: "center", gap: 6 }}>
-              <Database size={13} />
-              <span>Ownership status & purchase history are dynamically queried for each user.</span>
-            </div>
+          <PropSection title="Ownership Bar Settings">
+            <PropRow label="Bar Background / Free Gradient"><ColorField value={targetObj.ownershipBg || "#181c24"} onChange={v => updateTarget({ ownershipBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Bar Border Color"><ColorField value={targetObj.ownershipBorder || "rgba(56, 211, 159, 0.35)"} onChange={v => updateTarget({ ownershipBorder: v })} /></PropRow>
+            <PropRow label="Status Text Font"><SelField value={targetObj.ownershipTitleFont || "'Cinzel', serif"} onChange={v => updateTarget({ ownershipTitleFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Status Text Color"><ColorField value={targetObj.ownershipTitleColor || GREEN_ACCENT} onChange={v => updateTarget({ ownershipTitleColor: v })} /></PropRow>
+            <PropRow label="Subtext Color"><ColorField value={targetObj.ownershipSubColor || TEXT_MUTED} onChange={v => updateTarget({ ownershipSubColor: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Button Styling</p>
+            <PropRow label="Download Button Text"><TxtInput value={targetObj.ownershipBtn1 || ""} onChange={v => updateTarget({ ownershipBtn1: v })} /></PropRow>
+            <PropRow label="Download Button Background"><ColorField value={targetObj.ownershipBtn1Bg || GREEN_ACCENT} onChange={v => updateTarget({ ownershipBtn1Bg: v })} /></PropRow>
+            <PropRow label="Download Button Text Color"><ColorField value={targetObj.ownershipBtn1Color || "#0e1116"} onChange={v => updateTarget({ ownershipBtn1Color: v })} /></PropRow>
+            <PropRow label="Library Button Text"><TxtInput value={targetObj.ownershipBtn2 || ""} onChange={v => updateTarget({ ownershipBtn2: v })} /></PropRow>
+            <PropRow label="Library Button Background"><ColorField value={targetObj.ownershipBtn2Bg || "transparent"} onChange={v => updateTarget({ ownershipBtn2Bg: v })} /></PropRow>
+            <PropRow label="Library Button Text Color"><ColorField value={targetObj.ownershipBtn2Color || GREEN_ACCENT} onChange={v => updateTarget({ ownershipBtn2Color: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Text Overrides</p>
             <PropRow label="Status Text"><TxtInput value={targetObj.ownershipStatus || ""} onChange={v => updateTarget({ ownershipStatus: v })} /></PropRow>
             <PropRow label="Subtext"><TxtInput value={targetObj.ownershipSub || ""} onChange={v => updateTarget({ ownershipSub: v })} /></PropRow>
-            <PropRow label="Download Button Text"><TxtInput value={targetObj.ownershipBtn1 || ""} onChange={v => updateTarget({ ownershipBtn1: v })} /></PropRow>
-            <PropRow label="Library Button Text"><TxtInput value={targetObj.ownershipBtn2 || ""} onChange={v => updateTarget({ ownershipBtn2: v })} /></PropRow>
           </PropSection>
         )}
 
         {/* ── ABOUT GAME ── */}
         {targetObj.type === "about-game" && (
-          <PropSection title="About Game Sections (Author Content)">
+          <PropSection title="About Game Sections">
             <p style={{ fontSize: 10, color: TEXT_MUTED, marginBottom: 10 }}>You can manually add, edit, or remove game lore sections and feature screenshots below.</p>
             <PropRow label="Section Title"><TxtInput value={targetObj.aboutTitle || ""} onChange={v => updateTarget({ aboutTitle: v })} /></PropRow>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
@@ -2220,7 +2345,7 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
         {/* ── SYSTEM REQS ── */}
         {targetObj.type === "system-reqs" && (
-          <PropSection title="System Requirements Specs (Designer Input)">
+          <PropSection title="System Requirements Settings">
             <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE }}>Recommended Specs</p>
             <PropRow label="OS"><TxtInput value={targetObj.reqsRec?.os || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || { os: "", cpu: "", ram: "", gpu: "", storage: "" }), os: v } })} placeholder="Windows 11 (64-bit)" /></PropRow>
             <PropRow label="CPU"><TxtInput value={targetObj.reqsRec?.cpu || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || { os: "", cpu: "", ram: "", gpu: "", storage: "" }), cpu: v } })} placeholder="Intel Core i7-12700K" /></PropRow>
@@ -2239,11 +2364,7 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
         {/* ── USER REVIEWS ── */}
         {targetObj.type === "user-reviews" && (
-          <PropSection title="User Reviews Component (DB Widget)">
-            <div style={{ background: "rgba(242, 107, 33, 0.08)", border: "1px solid rgba(242, 107, 33, 0.3)", padding: 8, borderRadius: 4, marginBottom: 12, fontSize: 10, color: HATHOR_ORANGE, display: "flex", alignItems: "center", gap: 6 }}>
-              <Database size={13} />
-              <span>User reviews are fetched dynamically from the database. Customize styling below.</span>
-            </div>
+          <PropSection title="User Reviews Settings">
             <PropRow label="Header Title"><TxtInput value={targetObj.reviewHeader || "USER REVIEWS"} onChange={v => updateTarget({ reviewHeader: v })} /></PropRow>
             <PropRow label="Card Background / Free Gradient"><ColorField value={targetObj.reviewCardBg || SURFACE} onChange={v => updateTarget({ reviewCardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
             <PropRow label="Card Border Color"><ColorField value={targetObj.reviewCardBorder || BORDER} onChange={v => updateTarget({ reviewCardBorder: v })} /></PropRow>
@@ -2261,31 +2382,92 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
         )}
 
         {/* ── SIDEBAR CTA ── */}
-        {targetObj.type === "sidebar-cta" && (
-          <PropSection title="Sidebar CTA Card (DB)">
-            <div style={{ background: "rgba(242, 107, 33, 0.08)", border: "1px solid rgba(242, 107, 33, 0.3)", padding: 8, borderRadius: 4, marginBottom: 12, fontSize: 10, color: HATHOR_ORANGE, display: "flex", alignItems: "center", gap: 6 }}>
-              <Database size={13} />
-              <span>Price, discount, and ownership status are fetched dynamically per user.</span>
-            </div>
-            <PropRow label="Price Override"><TxtInput value={targetObj.sidebarPrice || "299.99"} onChange={v => updateTarget({ sidebarPrice: v })} /></PropRow>
-            <PropRow label="Discount % Override"><NumField value={targetObj.sidebarDiscount || 0} onChange={v => updateTarget({ sidebarDiscount: v })} min={0} max={100} /></PropRow>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8 }}>
-              <span className={styles.propLabel}>Preview State</span>
-              <button onClick={() => updateTarget({ sidebarOwned: !targetObj.sidebarOwned })}
-                style={{ padding: "4px 10px", border: `1px solid ${targetObj.sidebarOwned ? GREEN_ACCENT : HATHOR_ORANGE}`, color: targetObj.sidebarOwned ? GREEN_ACCENT : HATHOR_ORANGE, background: "transparent", fontSize: 10, cursor: "pointer" }}>
-                {targetObj.sidebarOwned ? "OWNED" : "UNOWNED (BUY)"}
-              </button>
-            </div>
-          </PropSection>
-        )}
+        {targetObj.type === "sidebar-cta" && (() => {
+          const isOwned = targetObj.sidebarOwned ?? true;
+
+          return (
+            <PropSection title="Sidebar Purchase Card Settings">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 10, marginBottom: 12, borderBottom: `1px solid ${BORDER}` }}>
+                <span className={styles.propLabel} style={{ fontWeight: 700 }}>Preview State</span>
+                <button
+                  type="button"
+                  onClick={() => updateTarget({ sidebarOwned: !isOwned })}
+                  style={{
+                    padding: "4px 10px",
+                    border: `1px solid ${isOwned ? GREEN_ACCENT : HATHOR_ORANGE}`,
+                    color: isOwned ? GREEN_ACCENT : HATHOR_ORANGE,
+                    background: "transparent",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  {isOwned ? "OWNED" : "UNOWNED (BUY)"}
+                </button>
+              </div>
+
+              <PropRow label="Card Background / Free Gradient"><ColorField value={targetObj.sideCardBg || SURFACE} onChange={v => updateTarget({ sideCardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+              <PropRow label="Card Border Color"><ColorField value={targetObj.sideCardBorder || BORDER} onChange={v => updateTarget({ sideCardBorder: v })} /></PropRow>
+              <PropRow label="Top Accent Line Color"><ColorField value={targetObj.sideAccentColor || HATHOR_ORANGE} onChange={v => updateTarget({ sideAccentColor: v })} /></PropRow>
+              <PropRow label="Header Font"><SelField value={targetObj.sideHeaderFont || "'Cinzel', serif"} onChange={v => updateTarget({ sideHeaderFont: v })} options={FONTS} /></PropRow>
+              <PropRow label="Subtext / Label Color"><ColorField value={targetObj.sideBodyColor || TEXT_MUTED} onChange={v => updateTarget({ sideBodyColor: v })} /></PropRow>
+
+              <p className={styles.propLabel} style={{ fontWeight: 700, color: isOwned ? GREEN_ACCENT : HATHOR_ORANGE, marginTop: 12 }}>
+                Primary Button Style ({isOwned ? "Owned State" : "Buy State"})
+              </p>
+              <PropRow label="Header Title / Price Color">
+                <ColorField
+                  value={isOwned ? (targetObj.ownedHeaderColor || GREEN_ACCENT) : (targetObj.unownedHeaderColor || HATHOR_ORANGE)}
+                  onChange={v => updateTarget(isOwned ? { ownedHeaderColor: v } : { unownedHeaderColor: v })}
+                />
+              </PropRow>
+              <PropRow label="Button Text">
+                <TxtInput
+                  value={isOwned ? (targetObj.ownedPrimaryBtnText || "DOWNLOAD NOW") : (targetObj.unownedPrimaryBtnText || "ADD TO CART")}
+                  onChange={v => updateTarget(isOwned ? { ownedPrimaryBtnText: v } : { unownedPrimaryBtnText: v })}
+                />
+              </PropRow>
+              <PropRow label="Button Background / Gradient">
+                <ColorField
+                  value={isOwned ? (targetObj.ownedPrimaryBtnBg || GREEN_ACCENT) : (targetObj.unownedPrimaryBtnBg || HATHOR_ORANGE)}
+                  onChange={v => updateTarget(isOwned ? { ownedPrimaryBtnBg: v } : { unownedPrimaryBtnBg: v })}
+                />
+              </PropRow>
+              <PropRow label="Button Text Color">
+                <ColorField
+                  value={isOwned ? (targetObj.ownedPrimaryBtnTextColor || "#0e1116") : (targetObj.unownedPrimaryBtnTextColor || "#ffffff")}
+                  onChange={v => updateTarget(isOwned ? { ownedPrimaryBtnTextColor: v } : { unownedPrimaryBtnTextColor: v })}
+                />
+              </PropRow>
+
+              <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Secondary Button Style</p>
+              <PropRow label="Secondary Button Text"><TxtInput value={targetObj.ctaSecondaryBtnText || "VIEW IN LIBRARY"} onChange={v => updateTarget({ ctaSecondaryBtnText: v })} /></PropRow>
+              <PropRow label="Secondary Button Background"><ColorField value={targetObj.ctaSecondaryBtnBg || "transparent"} onChange={v => updateTarget({ ctaSecondaryBtnBg: v })} /></PropRow>
+              <PropRow label="Secondary Button Text Color"><ColorField value={targetObj.ctaSecondaryBtnTextColor || GREEN_ACCENT} onChange={v => updateTarget({ ctaSecondaryBtnTextColor: v })} /></PropRow>
+
+              <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Price & Discount Settings</p>
+              <PropRow label="Price Override"><TxtInput value={targetObj.sidebarPrice || "299.99"} onChange={v => updateTarget({ sidebarPrice: v })} /></PropRow>
+              <PropRow label="Discount % Override"><NumField value={targetObj.sidebarDiscount || 0} onChange={v => updateTarget({ sidebarDiscount: v })} min={0} max={100} /></PropRow>
+            </PropSection>
+          );
+        })()}
 
         {/* ── SIDEBAR INFO ── */}
         {targetObj.type === "sidebar-info" && (
-          <PropSection title="Sidebar Game Metadata (DB)">
-            <div style={{ background: "rgba(242, 107, 33, 0.08)", border: "1px solid rgba(242, 107, 33, 0.3)", padding: 8, borderRadius: 4, marginBottom: 12, fontSize: 10, color: HATHOR_ORANGE, display: "flex", alignItems: "center", gap: 6 }}>
-              <Database size={13} />
-              <span>Developer, publisher, release date, and genre are loaded from the database.</span>
-            </div>
+          <PropSection title="Sidebar Game Info Settings">
+            <PropRow label="Header Title"><TxtInput value={targetObj.infoTitle || "GAME DETAILS"} onChange={v => updateTarget({ infoTitle: v })} /></PropRow>
+            <PropRow label="Header Title Font"><SelField value={targetObj.infoTitleFont || "'Cinzel', serif"} onChange={v => updateTarget({ infoTitleFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.infoTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ infoTitleColor: v })} /></PropRow>
+            <PropRow label="Card Background / Free Gradient"><ColorField value={targetObj.infoCardBg || SURFACE} onChange={v => updateTarget({ infoCardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Card Border Color"><ColorField value={targetObj.infoCardBorder || BORDER} onChange={v => updateTarget({ infoCardBorder: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Typography & Text Colors</p>
+            <PropRow label="Labels Color"><ColorField value={targetObj.infoLabelColor || TEXT_MUTED} onChange={v => updateTarget({ infoLabelColor: v })} /></PropRow>
+            <PropRow label="Labels Font"><SelField value={targetObj.infoLabelFont || "monospace"} onChange={v => updateTarget({ infoLabelFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Values Color"><ColorField value={targetObj.infoValueColor || TEXT_PRIMARY} onChange={v => updateTarget({ infoValueColor: v })} /></PropRow>
+            <PropRow label="Values Font"><SelField value={targetObj.infoValueFont || "monospace"} onChange={v => updateTarget({ infoValueFont: v })} options={FONTS} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Data Overrides</p>
             <PropRow label="Developer Override"><TxtInput value={targetObj.sideDev || ""} onChange={v => updateTarget({ sideDev: v })} /></PropRow>
             <PropRow label="Publisher Override"><TxtInput value={targetObj.sidePub || ""} onChange={v => updateTarget({ sidePub: v })} /></PropRow>
             <PropRow label="Release Date Override"><TxtInput value={targetObj.sideDate || ""} onChange={v => updateTarget({ sideDate: v })} /></PropRow>
@@ -2293,20 +2475,46 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
           </PropSection>
         )}
 
+        {/* ── SIDEBAR RATINGS ── */}
+        {targetObj.type === "sidebar-ratings" && (
+          <PropSection title="Sidebar Ratings Settings">
+            <PropRow label="Header Title"><TxtInput value={targetObj.ratingsTitle || "RATING BREAKDOWN"} onChange={v => updateTarget({ ratingsTitle: v })} /></PropRow>
+            <PropRow label="Header Title Font"><SelField value={targetObj.ratingsTitleFont || "'Cinzel', serif"} onChange={v => updateTarget({ ratingsTitleFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.ratingsTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ ratingsTitleColor: v })} /></PropRow>
+            <PropRow label="Card Background / Free Gradient"><ColorField value={targetObj.ratingsCardBg || SURFACE} onChange={v => updateTarget({ ratingsCardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Card Border Color"><ColorField value={targetObj.ratingsCardBorder || BORDER} onChange={v => updateTarget({ ratingsCardBorder: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Rating Bars Styling</p>
+            <PropRow label="Progress Bar Color"><ColorField value={targetObj.ratingsFillColor || HATHOR_ORANGE} onChange={v => updateTarget({ ratingsFillColor: v })} /></PropRow>
+            <PropRow label="Progress Track Background"><ColorField value={targetObj.ratingsTrackColor || "rgba(0,0,0,0.3)"} onChange={v => updateTarget({ ratingsTrackColor: v })} /></PropRow>
+            <PropRow label="Star Label Color"><ColorField value={targetObj.ratingsLabelColor || TEXT_MUTED} onChange={v => updateTarget({ ratingsLabelColor: v })} /></PropRow>
+            <PropRow label="Star Label Font"><SelField value={targetObj.ratingsLabelFont || "monospace"} onChange={v => updateTarget({ ratingsLabelFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Percentage Color"><ColorField value={targetObj.ratingsPctColor || TEXT_PRIMARY} onChange={v => updateTarget({ ratingsPctColor: v })} /></PropRow>
+          </PropSection>
+        )}
+
+        {/* ── SIDEBAR COMMUNITY ── */}
+        {targetObj.type === "sidebar-community" && (
+          <PropSection title="Sidebar Community Settings">
+            <PropRow label="Header Title"><TxtInput value={targetObj.communityTitle || "COMMUNITY"} onChange={v => updateTarget({ communityTitle: v })} /></PropRow>
+            <PropRow label="Header Title Font"><SelField value={targetObj.communityTitleFont || "'Cinzel', serif"} onChange={v => updateTarget({ communityTitleFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.communityTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ communityTitleColor: v })} /></PropRow>
+            <PropRow label="Card Background / Free Gradient"><ColorField value={targetObj.communityCardBg || SURFACE} onChange={v => updateTarget({ communityCardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Card Border Color"><ColorField value={targetObj.communityCardBorder || BORDER} onChange={v => updateTarget({ communityCardBorder: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Text & Value Colors</p>
+            <PropRow label="Label Text Color"><ColorField value={targetObj.communityLabelColor || TEXT_MUTED} onChange={v => updateTarget({ communityLabelColor: v })} /></PropRow>
+            <PropRow label="Label Font"><SelField value={targetObj.communityLabelFont || "monospace"} onChange={v => updateTarget({ communityLabelFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Players Count Color"><ColorField value={targetObj.communityPlayersColor || TEXT_PRIMARY} onChange={v => updateTarget({ communityPlayersColor: v })} /></PropRow>
+            <PropRow label="Positive Rating Color"><ColorField value={targetObj.communityPositiveColor || GREEN_ACCENT} onChange={v => updateTarget({ communityPositiveColor: v })} /></PropRow>
+          </PropSection>
+        )}
+
         {/* ── RECOMMENDATIONS ── */}
         {targetObj.type === "recommendations" && (
-          <PropSection title="More Like This (DB Widget)">
-            <div style={{ background: "rgba(242, 107, 33, 0.08)", border: "1px solid rgba(242, 107, 33, 0.3)", padding: 10, borderRadius: 4, marginBottom: 14, fontSize: 11, color: HATHOR_ORANGE, display: "flex", flexDirection: "column", gap: 4 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800 }}>
-                <Database size={14} /> <span>DYNAMIC DATABASE WIDGET</span>
-              </div>
-              <p style={{ margin: 0, fontSize: 10, color: TEXT_MUTED, lineHeight: 1.4 }}>
-                Recommended games are automatically queried and fetched from the database based on the current game's genre and tags upon publishing.
-              </p>
-            </div>
-
+          <PropSection title="More Like This Settings">
             <PropRow label="Section Title"><TxtInput value={targetObj.recsTitle || "MORE LIKE THIS"} onChange={v => updateTarget({ recsTitle: v })} /></PropRow>
-            <PropRow label="Max Games to Fetch">
+            <PropRow label="Max Games to Display">
               <SelField value={String(targetObj.recsCount || 4)} onChange={v => updateTarget({ recsCount: Number(v) })}
                 options={[
                   { label: "3 Games", value: "3" },
@@ -2320,118 +2528,191 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
         )}
 
         {/* ── CUSTOM GRID SECTION ── */}
-        {s.type === "grid" && !isEditingGridElement && <>
-          <PropSection title="Grid Layout">
-            <PropRow label="Column Template">
-              <SelField value={s.gridTemplate || "2:1"} onChange={v => setGridTemplateRatio(v)}
-                options={[
-                  { label: "1 Column (Single)", value: "1" },
-                  { label: "2 Columns (1:1 Equal)", value: "1:1" },
-                  { label: "2 Columns (1:2 Right Heavy)", value: "1:2" },
-                  { label: "2 Columns (2:1 Main Content + Sidebar)", value: "2:1" },
-                  { label: "3 Columns (1:1:1 Equal)", value: "1:1:1" },
-                  { label: "3 Columns (1:2:1 Center Heavy)", value: "1:2:1" },
-                  { label: "4 Columns (1:1:1:1 Equal)", value: "1:1:1:1" }
-                ]} />
-            </PropRow>
-            <PropRow label="Grid Gap"><NumField value={s.gridGap || 40} onChange={v => u({ gridGap: v })} unit="px" min={0} max={120} /></PropRow>
-          </PropSection>
-
-          {/* Column Inspector */}
-          <PropSection title="Column Controls">
-            <PropRow label="Select Column">
-              <div className={styles.gridColTabs}>
-                {cols.map((_, i) => (
-                  <button key={i} onClick={() => { setGridColIdx(i); setSelectedElementId(null); }}
-                    className={`${styles.gridColTab} ${gridColIdx === i ? styles.gridColTabActive : ""}`}>
-                    Col {i + 1}
-                  </button>
-                ))}
-              </div>
-            </PropRow>
-
-            {activeCol && <>
-              <PropRow label="Column Background / Free Gradient">
-                <ColorField value={activeCol.bg || "transparent"} onChange={v => {
-                  const updatedCols = cols.map((c, idx) => idx === gridColIdx ? { ...c, bg: v } : c);
-                  u({ gridCols: updatedCols });
-                }} placeholder="e.g. linear-gradient(...) or #181c24" />
+        {s.type === "grid" && !isEditingGridElement && (
+          <>
+            <PropSection title="Multi-Column Layout Settings">
+              <PropRow label="Column Count">
+                <SelField
+                  value={String(cols.length || 2)}
+                  onChange={v => {
+                    const num = Number(v);
+                    const defaultRatioForCount: Record<number, string> = { 1: "1", 2: "2:1", 3: "1:2:1", 4: "1:1:1:1" };
+                    setGridTemplateRatio(defaultRatioForCount[num] || "1:1");
+                  }}
+                  options={[
+                    { label: "1 Column", value: "1" },
+                    { label: "2 Columns", value: "2" },
+                    { label: "3 Columns", value: "3" },
+                    { label: "4 Columns", value: "4" }
+                  ]}
+                />
               </PropRow>
 
-              <PropRow label="Column Top Accent Line Color">
-                <ColorField value={activeCol.borderTopColor || ""} onChange={v => {
-                  const updatedCols = cols.map((c, idx) => idx === gridColIdx ? { ...c, borderTopColor: v } : c);
-                  u({ gridCols: updatedCols });
-                }} placeholder="#f26b21" />
-              </PropRow>
-
-              <div style={{ marginTop: 12 }}>
-                <p className={styles.propLabel} style={{ marginBottom: 6 }}>Insert Element into Col {gridColIdx + 1}</p>
-                <div className={styles.addElementGrid}>
-                  <button onClick={() => addGridElement("heading")} className={styles.addElementBtn}>
-                    <Type size={12} /> + Heading
-                  </button>
-                  <button onClick={() => addGridElement("text")} className={styles.addElementBtn}>
-                    <Type size={12} /> + Text
-                  </button>
-                  <button onClick={() => addGridElement("image")} className={styles.addElementBtn}>
-                    <ImageIcon size={12} /> + Image
-                  </button>
-                  <button onClick={() => addGridElement("button")} className={styles.addElementBtn}>
-                    <Zap size={12} /> + Button
-                  </button>
-                  <button onClick={() => addGridElement("game-header")} className={styles.addElementBtn}>
-                    <Award size={12} /> + Game Header
-                  </button>
-                  <button onClick={() => addGridElement("system-reqs")} className={styles.addElementBtn}>
-                    <MonitorCheck size={12} /> + System Reqs
-                  </button>
-                  <button onClick={() => addGridElement("sidebar-cta")} className={styles.addElementBtn}>
-                    <ShoppingCart size={12} /> + Sidebar CTA Card (DB)
-                  </button>
-                  <button onClick={() => addGridElement("sidebar-info")} className={styles.addElementBtn}>
-                    <Info size={12} /> + Sidebar Info Card (DB)
-                  </button>
-                  <button onClick={() => addGridElement("sidebar-ratings")} className={styles.addElementBtn}>
-                    <BarChart2 size={12} /> + Rating Bars Card (DB)
-                  </button>
-                  <button onClick={() => addGridElement("sidebar-community")} className={styles.addElementBtn}>
-                    <Users size={12} /> + Community Card (DB)
-                  </button>
-                  <button onClick={() => addGridElement("user-reviews")} className={styles.addElementBtn}>
-                    <MessageSquare size={12} /> + User Reviews (DB)
-                  </button>
+              <div style={{ marginTop: 10, marginBottom: 8 }}>
+                <p className={styles.propLabel} style={{ marginBottom: 6 }}>Layout Focus & Width Distribution</p>
+                <div style={{ display: "grid", gridTemplateColumns: (cols.length || 2) === 3 ? "1fr 1fr" : "repeat(auto-fit, minmax(70px, 1fr))", gap: 6 }}>
+                  {((focusConfig: Record<number, { label: string; value: string; flexes: number[] }[]>) => {
+                    const currentCount = cols.length || 2;
+                    const availableFocus = focusConfig[currentCount] || focusConfig[2];
+                    return availableFocus.map(opt => {
+                      const isActive = (s.gridTemplate || "2:1") === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setGridTemplateRatio(opt.value)}
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "8px 6px",
+                            background: isActive ? "rgba(242, 107, 33, 0.14)" : SURFACE,
+                            border: isActive ? `1px solid ${HATHOR_ORANGE}` : `1px solid ${BORDER}`,
+                            borderRadius: 4,
+                            cursor: "pointer",
+                            transition: "all 0.15s ease",
+                            outline: "none"
+                          }}
+                        >
+                          <div style={{ display: "flex", width: "100%", height: 14, gap: 3, background: "#101319", padding: 2, borderRadius: 3, boxSizing: "border-box" }}>
+                            {opt.flexes.map((flexVal, fIdx) => (
+                              <div
+                                key={fIdx}
+                                style={{
+                                  flex: flexVal,
+                                  background: isActive ? HATHOR_ORANGE : (flexVal > 1 ? "#5A6578" : "#323846"),
+                                  borderRadius: 2,
+                                  transition: "all 0.15s ease"
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <span style={{ fontSize: 9, fontFamily: "monospace", fontWeight: isActive ? 800 : 600, color: isActive ? HATHOR_ORANGE : TEXT_MUTED }}>
+                            {opt.label}
+                          </span>
+                        </button>
+                      );
+                    });
+                  })({
+                    1: [{ label: "1:1 Full Width", value: "1", flexes: [1] }],
+                    2: [
+                      { label: "2:1 Left Heavy", value: "2:1", flexes: [2, 1] },
+                      { label: "1:1 Equal", value: "1:1", flexes: [1, 1] },
+                      { label: "1:2 Right Heavy", value: "1:2", flexes: [1, 2] }
+                    ],
+                    3: [
+                      { label: "2:1:1 Left Heavy", value: "2:1:1", flexes: [2, 1, 1] },
+                      { label: "1:2:1 Center Heavy", value: "1:2:1", flexes: [1, 2, 1] },
+                      { label: "1:1:1 Equal", value: "1:1:1", flexes: [1, 1, 1] },
+                      { label: "1:1:2 Right Heavy", value: "1:1:2", flexes: [1, 1, 2] }
+                    ],
+                    4: [{ label: "1:1:1:1 Equal", value: "1:1:1:1", flexes: [1, 1, 1, 1] }]
+                  })}
                 </div>
               </div>
 
-              {/* Column Elements List */}
-              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-                <p className={styles.propLabel}>Elements in Col {gridColIdx + 1} ({activeCol.elements.length})</p>
-                {activeCol.elements.length === 0 ? (
-                  <p style={{ fontSize: 10, color: TEXT_MUTED, fontStyle: "italic" }}>No elements added to this column yet.</p>
-                ) : (
-                  activeCol.elements.map((el, i) => (
-                    <div key={el.id} onClick={() => setSelectedElementId(el.id)}
-                      className={`${styles.elementCard} ${selectedElementId === el.id ? styles.elementCardActive : ""}`}>
-                      <span style={{ textTransform: "capitalize", fontWeight: 600 }}>{i + 1}. {el.type}</span>
-                      <div className={styles.elementControls} onClick={e => e.stopPropagation()}>
-                        <button onClick={() => moveGridElement(i, -1)} disabled={i === 0} className={styles.elementBtn} title="Move up">
-                          <ChevronUp size={12} />
-                        </button>
-                        <button onClick={() => moveGridElement(i, 1)} disabled={i === activeCol.elements.length - 1} className={styles.elementBtn} title="Move down">
-                          <ChevronDown size={12} />
-                        </button>
-                        <button onClick={() => deleteGridElement(el.id)} className={styles.elementBtn} title="Delete">
-                          <X size={12} />
-                        </button>
-                      </div>
+              <PropRow label="Grid Gap"><NumField value={s.gridGap || 40} onChange={v => u({ gridGap: v })} unit="px" min={0} max={120} /></PropRow>
+            </PropSection>
+
+            {/* Column Inspector */}
+            <PropSection title="Column Controls">
+              <PropRow label="Select Column">
+                <div className={styles.gridColTabs}>
+                  {cols.map((_, i) => (
+                    <button key={i} onClick={() => { setGridColIdx(i); setSelectedElementId(null); }}
+                      className={`${styles.gridColTab} ${gridColIdx === i ? styles.gridColTabActive : ""}`}>
+                      Col {i + 1}
+                    </button>
+                  ))}
+                </div>
+              </PropRow>
+
+              {activeCol && (
+                <>
+                  <PropRow label="Column Background / Free Gradient">
+                    <ColorField value={activeCol.bg || "transparent"} onChange={v => {
+                      const updatedCols = cols.map((c, idx) => idx === gridColIdx ? { ...c, bg: v } : c);
+                      u({ gridCols: updatedCols });
+                    }} placeholder="e.g. linear-gradient(...) or #181c24" />
+                  </PropRow>
+
+                  <PropRow label="Column Top Accent Line Color">
+                    <ColorField value={activeCol.borderTopColor || ""} onChange={v => {
+                      const updatedCols = cols.map((c, idx) => idx === gridColIdx ? { ...c, borderTopColor: v } : c);
+                      u({ gridCols: updatedCols });
+                    }} placeholder="#f26b21" />
+                  </PropRow>
+
+                  <div style={{ marginTop: 12 }}>
+                    <p className={styles.propLabel} style={{ marginBottom: 6 }}>Insert Element into Col {gridColIdx + 1}</p>
+                    <div className={styles.addElementGrid}>
+                      <button onClick={() => addGridElement("heading")} className={styles.addElementBtn}>
+                        <Type size={12} /> + Heading
+                      </button>
+                      <button onClick={() => addGridElement("text")} className={styles.addElementBtn}>
+                        <Type size={12} /> + Text
+                      </button>
+                      <button onClick={() => addGridElement("image")} className={styles.addElementBtn}>
+                        <ImageIcon size={12} /> + Image
+                      </button>
+                      <button onClick={() => addGridElement("button")} className={styles.addElementBtn}>
+                        <Zap size={12} /> + Button
+                      </button>
+                      <button onClick={() => addGridElement("game-header")} className={styles.addElementBtn}>
+                        <Award size={12} /> + Game Header
+                      </button>
+                      <button onClick={() => addGridElement("system-reqs")} className={styles.addElementBtn}>
+                        <MonitorCheck size={12} /> + System Reqs
+                      </button>
+                      <button onClick={() => addGridElement("sidebar-cta")} className={styles.addElementBtn}>
+                        <ShoppingCart size={12} /> + Sidebar Purchase Card
+                      </button>
+                      <button onClick={() => addGridElement("sidebar-info")} className={styles.addElementBtn}>
+                        <Info size={12} /> + Sidebar Info Card
+                      </button>
+                      <button onClick={() => addGridElement("sidebar-ratings")} className={styles.addElementBtn}>
+                        <BarChart2 size={12} /> + Rating Bars Card
+                      </button>
+                      <button onClick={() => addGridElement("sidebar-community")} className={styles.addElementBtn}>
+                        <Users size={12} /> + Community Card
+                      </button>
+                      <button onClick={() => addGridElement("user-reviews")} className={styles.addElementBtn}>
+                        <MessageSquare size={12} /> + User Reviews
+                      </button>
                     </div>
-                  ))
-                )}
-              </div>
-            </>}
-          </PropSection>
-        </>}
+                  </div>
+
+                  {/* Column Elements List */}
+                  <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <p className={styles.propLabel}>Elements in Col {gridColIdx + 1} ({activeCol.elements.length})</p>
+                    {activeCol.elements.length === 0 ? (
+                      <p style={{ fontSize: 10, color: TEXT_MUTED, fontStyle: "italic" }}>No elements added to this column yet.</p>
+                    ) : (
+                      activeCol.elements.map((el, i) => (
+                        <div key={el.id} onClick={() => setSelectedElementId(el.id)}
+                          className={`${styles.elementCard} ${selectedElementId === el.id ? styles.elementCardActive : ""}`}>
+                          <span style={{ textTransform: "capitalize", fontWeight: 600 }}>{i + 1}. {el.type}</span>
+                          <div className={styles.elementControls} onClick={e => e.stopPropagation()}>
+                            <button onClick={() => moveGridElement(i, -1)} disabled={i === 0} className={styles.elementBtn} title="Move up">
+                              <ChevronUp size={12} />
+                            </button>
+                            <button onClick={() => moveGridElement(i, 1)} disabled={i === activeCol.elements.length - 1} className={styles.elementBtn} title="Move down">
+                              <ChevronDown size={12} />
+                            </button>
+                            <button onClick={() => deleteGridElement(el.id)} className={styles.elementBtn} title="Delete">
+                              <X size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </PropSection>
+          </>
+        )}
 
         {/* Basic Element Editing inside Column */}
         {isEditingGridElement && (activeElement?.type === "heading" || activeElement?.type === "text" || activeElement?.type === "button" || activeElement?.type === "image" || activeElement?.type === "divider" || activeElement?.type === "spacer") && (
@@ -2524,6 +2805,328 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
   );
 }
 
+// ── JSON Schema Serializer / Exporter for Default & Custom Themes ────────────
+const COMPONENT_NAME_MAP: Record<string, string> = {
+  "game-hero": "GameHero",
+  "game-header": "GameHeader",
+  "ownership-banner": "OwnershipBanner",
+  "about-game": "AboutGame",
+  "system-reqs": "SystemReqs",
+  "user-reviews": "UserReviews",
+  "sidebar-cta": "SidebarCTA",
+  "sidebar-info": "SidebarInfo",
+  "sidebar-ratings": "SidebarRatings",
+  "sidebar-community": "SidebarCommunity",
+  "recommendations": "Recommendations",
+  "grid": "CustomGrid",
+  "text": "TextBlock",
+  "image": "ImageBlock",
+  "carousel": "CarouselShowcase",
+  "features": "FeaturesGrid",
+  "two-col": "TwoColumns",
+  "divider": "Divider",
+  "spacer": "Spacer",
+  "cta": "CTABlock",
+  "heading": "HeadingBlock",
+  "button": "ButtonBlock"
+};
+
+function getComponentStyles(s: any): Record<string, any> {
+  const stylesObj: Record<string, any> = {
+    section: {
+      background: s.bg || "transparent",
+      paddingTop: `${s.pt || 0}px`,
+      paddingBottom: `${s.pb || 0}px`,
+      paddingLeft: `${s.ph || 0}px`,
+      paddingRight: `${s.ph || 0}px`,
+      borderRadius: `${s.radius || 0}px`,
+      ...(s.borderTopColor ? { borderTopColor: s.borderTopColor } : {})
+    }
+  };
+
+  if (s.type === "sidebar-cta") {
+    stylesObj.card = { background: s.sideCardBg || SURFACE, borderColor: s.sideCardBorder || BORDER, borderTopColor: s.sideAccentColor || HATHOR_ORANGE };
+    stylesObj.headerTitle = { fontFamily: s.sideHeaderFont || "'Cinzel', serif", color: s.sideHeaderColor || (s.sidebarOwned ? GREEN_ACCENT : HATHOR_ORANGE) };
+    stylesObj.bodyText = { color: s.sideBodyColor || TEXT_MUTED };
+    stylesObj.primaryBtn = { background: s.ctaPrimaryBtnBg || (s.sidebarOwned ? GREEN_ACCENT : HATHOR_ORANGE), color: s.ctaPrimaryBtnTextColor || (s.sidebarOwned ? "#0e1116" : "#ffffff"), borderRadius: `${s.ctaBtnRadius ?? 3}px` };
+    stylesObj.secondaryBtn = { background: s.ctaSecondaryBtnBg || "transparent", color: s.ctaSecondaryBtnTextColor || GREEN_ACCENT, borderColor: s.ctaSecondaryBtnBorder || "rgba(56, 211, 159, 0.35)" };
+  } else if (s.type === "sidebar-info") {
+    stylesObj.card = { background: s.infoCardBg || SURFACE, borderColor: s.infoCardBorder || BORDER };
+    stylesObj.headerTitle = { fontFamily: s.infoTitleFont || "'Cinzel', serif", color: s.infoTitleColor || HATHOR_ORANGE };
+    stylesObj.labels = { color: s.infoLabelColor || TEXT_MUTED, fontFamily: s.infoLabelFont || "monospace" };
+    stylesObj.values = { color: s.infoValueColor || TEXT_PRIMARY, fontFamily: s.infoValueFont || "monospace" };
+  } else if (s.type === "sidebar-ratings") {
+    stylesObj.card = { background: s.ratingsCardBg || SURFACE, borderColor: s.ratingsCardBorder || BORDER };
+    stylesObj.headerTitle = { fontFamily: s.ratingsTitleFont || "'Cinzel', serif", color: s.ratingsTitleColor || HATHOR_ORANGE };
+    stylesObj.labels = { color: s.ratingsLabelColor || TEXT_MUTED, fontFamily: s.ratingsLabelFont || "monospace" };
+    stylesObj.progressBar = { background: s.ratingsFillColor || HATHOR_ORANGE };
+    stylesObj.progressTrack = { background: s.ratingsTrackColor || "rgba(0,0,0,0.3)" };
+    stylesObj.percentage = { color: s.ratingsPctColor || TEXT_PRIMARY };
+  } else if (s.type === "sidebar-community") {
+    stylesObj.card = { background: s.communityCardBg || SURFACE, borderColor: s.communityCardBorder || BORDER };
+    stylesObj.headerTitle = { fontFamily: s.communityTitleFont || "'Cinzel', serif", color: s.communityTitleColor || HATHOR_ORANGE };
+    stylesObj.labels = { color: s.communityLabelColor || TEXT_MUTED, fontFamily: s.communityLabelFont || "monospace" };
+    stylesObj.playersValue = { color: s.communityPlayersColor || TEXT_PRIMARY };
+    stylesObj.positiveRatingValue = { color: s.communityPositiveColor || GREEN_ACCENT };
+  } else if (s.type === "ownership-banner") {
+    stylesObj.banner = { background: s.ownershipBg || "#181c24", borderColor: s.ownershipBorder || "rgba(56, 211, 159, 0.35)" };
+    stylesObj.statusTitle = { fontFamily: s.ownershipTitleFont || "'Cinzel', serif", color: s.ownershipTitleColor || GREEN_ACCENT };
+    stylesObj.subtext = { color: s.ownershipSubColor || TEXT_MUTED };
+    stylesObj.downloadBtn = { background: s.ownershipBtn1Bg || GREEN_ACCENT, color: s.ownershipBtn1Color || "#0e1116" };
+    stylesObj.libraryBtn = { background: s.ownershipBtn2Bg || "transparent", color: s.ownershipBtn2Color || GREEN_ACCENT };
+  } else if (s.type === "about-game") {
+    stylesObj.headerTitle = { fontFamily: s.aboutTitleFont || "'Cinzel', serif", color: s.aboutTitleColor || TEXT_PRIMARY };
+    stylesObj.subheading = { fontFamily: s.aboutSubheadingFont || "'Cinzel', serif", color: s.aboutSubheadingColor || HATHOR_ORANGE };
+    stylesObj.bodyText = { fontFamily: s.aboutBodyFont || "'Raleway', sans-serif", color: s.aboutBodyColor || TEXT_MUTED };
+  } else if (s.type === "system-reqs") {
+    stylesObj.headerTitle = { fontFamily: s.reqsTitleFont || "'Cinzel', serif", color: s.reqsTitleColor || TEXT_PRIMARY };
+    stylesObj.activeTab = { background: s.reqsTabActiveBg || "rgba(242, 107, 33, 0.22)", color: s.reqsTabActiveColor || HATHOR_ORANGE };
+    stylesObj.specCard = { background: s.reqsCardBg || SURFACE, borderColor: s.reqsCardBorder || BORDER };
+    stylesObj.specLabel = { color: s.reqsLabelColor || HATHOR_ORANGE };
+    stylesObj.specValue = { color: s.reqsValueColor || TEXT_PRIMARY, fontFamily: s.reqsValueFont || "'Cinzel', serif" };
+  } else if (s.type === "user-reviews") {
+    stylesObj.reviewCard = { background: s.reviewCardBg || SURFACE, borderColor: s.reviewCardBorder || BORDER, borderRadius: `${s.reviewCardRadius ?? 4}px` };
+    stylesObj.reviewerName = { color: s.reviewNameColor || TEXT_PRIMARY, fontFamily: s.reviewNameFont || "'Cinzel', serif" };
+    stylesObj.reviewBody = { color: s.reviewBodyColor || TEXT_MUTED, fontFamily: s.reviewBodyFont || "'Raleway', sans-serif" };
+    stylesObj.starAccent = { color: s.reviewStarColor || HATHOR_ORANGE };
+    stylesObj.badge = { background: s.reviewBadgeBg || "rgba(46, 204, 113, 0.06)", color: s.reviewBadgeColor || "#2ecc71" };
+  } else if (s.type === "recommendations") {
+    stylesObj.recsCard = { background: s.recsCardBg || SURFACE, borderColor: s.recsCardBorder || BORDER };
+  } else if (s.type === "heading" || s.type === "text") {
+    stylesObj.typography = {
+      fontFamily: s.textFont || s.font || "'Raleway', sans-serif",
+      fontSize: `${s.textSize || s.size || 14}px`,
+      fontWeight: s.textWeight || s.weight || "400",
+      color: s.textColor || s.color || TEXT_MUTED,
+      textAlign: s.textAlign || s.align || "left"
+    };
+  } else if (s.type === "button") {
+    stylesObj.buttonElement = {
+      background: s.btnGradient || s.btnBg || GREEN_ACCENT,
+      color: s.btnColor || "#0e1116",
+      borderColor: s.btnBorderColor || "transparent",
+      borderRadius: `${s.btnRadius ?? 3}px`
+    };
+  }
+
+  return stylesObj;
+}
+
+function getComponentChildren(s: any): Record<string, any> {
+  switch (s.type) {
+    case "game-hero":
+      return { heroImages: s.heroImages || [], heroHeight: s.heroHeight || 480, showThumbnails: s.showThumbnails ?? true };
+    case "game-header":
+      return { gameCategory: s.gameCategory, gameTitle: s.gameTitle, gameSubtitle: s.gameSubtitle, gameRatingScore: s.gameRatingScore, gameReviewCount: s.gameReviewCount, gameDev: s.gameDev, gameReleaseDate: s.gameReleaseDate, gameTags: s.gameTags, gameDesc: s.gameDesc };
+    case "ownership-banner":
+      return { ownershipStatus: s.ownershipStatus, ownershipSub: s.ownershipSub, ownershipBtn1: s.ownershipBtn1, ownershipBtn2: s.ownershipBtn2 };
+    case "about-game":
+      return { aboutTitle: s.aboutTitle, aboutSections: s.aboutSections };
+    case "system-reqs":
+      return { reqsMin: s.reqsMin, reqsRec: s.reqsRec };
+    case "user-reviews":
+      return { reviewHeader: s.reviewHeader };
+    case "sidebar-cta":
+      return { sidebarPrice: s.sidebarPrice, sidebarDiscount: s.sidebarDiscount, sidebarOwned: s.sidebarOwned };
+    case "sidebar-info":
+      return { sideDev: s.sideDev, sidePub: s.sidePub, sideDate: s.sideDate, sideGenre: s.sideGenre, sidePlatforms: s.sidePlatforms };
+    case "sidebar-ratings":
+      return { sideRatings: s.sideRatings };
+    case "sidebar-community":
+      return { sideOwners: s.sideOwners, sidePositive: s.sidePositive };
+    case "recommendations":
+      return { recsTitle: s.recsTitle, recsCount: s.recsCount };
+    case "text":
+    case "heading":
+      return { text: s.textContent || s.text };
+    case "image":
+      return { imageSrc: s.imageSrc, imageAlt: s.imageAlt, imageMaxWidth: s.imageMaxWidth, imageRadius: s.imageRadius };
+    case "carousel":
+      return { carouselImages: s.carouselImages, carouselHeight: s.carouselHeight, showThumbnails: s.showThumbnails ?? true };
+    case "features":
+      return { featuresTitle: s.featuresTitle, featuresCols: s.featuresCols, featuresItems: s.featuresItems };
+    case "two-col":
+      return { twoColRatio: s.twoColRatio, twoColGap: s.twoColGap, twoColLeftText: s.twoColLeftText, twoColRightImg: s.twoColRightImg };
+    case "cta":
+      return { ctaTitle: s.ctaTitle, ctaSubtitle: s.ctaSubtitle, ctaPrice: s.ctaPrice, ctaBtnText: s.ctaBtnText };
+    case "divider":
+      return { dividerColor: s.dividerColor, dividerThickness: s.dividerThickness, dividerWidth: s.dividerWidth };
+    case "spacer":
+      return { spacerHeight: s.spacerHeight };
+    case "button":
+      return { btnText: s.btnText, btnIcon: s.btnIcon, fullWidth: s.fullWidth };
+    default:
+      return {};
+  }
+}
+
+function generateDefaultLayoutJSON(sections: Section[]): Record<string, any> {
+  const layoutObj: Record<string, any> = {};
+
+  const heroSec = sections.find(s => s.type === "game-hero");
+  if (heroSec) {
+    layoutObj.media = heroSec.heroImages || [];
+    layoutObj.heroHeight = heroSec.heroHeight || 480;
+    layoutObj.showThumbnails = heroSec.showThumbnails ?? true;
+  }
+
+  let headerProps: any = sections.find(s => s.type === "game-header");
+  if (!headerProps) {
+    for (const sec of sections) {
+      if (sec.type === "grid" && sec.gridCols) {
+        for (const col of sec.gridCols) {
+          const found = col.elements.find(e => e.type === "game-header");
+          if (found) { headerProps = found; break; }
+        }
+      }
+    }
+  }
+  if (headerProps) {
+    layoutObj.gameHeader = {
+      category: headerProps.gameCategory || "ACTION RPG",
+      title: headerProps.gameTitle || "ELDEN THRONE",
+      subtitle: headerProps.gameSubtitle || "",
+      ratingScore: headerProps.gameRatingScore || 9.4,
+      reviewCount: headerProps.gameReviewCount || "14.2k Reviews",
+      dev: headerProps.gameDev || "Omegabyte Studios",
+      releaseDate: headerProps.gameReleaseDate || "March 15, 2025",
+      tags: headerProps.gameTags || [],
+      desc: headerProps.gameDesc || ""
+    };
+  }
+
+  let aboutProps: any = sections.find(s => s.type === "about-game");
+  if (!aboutProps) {
+    for (const sec of sections) {
+      if (sec.type === "grid" && sec.gridCols) {
+        for (const col of sec.gridCols) {
+          const found = col.elements.find(e => e.type === "about-game");
+          if (found) { aboutProps = found; break; }
+        }
+      }
+    }
+  }
+  if (aboutProps) {
+    layoutObj.gameAbout = {
+      title: aboutProps.aboutTitle || "ABOUT THIS GAME",
+      sections: aboutProps.aboutSections || []
+    };
+  }
+
+  let reqsProps: any = sections.find(s => s.type === "system-reqs");
+  if (!reqsProps) {
+    for (const sec of sections) {
+      if (sec.type === "grid" && sec.gridCols) {
+        for (const col of sec.gridCols) {
+          const found = col.elements.find(e => e.type === "system-reqs");
+          if (found) { reqsProps = found; break; }
+        }
+      }
+    }
+  }
+  if (reqsProps) {
+    layoutObj.systemReqs = {
+      min: reqsProps.reqsMin || {},
+      rec: reqsProps.reqsRec || {}
+    };
+  }
+
+  const recsSec = sections.find(s => s.type === "recommendations");
+  if (recsSec) {
+    layoutObj.recommendations = {
+      title: recsSec.recsTitle || "MORE LIKE THIS",
+      count: recsSec.recsCount || 4,
+      cardBg: recsSec.recsCardBg || SURFACE,
+      cardBorder: recsSec.recsCardBorder || BORDER
+    };
+  }
+
+  return layoutObj;
+}
+
+function generateCustomLayoutJSON(sections: Section[]): Record<string, any> {
+  const layoutObj: Record<string, any> = {};
+
+  sections.forEach((s, idx) => {
+    const key = s.id || `section_${idx + 1}`;
+    layoutObj[key] = mapSectionToCustomExport(s);
+  });
+
+  return layoutObj;
+}
+
+function mapSectionToCustomExport(s: Section): any {
+  const componentName = COMPONENT_NAME_MAP[s.type] || s.type;
+
+  if (s.type === "grid") {
+    return {
+      component: componentName,
+      style: getComponentStyles(s),
+      children: {
+        gridGap: s.gridGap || 40,
+        gridTemplate: s.gridTemplate || "2:1",
+        gridCols: (s.gridCols || []).map(col => ({
+          id: col.id,
+          style: {
+            column: {
+              background: col.bg || "transparent",
+              ...(col.borderTopColor ? { borderTopColor: col.borderTopColor } : {})
+            }
+          },
+          children: (col.elements || []).reduce((acc: Record<string, any>, el, elIdx) => {
+            const elKey = el.id || `element_${elIdx + 1}`;
+            acc[elKey] = mapSectionToCustomExport(el as any);
+            return acc;
+          }, {})
+        }))
+      }
+    };
+  }
+
+  return {
+    component: componentName,
+    style: getComponentStyles(s),
+    children: getComponentChildren(s)
+  };
+}
+
+function cleanForComparison(obj: any): any {
+  if (!obj || typeof obj !== "object") return obj;
+  if (Array.isArray(obj)) return obj.map(cleanForComparison);
+  const copy: Record<string, any> = {};
+  for (const k of Object.keys(obj).sort()) {
+    if (k === "id") continue; // Ignore auto-generated IDs
+    copy[k] = cleanForComparison(obj[k]);
+  }
+  return copy;
+}
+
+export function isCustomTheme(sections: Section[]): boolean {
+  if (!sections || sections.length === 0) return true; // Blank slate is custom
+  if (sections.length !== INITIAL.length) return true; // Section count changed
+
+  const cleanCurrent = cleanForComparison(sections);
+  const cleanInit = cleanForComparison(INITIAL);
+
+  return JSON.stringify(cleanCurrent) !== JSON.stringify(cleanInit);
+}
+
+export function generatePageJSON(sections: Section[]) {
+  const isCustom = isCustomTheme(sections);
+
+  if (!isCustom) {
+    return {
+      theme: "default",
+      layout: generateDefaultLayoutJSON(sections)
+    };
+  } else {
+    return {
+      theme: "custom",
+      layout: generateCustomLayoutJSON(sections)
+    };
+  }
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function DesignerPage() {
   const [state, setState] = useState({ sections: INITIAL, history: [INITIAL], historyIdx: 0 });
@@ -2531,6 +3134,7 @@ export default function DesignerPage() {
   const [selectedColIdx, setSelectedColIdx] = useState<number | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(true);
+  const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
 
   const [device, setDevice] = useState<Device>("desktop");
   const [gameTitle, setGameTitle] = useState("ELDEN THRONE");
@@ -2540,12 +3144,23 @@ export default function DesignerPage() {
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2200); }
 
-  function mutateSections(newSections: Section[]) {
-    setState(prev => ({
-      sections: newSections,
-      history: [...prev.history.slice(0, prev.historyIdx + 1), newSections],
-      historyIdx: prev.historyIdx + 1,
-    }));
+  function mutateSections(newSections: Section[], skipHistory = false) {
+    setState(prev => {
+      if (skipHistory) {
+        const newHistory = [...prev.history];
+        newHistory[prev.historyIdx] = newSections;
+        return {
+          ...prev,
+          sections: newSections,
+          history: newHistory,
+        };
+      }
+      return {
+        sections: newSections,
+        history: [...prev.history.slice(0, prev.historyIdx + 1), newSections],
+        historyIdx: prev.historyIdx + 1,
+      };
+    });
   }
   function undo() {
     setState(prev => {
@@ -2591,8 +3206,8 @@ export default function DesignerPage() {
     showToast(`Added Section: ${BLOCK_META[type]?.label || type}`);
   }
 
-  function updateSection(id: string, updates: Partial<Section>) {
-    mutateSections(sections.map(s => s.id === id ? { ...s, ...updates } : s));
+  function updateSection(id: string, updates: Partial<Section>, skipHistory = false) {
+    mutateSections(sections.map(s => s.id === id ? { ...s, ...updates } : s), skipHistory);
   }
   function moveUp(i: number) {
     if (i <= 0) return;
@@ -2622,6 +3237,7 @@ export default function DesignerPage() {
 
   const selectedSection = sections.find(s => s.id === selectedId) ?? null;
   const deviceMax = device === "mobile" ? 375 : device === "tablet" ? 768 : undefined;
+  const isCustom = isCustomTheme(sections);
 
   return (
     <div className={styles.designerContainer}>
@@ -2666,6 +3282,142 @@ export default function DesignerPage() {
                 <button className={styles.modalBtnSecondary}>Start From Scratch</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Publish & JSON Export Modal */}
+      {showPublishModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowPublishModal(false)}>
+          <div className={styles.modalCard} style={{ maxWidth: 740, width: "92%", textAlign: "left" }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, borderBottom: `1px solid ${BORDER}`, paddingBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <FileJson size={22} style={{ color: HATHOR_ORANGE }} />
+                <h2 className={styles.modalTitle} style={{ margin: 0, fontSize: 18 }}>Store Page JSON Output</h2>
+              </div>
+              <button onClick={() => setShowPublishModal(false)} style={{ background: "transparent", border: "none", color: TEXT_MUTED, cursor: "pointer", display: "flex", padding: 4 }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className={styles.modalSub} style={{ marginBottom: 14 }}>
+              This JSON schema is saved to <code style={{ color: HATHOR_ORANGE, fontFamily: "monospace" }}>pageTheme</code> in the database to render the published store page.
+            </p>
+
+            {/* Automatic Theme Mode Badge */}
+            {isCustom ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(242, 107, 33, 0.12)", border: "1px solid rgba(242, 107, 33, 0.4)", padding: "10px 14px", borderRadius: 6, marginBottom: 16, color: HATHOR_ORANGE, fontSize: 11, fontFamily: "monospace", fontWeight: 800 }}>
+                <Layers size={15} />
+                <span>THEME MODE: "custom" — Custom components or styling modifications detected</span>
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(56, 211, 159, 0.12)", border: "1px solid rgba(56, 211, 159, 0.4)", padding: "10px 14px", borderRadius: 6, marginBottom: 16, color: GREEN_ACCENT, fontSize: 11, fontFamily: "monospace", fontWeight: 800 }}>
+                <Check size={15} />
+                <span>THEME MODE: "default" — Standard unmodified layout & styling</span>
+              </div>
+            )}
+
+            {/* Formatted JSON Code Container */}
+            <div style={{ position: "relative", marginBottom: 16 }}>
+              <pre style={{
+                background: "#0d1017",
+                border: `1px solid ${BORDER}`,
+                borderRadius: 6,
+                padding: 16,
+                maxHeight: 340,
+                overflowY: "auto",
+                fontFamily: "monospace",
+                fontSize: 11,
+                lineHeight: 1.5,
+                color: GREEN_ACCENT,
+                margin: 0,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word"
+              }}>
+                {JSON.stringify(generatePageJSON(sections), null, 2)}
+              </pre>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
+              <button
+                onClick={() => {
+                  const jsonStr = JSON.stringify(generatePageJSON(sections), null, 2);
+                  navigator.clipboard.writeText(jsonStr);
+                  showToast("JSON schema copied to clipboard!");
+                }}
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${BORDER}`,
+                  color: TEXT_PRIMARY,
+                  padding: "10px 16px",
+                  borderRadius: 4,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  fontFamily: "monospace",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <Copy size={13} /> COPY JSON
+              </button>
+
+              <button
+                onClick={() => {
+                  const jsonStr = JSON.stringify(generatePageJSON(sections), null, 2);
+                  const blob = new Blob([jsonStr], { type: "application/json" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `${gameTitle.toLowerCase().replace(/\s+/g, '-')}-pageTheme.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  showToast("Downloaded pageTheme.json file!");
+                }}
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${GREEN_ACCENT}`,
+                  color: GREEN_ACCENT,
+                  padding: "10px 16px",
+                  borderRadius: 4,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  fontFamily: "monospace",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <Download size={13} /> DOWNLOAD .JSON
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowPublishModal(false);
+                  showToast(`Page Published to Database (${isCustom ? 'theme: custom' : 'theme: default'})!`);
+                }}
+                style={{
+                  background: HATHOR_ORANGE,
+                  border: "none",
+                  color: "#ffffff",
+                  padding: "10px 20px",
+                  borderRadius: 4,
+                  fontSize: 11,
+                  fontWeight: 900,
+                  fontFamily: "monospace",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <Upload size={13} /> PUBLISH TO CATALOG
+              </button>
+            </div>
+
           </div>
         </div>
       )}
@@ -2725,10 +3477,16 @@ export default function DesignerPage() {
         <div className={styles.toolbarDivider} />
 
         {/* Actions */}
-        <button onClick={() => showToast("Draft saved")} className={styles.saveDraftBtn}>
+        <button onClick={() => {
+          showToast("Draft saved as JSON");
+          console.log("Draft pageTheme JSON:", generatePageJSON(sections));
+        }} className={styles.saveDraftBtn}>
           <Save size={11} /> Save Draft
         </button>
-        <button onClick={() => showToast("Page published!")} className={styles.publishBtn}>
+        <button onClick={() => setShowPublishModal(true)} className={styles.saveDraftBtn} style={{ background: "transparent", border: `1px solid ${HATHOR_ORANGE}`, color: HATHOR_ORANGE }}>
+          <FileJson size={11} /> View JSON
+        </button>
+        <button onClick={() => setShowPublishModal(true)} className={styles.publishBtn}>
           <Upload size={11} /> Publish
         </button>
       </div>
