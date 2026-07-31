@@ -1,0 +1,197 @@
+{
+  "info": {
+    "_postman_id": "9b12cfc3-8f0a-48d6-bd13-095166df870c",
+    "name": "Hathor Commerce Service API",
+    "description": "Collection to test the Hathor Commerce Service (Cart CRUD & Version Tracking) endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Liveness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/live",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "live"]
+            },
+            "description": "Verifies if the Commerce Service process is running."
+          },
+          "response": []
+        },
+        {
+          "name": "Readiness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
+            },
+            "description": "Verifies if the database connection and dependencies are ready."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart Operations",
+      "item": [
+        {
+          "name": "GET Active Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response has version and items\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"version\");",
+                  "    pm.expect(jsonData).to.have.property(\"items\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart"]
+            },
+            "description": "Fetches the caller's active cart. If the cart doesn't exist, it initializes it automatically with version 1."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Item to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 409\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 409]);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Response contains updated cart\", function () {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData).to.have.property(\"version\");",
+                  "        pm.expect(jsonData.items).to.be.an(\"array\");",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/:gameId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", ":gameId"],
+              "variable": [
+                {
+                  "key": "gameId",
+                  "value": "e0bfa9da-411a-4d7a-8f5c-8973a9e3d0c2",
+                  "description": "The UUID of the game catalog record to add to the cart."
+                }
+              ]
+            },
+            "description": "Adds a game catalog item to the caller's active cart. Increments cart version atomically. Rejects duplicates with 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Item from Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response contains updated cart\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"version\");",
+                  "    pm.expect(jsonData.items).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cart/:gameId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "cart", ":gameId"],
+              "variable": [
+                {
+                  "key": "gameId",
+                  "value": "e0bfa9da-411a-4d7a-8f5c-8973a9e3d0c2",
+                  "description": "The UUID of the game catalog record to remove from the cart."
+                }
+              ]
+            },
+            "description": "Removes a game catalog item from the caller's active cart. Increments cart version atomically on success."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ]
+}
