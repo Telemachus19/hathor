@@ -3,6 +3,8 @@ import express, { Request, Response, type Express } from 'express';
 import { eq, and, inArray, count } from 'drizzle-orm';
 import { catalogDb } from './infrastructure/db/client.js';
 import { games, tags, gameTags } from './infrastructure/db/schema.js';
+import adminRouter from './routes/admin.js';
+import creatorRouter from './routes/creator.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -11,6 +13,10 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
 
   app.use(cors());
   app.use(express.json());
+
+  app.use('/admin', adminRouter);
+  app.use('/creator', creatorRouter);
+
 
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({
