@@ -85,6 +85,34 @@ paths:
                         priceVersion: { type: string }
         '401': { description: Invalid service credential }
         '403': { description: Missing audience or scope }
+  /catalog/quotes/{gameId}:
+    get:
+      operationId: getCatalogQuoteByGameId
+      summary: Commerce or inter-service caller obtains single game authoritative quote snapshot.
+      security: [{ serviceBearer: [catalog.quote.read] }]
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Authoritative single game quote snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [gameId, title, sellable, priceEgp, currency, priceVersion]
+                properties:
+                  gameId: { type: string, format: uuid }
+                  title: { type: string }
+                  sellable: { type: boolean }
+                  priceEgp: { type: string, pattern: '^\d+\.\d{2}$' }
+                  currency: { type: string, const: EGP }
+                  priceVersion: { type: string }
+        '401': { description: Invalid service credential }
+        '403': { description: Missing audience or scope }
+        '404': { description: Game not found }
   /games/{gameId}/published-build:
     get:
       operationId: getPublishedBuild
