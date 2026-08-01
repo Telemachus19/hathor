@@ -4,6 +4,7 @@ import { Check, Download, Library } from 'lucide-react';
 export interface GameOwnershipBannerProps {
   s?: any;
   device?: 'desktop' | 'tablet' | 'mobile';
+  pageSettings?: any;
 }
 
 const GREEN_ACCENT = '#38d39f';

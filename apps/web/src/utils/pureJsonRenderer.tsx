@@ -74,14 +74,23 @@ function ComponentSectionWrapper({ s, children }: { s: any; children: React.Reac
   const rightPad = s.pr ?? s.ph ?? 0;
   const mb = s.mb ?? 32;
 
+  const bgImage = s.bgImage || s.section?.backgroundImage || (s.style?.section?.backgroundImage ? s.style.section.backgroundImage.replace(/^url\(["']?|["']?\)$/g, '') : undefined);
+  const bgSize = s.bgSize || s.section?.backgroundSize || s.style?.section?.backgroundSize || 'cover';
+  const bgPosition = s.bgPosition || s.section?.backgroundPosition || s.style?.section?.backgroundPosition || 'center center';
+  const bgRepeat = s.bgRepeat || s.section?.backgroundRepeat || s.style?.section?.backgroundRepeat || 'no-repeat';
+  const bgAttachment = s.bgAttachment || s.section?.backgroundAttachment || s.style?.section?.backgroundAttachment;
+  const bgOverlay = s.bgOverlay || s.section?.bgOverlay || s.style?.section?.bgOverlay;
+  const bgOverlayOpacity = s.bgOverlayOpacity ?? s.section?.bgOverlayOpacity ?? s.style?.section?.bgOverlayOpacity;
+
   return (
     <div
       style={{
-        backgroundColor: s.bg || 'transparent',
-        backgroundImage: s.bgImage ? `url("${s.bgImage}")` : undefined,
-        backgroundSize: s.bgSize || 'cover',
-        backgroundPosition: s.bgPosition || 'center center',
-        backgroundRepeat: s.bgRepeat || 'no-repeat',
+        backgroundColor: s.bg || s.section?.background || 'transparent',
+        backgroundImage: bgImage ? `url("${bgImage}")` : undefined,
+        backgroundSize: bgSize,
+        backgroundPosition: bgPosition,
+        backgroundRepeat: bgRepeat,
+        backgroundAttachment: bgAttachment,
         borderTop: s.borderTopColor ? `2px solid ${s.borderTopColor}` : 'none',
         position: 'relative',
         width: '100%',
@@ -94,33 +103,48 @@ function ComponentSectionWrapper({ s, children }: { s: any; children: React.Reac
         borderRadius: s.radius,
       }}
     >
-      {children}
+      {bgImage && (bgOverlay || bgOverlayOpacity !== undefined) && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: bgOverlay || 'rgba(0,0,0,0.5)',
+            opacity: bgOverlayOpacity ?? 0.5,
+            pointerEvents: 'none',
+            zIndex: 0
+          }}
+        />
+      )}
+      <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+        {children}
+      </div>
     </div>
   );
 }
 
-function ComponentNodeContent({ s, nodeKey }: { s: any; nodeKey: string | number }) {
+function ComponentNodeContent({ s, nodeKey, pageSettings }: { s: any; nodeKey: string | number; pageSettings?: any }) {
   const type = s.type;
+  const device = s.device || pageSettings?.device;
 
-  if (type === 'game-hero') return <GameDetailsHero key={nodeKey} s={s} />;
-  if (type === 'game-header') return <GameDetailsHeader key={nodeKey} s={s} />;
-  if (type === 'ownership-banner') return <GameOwnershipBanner key={nodeKey} s={s} />;
-  if (type === 'about-game') return <GameAbout key={nodeKey} s={s} />;
-  if (type === 'system-reqs') return <GameSystemReqs key={nodeKey} s={s} />;
-  if (type === 'user-reviews') return <GameReviews key={nodeKey} s={s} />;
-  if (type === 'sidebar-cta') return <GameSidebarCta key={nodeKey} s={s} />;
-  if (type === 'sidebar-info') return <GameSidebarInfo key={nodeKey} s={s} />;
-  if (type === 'sidebar-ratings') return <GameSidebarRatings key={nodeKey} s={s} />;
-  if (type === 'sidebar-community') return <GameSidebarCommunity key={nodeKey} s={s} />;
-  if (type === 'recommendations') return <MoreLikeThis key={nodeKey} s={s} />;
-  if (type === 'carousel') return <GameCarousel key={nodeKey} s={s} />;
-  if (type === 'features') return <GameFeatures key={nodeKey} s={s} />;
-  if (type === 'two-col') return <GameTwoCol key={nodeKey} s={s} />;
-  if (type === 'cta') return <GameCtaBlock key={nodeKey} s={s} />;
-  if (type === 'heading') return <HeadingRenderer key={nodeKey} s={s} />;
-  if (type === 'text') return <TextRenderer key={nodeKey} s={s} />;
+  if (type === 'game-hero') return <GameDetailsHero key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'game-header') return <GameDetailsHeader key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'ownership-banner') return <GameOwnershipBanner key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'about-game') return <GameAbout key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'system-reqs') return <GameSystemReqs key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'user-reviews') return <GameReviews key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'sidebar-cta') return <GameSidebarCta key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'sidebar-info') return <GameSidebarInfo key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'sidebar-ratings') return <GameSidebarRatings key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'sidebar-community') return <GameSidebarCommunity key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'recommendations') return <MoreLikeThis key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'carousel') return <GameCarousel key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'features') return <GameFeatures key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'two-col') return <GameTwoCol key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'cta') return <GameCtaBlock key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'heading') return <HeadingRenderer key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'text') return <TextRenderer key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'image') return <ImageRenderer key={nodeKey} s={s} />;
-  if (type === 'button') return <ButtonRenderer key={nodeKey} s={s} />;
+  if (type === 'button') return <ButtonRenderer key={nodeKey} s={s} pageSettings={pageSettings} />;
   if (type === 'divider') return <DividerRenderer key={nodeKey} s={s} />;
   if (type === 'spacer') return <SpacerRenderer key={nodeKey} s={s} />;
 
@@ -130,24 +154,47 @@ function ComponentNodeContent({ s, nodeKey }: { s: any; nodeKey: string | number
     const gridGap = s.gridGap || 24;
 
     const colCount = gridCols.length || 2;
+    const isMobileDevice = pageSettings?.device === 'mobile';
+
     let templateCss = `repeat(${colCount}, 1fr)`;
     if (templateStr === '2:1') templateCss = '2fr 1fr';
     if (templateStr === '1:2') templateCss = '1fr 2fr';
     if (templateStr === '1:2:1') templateCss = '1fr 2fr 1fr';
 
+    if (isMobileDevice) {
+      templateCss = '1fr';
+    }
+
     return (
-      <div key={nodeKey} style={{ display: 'grid', gridTemplateColumns: templateCss, gap: gridGap, width: '100%', boxSizing: 'border-box' }}>
+      <div
+        key={nodeKey}
+        className="hathor-pure-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: templateCss,
+          gap: gridGap,
+          width: '100%',
+          boxSizing: 'border-box'
+        }}
+      >
+        <style>{`
+          @media (max-width: 900px) {
+            .hathor-pure-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
         {gridCols.map((col: any, cIdx: number) => {
           const colStyle = col.style?.column || {};
           const colBg = colStyle.background || col.bg || 'transparent';
           const colElements = col.children ? Object.values(col.children) : col.elements || [];
 
           return (
-            <div key={col.id || cIdx} style={{ background: colBg, borderRadius: 4, padding: col.ph || 0, boxSizing: 'border-box', width: '100%' }}>
+            <div key={col.id || cIdx} style={{ background: colBg, borderRadius: 4, padding: col.ph || 0, boxSizing: 'border-box', width: '100%', minWidth: 0 }}>
               {Array.isArray(colElements) ? colElements.map((el: any, eIdx: number) => (
-                <ComponentNodeRenderer key={el.id || eIdx} node={el} nodeKey={`${nodeKey}-col${cIdx}-el${eIdx}`} />
+                <ComponentNodeRenderer key={el.id || eIdx} node={el} nodeKey={`${nodeKey}-col${cIdx}-el${eIdx}`} pageSettings={pageSettings} />
               )) : Object.entries(colElements).map(([elKey, elVal]) => (
-                <ComponentNodeRenderer key={elKey} node={elVal} nodeKey={elKey} />
+                <ComponentNodeRenderer key={elKey} node={elVal} nodeKey={elKey} pageSettings={pageSettings} />
               ))}
             </div>
           );
@@ -159,11 +206,11 @@ function ComponentNodeContent({ s, nodeKey }: { s: any; nodeKey: string | number
   return <div key={nodeKey} />;
 }
 
-function ComponentNodeRenderer({ node, nodeKey }: { node: any; nodeKey: string | number }) {
+function ComponentNodeRenderer({ node, nodeKey, pageSettings }: { node: any; nodeKey: string | number; pageSettings?: any }) {
   const s = normalizeNode(node);
   return (
     <ComponentSectionWrapper s={s}>
-      <ComponentNodeContent s={s} nodeKey={nodeKey} />
+      <ComponentNodeContent s={s} nodeKey={nodeKey} pageSettings={pageSettings} />
     </ComponentSectionWrapper>
   );
 }
@@ -171,9 +218,10 @@ function ComponentNodeRenderer({ node, nodeKey }: { node: any; nodeKey: string |
 /**
  * Pure JSON-to-React Node Renderer with ZERO assumptions & ZERO infinite recursion.
  */
-export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number }> = ({
+export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number; pageSettings?: any }> = ({
   node,
   nodeKey,
+  pageSettings,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -187,7 +235,7 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number }> = (
     return (
       <>
         {node.map((child, idx) => (
-          <PureJsonNode key={`${nodeKey}-${idx}`} node={child} nodeKey={`${nodeKey}-${idx}`} />
+          <PureJsonNode key={`${nodeKey}-${idx}`} node={child} nodeKey={`${nodeKey}-${idx}`} pageSettings={pageSettings} />
         ))}
       </>
     );
@@ -195,7 +243,7 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number }> = (
 
   if (typeof node === 'object') {
     if (node.component || node.type) {
-      return <ComponentNodeRenderer node={node} nodeKey={nodeKey} />;
+      return <ComponentNodeRenderer node={node} nodeKey={nodeKey} pageSettings={pageSettings} />;
     }
 
     const Tag = node.tag || 'div';
@@ -221,7 +269,7 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number }> = (
 
     const children =
       node.children !== undefined ? (
-        <PureJsonNode node={node.children} nodeKey={`${nodeKey}-c`} />
+        <PureJsonNode node={node.children} nodeKey={`${nodeKey}-c`} pageSettings={pageSettings} />
       ) : null;
 
     return React.createElement(Tag, props, children);
@@ -233,8 +281,9 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number }> = (
 /**
  * Parses raw string JSON or object JSON and converts it directly to React elements with 100% 1:1 component mapping.
  */
-export function parseAndRenderPureJson(jsonInput: string | Record<string, any>): React.ReactNode[] {
+export function parseAndRenderPureJson(jsonInput: string | Record<string, any>, overrideDevice?: string): React.ReactNode[] {
   let parsed: Record<string, any>;
+  let pageSettings: any = undefined;
 
   if (typeof jsonInput === 'string') {
     try {
@@ -258,17 +307,25 @@ export function parseAndRenderPureJson(jsonInput: string | Record<string, any>):
     return [];
   }
 
+  if (parsed.pageBody) {
+    pageSettings = parsed.pageBody;
+  }
+
+  if (overrideDevice) {
+    pageSettings = { ...(pageSettings || {}), device: overrideDevice };
+  }
+
   if (parsed.layout && typeof parsed.layout === 'object') {
     parsed = parsed.layout;
   }
 
   if (Array.isArray(parsed)) {
     return parsed.map((item, idx) => (
-      <PureJsonNode key={`node-${idx}`} node={item} nodeKey={`node-${idx}`} />
+      <PureJsonNode key={`node-${idx}`} node={item} nodeKey={`node-${idx}`} pageSettings={pageSettings} />
     ));
   }
 
   return Object.entries(parsed).map(([key, val]) => (
-    <PureJsonNode key={key} node={val} nodeKey={key} />
+    <PureJsonNode key={key} node={val} nodeKey={key} pageSettings={pageSettings} />
   ));
 }

@@ -6,6 +6,7 @@ export interface GameDetailsHeroProps {
   s?: any;
   images?: string[];
   device?: 'desktop' | 'tablet' | 'mobile';
+  pageSettings?: any;
 }
 
 const HATHOR_ORANGE = '#f26b21';

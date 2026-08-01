@@ -145,6 +145,7 @@ export function getGameDataForSlug(slug?: string) {
 
 export interface GameDetailsPageProps {
   slug?: string;
+  device?: 'desktop' | 'tablet' | 'mobile';
   themeConfig?:
     | {
         theme?: 'default' | 'custom';
@@ -159,7 +160,7 @@ type ThemeMode = 'default' | 'cyberpunk' | 'fantasy' | 'retro' | 'minimal' | 'sc
 /**
  * GameDetailsPage orchestrator located inside src/routes/game-details/.
  */
-export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeConfig }) => {
+export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeConfig, device }) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated ?? false;
   const [activeThemeMode] = useState<ThemeMode>('default');
@@ -206,6 +207,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
   };
 
   const themeInfo = getThemeInfo();
+  const activeDevice = device || themeInfo.pageBody?.device || 'desktop';
+  const isMobileLayout = activeDevice === 'mobile' || activeDevice === 'tablet';
+
   const isDefaultTheme =
     themeInfo.theme === 'default' ||
     !themeInfo.layout ||
@@ -255,6 +259,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
     backgroundSize: themeInfo.pageBody.bgSize || 'cover',
     backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
     backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
+    backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
   } : {};
 
   return (
@@ -270,9 +275,15 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       {/* RENDER THEME MODE */}
       {isDefaultTheme ? (
         <>
-          <GameDetailsHero images={currentGameData.heroImages} />
-          <div className={styles.mainContainer}>
-            <div className={styles.layoutGrid}>
+          <GameDetailsHero images={currentGameData.heroImages} device={activeDevice} pageSettings={themeInfo.pageBody} />
+          <div className={styles.mainContainer} style={{ padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined }}>
+            <div
+              className={styles.layoutGrid}
+              style={{
+                gridTemplateColumns: isMobileLayout ? '1fr' : undefined,
+                gap: isMobileLayout ? '1.5rem' : '2.5rem',
+              }}
+            >
               <div className={styles.mainColumn}>
                 <GameDetailsHeader
                   title={currentGameData.title}
@@ -284,17 +295,23 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                   releaseDate={currentGameData.releaseDate}
                   tags={currentGameData.tags}
                   description={currentGameData.shortDescription}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
                 />
-                {isAuthenticated && <GameOwnershipBanner />}
-                <GameAbout sections={activeAboutSections} />
+                {isAuthenticated && <GameOwnershipBanner device={activeDevice} pageSettings={themeInfo.pageBody} />}
+                <GameAbout sections={activeAboutSections} device={activeDevice} pageSettings={themeInfo.pageBody} />
                 <GameSystemReqs
                   minimum={currentGameData.systemReqs.minimum}
                   recommended={currentGameData.systemReqs.recommended}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
                 />
                 <GameReviews
                   score={currentGameData.ratingScore}
                   totalReviews={currentGameData.totalReviews}
                   reviews={currentGameData.userReviews}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
                 />
               </div>
               <div className={styles.sidebarColumn}>
@@ -309,15 +326,16 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                   platforms={currentGameData.platforms}
                   ratingsBreakdown={currentGameData.ratingsBreakdown}
                   communityStats={currentGameData.communityStats}
+                  device={activeDevice}
                 />
               </div>
             </div>
-            <MoreLikeThis games={currentGameData.moreLikeThisGames} />
+            <MoreLikeThis games={currentGameData.moreLikeThisGames} device={activeDevice} pageSettings={themeInfo.pageBody} />
           </div>
         </>
       ) : (
-        <div className={styles.mainContainer} style={{ paddingTop: '2.5rem' }}>
-          {parseAndRenderPureJson(themeInfo.layout)}
+        <div className={styles.mainContainer} style={{ paddingTop: '2.5rem', padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined }}>
+          {parseAndRenderPureJson(themeInfo.layout, activeDevice)}
         </div>
       )}
     </div>

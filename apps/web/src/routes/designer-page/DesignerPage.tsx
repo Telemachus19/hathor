@@ -125,6 +125,11 @@ export type ElementType =
 export interface GridElement {
   id: string;
   type: ElementType;
+  pt?: number;
+  pb?: number;
+  ph?: number;
+  pl?: number;
+  pr?: number;
   text?: string;
   font?: string;
   size?: number;
@@ -279,10 +284,12 @@ interface FeatureItem { icon: string; title: string; desc: string; color: string
 
 export interface PageSettings {
   bg: string;
+  device?: Device;
   bgImage?: string;
   bgSize?: string;
   bgPosition?: string;
   bgRepeat?: string;
+  bgAttachment?: string;
   bgOverlay?: string;
   bgOverlayOpacity?: number;
   titleFont?: string;
@@ -300,6 +307,7 @@ export const DEFAULT_PAGE_SETTINGS: PageSettings = {
   bgSize: "cover",
   bgPosition: "center center",
   bgRepeat: "no-repeat",
+  bgAttachment: "scroll",
   bgOverlay: "transparent",
   bgOverlayOpacity: 0,
   titleFont: "'Cinzel', serif",
@@ -313,7 +321,7 @@ export const DEFAULT_PAGE_SETTINGS: PageSettings = {
 
 interface Section {
   id: string; type: SectionType;
-  bg: string; bgImage?: string; bgSize?: string; bgPosition?: string; bgRepeat?: string; bgOverlay?: string; bgOverlayOpacity?: number; overlay: number;
+  bg: string; bgImage?: string; bgSize?: string; bgPosition?: string; bgRepeat?: string; bgAttachment?: string; bgOverlay?: string; bgOverlayOpacity?: number; overlay: number;
   pt: number; pb: number; ph: number; pl?: number; pr?: number; mb?: number; radius: number;
   borderTopColor?: string;
   // Game Hero
@@ -398,6 +406,7 @@ function createGridElement(type: ElementType): GridElement {
   switch (type) {
     case "game-header": return {
       id, type,
+      pt: 0, pb: 0, pl: 0, pr: 0,
       gameCategory: "ACTION RPG", gameTitle: "ELDEN THRONE", gameSubtitle: "SHATTERED LANDS EDITION",
       gameRatingScore: 9.4, gameReviewCount: "14.2k Reviews", gameDev: "Omegabyte Studios", gameReleaseDate: "March 15, 2025",
       gameTags: ["OPEN WORLD", "SOULSLIKE", "DARK FANTASY", "SINGLE PLAYER", "RPG", "ATMOSPHERIC"],
@@ -405,11 +414,13 @@ function createGridElement(type: ElementType): GridElement {
     };
     case "ownership-banner": return {
       id, type,
+      pt: 12, pb: 12, pl: 16, pr: 16,
       ownershipStatus: "YOU OWN THIS GAME", ownershipSub: "Purchased Jun 10, 2025 • Available in your library",
       ownershipBtn1: "DOWNLOAD", ownershipBtn2: "GO TO LIBRARY"
     };
     case "about-game": return {
       id, type, aboutTitle: "ABOUT THIS GAME",
+      pt: 16, pb: 16, pl: 16, pr: 16,
       aboutSections: [
         { title: "A KINGDOM IN RUIN", text: "The First Realm has fallen. Once proud bastions of civilization now lie buried beneath ash and shadow. As an Elden-seeker, your journey will take you across vast broken continents to claim ancient relics." },
         { title: "OPEN WORLD, OPEN CONSEQUENCE", text: "Explore interconnected dungeons, forgotten ruins, and dynamic storm zones. Every decision alters local factions and shapes the world's ultimate fate.", img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop" },
@@ -419,11 +430,13 @@ function createGridElement(type: ElementType): GridElement {
     };
     case "system-reqs": return {
       id, type,
+      pt: 16, pb: 16, pl: 16, pr: 16,
       reqsMin: { os: "Windows 10 (64-bit)", cpu: "Intel Core i5-8400 / AMD Ryzen 5 2600", ram: "12 GB RAM", gpu: "NVIDIA GeForce GTX 1070 (8GB) / AMD Radeon RX 590", storage: "85 GB Available Space" },
       reqsRec: { os: "Windows 11 (64-bit)", cpu: "Intel Core i7-12700K / AMD Ryzen 7 7800X3D", ram: "16 GB RAM", gpu: "NVIDIA GeForce RTX 4070 (12GB) / AMD Radeon RX 7800 XT", storage: "85 GB NVMe SSD" }
     };
     case "user-reviews": return {
       id, type,
+      pt: 16, pb: 16, pl: 16, pr: 16,
       reviewHeader: "USER REVIEWS",
       reviewCardBg: "#181c24",
       reviewCardBorder: BORDER,
@@ -1690,13 +1703,14 @@ function BlockPalette({ onAdd, onAddGridWithCols }: { onAdd: (type: SectionType 
 }
 
 // ── Properties Panel (Universal for Top-Level Sections & Grid Elements) ───────
-function PropertiesPanel({ section, selectedColIdx, selectedElementId: propElementId, onChange, pageSettings, onPageSettingsChange }: {
+function PropertiesPanel({ section, selectedColIdx, selectedElementId: propElementId, onChange, pageSettings, onPageSettingsChange, onDeselectAll }: {
   section: Section | null;
   selectedColIdx?: number | null;
   selectedElementId?: string | null;
   onChange: (id: string, updates: Partial<Section>, skipHistory?: boolean) => void;
   pageSettings?: PageSettings;
   onPageSettingsChange?: (ps: PageSettings) => void;
+  onDeselectAll?: () => void;
 }) {
   const [gridColIdx, setGridColIdx] = useState<number>(selectedColIdx ?? 0);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(propElementId ?? null);
@@ -1720,9 +1734,12 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
     return (
       <div className={styles.rightSidebar}>
-        <div className={styles.propsHeader}>
-          <Monitor size={14} style={{ color: HATHOR_ORANGE }} />
-          <span>Page Body & Global Canvas</span>
+        <div className={styles.propsHeader} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <Monitor size={14} style={{ color: HATHOR_ORANGE }} />
+            <span>Page Body & Global Canvas</span>
+          </div>
+          <span style={{ fontSize: 9, fontWeight: 700, opacity: 0.6, background: "rgba(255,255,255,0.06)", padding: "2px 6px", borderRadius: 3 }}>Active</span>
         </div>
 
         <div style={{ flex: 1, overflowY: "auto" }}>
@@ -1952,9 +1969,33 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
   return (
     <div className={styles.rightSidebar}>
-      <div className={styles.propsHeader}>
-        <Icon size={14} style={{ color: HATHOR_ORANGE }} />
-        <span>{isEditingGridElement ? `Element: ${activeElement?.type}` : BLOCK_META[s.type]?.label}</span>
+      <div className={styles.propsHeader} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Icon size={14} style={{ color: HATHOR_ORANGE }} />
+          <span>{isEditingGridElement ? `Element: ${activeElement?.type}` : BLOCK_META[s.type]?.label}</span>
+        </div>
+        {onDeselectAll && (
+          <button
+            onClick={onDeselectAll}
+            title="Deselect element to edit Page Body"
+            style={{
+              background: "rgba(242, 107, 33, 0.15)",
+              border: `1px solid ${HATHOR_ORANGE}`,
+              color: HATHOR_ORANGE,
+              fontSize: 10,
+              fontWeight: 700,
+              padding: "4px 8px",
+              borderRadius: 3,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4
+            }}
+          >
+            <Monitor size={10} />
+            Page Settings
+          </button>
+        )}
       </div>
 
       <div style={{ flex: 1, overflowY: "auto" }}>
@@ -1978,10 +2019,22 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
                     value={s.bgSize || "cover"}
                     onChange={v => u({ bgSize: v })}
                     options={[
-                      { label: "Cover (Scale to Fill)", value: "cover" },
+                      { label: "Cover (Scale to Fill Container)", value: "cover" },
+                      { label: "Fit Width & Scrollable Tall Artwork (100% auto)", value: "100% auto" },
                       { label: "Contain (Scale to Fit)", value: "contain" },
                       { label: "Stretch (100% 100%)", value: "100% 100%" },
                       { label: "Auto (Original Size)", value: "auto" },
+                    ]}
+                  />
+                </PropRow>
+
+                <PropRow label="Background Scroll Behavior">
+                  <SelField
+                    value={s.bgAttachment || (s.bgSize === "100% auto" ? "scroll" : "scroll")}
+                    onChange={v => u({ bgAttachment: v })}
+                    options={[
+                      { label: "Scroll (Document Attached - Scrolls with Page)", value: "scroll" },
+                      { label: "Fixed (Viewport Anchored - Static Screen)", value: "fixed" },
                     ]}
                   />
                 </PropRow>
@@ -2166,20 +2219,42 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
         {/* ── GAME HEADER ── */}
         {targetObj.type === "game-header" && (
-          <PropSection title="Game Header Settings">
+          <PropSection title="Game Header Design & Styling">
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE }}>Typography & Fonts</p>
+            <PropRow label="Title Font"><SelField value={targetObj.titleFont || targetObj.font || "'Cinzel', serif"} onChange={v => updateTarget({ titleFont: v, font: v })} options={FONTS} /></PropRow>
+            <PropRow label="Subtitle & Badge Font"><SelField value={targetObj.subtitleFont || "'Cinzel', serif"} onChange={v => updateTarget({ subtitleFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Body & Text Font"><SelField value={targetObj.textFont || "'Raleway', sans-serif"} onChange={v => updateTarget({ textFont: v })} options={FONTS} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Color Palette & Accents</p>
+            <PropRow label="Title Color"><ColorField value={targetObj.titleColor || "#ffffff"} onChange={v => updateTarget({ titleColor: v })} /></PropRow>
+            <PropRow label="Subtitle & Badge Color"><ColorField value={targetObj.subtitleColor || targetObj.badgeColor || HATHOR_ORANGE} onChange={v => updateTarget({ subtitleColor: v, badgeColor: v })} /></PropRow>
+            <PropRow label="Star Rating Color"><ColorField value={targetObj.starColor || HATHOR_ORANGE} onChange={v => updateTarget({ starColor: v })} /></PropRow>
+            <PropRow label="Tag Badges Background"><ColorField value={targetObj.tagBg || "rgba(255, 255, 255, 0.05)"} onChange={v => updateTarget({ tagBg: v })} /></PropRow>
+            <PropRow label="Tag Badges Text Color"><ColorField value={targetObj.tagColor || TEXT_MUTED} onChange={v => updateTarget({ tagColor: v })} /></PropRow>
+            <PropRow label="Tag Badges Border Color"><ColorField value={targetObj.tagBorder || BORDER} onChange={v => updateTarget({ tagBorder: v })} /></PropRow>
+            <PropRow label="Synopsis Text Color"><ColorField value={targetObj.descColor || TEXT_MUTED} onChange={v => updateTarget({ descColor: v })} /></PropRow>
+            <PropRow label="Synopsis Left Accent Line"><ColorField value={targetObj.descBorderColor || HATHOR_ORANGE} onChange={v => updateTarget({ descBorderColor: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Container Padding & Card Styling</p>
+            <PropRow label="Card Background Color"><ColorField value={targetObj.headerBg || "transparent"} onChange={v => updateTarget({ headerBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Card Border Color"><ColorField value={targetObj.headerBorder || "transparent"} onChange={v => updateTarget({ headerBorder: v })} /></PropRow>
+            <PropRow label="Card Radius"><NumField value={targetObj.headerRadius ?? 0} onChange={v => updateTarget({ headerRadius: v })} unit="px" max={40} /></PropRow>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+              <PropRow label="Pad Top"><NumField value={targetObj.pt ?? targetObj.headerPadTop ?? 0} onChange={v => updateTarget({ pt: v, headerPadTop: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Bottom"><NumField value={targetObj.pb ?? targetObj.headerPadBottom ?? 0} onChange={v => updateTarget({ pb: v, headerPadBottom: v })} unit="px" max={200} /></PropRow>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <PropRow label="Pad Left"><NumField value={targetObj.pl ?? targetObj.ph ?? targetObj.headerPadLeft ?? 0} onChange={v => updateTarget({ pl: v, ph: v, headerPadLeft: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Right"><NumField value={targetObj.pr ?? targetObj.ph ?? targetObj.headerPadRight ?? 0} onChange={v => updateTarget({ pr: v, ph: v, headerPadRight: v })} unit="px" max={200} /></PropRow>
+            </div>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Store Listing Overrides (Preview)</p>
             <PropRow label="Category / Genre Badge"><TxtInput value={targetObj.gameCategory || ""} onChange={v => updateTarget({ gameCategory: v })} placeholder="ACTION RPG" /></PropRow>
             <PropRow label="Game Title"><TxtInput value={targetObj.gameTitle || ""} onChange={v => updateTarget({ gameTitle: v })} /></PropRow>
             <PropRow label="Subtitle / Tagline"><TxtInput value={targetObj.gameSubtitle || ""} onChange={v => updateTarget({ gameSubtitle: v })} placeholder="Optional tagline..." /></PropRow>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              <PropRow label="Rating Score"><NumField value={targetObj.gameRatingScore || 9.4} onChange={v => updateTarget({ gameRatingScore: v })} min={0} max={10} step={0.1} /></PropRow>
-              <PropRow label="Review Count"><TxtInput value={targetObj.gameReviewCount || "14.2k Reviews"} onChange={v => updateTarget({ gameReviewCount: v })} /></PropRow>
-            </div>
-            <PropRow label="Developer Name"><TxtInput value={targetObj.gameDev || ""} onChange={v => updateTarget({ gameDev: v })} /></PropRow>
-            <PropRow label="Release Date"><TxtInput value={targetObj.gameReleaseDate || ""} onChange={v => updateTarget({ gameReleaseDate: v })} /></PropRow>
-            <PropRow label="Tags (comma separated)">
-              <TxtInput value={(targetObj.gameTags || []).join(", ")} onChange={v => updateTarget({ gameTags: v.split(",").map((t: string) => t.trim()).filter(Boolean) })} placeholder="OPEN WORLD, SOULSLIKE, DARK FANTASY" />
-            </PropRow>
-            <PropRow label="Synopsis Description"><TxtArea value={targetObj.gameDesc || ""} onChange={v => updateTarget({ gameDesc: v })} rows={4} /></PropRow>
+            <PropRow label="Tags (comma separated)"><TxtInput value={(targetObj.gameTags || []).join(", ")} onChange={v => updateTarget({ gameTags: v.split(",").map((t: string) => t.trim()).filter(Boolean) })} placeholder="OPEN WORLD, SOULSLIKE" /></PropRow>
+            <PropRow label="Synopsis Description"><TxtArea value={targetObj.gameDesc || ""} onChange={v => updateTarget({ gameDesc: v })} rows={3} /></PropRow>
           </PropSection>
         )}
 
@@ -2650,6 +2725,32 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
           </PropSection>
         )}
 
+        {onDeselectAll && (
+          <div style={{ padding: "16px", borderTop: `1px solid ${BORDER}`, marginTop: "16px" }}>
+            <button
+              onClick={onDeselectAll}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                background: "rgba(242, 107, 33, 0.12)",
+                border: `1px solid ${HATHOR_ORANGE}`,
+                color: HATHOR_ORANGE,
+                fontSize: 11,
+                fontWeight: 700,
+                borderRadius: 4,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6
+              }}
+            >
+              <Monitor size={12} />
+              Deselect & Edit Page Body Settings (Esc)
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   );
@@ -2685,6 +2786,13 @@ function getComponentStyles(s: any): Record<string, any> {
   const stylesObj: Record<string, any> = {
     section: {
       background: s.bg || "transparent",
+      backgroundImage: s.bgImage ? `url("${s.bgImage}")` : undefined,
+      backgroundSize: s.bgSize || "cover",
+      backgroundPosition: s.bgPosition || "center center",
+      backgroundRepeat: s.bgRepeat || "no-repeat",
+      backgroundAttachment: s.bgAttachment || (s.bgSize === "100% auto" ? "scroll" : undefined),
+      bgOverlay: s.bgOverlay,
+      bgOverlayOpacity: s.bgOverlayOpacity,
       paddingTop: `${s.pt || 0}px`,
       paddingBottom: `${s.pb || 0}px`,
       paddingLeft: `${s.ph || 0}px`,
@@ -2763,51 +2871,8 @@ function getComponentStyles(s: any): Record<string, any> {
 }
 
 function getComponentChildren(s: any): Record<string, any> {
-  switch (s.type) {
-    case "game-hero":
-      return { heroImages: s.heroImages || [], heroHeight: s.heroHeight || 480, showThumbnails: s.showThumbnails ?? true };
-    case "game-header":
-      return { gameCategory: s.gameCategory, gameTitle: s.gameTitle, gameSubtitle: s.gameSubtitle, gameRatingScore: s.gameRatingScore, gameReviewCount: s.gameReviewCount, gameDev: s.gameDev, gameReleaseDate: s.gameReleaseDate, gameTags: s.gameTags, gameDesc: s.gameDesc };
-    case "ownership-banner":
-      return { ownershipStatus: s.ownershipStatus, ownershipSub: s.ownershipSub, ownershipBtn1: s.ownershipBtn1, ownershipBtn2: s.ownershipBtn2 };
-    case "about-game":
-      return { aboutTitle: s.aboutTitle, aboutSections: s.aboutSections };
-    case "system-reqs":
-      return { reqsMin: s.reqsMin, reqsRec: s.reqsRec };
-    case "user-reviews":
-      return { reviewHeader: s.reviewHeader };
-    case "sidebar-cta":
-      return { sidebarPrice: s.sidebarPrice, sidebarDiscount: s.sidebarDiscount, sidebarOwned: s.sidebarOwned };
-    case "sidebar-info":
-      return { sideDev: s.sideDev, sidePub: s.sidePub, sideDate: s.sideDate, sideGenre: s.sideGenre, sidePlatforms: s.sidePlatforms };
-    case "sidebar-ratings":
-      return { sideRatings: s.sideRatings };
-    case "sidebar-community":
-      return { sideOwners: s.sideOwners, sidePositive: s.sidePositive };
-    case "recommendations":
-      return { recsTitle: s.recsTitle, recsCount: s.recsCount };
-    case "text":
-    case "heading":
-      return { text: s.textContent || s.text };
-    case "image":
-      return { imageSrc: s.imageSrc, imageAlt: s.imageAlt, imageMaxWidth: s.imageMaxWidth, imageRadius: s.imageRadius };
-    case "carousel":
-      return { carouselImages: s.carouselImages, carouselHeight: s.carouselHeight, showThumbnails: s.showThumbnails ?? true };
-    case "features":
-      return { featuresTitle: s.featuresTitle, featuresCols: s.featuresCols, featuresItems: s.featuresItems };
-    case "two-col":
-      return { twoColRatio: s.twoColRatio, twoColGap: s.twoColGap, twoColLeftText: s.twoColLeftText, twoColRightImg: s.twoColRightImg };
-    case "cta":
-      return { ctaTitle: s.ctaTitle, ctaSubtitle: s.ctaSubtitle, ctaPrice: s.ctaPrice, ctaBtnText: s.ctaBtnText };
-    case "divider":
-      return { dividerColor: s.dividerColor, dividerThickness: s.dividerThickness, dividerWidth: s.dividerWidth };
-    case "spacer":
-      return { spacerHeight: s.spacerHeight };
-    case "button":
-      return { btnText: s.btnText, btnIcon: s.btnIcon, fullWidth: s.fullWidth };
-    default:
-      return {};
-  }
+  const { id, style, children, gridCols, ...restProps } = s;
+  return restProps;
 }
 
 export function generateDefaultLayoutJSON(sections: Section[]): Record<string, any> {
@@ -2976,9 +3041,22 @@ export default function DesignerPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedColIdx, setSelectedColIdx] = useState<number | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedId(null);
+        setSelectedColIdx(null);
+        setSelectedElementId(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
   const [showModal, setShowModal] = useState<boolean>(true);
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
+  const [previewDevice, setPreviewDevice] = useState<Device>("desktop");
 
   const [device, setDevice] = useState<Device>("desktop");
   const [gameTitle, setGameTitle] = useState("ELDEN THRONE");
@@ -3311,7 +3389,7 @@ export default function DesignerPage() {
           display: "flex", flexDirection: "column", overflow: "hidden"
         }}>
           <div style={{
-            height: 50, background: "#141820", borderBottom: `1px solid ${BORDER}`,
+            height: 52, background: "#141820", borderBottom: `1px solid ${BORDER}`,
             padding: "0 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -3323,14 +3401,48 @@ export default function DesignerPage() {
               </span>
             </div>
 
+            {/* Preview Responsive Device Switcher */}
+            <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(0,0,0,0.4)", padding: 3, borderRadius: 6, border: `1px solid ${BORDER}` }}>
+              <button
+                onClick={() => setPreviewDevice("desktop")}
+                style={{
+                  padding: "4px 10px",
+                  background: previewDevice === "desktop" ? HATHOR_ORANGE : "transparent",
+                  color: previewDevice === "desktop" ? "#fff" : TEXT_MUTED,
+                  border: "none", borderRadius: 4, fontSize: 10, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 5
+                }}
+              >
+                <Monitor size={12} /> Desktop
+              </button>
+              <button
+                onClick={() => setPreviewDevice("tablet")}
+                style={{
+                  padding: "4px 10px",
+                  background: previewDevice === "tablet" ? HATHOR_ORANGE : "transparent",
+                  color: previewDevice === "tablet" ? "#fff" : TEXT_MUTED,
+                  border: "none", borderRadius: 4, fontSize: 10, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 5
+                }}
+              >
+                <Tablet size={12} /> Tablet (768px)
+              </button>
+              <button
+                onClick={() => setPreviewDevice("mobile")}
+                style={{
+                  padding: "4px 10px",
+                  background: previewDevice === "mobile" ? HATHOR_ORANGE : "transparent",
+                  color: previewDevice === "mobile" ? "#fff" : TEXT_MUTED,
+                  border: "none", borderRadius: 4, fontSize: 10, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 5
+                }}
+              >
+                <Smartphone size={12} /> Mobile (375px)
+              </button>
+            </div>
+
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: 10, color: HATHOR_ORANGE, fontWeight: 700, fontFamily: "monospace" }}>
-                Rendering Store Page JSON Schema
-              </span>
               <button
                 onClick={() => setShowPreviewModal(false)}
                 style={{
-                  background: HATHOR_ORANGE, border: "none", color: "#fff",
+                  background: "rgba(255,255,255,0.08)", border: `1px solid ${BORDER}`, color: "#fff",
                   padding: "6px 14px", borderRadius: 4, fontWeight: 800, fontSize: 11,
                   cursor: "pointer", display: "flex", alignItems: "center", gap: 6
                 }}
@@ -3340,12 +3452,23 @@ export default function DesignerPage() {
             </div>
           </div>
 
-          <div style={{ flex: 1, overflowY: "auto" }}>
-            <GameDetailsPage themeConfig={generatePageJSON(sections, pageSettings)} />
+          <div style={{ flex: 1, overflowY: "auto", background: "#06080b", padding: previewDevice === "desktop" ? 0 : "24px 0", display: "flex", justifyContent: "center" }}>
+            <div style={{
+              width: "100%",
+              maxWidth: previewDevice === "mobile" ? 375 : previewDevice === "tablet" ? 768 : "100%",
+              minHeight: "100%",
+              boxShadow: previewDevice === "desktop" ? "none" : "0 0 50px rgba(0,0,0,0.8)",
+              borderLeft: previewDevice === "desktop" ? "none" : `1px solid ${BORDER}`,
+              borderRight: previewDevice === "desktop" ? "none" : `1px solid ${BORDER}`,
+              transition: "all 0.25s ease",
+              boxSizing: "border-box"
+            }}>
+              <GameDetailsPage themeConfig={generatePageJSON(sections, { ...pageSettings, device: previewDevice })} />
+            </div>
           </div>
         </div>,
         document.body
-      )}
+      ) }
 
       {/* Toast */}
       {toast && (
@@ -3515,6 +3638,11 @@ export default function DesignerPage() {
           onChange={updateSection}
           pageSettings={pageSettings}
           onPageSettingsChange={setPageSettings}
+          onDeselectAll={() => {
+            setSelectedId(null);
+            setSelectedColIdx(null);
+            setSelectedElementId(null);
+          }}
         />
       </div>
     </div>

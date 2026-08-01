@@ -52,7 +52,7 @@ export const ImageRenderer: React.FC<{ s?: any }> = ({ s = {} }) => {
   );
 };
 
-export const ButtonRenderer: React.FC<{ s?: any }> = ({ s = {} }) => {
+export const ButtonRenderer: React.FC<{ s?: any; pageSettings?: any }> = ({ s = {} }) => {
   return (
     <button style={{
       background: s.btnBg || GREEN_ACCENT,

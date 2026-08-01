@@ -39,30 +39,63 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
 
   const titleSize = device === 'mobile' ? 24 : device === 'tablet' ? 32 : (s.titleSize || 40);
   const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const subtitleFont = s.subtitleFont || titleFont;
   const textFont = s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
 
+  // Colors
+  const badgeColor = s.badgeColor || s.subtitleColor || HATHOR_ORANGE;
+  const titleColor = s.titleColor || '#ffffff';
+  const subtitleColor = s.subtitleColor || HATHOR_ORANGE;
+  const starColor = s.starColor || HATHOR_ORANGE;
+  const tagBg = s.tagBg || 'rgba(255, 255, 255, 0.05)';
+  const tagBorder = s.tagBorder || BORDER;
+  const tagColor = s.tagColor || TEXT_MUTED;
+  const descColor = s.descColor || TEXT_MUTED;
+
+  // Container styling & padding
+  const headerBg = s.headerBg || 'transparent';
+  const headerBorder = s.headerBorder || 'transparent';
+  const headerRadius = s.headerRadius ?? 0;
+  const pt = s.pt ?? s.headerPadTop ?? 0;
+  const pb = s.pb ?? s.headerPadBottom ?? 0;
+  const pl = s.pl ?? s.ph ?? s.headerPadLeft ?? 0;
+  const pr = s.pr ?? s.ph ?? s.headerPadRight ?? 0;
+
   return (
-    <div style={{ marginBottom: device === 'mobile' ? 20 : 32, width: '100%', boxSizing: 'border-box' }}>
+    <div
+      style={{
+        marginBottom: device === 'mobile' ? 20 : 32,
+        width: '100%',
+        boxSizing: 'border-box',
+        background: headerBg,
+        border: headerBorder !== 'transparent' ? `1px solid ${headerBorder}` : 'none',
+        borderRadius: headerRadius,
+        paddingTop: pt,
+        paddingBottom: pb,
+        paddingLeft: pl,
+        paddingRight: pr,
+      }}
+    >
       {category && (
-        <div style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 10 : 12, fontWeight: 700, color: HATHOR_ORANGE, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ display: 'inline-block', width: 12, height: 2, background: HATHOR_ORANGE }} />
+        <div style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 10 : 12, fontWeight: 700, color: badgeColor, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ display: 'inline-block', width: 12, height: 2, background: badgeColor }} />
           <span>{category}</span>
-          <span style={{ display: 'inline-block', width: 12, height: 2, background: HATHOR_ORANGE }} />
+          <span style={{ display: 'inline-block', width: 12, height: 2, background: badgeColor }} />
         </div>
       )}
 
-      <h1 style={{ fontFamily: titleFont, fontSize: titleSize, fontWeight: 900, color: '#ffffff', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: '0 0 8px 0', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+      <h1 style={{ fontFamily: titleFont, fontSize: titleSize, fontWeight: 900, color: titleColor, letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: '0 0 8px 0', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
         {title}
       </h1>
 
       {subtitle && (
-        <div style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 11 : 13, fontWeight: 800, color: HATHOR_ORANGE, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 12, wordBreak: 'break-word' }}>
+        <div style={{ fontFamily: subtitleFont, fontSize: device === 'mobile' ? 11 : 13, fontWeight: 800, color: subtitleColor, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 12, wordBreak: 'break-word' }}>
           {subtitle}
         </div>
       )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: device === 'mobile' ? 8 : 14, fontSize: device === 'mobile' ? 11 : 13, color: TEXT_MUTED, marginBottom: 16, flexWrap: 'wrap' }}>
-        <span style={{ color: HATHOR_ORANGE, letterSpacing: '0.1em' }}>★★★★★</span>
+        <span style={{ color: starColor, letterSpacing: '0.1em' }}>★★★★★</span>
         <span style={{ fontWeight: 800, color: '#ffffff', fontFamily: titleFont }}>{Number(ratingScore).toFixed(1)}</span>
         <span style={{ fontSize: 11, opacity: 0.8, fontFamily: textFont }}>({reviewCount})</span>
         <span style={{ opacity: 0.4 }}>•</span>
@@ -73,13 +106,13 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
         {formattedTags.map((t: string, i: number) => (
-          <span key={i} style={{ background: 'rgba(255, 255, 255, 0.05)', border: `1px solid ${BORDER}`, color: TEXT_MUTED, fontSize: device === 'mobile' ? 9 : 11, fontWeight: 600, padding: '3px 10px', borderRadius: 3, textTransform: 'uppercase', fontFamily: textFont }}>
+          <span key={i} style={{ background: tagBg, border: `1px solid ${tagBorder}`, color: tagColor, fontSize: device === 'mobile' ? 9 : 11, fontWeight: 600, padding: '3px 10px', borderRadius: 3, textTransform: 'uppercase', fontFamily: textFont }}>
             {t}
           </span>
         ))}
       </div>
 
-      <p style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 13 : 15, lineHeight: 1.65, color: TEXT_MUTED, margin: 0, borderLeft: `3px solid ${HATHOR_ORANGE}`, paddingLeft: 16, wordBreak: 'break-word' }}>
+      <p style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 13 : 14.5, lineHeight: 1.65, color: descColor, margin: 0, wordBreak: 'break-word' }}>
         {description}
       </p>
     </div>

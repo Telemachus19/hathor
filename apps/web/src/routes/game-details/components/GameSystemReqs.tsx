@@ -89,8 +89,8 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
         </button>
       </div>
 
-      {/* 2-Column Specs Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
+      {/* Responsive Specs Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, width: '100%', boxSizing: 'border-box' }}>
         {specCards.map((card, idx) => {
           const { label, value, Icon } = card;
           return (
@@ -103,17 +103,21 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
                 padding: '14px 16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 14
+                gap: 14,
+                width: '100%',
+                maxWidth: '100%',
+                minWidth: 0,
+                boxSizing: 'border-box',
               }}
             >
               <div style={{ color: HATHOR_ORANGE, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Icon size={18} />
               </div>
-              <div style={{ overflow: 'hidden' }}>
+              <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
                 <div style={{ fontSize: 9, fontFamily: 'monospace', color: TEXT_MUTED, letterSpacing: '0.1em', fontWeight: 700, marginBottom: 2 }}>
                   {label}
                 </div>
-                <div style={{ fontSize: 13, fontFamily: textFont, fontWeight: 800, color: TEXT_PRIMARY, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: 13, fontFamily: textFont, fontWeight: 800, color: TEXT_PRIMARY, whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere', lineHeight: 1.35 }}>
                   {value}
                 </div>
               </div>
