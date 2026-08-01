@@ -5,6 +5,8 @@ import { catalogDb } from './infrastructure/db/client.js';
 import { games, tags, gameTags } from './infrastructure/db/schema.js';
 import adminRouter from './routes/admin.js';
 import creatorRouter from './routes/creator.js';
+import internalRouter from './routes/internal.js';
+import { formatPriceEgp } from './utils/pricing.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -16,6 +18,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
 
   app.use('/admin', adminRouter);
   app.use('/creator', creatorRouter);
+  app.use('/internal/v1/catalog', internalRouter);
 
 
   app.get('/health/live', (_req: Request, res: Response) => {
@@ -130,8 +133,9 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         }
       }
 
-      const itemsWithTags = gameRecords.map(({ id, ...g }) => ({
+      const itemsWithTags = gameRecords.map(({ id, priceEgp, ...g }) => ({
         ...g,
+        priceEgp: formatPriceEgp(priceEgp),
         tags: tagsByGameId[id] || [],
       }));
 
@@ -185,12 +189,13 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         .innerJoin(tags, eq(gameTags.tagId, tags.id))
         .where(eq(gameTags.gameId, game.id));
 
-      const { id, creatorId, ...publicGameDetail } = game;
+      const { id, creatorId, priceEgp, ...publicGameDetail } = game;
 
       res.status(200).json({
         success: true,
         data: {
           ...publicGameDetail,
+          priceEgp: formatPriceEgp(priceEgp),
           tags: gameTagRecords,
         },
       });
