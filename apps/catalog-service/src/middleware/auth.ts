@@ -83,8 +83,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     const roles: string[] = Array.isArray(claims.roles)
       ? claims.roles
       : typeof claims.roles === 'string'
-      ? [claims.roles]
-      : [];
+        ? [claims.roles]
+        : [];
 
     (req as AuthenticatedRequest).user = {
       id: claims.sub,
@@ -209,4 +209,3 @@ export function requireServiceAuth(requiredScope: string = 'catalog.quote.read')
     }
   };
 }
-

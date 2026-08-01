@@ -20,7 +20,6 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
   app.use('/creator', creatorRouter);
   app.use('/internal/v1/catalog', internalRouter);
 
-
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({
       success: true,

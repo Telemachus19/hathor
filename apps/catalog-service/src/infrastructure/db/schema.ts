@@ -79,4 +79,3 @@ export const gameStatusTransitions = catalogSchema.table(
     gameIdx: index('idx_game_status_transitions_game').on(table.gameId),
   })
 );
-

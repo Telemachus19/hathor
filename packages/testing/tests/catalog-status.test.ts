@@ -125,7 +125,9 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
 
   describe('1. Authentication & Role Enforcement', () => {
     it('rejects unauthenticated status transition requests', async () => {
-      const res = await request(app).patch(`/admin/games/${gameId}/status`).send({ status: 'published' });
+      const res = await request(app)
+        .patch(`/admin/games/${gameId}/status`)
+        .send({ status: 'published' });
       expect(res.status).toBe(401);
       expect(res.body.error.code).toBe('UNAUTHENTICATED');
     });
@@ -258,4 +260,3 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
     });
   });
 });
-
