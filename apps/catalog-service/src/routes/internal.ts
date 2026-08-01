@@ -119,6 +119,9 @@ router.post(
     }
 
     try {
+      // Deduplicate gameIds to keep the response deterministic
+      const uniqueGameIds = [...new Set(gameIds as string[])];
+
       const foundGames = await catalogDb
         .select({
           id: games.id,
@@ -128,11 +131,11 @@ router.post(
           updatedAt: games.updatedAt,
         })
         .from(games)
-        .where(inArray(games.id, gameIds));
+        .where(inArray(games.id, uniqueGameIds));
 
       const gameMap = new Map(foundGames.map((g) => [g.id, g]));
 
-      const items = gameIds.map((id) => {
+      const items = uniqueGameIds.map((id) => {
         const game = gameMap.get(id);
         if (!game) {
           return {
