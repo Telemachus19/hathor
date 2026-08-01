@@ -1,47 +1,44 @@
-import React, { useState } from 'react';
-import styles from '../styles/GameAbout.module.css';
-
-export interface AboutSectionItem {
-  title: string;
-  description: string;
-  imageUrl?: string;
-}
+import React from 'react';
 
 export interface GameAboutProps {
-  sections: AboutSectionItem[];
+  s?: any;
+  sections?: Array<{ title: string; text?: string; description?: string; img?: string }>;
+  device?: 'desktop' | 'tablet' | 'mobile';
+  pageSettings?: any;
 }
 
-/**
- * Collapsible "ABOUT THIS GAME" section featuring "READ MORE" expand functionality.
- */
-export const GameAbout: React.FC<GameAboutProps> = ({ sections }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const HATHOR_ORANGE = '#f26b21';
+const TEXT_PRIMARY = '#ffffff';
+const TEXT_MUTED = '#94a3b8';
+
+export const GameAbout: React.FC<GameAboutProps> = (props) => {
+  const s = props.s || {};
+  const device = props.device || 'desktop';
+
+  const title = s.title || s.aboutTitle || 'ABOUT THIS GAME';
+  const secs = s.sections || s.aboutSections || props.sections || [
+    { title: 'A KINGDOM IN RUIN', text: 'Journey across shattered realms buried in ash...' }
+  ];
+
+  const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const textFont = s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
 
   return (
-    <div className={styles.aboutWrap}>
-      <h3 className={styles.sectionHeader}>ABOUT THIS GAME</h3>
-
-      <div className={`${styles.contentContainer} ${!isExpanded ? styles.contentCollapsed : ''}`}>
-        {sections.map((item, idx) => (
-          <div key={idx} className={styles.subSection}>
-            <h4 className={styles.subHeading}>{item.title}</h4>
-            <p className={styles.paragraph}>{item.description}</p>
-            {item.imageUrl && (
-              <div className={styles.showcaseImgWrap}>
-                <img src={item.imageUrl} alt={item.title} className={styles.showcaseImg} />
-              </div>
-            )}
+    <div style={{ width: '100%', boxSizing: 'border-box' }}>
+      <h2 style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 16 : 18, fontWeight: 900, color: HATHOR_ORANGE, letterSpacing: '0.1em', margin: '0 0 20px 0', borderLeft: `3px solid ${HATHOR_ORANGE}`, paddingLeft: 10 }}>
+        {title}
+      </h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {secs.map((sec: any, idx: number) => (
+          <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {sec.title && <h3 style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 14 : 16, fontWeight: 800, color: TEXT_PRIMARY, margin: 0 }}>{sec.title}</h3>}
+            <p style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 13 : 14, color: TEXT_MUTED, lineHeight: 1.65, margin: 0 }}>{sec.text || sec.description}</p>
+            {sec.img && <img src={sec.img} alt="" style={{ width: '100%', borderRadius: 4, marginTop: 8 }} />}
           </div>
         ))}
-
-        {!isExpanded && <div className={styles.fadeOverlay} />}
-      </div>
-
-      <div className={styles.readMoreWrap}>
-        <button className={styles.readMoreBtn} onClick={() => setIsExpanded((prev) => !prev)}>
-          {isExpanded ? 'SHOW LESS ▲' : 'READ MORE ▼'}
-        </button>
       </div>
     </div>
   );
 };
+
+export default GameAbout;

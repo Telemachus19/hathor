@@ -1,78 +1,105 @@
 import React from 'react';
-import styles from '../styles/GameReviews.module.css';
-import { ThumbsUpIcon } from '../../landing-page/assets';
-
-export interface UserReviewItem {
-  id: string;
-  userName: string;
-  userAvatarInitials?: string;
-  ratingScore: number;
-  date: string;
-  comment: string;
-  helpfulCount: number;
-  recommended?: boolean;
-}
+import { ThumbsUp } from 'lucide-react';
 
 export interface GameReviewsProps {
-  score: number;
+  s?: any;
+  score?: number;
   totalReviews?: string;
-  reviews: UserReviewItem[];
+  reviews?: Array<any>;
+  device?: 'desktop' | 'tablet' | 'mobile';
+  pageSettings?: any;
 }
 
-/**
- * User Reviews section with dark review cards and SVG icons.
- */
-export const GameReviews: React.FC<GameReviewsProps> = ({
-  score,
-  totalReviews = '48.2k total',
-  reviews,
-}) => {
-  return (
-    <div className={styles.reviewsWrap}>
-      <div className={styles.headerRow}>
-        <div className={styles.titleGroup}>
-          <h3 className={styles.sectionHeader}>USER REVIEWS</h3>
-          <span className={styles.totalBadge}>{totalReviews}</span>
-        </div>
+const HATHOR_ORANGE = '#f26b21';
+const GREEN_ACCENT = '#38d39f';
+const SURFACE = '#181c24';
+const BORDER = '#2e3544';
+const TEXT_PRIMARY = '#ffffff';
+const TEXT_MUTED = '#7a8b9e';
 
-        <div className={styles.scoreBadge}>
-          <span className={styles.stars}>★★★★★</span>
-          <span className={styles.scoreNum}>{score.toFixed(1)}</span>
-          <span className={styles.scoreMax}>/ 10</span>
+export const GameReviews: React.FC<GameReviewsProps> = (props) => {
+  const s = props.s || {};
+  const device = props.device || 'desktop';
+  const isMobile = device === 'mobile';
+
+  const cardBg = s.reviewCardBg || SURFACE;
+  const cardBorder = s.reviewCardBorder || BORDER;
+  const cardRadius = s.reviewCardRadius ?? 4;
+  const nameColor = s.reviewNameColor || TEXT_PRIMARY;
+  const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const bodyColor = s.reviewBodyColor || '#94a3b8';
+  const textFont = s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
+  const starColor = s.reviewStarColor || HATHOR_ORANGE;
+  const badgeColor = s.reviewBadgeColor || GREEN_ACCENT;
+  const badgeBg = s.reviewBadgeBg || 'rgba(56, 211, 159, 0.1)';
+
+  const headerTitle = s.reviewHeader || 'USER REVIEWS';
+  const scoreVal = s.reviewScore || props.score || 9.4;
+  const totalRev = s.totalReviews || props.totalReviews || '48.2k total';
+
+  const reviewsList = s.reviews || props.reviews || [
+    {
+      id: 'rev_1',
+      userName: 'KHEPRI_VII',
+      userAvatarInitials: 'KH',
+      score: 9.6,
+      date: 'Jun 15, 2025',
+      comment: "The open world design is masterful — every horizon hides something worth finding. Combat takes time to click but once it does it's deeply rewarding. Boss variety is insane.",
+      recommended: true,
+      helpfulCount: 54
+    }
+  ];
+
+  return (
+    <div style={{ width: '100%', boxSizing: 'border-box' }}>
+      {/* Header Row: Title, Total Badge, Overall Score */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <h2 style={{ fontFamily: titleFont, fontSize: isMobile ? 16 : 18, fontWeight: 900, color: '#f4b183', letterSpacing: '0.14em', textTransform: 'uppercase', margin: 0 }}>
+            {headerTitle}
+          </h2>
+          <span style={{ border: `1px solid ${BORDER}`, background: 'rgba(0,0,0,0.3)', color: TEXT_MUTED, fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 3, fontFamily: 'monospace' }}>
+            {totalRev}
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ color: starColor, fontSize: 13, letterSpacing: '0.1em' }}>★★★★★</span>
+          <span style={{ fontFamily: titleFont, fontSize: isMobile ? 18 : 22, fontWeight: 900, color: starColor }}>{scoreVal}</span>
+          <span style={{ color: TEXT_MUTED, fontSize: 11, fontFamily: 'monospace' }}>/ 10</span>
         </div>
       </div>
 
-      <div className={styles.reviewsList}>
-        {reviews.map((rev) => (
-          <div key={rev.id} className={styles.reviewCard}>
-            <div className={styles.cardTopRow}>
-              <div className={styles.userInfo}>
-                <div className={styles.squareAvatar}>
-                  {rev.userAvatarInitials || rev.userName.slice(0, 2).toUpperCase()}
+      {/* Reviews Cards List */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {reviewsList.map((rev: any, idx: number) => (
+          <div key={rev.id || idx} style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: cardRadius, padding: isMobile ? 14 : 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: 3, background: 'rgba(0,0,0,0.3)', border: `1px solid ${BORDER}`,
+                  color: starColor, fontFamily: titleFont, fontWeight: 900, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                  {rev.userAvatarInitials || 'KH'}
                 </div>
-                <div className={styles.userTextStack}>
-                  <span className={styles.userName}>{rev.userName}</span>
-                  <div className={styles.ratingSubRow}>
-                    <span className={styles.cardStars}>★★★★★</span>
-                    <span className={styles.cardScore}>{rev.ratingScore.toFixed(1)}</span>
+                <div>
+                  <div style={{ color: nameColor, fontWeight: 700, fontSize: 14, fontFamily: textFont }}>{rev.userName || 'KHEPRI_VII'}</div>
+                  <div style={{ color: starColor, fontSize: 12, marginTop: 2 }}>
+                    ★★★★★ <span style={{ color: starColor, fontSize: 11, fontWeight: 800, fontFamily: 'monospace' }}>{rev.score || 9.6}</span>
                   </div>
                 </div>
               </div>
-
-              <div className={styles.rightMeta}>
-                <div className={styles.recommendedPill}>
-                  <ThumbsUpIcon width={12} height={12} />
-                  <span>Recommended</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                <div style={{ background: badgeBg, border: `1px solid ${badgeColor}`, color: badgeColor, padding: '3px 8px', borderRadius: 3, fontSize: 10, fontWeight: 800, fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <ThumbsUp size={11} /> Recommended
                 </div>
-                <span className={styles.date}>{rev.date}</span>
+                <span style={{ fontSize: 10, color: TEXT_MUTED, fontFamily: 'monospace' }}>{rev.date || 'Jun 15, 2025'}</span>
               </div>
             </div>
-
-            <p className={styles.reviewBody}>{rev.comment}</p>
-
-            <div className={styles.helpfulFooter}>
-              <ThumbsUpIcon width={13} height={13} />
-              <span>{rev.helpfulCount} people found this helpful</span>
+            <p style={{ fontFamily: textFont, fontSize: isMobile ? 12 : 13, color: bodyColor, lineHeight: 1.65, margin: '0 0 14px 0', paddingBottom: 12, borderBottom: `1px solid ${cardBorder}` }}>
+              {rev.comment || "The open world design is masterful — every horizon hides something worth finding. Combat takes time to click but once it does it's deeply rewarding. Boss variety..."}
+            </p>
+            <div style={{ fontSize: 11, color: TEXT_MUTED, display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'monospace' }}>
+              <ThumbsUp size={11} /> {rev.helpfulCount || 54} people found this helpful
             </div>
           </div>
         ))}
@@ -80,3 +107,5 @@ export const GameReviews: React.FC<GameReviewsProps> = ({
     </div>
   );
 };
+
+export default GameReviews;

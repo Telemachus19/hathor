@@ -165,7 +165,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
   const [activeThemeMode] = useState<ThemeMode>('default');
   const currentGameData = getGameDataForSlug(slug);
 
-  const getThemeInfo = (): { theme: string; layout: Record<string, any> } => {
+  const getThemeInfo = (): { theme: string; layout: Record<string, any>; pageBody?: Record<string, any> } => {
     if (activeThemeMode !== 'default') {
       switch (activeThemeMode) {
         case 'cyberpunk':
@@ -187,9 +187,10 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
         return {
           theme: parsed.theme || 'default',
           layout: parsed.layout || {},
+          pageBody: parsed.pageBody || parsed.pageSettings || {},
         };
       } catch (e) {
-        return { theme: 'default', layout: {} };
+        return { theme: 'default', layout: {}, pageBody: {} };
       }
     }
 
@@ -197,18 +198,18 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       return {
         theme: (themeConfig as any).theme || 'default',
         layout: (themeConfig as any).layout || {},
+        pageBody: (themeConfig as any).pageBody || (themeConfig as any).pageSettings || {},
       };
     }
 
-    return { theme: 'default', layout: {} };
+    return { theme: 'default', layout: {}, pageBody: {} };
   };
 
   const themeInfo = getThemeInfo();
   const isDefaultTheme =
     themeInfo.theme === 'default' ||
     !themeInfo.layout ||
-    Object.keys(themeInfo.layout).length === 0 ||
-    'gameAbout' in themeInfo.layout;
+    Object.keys(themeInfo.layout).length === 0;
 
   const customAboutSections = themeInfo.layout?.gameAbout?.sections;
   const activeAboutSections =
@@ -217,6 +218,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       : currentGameData.aboutSections;
 
   const getThemeBackgroundColor = (): string => {
+    if (themeInfo.pageBody?.bg && themeInfo.pageBody.bg !== 'transparent') {
+      return themeInfo.pageBody.bg;
+    }
     if (!isDefaultTheme) {
       try {
         if (themeInfo.layout.pageCanvas?.style?.background) {
@@ -246,11 +250,19 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
     }
   };
 
+  const bgImageStyle = themeInfo.pageBody?.bgImage ? {
+    backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
+    backgroundSize: themeInfo.pageBody.bgSize || 'cover',
+    backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
+    backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
+  } : {};
+
   return (
     <div
       className={styles.page}
       style={{
         background: getThemeBackgroundColor(),
+        ...bgImageStyle,
         transition: 'background 0.3s ease',
         minHeight: '100vh',
       }}

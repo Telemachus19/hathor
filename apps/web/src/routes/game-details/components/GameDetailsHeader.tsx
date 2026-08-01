@@ -1,57 +1,87 @@
 import React from 'react';
-import styles from '../styles/GameDetailsHeader.module.css';
 
 export interface GameDetailsHeaderProps {
+  s?: any;
   category?: string;
-  title: string;
+  title?: string;
   subtitle?: string;
-  ratingScore: number;
-  reviewCount: string;
-  developer: string;
-  releaseDate: string;
-  tags: Array<{ name: string; slug: string }> | string[];
-  description: string;
+  ratingScore?: number;
+  reviewCount?: string;
+  developer?: string;
+  releaseDate?: string;
+  tags?: Array<{ name: string; slug: string }> | string[];
+  description?: string;
+  device?: 'desktop' | 'tablet' | 'mobile';
+  pageSettings?: any;
 }
 
-/**
- * Game detail page header section displaying title, category, ratings, studio metadata and tag pills.
- */
-export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = ({
-  category = 'ACTION RPG',
-  title,
-  subtitle = 'SHATTERED LANDS EDITION',
-  ratingScore,
-  reviewCount,
-  developer,
-  releaseDate,
-  tags,
-  description,
-}) => {
-  return (
-    <div className={styles.headerWrap}>
-      <div className={styles.categoryLine}>{category}</div>
-      <h1 className={styles.title}>{title}</h1>
-      {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
+const HATHOR_ORANGE = '#f26b21';
+const BORDER = '#2e3544';
+const TEXT_PRIMARY = '#ffffff';
+const TEXT_MUTED = '#94a3b8';
 
-      <div className={styles.ratingRow}>
-        <span className={styles.stars}>★★★★★</span>
-        <span className={styles.scoreValue}>{ratingScore.toFixed(1)}</span>
-        <span className={styles.reviewCount}>({reviewCount})</span>
-        <span className={styles.dividerDot}>•</span>
-        <span className={styles.metaItem}>{developer}</span>
-        <span className={styles.dividerDot}>•</span>
-        <span className={styles.metaItem}>{releaseDate}</span>
+export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
+  const s = props.s || {};
+  const device = props.device || 'desktop';
+
+  const category = s.category || s.gameCategory || props.category || 'ACTION RPG';
+  const title = s.title || s.gameTitle || props.title || 'ELDEN THRONE';
+  const subtitle = s.subtitle || s.gameSubtitle || props.subtitle || '';
+  const ratingScore = s.ratingScore ?? s.gameRatingScore ?? props.ratingScore ?? 9.4;
+  const reviewCount = s.reviewCount || s.gameReviewCount || props.reviewCount || '14.2k Reviews';
+  const developer = s.dev || s.gameDev || props.developer || 'Omegabyte Studios';
+  const releaseDate = s.releaseDate || s.gameReleaseDate || props.releaseDate || 'March 15, 2025';
+
+  const rawTags = s.tags || s.gameTags || props.tags || ['OPEN WORLD', 'SOULSLIKE', 'DARK FANTASY', 'SINGLE PLAYER', 'RPG', 'ATMOSPHERIC'];
+  const formattedTags: string[] = rawTags.map((t: any) => (typeof t === 'string' ? t : t.name));
+
+  const description = s.desc || s.gameDesc || props.description || 'A vast open-world experience set in ELDEN THRONE. Forge your path, face relentless enemies, and uncover ancient secrets behind the kingdom\'s collapse.';
+
+  const titleSize = device === 'mobile' ? 24 : device === 'tablet' ? 32 : (s.titleSize || 40);
+  const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const textFont = s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
+
+  return (
+    <div style={{ marginBottom: device === 'mobile' ? 20 : 32, width: '100%', boxSizing: 'border-box' }}>
+      {category && (
+        <div style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 10 : 12, fontWeight: 700, color: HATHOR_ORANGE, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ display: 'inline-block', width: 12, height: 2, background: HATHOR_ORANGE }} />
+          <span>{category}</span>
+          <span style={{ display: 'inline-block', width: 12, height: 2, background: HATHOR_ORANGE }} />
+        </div>
+      )}
+
+      <h1 style={{ fontFamily: titleFont, fontSize: titleSize, fontWeight: 900, color: '#ffffff', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: '0 0 8px 0', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+        {title}
+      </h1>
+
+      {subtitle && (
+        <div style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 11 : 13, fontWeight: 800, color: HATHOR_ORANGE, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 12, wordBreak: 'break-word' }}>
+          {subtitle}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: device === 'mobile' ? 8 : 14, fontSize: device === 'mobile' ? 11 : 13, color: TEXT_MUTED, marginBottom: 16, flexWrap: 'wrap' }}>
+        <span style={{ color: HATHOR_ORANGE, letterSpacing: '0.1em' }}>★★★★★</span>
+        <span style={{ fontWeight: 800, color: '#ffffff', fontFamily: titleFont }}>{Number(ratingScore).toFixed(1)}</span>
+        <span style={{ fontSize: 11, opacity: 0.8, fontFamily: textFont }}>({reviewCount})</span>
+        <span style={{ opacity: 0.4 }}>•</span>
+        <span style={{ color: TEXT_PRIMARY, fontFamily: textFont }}>{developer}</span>
+        <span style={{ opacity: 0.4 }}>•</span>
+        <span style={{ color: TEXT_PRIMARY, fontFamily: textFont }}>{releaseDate}</span>
       </div>
 
-      <div className={styles.tagPills}>
-        {tags.map((tag, idx) => (
-          <span key={idx} className={styles.tagPill}>
-            {typeof tag === 'string' ? tag : tag.name}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+        {formattedTags.map((t: string, i: number) => (
+          <span key={i} style={{ background: 'rgba(255, 255, 255, 0.05)', border: `1px solid ${BORDER}`, color: TEXT_MUTED, fontSize: device === 'mobile' ? 9 : 11, fontWeight: 600, padding: '3px 10px', borderRadius: 3, textTransform: 'uppercase', fontFamily: textFont }}>
+            {t}
           </span>
         ))}
       </div>
 
-      <p className={styles.description}>{description}</p>
+      <p style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 13 : 15, lineHeight: 1.65, color: TEXT_MUTED, margin: 0, borderLeft: `3px solid ${HATHOR_ORANGE}`, paddingLeft: 16, wordBreak: 'break-word' }}>
+        {description}
+      </p>
     </div>
   );
 };
