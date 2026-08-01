@@ -26,6 +26,7 @@ export function createCommerceApp(checkDependencies: ReadinessCheck): Express {
   app.use(express.json());
 
   app.use('/cart', cartRouter);
+  app.use('/txn', txnRouter);
 
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({
