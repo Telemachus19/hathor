@@ -17,7 +17,7 @@ export const GameAbout: React.FC<GameAboutProps> = (props) => {
 
   const title = s.title || s.aboutTitle || 'ABOUT THIS GAME';
   const secs = s.sections || s.aboutSections || props.sections || [
-    { title: 'A KINGDOM IN RUIN', text: 'Journey across shattered realms buried in ash...' }
+    { title: 'GAMEPLAY & FEATURES', text: 'Describe your game\'s unique features, mechanics, and world.' }
   ];
 
   const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
@@ -27,9 +27,29 @@ export const GameAbout: React.FC<GameAboutProps> = (props) => {
   const subTitleColor = s.subTitleColor || s.accentColor || HATHOR_ORANGE;
   const bodyTextColor = s.textColor || TEXT_MUTED;
 
+  const bg = s.aboutBg || s.bg || 'transparent';
+  const borderColor = s.aboutBorder || s.borderColor || 'transparent';
+  const borderRadius = s.aboutRadius ?? s.radius ?? 0;
+  const pt = s.pt ?? s.padTop ?? 0;
+  const pb = s.pb ?? s.padBottom ?? 0;
+  const pl = s.pl ?? s.ph ?? 0;
+  const pr = s.pr ?? s.ph ?? 0;
+
   return (
-    <div style={{ width: '100%', boxSizing: 'border-box' }}>
-      <div style={{ borderBottom: `1px solid ${BORDER}`, paddingBottom: 12, marginBottom: 24 }}>
+    <div
+      style={{
+        width: '100%',
+        boxSizing: 'border-box',
+        background: bg,
+        border: borderColor !== 'transparent' ? `1px solid ${borderColor}` : 'none',
+        borderRadius: borderRadius,
+        paddingTop: pt,
+        paddingBottom: pb,
+        paddingLeft: pl,
+        paddingRight: pr,
+      }}
+    >
+      <div style={{ borderBottom: `1px solid ${s.headerBorder || BORDER}`, paddingBottom: 12, marginBottom: 24 }}>
         <h2 style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 16 : 18, fontWeight: 900, color: mainTitleColor, letterSpacing: '0.14em', textTransform: 'uppercase', margin: 0 }}>
           {title}
         </h2>

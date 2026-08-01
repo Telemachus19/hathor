@@ -25,7 +25,7 @@ export const GameOwnershipBanner: React.FC<GameOwnershipBannerProps> = ({ s = {}
   const btn2Border = s.ownershipBtn2Border || GREEN_ACCENT;
 
   const statusText = s.ownershipStatus || 'YOU OWN THIS GAME';
-  const subText = s.ownershipSub || 'Purchased Jun 10, 2025 · Available in your library';
+  const subText = s.ownershipSub || 'Purchased recently · Available in your library';
   const btn1Text = s.ownershipBtn1 || 'DOWNLOAD';
   const btn2Text = s.ownershipBtn2 || 'GO TO LIBRARY';
 

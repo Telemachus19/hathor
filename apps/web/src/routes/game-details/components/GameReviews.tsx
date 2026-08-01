@@ -34,19 +34,19 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const badgeBg = s.reviewBadgeBg || 'rgba(56, 211, 159, 0.1)';
 
   const headerTitle = s.reviewHeader || 'USER REVIEWS';
-  const scoreVal = s.reviewScore || props.score || 9.4;
-  const totalRev = s.totalReviews || props.totalReviews || '48.2k total';
+  const scoreVal = s.reviewScore || props.score || 0;
+  const totalRev = s.totalReviews || props.totalReviews || '0 total';
 
   const reviewsList = s.reviews || props.reviews || [
     {
-      id: 'rev_1',
-      userName: 'KHEPRI_VII',
-      userAvatarInitials: 'KH',
-      score: 9.6,
-      date: 'Jun 15, 2025',
-      comment: "The open world design is masterful — every horizon hides something worth finding. Combat takes time to click but once it does it's deeply rewarding. Boss variety is insane.",
+      id: 'rev_sample',
+      userName: 'SAMPLE_USER',
+      userAvatarInitials: 'SU',
+      score: 0,
+      date: 'No reviews yet',
+      comment: 'Player reviews will appear here once the game is published and reviewed.',
       recommended: true,
-      helpfulCount: 54
+      helpfulCount: 0
     }
   ];
 
@@ -79,12 +79,12 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                   width: 36, height: 36, borderRadius: 3, background: 'rgba(0,0,0,0.3)', border: `1px solid ${BORDER}`,
                   color: starColor, fontFamily: titleFont, fontWeight: 900, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                 }}>
-                  {rev.userAvatarInitials || 'KH'}
+                  {rev.userAvatarInitials || 'SU'}
                 </div>
                 <div>
-                  <div style={{ color: nameColor, fontWeight: 700, fontSize: 14, fontFamily: textFont }}>{rev.userName || 'KHEPRI_VII'}</div>
+                  <div style={{ color: nameColor, fontWeight: 700, fontSize: 14, fontFamily: textFont }}>{rev.userName || 'SAMPLE_USER'}</div>
                   <div style={{ color: starColor, fontSize: 12, marginTop: 2 }}>
-                    ★★★★★ <span style={{ color: starColor, fontSize: 11, fontWeight: 800, fontFamily: 'monospace' }}>{rev.score || 9.6}</span>
+                    ★★★★★ <span style={{ color: starColor, fontSize: 11, fontWeight: 800, fontFamily: 'monospace' }}>{rev.score || 0}</span>
                   </div>
                 </div>
               </div>
@@ -92,14 +92,14 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                 <div style={{ background: badgeBg, border: `1px solid ${badgeColor}`, color: badgeColor, padding: '3px 8px', borderRadius: 3, fontSize: 10, fontWeight: 800, fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <ThumbsUp size={11} /> Recommended
                 </div>
-                <span style={{ fontSize: 10, color: TEXT_MUTED, fontFamily: 'monospace' }}>{rev.date || 'Jun 15, 2025'}</span>
+                <span style={{ fontSize: 10, color: TEXT_MUTED, fontFamily: 'monospace' }}>{rev.date || 'No date'}</span>
               </div>
             </div>
             <p style={{ fontFamily: textFont, fontSize: isMobile ? 12 : 13, color: bodyColor, lineHeight: 1.65, margin: '0 0 14px 0', paddingBottom: 12, borderBottom: `1px solid ${cardBorder}` }}>
-              {rev.comment || "The open world design is masterful — every horizon hides something worth finding. Combat takes time to click but once it does it's deeply rewarding. Boss variety..."}
+              {rev.comment || 'Player reviews will appear here once the game is published and reviewed.'}
             </p>
             <div style={{ fontSize: 11, color: TEXT_MUTED, display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'monospace' }}>
-              <ThumbsUp size={11} /> {rev.helpfulCount || 54} people found this helpful
+              <ThumbsUp size={11} /> {rev.helpfulCount || 0} people found this helpful
             </div>
           </div>
         ))}

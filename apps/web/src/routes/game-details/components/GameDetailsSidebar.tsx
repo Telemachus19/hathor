@@ -39,7 +39,7 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
     ? (s.ownedHeaderColor || s.sideHeaderColor || GREEN_ACCENT) 
     : (s.unownedHeaderColor || s.sideHeaderColor || HATHOR_ORANGE);
 
-  const price = s.sidebarPrice || s.price || props.priceEgp || '299.99';
+  const price = s.sidebarPrice || s.price || props.priceEgp || '0.00';
   const discount = s.sidebarDiscount ?? s.discount ?? props.discountPercent ?? 10;
 
   const primaryBtnText = isOwned 
@@ -101,11 +101,11 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
 
 export const GameSidebarInfo: React.FC<GameDetailsSidebarProps> = (props) => {
   const s = props.s || {};
-  const dev = s.sideDev || s.dev || props.developer || 'Omegabyte Studios';
-  const pub = s.sidePub || s.pub || props.publisher || 'Redline Inc';
-  const date = s.sideDate || s.date || props.releaseDate || 'March 15, 2025';
-  const genre = s.sideGenre || s.genre || props.genre || 'Action RPG';
-  const platforms = s.sidePlatforms || props.platforms || ['Windows', 'macOS'];
+  const dev = s.sideDev || s.dev || props.developer || 'Developer Name';
+  const pub = s.sidePub || s.pub || props.publisher || 'Publisher Name';
+  const date = s.sideDate || s.date || props.releaseDate || 'Coming Soon';
+  const genre = s.sideGenre || s.genre || props.genre || 'Genre';
+  const platforms = s.sidePlatforms || props.platforms || ['Windows'];
 
   const cardBg = s.infoCardBg || SURFACE;
   const cardBorder = s.infoCardBorder || BORDER;
@@ -168,9 +168,9 @@ export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => 
 
 export const GameSidebarCommunity: React.FC<GameDetailsSidebarProps> = (props) => {
   const s = props.s || {};
-  const players = s.sideOwners || props.communityStats?.playersCount || '250,000+';
-  const positive = s.sidePositive || props.communityStats?.positiveRatingPct || '94%';
-  const avgGameplay = s.sideGameplay || '52 hrs';
+  const players = s.sideOwners || props.communityStats?.playersCount || '0';
+  const positive = s.sidePositive || props.communityStats?.positiveRatingPct || '0%';
+  const avgGameplay = s.sideGameplay || '0 hrs';
 
   const cardBg = s.communityCardBg || SURFACE;
   const cardBorder = s.communityCardBorder || BORDER;

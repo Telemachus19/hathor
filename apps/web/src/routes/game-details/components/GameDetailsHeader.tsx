@@ -24,18 +24,18 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
   const s = props.s || {};
   const device = props.device || 'desktop';
 
-  const category = s.category || s.gameCategory || props.category || 'ACTION RPG';
-  const title = s.title || s.gameTitle || props.title || 'ELDEN THRONE';
+  const category = s.category || s.gameCategory || props.category || 'GENRE';
+  const title = s.title || s.gameTitle || props.title || 'YOUR GAME TITLE';
   const subtitle = s.subtitle || s.gameSubtitle || props.subtitle || '';
   const ratingScore = s.ratingScore ?? s.gameRatingScore ?? props.ratingScore ?? 9.4;
-  const reviewCount = s.reviewCount || s.gameReviewCount || props.reviewCount || '14.2k Reviews';
-  const developer = s.dev || s.gameDev || props.developer || 'Omegabyte Studios';
-  const releaseDate = s.releaseDate || s.gameReleaseDate || props.releaseDate || 'March 15, 2025';
+  const reviewCount = s.reviewCount || s.gameReviewCount || props.reviewCount || '0 Reviews';
+  const developer = s.dev || s.gameDev || props.developer || 'Developer Name';
+  const releaseDate = s.releaseDate || s.gameReleaseDate || props.releaseDate || 'Coming Soon';
 
-  const rawTags = s.tags || s.gameTags || props.tags || ['OPEN WORLD', 'SOULSLIKE', 'DARK FANTASY', 'SINGLE PLAYER', 'RPG', 'ATMOSPHERIC'];
+  const rawTags = s.tags || s.gameTags || props.tags || ['TAG 1', 'TAG 2'];
   const formattedTags: string[] = rawTags.map((t: any) => (typeof t === 'string' ? t : t.name));
 
-  const description = s.desc || s.gameDesc || props.description || 'A vast open-world experience set in ELDEN THRONE. Forge your path, face relentless enemies, and uncover ancient secrets behind the kingdom\'s collapse.';
+  const description = s.desc || s.gameDesc || props.description || 'Your game description will appear here.';
 
   const titleSize = device === 'mobile' ? 24 : device === 'tablet' ? 32 : (s.titleSize || 40);
   const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";

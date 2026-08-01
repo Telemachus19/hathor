@@ -20,10 +20,10 @@ export const MoreLikeThis: React.FC<MoreLikeThisProps> = (props) => {
 
   const title = s.title || s.recsTitle || 'MORE LIKE THIS';
   const items = s.items || props.games || [
-    { title: 'SHATTERED REALM', priceEgp: '349.00', bannerUrl: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop', discountPercent: 20 },
-    { title: 'CRIMSON ACCORD', priceEgp: '524.99', bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop' },
-    { title: 'ASHEN TALE', priceEgp: '529.99', bannerUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop' },
-    { title: 'MOON REQUIEM', priceEgp: '169.99', bannerUrl: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=600&auto=format&fit=crop', discountPercent: 50 },
+    { title: 'SIMILAR GAME 1', priceEgp: '0.00', bannerUrl: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop', discountPercent: 0 },
+    { title: 'SIMILAR GAME 2', priceEgp: '0.00', bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop' },
+    { title: 'SIMILAR GAME 3', priceEgp: '0.00', bannerUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop' },
+    { title: 'SIMILAR GAME 4', priceEgp: '0.00', bannerUrl: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=600&auto=format&fit=crop', discountPercent: 0 },
   ];
 
   const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
@@ -36,7 +36,7 @@ export const MoreLikeThis: React.FC<MoreLikeThisProps> = (props) => {
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 16 }}>
         {items.map((item: any, idx: number) => {
           const itemTitle = item.title;
-          const itemPrice = item.price ? item.price : `EGP ${item.priceEgp || '299.99'}`;
+          const itemPrice = item.price ? item.price : `EGP ${item.priceEgp || '0.00'}`;
           const itemImg = item.image || item.bannerUrl;
           const discount = item.discountPercent || item.discount;
 

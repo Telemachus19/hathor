@@ -14,9 +14,9 @@ const TEXT_MUTED = '#94a3b8';
 
 export const GameFeatures: React.FC<GameFeaturesProps> = ({ s = {}, device = 'desktop', pageSettings }) => {
   const items = s.featuresItems || [
-    { icon: '⚔️', title: 'SOULSLIKE COMBAT', desc: 'Master stamina and dodges.', color: HATHOR_ORANGE },
-    { icon: '🗺️', title: 'VAST WORLD', desc: 'Explore dungeons and zones.', color: HATHOR_ORANGE },
-    { icon: '🔥', title: 'EPIC BOSSES', desc: 'Skirmishes with guardians.', color: HATHOR_ORANGE }
+    { icon: '🎮', title: 'FEATURE ONE', desc: 'Describe a key feature.', color: HATHOR_ORANGE },
+    { icon: '🌍', title: 'FEATURE TWO', desc: 'Describe another feature.', color: HATHOR_ORANGE },
+    { icon: '⚡', title: 'FEATURE THREE', desc: 'Describe a third feature.', color: HATHOR_ORANGE }
   ];
   const cols = device === 'mobile' ? 1 : device === 'tablet' ? 2 : (s.featuresCols || 3);
   const titleFont = s.font || s.titleFont || pageSettings?.titleFont || "'Cinzel', serif";

@@ -14,8 +14,8 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({ s = {}, device = 'de
   const titleFont = s.font || s.titleFont || pageSettings?.titleFont || "'Cinzel', serif";
   const textFont = s.textFont || pageSettings?.textFont || "'Raleway', sans-serif";
 
-  const title = s.ctaTitle || s.title || 'PRE-ORDER ELDEN THRONE';
-  const subtitle = s.ctaSubtitle || s.subtitle || 'Get exclusive pre-order armor set and digital soundtrack.';
+  const title = s.ctaTitle || s.title || 'PRE-ORDER NOW';
+  const subtitle = s.ctaSubtitle || s.subtitle || 'Get exclusive pre-order bonuses and early access.';
   const btnText = s.ctaBtnText || s.btnText || 'BUY NOW';
   const btnBg = s.ctaBtnColor || s.btnBg || HATHOR_ORANGE;
   const btnTextColor = s.ctaBtnTextColor || s.btnTextColor || '#ffffff';

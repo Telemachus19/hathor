@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Type, Film, LayoutGrid, Minus,
   ChevronUp, ChevronDown, Trash2, Plus, Copy,
@@ -11,10 +12,11 @@ import {
   Image as ImageIcon, Award, MessageSquare, MonitorCheck,
   BarChart2, Users, ShoppingBag, Info, LucideIcon,
   Download, ShoppingCart,
-  FileJson, Droplet, Eye
+  FileJson, Droplet, Eye, FileUp
 } from "lucide-react";
 import { HathorLogo } from "../../assets";
 import { GameDetailsPage } from "../game-details/GameDetailsPage";
+import { getGameInfoDraft } from "../game-info-form/gameInfoCache";
 import {
   GameDetailsHeader,
   GameOwnershipBanner,
@@ -403,36 +405,48 @@ function uid() { return `sec_${Date.now()}_${++_seq}`; }
 // ── Default element factory ────────────────────────────────────────────────────
 function createGridElement(type: ElementType): GridElement {
   const id = uid();
+  const draft = getGameInfoDraft();
   switch (type) {
     case "game-header": return {
       id, type,
       pt: 0, pb: 0, pl: 0, pr: 0,
-      gameCategory: "ACTION RPG", gameTitle: "ELDEN THRONE", gameSubtitle: "SHATTERED LANDS EDITION",
-      gameRatingScore: 9.4, gameReviewCount: "14.2k Reviews", gameDev: "Omegabyte Studios", gameReleaseDate: "March 15, 2025",
-      gameTags: ["OPEN WORLD", "SOULSLIKE", "DARK FANTASY", "SINGLE PLAYER", "RPG", "ATMOSPHERIC"],
-      gameDesc: "A vast open-world experience set in ELDEN THRONE. Forge your path, face relentless enemies, and uncover ancient secrets behind the kingdom's collapse."
+      gameCategory: (draft.genre || "GENRE").toUpperCase(),
+      gameTitle: (draft.title || "YOUR GAME TITLE").toUpperCase(),
+      gameSubtitle: "DELUXE EDITION",
+      gameRatingScore: 9.4, gameReviewCount: "14.2k Reviews", gameDev: "Developer Name", gameReleaseDate: "Coming Soon",
+      gameTags: draft.tags && draft.tags.length > 0 ? draft.tags : ["TAG 1", "TAG 2"],
+      gameDesc: draft.shortDesc || "A short description of your game will appear here once entered in the Game Information form."
     };
     case "ownership-banner": return {
       id, type,
       pt: 12, pb: 12, pl: 16, pr: 16,
-      ownershipStatus: "YOU OWN THIS GAME", ownershipSub: "Purchased Jun 10, 2025 • Available in your library",
+      ownershipStatus: "YOU OWN THIS GAME", ownershipSub: "Purchased recently • Available in your library",
       ownershipBtn1: "DOWNLOAD", ownershipBtn2: "GO TO LIBRARY"
     };
     case "about-game": return {
       id, type, aboutTitle: "ABOUT THIS GAME",
       pt: 16, pb: 16, pl: 16, pr: 16,
       aboutSections: [
-        { title: "A KINGDOM IN RUIN", text: "The First Realm has fallen. Once proud bastions of civilization now lie buried beneath ash and shadow. As an Elden-seeker, your journey will take you across vast broken continents to claim ancient relics." },
-        { title: "OPEN WORLD, OPEN CONSEQUENCE", text: "Explore interconnected dungeons, forgotten ruins, and dynamic storm zones. Every decision alters local factions and shapes the world's ultimate fate.", img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop" },
-        { title: "COMBAT BUILT ON PATIENCE", text: "Master 200+ unique weapons across 8 battle disciplines. Timed parries, stamina management, and positional spellcasting demand precision in every skirmish." },
-        { title: "A LORE YOU UNCOVER, NOT RECEIVE", text: "The story of Elden Throne is not delivered in cutscenes. It lives in item descriptions, in the architecture of collapsed halls, in the dialogue fragments of NPCs who trust you only after you have earned it.", img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop" }
+        { title: "SECTION TITLE", text: draft.shortDesc || "Add a description for this section." }
       ]
     };
     case "system-reqs": return {
       id, type,
       pt: 16, pb: 16, pl: 16, pr: 16,
-      reqsMin: { os: "Windows 10 (64-bit)", cpu: "Intel Core i5-8400 / AMD Ryzen 5 2600", ram: "12 GB RAM", gpu: "NVIDIA GeForce GTX 1070 (8GB) / AMD Radeon RX 590", storage: "85 GB Available Space" },
-      reqsRec: { os: "Windows 11 (64-bit)", cpu: "Intel Core i7-12700K / AMD Ryzen 7 7800X3D", ram: "16 GB RAM", gpu: "NVIDIA GeForce RTX 4070 (12GB) / AMD Radeon RX 7800 XT", storage: "85 GB NVMe SSD" }
+      reqsMin: {
+        os: (draft.minReq.os && draft.minReq.os.length > 0) ? draft.minReq.os.join(", ") : "Windows 10 (64-bit)",
+        cpu: draft.minReq.cpu || "Intel Core i5 / AMD Ryzen 5",
+        ram: draft.minReq.ram ? `${draft.minReq.ram} GB RAM` : "8 GB RAM",
+        gpu: draft.minReq.gpu || "NVIDIA GTX 1060 / AMD RX 580",
+        storage: draft.minReq.storageNum ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix} Available Space` : "50 GB Available Space"
+      },
+      reqsRec: {
+        os: (draft.recReq.os && draft.recReq.os.length > 0) ? draft.recReq.os.join(", ") : "Windows 11 (64-bit)",
+        cpu: draft.recReq.cpu || "Intel Core i7 / AMD Ryzen 7",
+        ram: draft.recReq.ram ? `${draft.recReq.ram} GB RAM` : "16 GB RAM",
+        gpu: draft.recReq.gpu || "NVIDIA RTX 3070 / AMD RX 6700 XT",
+        storage: draft.recReq.storageNum ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix} NVMe SSD` : "50 GB NVMe SSD"
+      }
     };
     case "user-reviews": return {
       id, type,
@@ -449,22 +463,17 @@ function createGridElement(type: ElementType): GridElement {
       reviewBadgeBg: "rgba(46, 204, 113, 0.06)",
       reviewBadgeColor: "#2ecc71",
     };
-    case "sidebar-cta": return { id, type, sidebarOwned: true, sidebarPrice: "299.99", sidebarDiscount: 10 };
-    case "sidebar-info": return { id, type, sideDev: "Irongate Studios", sidePub: "Obsidian Arc", sideDate: "March 12, 2025", sideGenre: "Action RPG", sidePlatforms: ["Windows, macOS"] };
-    case "sidebar-ratings": return { id, type, sideRatings: [{ stars: 5, pct: 82 }, { stars: 4, pct: 12 }, { stars: 3, pct: 4 }, { stars: 2, pct: 1 }, { stars: 1, pct: 1 }] };
-    case "sidebar-community": return { id, type, sideOwners: "250,000+", sidePositive: "94%" };
+    case "sidebar-cta": return { id, type, sidebarOwned: true, sidebarPrice: draft.priceEgp || "0.00", sidebarDiscount: 0 };
+    case "sidebar-info": return { id, type, sideDev: "Developer Name", sidePub: "Publisher Name", sideDate: "Coming Soon", sideGenre: draft.genre || "Genre", sidePlatforms: ["Windows"] };
+    case "sidebar-ratings": return { id, type, sideRatings: [{ stars: 5, pct: 0 }, { stars: 4, pct: 0 }, { stars: 3, pct: 0 }, { stars: 2, pct: 0 }, { stars: 1, pct: 0 }] };
+    case "sidebar-community": return { id, type, sideOwners: "0", sidePositive: "0%" };
     case "heading": return { id, type, text: "Heading Text", font: "'Cinzel', serif", size: 22, weight: "700", color: "#ffffff", align: "left", letterSpacing: "0.04em", textTransform: "uppercase" };
     case "text": return { id, type, text: "Add paragraph text here. Customize text, fonts, colors, and line height.", font: "'Raleway', sans-serif", size: 14, weight: "400", color: TEXT_MUTED, align: "left", lineHeight: 1.65, textTransform: "none" };
     case "image": return { id, type, imageSrc: `https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop`, imageAlt: "Game screenshot", imageMaxWidth: 100, imageRadius: 4 };
     case "button": return { id, type, btnText: "DOWNLOAD NOW", btnBg: GREEN_ACCENT, btnColor: "#0e1116", btnIcon: "download", fullWidth: true, align: "center", btnRadius: 3, btnPaddingV: 12, btnPaddingH: 16, letterSpacing: "0.12em" };
     case "carousel": return {
       id, type,
-      carouselImages: [
-        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop"
-      ],
+      carouselImages: [],
       carouselHeight: 320,
       showThumbnails: true
     };
@@ -473,18 +482,15 @@ function createGridElement(type: ElementType): GridElement {
       featuresTitle: "KEY FEATURES",
       featuresCols: 3,
       featuresItems: [
-        { icon: "⚔️", title: "SOULSLIKE COMBAT", desc: "Master stamina and dodges.", color: HATHOR_ORANGE },
-        { icon: "🗺️", title: "VAST WORLD", desc: "Explore dungeons and zones.", color: HATHOR_ORANGE },
-        { icon: "🔥", title: "EPIC BOSSES", desc: "Skirmishes with guardians.", color: HATHOR_ORANGE }
+        { icon: "🎮", title: "FEATURE ONE", desc: "Describe a key feature.", color: HATHOR_ORANGE },
+        { icon: "🌍", title: "FEATURE TWO", desc: "Describe another feature.", color: HATHOR_ORANGE },
+        { icon: "⚡", title: "FEATURE THREE", desc: "Describe a third feature.", color: HATHOR_ORANGE }
       ]
     };
     case "recommendations": return { id, type, recsTitle: "MORE LIKE THIS", recsCount: 4 };
     case "game-hero": return {
       id, type,
-      heroImages: [
-        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop"
-      ],
+      heroImages: [],
       heroHeight: 360,
       showThumbnails: true
     };
@@ -492,16 +498,16 @@ function createGridElement(type: ElementType): GridElement {
       id, type,
       twoColRatio: "1:1",
       twoColGap: 24,
-      twoColLeftText: "Discover ancient lore buried beneath the ashes.",
+      twoColLeftText: "Add text content here.",
       twoColLeftFont: "'Raleway', sans-serif",
       twoColLeftSize: 14,
       twoColLeftColor: TEXT_MUTED,
-      twoColRightImg: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop"
+      twoColRightImg: ""
     };
     case "cta": return {
       id, type,
-      ctaTitle: "PRE-ORDER NOW",
-      ctaSubtitle: "Get exclusive pre-order armor set.",
+      ctaTitle: "CALL TO ACTION",
+      ctaSubtitle: "Add a compelling call to action subtitle.",
       ctaBtnText: "BUY NOW",
       ctaBtnColor: HATHOR_ORANGE,
       ctaBtnTextColor: "#ffffff"
@@ -518,12 +524,7 @@ function createSection(type: SectionType): Section {
   switch (type) {
     case "game-hero": return {
       ...base, type, pt: 0, pb: 0, ph: 0, bg: "transparent",
-      heroImages: [
-        "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop",
-      ],
+      heroImages: [],
       heroHeight: 480,
     };
     case "text": return {
@@ -540,21 +541,21 @@ function createSection(type: SectionType): Section {
       ...base, type, pt: 40, pb: 60, ph: 32,
       featuresTitle: "KEY FEATURES", featuresTitleFont: "'Cinzel', serif", featuresTitleColor: "#ffffff", featuresCols: 3,
       featuresItems: [
-        { icon: "⚔️", title: "UNFORGIVING COMBAT", desc: "Master 200+ weapons and stamina management.", color: HATHOR_ORANGE },
-        { icon: "🗺️", title: "VAST OPEN WORLD", desc: "Explore interconnected dungeons and storm zones.", color: HATHOR_ORANGE },
-        { icon: "🔥", title: "EPIC BOSS BATTLES", desc: "Face legendary guardians in multi-phase skirmishes.", color: HATHOR_ORANGE }
+        { icon: "🎮", title: "FEATURE ONE", desc: "Describe a key feature.", color: HATHOR_ORANGE },
+        { icon: "🌍", title: "FEATURE TWO", desc: "Describe another feature.", color: HATHOR_ORANGE },
+        { icon: "⚡", title: "FEATURE THREE", desc: "Describe a third feature.", color: HATHOR_ORANGE }
       ]
     };
     case "cta": return {
       ...base, type, pt: 48, pb: 48, ph: 32,
-      ctaTitle: "PRE-ORDER ELDEN THRONE", ctaSubtitle: "Get exclusive pre-order armor set and digital soundtrack.",
-      ctaPrice: "299.99 EGP", ctaBtnText: "BUY NOW", ctaBtnColor: HATHOR_ORANGE, ctaBtnTextColor: "#ffffff",
+      ctaTitle: "CALL TO ACTION", ctaSubtitle: "Add a compelling call to action subtitle.",
+      ctaPrice: "0.00 EGP", ctaBtnText: "BUY NOW", ctaBtnColor: HATHOR_ORANGE, ctaBtnTextColor: "#ffffff",
       ctaTitleFont: "'Cinzel', serif", ctaTitleColor: "#ffffff", ctaSubtitleColor: TEXT_MUTED, ctaAlign: "center"
     };
     case "two-col": return {
       ...base, type, pt: 40, pb: 40, ph: 32,
       twoColRatio: "1:1", twoColGap: 40,
-      twoColLeftText: "Discover ancient lore buried beneath the ashes of fallen sanctuaries in an interconnected world.",
+      twoColLeftText: "Add text content here.",
       twoColLeftFont: "'Raleway', sans-serif", twoColLeftSize: 15, twoColLeftWeight: "400", twoColLeftColor: TEXT_MUTED,
       twoColRightImg: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop"
     };
@@ -588,12 +589,7 @@ const INITIAL: Section[] = [
   {
     id: "sec_game_hero", type: "game-hero",
     bg: "transparent", bgImage: "", overlay: 0, pt: 0, pb: 0, ph: 0, radius: 0,
-    heroImages: [
-      "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop",
-    ],
+    heroImages: [],
     heroHeight: 480,
   },
   {
@@ -2090,6 +2086,21 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
           </PropSection>
         )}
 
+        {/* ── HEADING BLOCK ── */}
+        {targetObj.type === "heading" && (
+          <PropSection title="Heading Properties & Typography">
+            <PropRow label="Heading Text"><TxtInput value={targetObj.text || targetObj.textContent || ""} onChange={v => updateTarget({ text: v, textContent: v })} /></PropRow>
+            <PropRow label="Font Family"><SelField value={targetObj.font || targetObj.textFont || "'Cinzel', serif"} onChange={v => updateTarget({ font: v, textFont: v })} options={FONTS} /></PropRow>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <PropRow label="Size"><NumField value={targetObj.size || targetObj.textSize || 22} onChange={v => updateTarget({ size: v, textSize: v })} unit="px" min={12} max={120} /></PropRow>
+              <PropRow label="Weight"><SelField value={targetObj.weight || targetObj.textWeight || "700"} onChange={v => updateTarget({ weight: v, textWeight: v })} options={WEIGHTS} /></PropRow>
+            </div>
+            <PropRow label="Text Color"><ColorField value={targetObj.color || targetObj.textColor || "#ffffff"} onChange={v => updateTarget({ color: v, textColor: v })} /></PropRow>
+            <PropRow label="Alignment"><AlignField value={targetObj.align || targetObj.textAlign || "left"} onChange={v => updateTarget({ align: v, textAlign: v })} /></PropRow>
+            <PropRow label="Letter Spacing"><TxtInput value={targetObj.letterSpacing || "0.04em"} onChange={v => updateTarget({ letterSpacing: v })} placeholder="0.04em" /></PropRow>
+          </PropSection>
+        )}
+
         {/* ── TEXT BLOCK (Top level section or grid element) ── */}
         {targetObj.type === "text" && (
           <PropSection title="Text Content & Typography">
@@ -2102,6 +2113,19 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
             <PropRow label="Text Color"><ColorField value={targetObj.textColor || targetObj.color || TEXT_MUTED} onChange={v => updateTarget({ textColor: v, color: v })} /></PropRow>
             <PropRow label="Max Width"><NumField value={targetObj.textMaxWidth || 700} onChange={v => updateTarget({ textMaxWidth: v })} unit="px" min={200} max={1400} step={20} /></PropRow>
             <PropRow label="Alignment"><AlignField value={targetObj.textAlign || targetObj.align || "left"} onChange={v => updateTarget({ textAlign: v, align: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Container Background & Padding</p>
+            <PropRow label="Background Color"><ColorField value={targetObj.bg || "transparent"} onChange={v => updateTarget({ bg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Border Color"><ColorField value={targetObj.borderColor || "transparent"} onChange={v => updateTarget({ borderColor: v })} /></PropRow>
+            <PropRow label="Border Radius"><NumField value={targetObj.radius || 0} onChange={v => updateTarget({ radius: v })} unit="px" max={40} /></PropRow>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+              <PropRow label="Pad Top"><NumField value={targetObj.pt ?? 0} onChange={v => updateTarget({ pt: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Bottom"><NumField value={targetObj.pb ?? 0} onChange={v => updateTarget({ pb: v })} unit="px" max={200} /></PropRow>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <PropRow label="Pad Left"><NumField value={targetObj.pl ?? targetObj.ph ?? 0} onChange={v => updateTarget({ pl: v, ph: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Right"><NumField value={targetObj.pr ?? targetObj.ph ?? 0} onChange={v => updateTarget({ pr: v, ph: v })} unit="px" max={200} /></PropRow>
+            </div>
           </PropSection>
         )}
 
@@ -2260,8 +2284,32 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
         {/* ── ABOUT GAME ── */}
         {targetObj.type === "about-game" && (
-          <PropSection title="About Game Sections">
+          <PropSection title="About Game Design & Styling">
             <PropRow label="Section Title"><TxtInput value={targetObj.aboutTitle || ""} onChange={v => updateTarget({ aboutTitle: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Typography & Fonts</p>
+            <PropRow label="Title Font"><SelField value={targetObj.titleFont || targetObj.font || "'Cinzel', serif"} onChange={v => updateTarget({ titleFont: v, font: v })} options={FONTS} /></PropRow>
+            <PropRow label="Body Text Font"><SelField value={targetObj.textFont || "'Raleway', sans-serif"} onChange={v => updateTarget({ textFont: v })} options={FONTS} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Color Palette & Accents</p>
+            <PropRow label="Main Title Color"><ColorField value={targetObj.titleColor || "#f4b183"} onChange={v => updateTarget({ titleColor: v })} /></PropRow>
+            <PropRow label="Subheading Color"><ColorField value={targetObj.subTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ subTitleColor: v })} /></PropRow>
+            <PropRow label="Body Text Color"><ColorField value={targetObj.textColor || TEXT_MUTED} onChange={v => updateTarget({ textColor: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Background & Container Styling</p>
+            <PropRow label="Container Background"><ColorField value={targetObj.aboutBg || targetObj.bg || "transparent"} onChange={v => updateTarget({ aboutBg: v, bg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Container Border Color"><ColorField value={targetObj.aboutBorder || targetObj.borderColor || "transparent"} onChange={v => updateTarget({ aboutBorder: v, borderColor: v })} /></PropRow>
+            <PropRow label="Container Radius"><NumField value={targetObj.aboutRadius ?? targetObj.radius ?? 0} onChange={v => updateTarget({ aboutRadius: v, radius: v })} unit="px" max={40} /></PropRow>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+              <PropRow label="Pad Top"><NumField value={targetObj.pt ?? 16} onChange={v => updateTarget({ pt: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Bottom"><NumField value={targetObj.pb ?? 16} onChange={v => updateTarget({ pb: v })} unit="px" max={200} /></PropRow>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <PropRow label="Pad Left"><NumField value={targetObj.pl ?? targetObj.ph ?? 16} onChange={v => updateTarget({ pl: v, ph: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Right"><NumField value={targetObj.pr ?? targetObj.ph ?? 16} onChange={v => updateTarget({ pr: v, ph: v })} unit="px" max={200} /></PropRow>
+            </div>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Content Subsections</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
               {(targetObj.aboutSections || []).map((sec: any, i: number) => (
                 <div key={i} style={{ border: `1px solid ${BORDER}`, padding: 10, background: "rgba(20, 24, 32, 0.6)", display: "flex", flexDirection: "column", gap: 6 }}>
@@ -2296,10 +2344,28 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
 
         {/* ── SYSTEM REQS ── */}
         {targetObj.type === "system-reqs" && (
-          <PropSection title="System Requirements Settings">
-            <p style={{ fontSize: 10, color: TEXT_MUTED, marginBottom: 10 }}>Configure minimum vs recommended specifications for hardware compatibility.</p>
+          <PropSection title="System Requirements Design & Specs">
+            <PropRow label="Section Title"><TxtInput value={targetObj.reqsTitle || "SYSTEM REQUIREMENTS"} onChange={v => updateTarget({ reqsTitle: v })} /></PropRow>
 
-            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE }}>Recommended Specifications</p>
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Typography & Fonts</p>
+            <PropRow label="Title Font"><SelField value={targetObj.titleFont || targetObj.font || "'Cinzel', serif"} onChange={v => updateTarget({ titleFont: v, font: v })} options={FONTS} /></PropRow>
+            <PropRow label="Specs Text Font"><SelField value={targetObj.textFont || "'Raleway', sans-serif"} onChange={v => updateTarget({ textFont: v })} options={FONTS} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Color Palette & Accents</p>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.titleColor || "#f4b183"} onChange={v => updateTarget({ titleColor: v })} /></PropRow>
+            <PropRow label="Tab & Icon Accent Color"><ColorField value={targetObj.accentColor || targetObj.reqsAccentColor || HATHOR_ORANGE} onChange={v => updateTarget({ accentColor: v, reqsAccentColor: v })} /></PropRow>
+            <PropRow label="Card Background"><ColorField value={targetObj.reqsCardBg || targetObj.cardBg || SURFACE} onChange={v => updateTarget({ reqsCardBg: v, cardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Card Border Color"><ColorField value={targetObj.reqsCardBorder || targetObj.cardBorder || BORDER} onChange={v => updateTarget({ reqsCardBorder: v, cardBorder: v })} /></PropRow>
+            <PropRow label="Specs Label Color"><ColorField value={targetObj.labelColor || TEXT_MUTED} onChange={v => updateTarget({ labelColor: v })} /></PropRow>
+            <PropRow label="Specs Value Text Color"><ColorField value={targetObj.valueColor || targetObj.textColor || "#ffffff"} onChange={v => updateTarget({ valueColor: v, textColor: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Padding & Spacing</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <PropRow label="Pad Top"><NumField value={targetObj.pt ?? 0} onChange={v => updateTarget({ pt: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Bottom"><NumField value={targetObj.pb ?? 0} onChange={v => updateTarget({ pb: v })} unit="px" max={200} /></PropRow>
+            </div>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Recommended Specifications</p>
             <PropRow label="OS"><TxtInput value={(targetObj.reqsRec || {}).os || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), os: v } })} /></PropRow>
             <PropRow label="CPU"><TxtInput value={(targetObj.reqsRec || {}).cpu || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), cpu: v } })} /></PropRow>
             <PropRow label="RAM"><TxtInput value={(targetObj.reqsRec || {}).ram || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), ram: v } })} /></PropRow>
@@ -3034,9 +3100,67 @@ export function generatePageJSON(sections: Section[], pageSettings?: PageSetting
   };
 }
 
+function syncSectionsWithDraft(sections: Section[]): Section[] {
+  const draft = getGameInfoDraft();
+  if (!draft) return sections;
+
+  return sections.map(sec => {
+    if (sec.type === "grid" && sec.gridCols) {
+      return {
+        ...sec,
+        gridCols: sec.gridCols.map(col => ({
+          ...col,
+          elements: col.elements.map(el => {
+            if (el.type === "game-header") {
+              return {
+                ...el,
+                gameCategory: (draft.genre || el.gameCategory || "GENRE").toUpperCase(),
+                gameTitle: (draft.title || el.gameTitle || "YOUR GAME TITLE").toUpperCase(),
+                gameTags: draft.tags && draft.tags.length > 0 ? draft.tags : (el.gameTags || ["TAG 1", "TAG 2"]),
+                gameDesc: draft.shortDesc || el.gameDesc
+              };
+            }
+            if (el.type === "sidebar-info") {
+              return {
+                ...el,
+                sideGenre: draft.genre || el.sideGenre
+              };
+            }
+            if (el.type === "system-reqs") {
+              return {
+                ...el,
+                reqsMin: {
+                  os: (draft.minReq.os && draft.minReq.os.length > 0) ? draft.minReq.os.join(", ") : (el.reqsMin?.os || "Windows 10 (64-bit)"),
+                  cpu: draft.minReq.cpu || el.reqsMin?.cpu || "Intel Core i5-8400",
+                  ram: draft.minReq.ram ? `${draft.minReq.ram} GB RAM` : (el.reqsMin?.ram || "12 GB RAM"),
+                  gpu: draft.minReq.gpu || el.reqsMin?.gpu || "NVIDIA GTX 1070",
+                  storage: draft.minReq.storageNum ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix} Available Space` : (el.reqsMin?.storage || "85 GB Available Space")
+                },
+                reqsRec: {
+                  os: (draft.recReq.os && draft.recReq.os.length > 0) ? draft.recReq.os.join(", ") : (el.reqsRec?.os || "Windows 11 (64-bit)"),
+                  cpu: draft.recReq.cpu || el.reqsRec?.cpu || "Intel Core i7-12700K",
+                  ram: draft.recReq.ram ? `${draft.recReq.ram} GB RAM` : (el.reqsRec?.ram || "16 GB RAM"),
+                  gpu: draft.recReq.gpu || el.reqsRec?.gpu || "NVIDIA RTX 4070",
+                  storage: draft.recReq.storageNum ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix} NVMe SSD` : (el.reqsRec?.storage || "85 GB NVMe SSD")
+                }
+              };
+            }
+            return el;
+          })
+        }))
+      };
+    }
+    return sec;
+  });
+}
+
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function DesignerPage() {
-  const [state, setState] = useState({ sections: INITIAL, history: [INITIAL], historyIdx: 0 });
+  const navigate = useNavigate();
+  const [state, setState] = useState(() => {
+    const synced = syncSectionsWithDraft(INITIAL);
+    return { sections: synced, history: [synced], historyIdx: 0 };
+  });
   const [pageSettings, setPageSettings] = useState<PageSettings>(DEFAULT_PAGE_SETTINGS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedColIdx, setSelectedColIdx] = useState<number | null>(null);
@@ -3053,18 +3177,96 @@ export default function DesignerPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
   const [showModal, setShowModal] = useState<boolean>(true);
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
+  const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  const [importJsonText, setImportJsonText] = useState<string>("");
+  const [importError, setImportError] = useState<string | null>(null);
   const [previewDevice, setPreviewDevice] = useState<Device>("desktop");
 
   const [device, setDevice] = useState<Device>("desktop");
-  const [gameTitle, setGameTitle] = useState("ELDEN THRONE");
+  const [gameTitle, setGameTitle] = useState(() => getGameInfoDraft().title || "YOUR GAME TITLE");
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const draft = getGameInfoDraft();
+    if (draft) {
+      if (draft.title) setGameTitle(draft.title.toUpperCase());
+      setState(prev => {
+        const synced = syncSectionsWithDraft(prev.sections);
+        return {
+          ...prev,
+          sections: synced,
+          history: prev.historyIdx === 0 ? [synced] : prev.history,
+        };
+      });
+    }
+  }, []);
 
   const { sections, history, historyIdx } = state;
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 2200); }
+
+  function handleImportJSON(jsonString: string) {
+    try {
+      if (!jsonString.trim()) {
+        setImportError("Please paste JSON content or select a .json file.");
+        return;
+      }
+      const parsed = JSON.parse(jsonString);
+      let importedSections: Section[] = [];
+      let importedSettings: Partial<PageSettings> | null = null;
+
+      if (Array.isArray(parsed)) {
+        importedSections = parsed;
+      } else if (parsed && typeof parsed === "object") {
+        if (Array.isArray(parsed.sections)) {
+          importedSections = parsed.sections;
+        }
+        if (parsed.pageSettings && typeof parsed.pageSettings === "object") {
+          importedSettings = parsed.pageSettings;
+        } else if (parsed.pageBody && typeof parsed.pageBody === "object") {
+          importedSettings = parsed.pageBody;
+        }
+      }
+
+      if (!importedSections || importedSections.length === 0) {
+        setImportError("No valid sections found in JSON. Expected { sections: [...] } or Section[].");
+        return;
+      }
+
+      // Ensure all sections and elements have unique IDs
+      const sanitizedSections = importedSections.map(sec => ({
+        ...sec,
+        id: sec.id || uid(),
+        gridCols: sec.gridCols ? sec.gridCols.map(col => ({
+          ...col,
+          id: col.id || uid(),
+          elements: (col.elements || []).map(el => ({
+            ...el,
+            id: el.id || uid()
+          }))
+        })) : sec.gridCols
+      }));
+
+      if (importedSettings) {
+        setPageSettings(prev => ({ ...prev, ...importedSettings }));
+      }
+
+      mutateSections(sanitizedSections);
+      setSelectedId(null);
+      setSelectedColIdx(null);
+      setSelectedElementId(null);
+      setShowImportModal(false);
+      setImportJsonText("");
+      setImportError(null);
+      showToast("Layout JSON imported and rendered successfully!");
+    } catch (err: any) {
+      setImportError(`Invalid JSON format: ${err?.message || "Syntax error"}`);
+    }
+  }
 
   function mutateSections(newSections: Section[], skipHistory = false) {
     setState(prev => {
@@ -3382,6 +3584,96 @@ export default function DesignerPage() {
         </div>
       )}
 
+      {/* Import JSON Modal */}
+      {showImportModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent} style={{ maxWidth: 620, width: "90%" }}>
+            <div className={styles.modalHeader}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <FileUp size={16} style={{ color: HATHOR_ORANGE }} />
+                <h3 className={styles.modalTitle}>Import Page Layout JSON</h3>
+              </div>
+              <button onClick={() => { setShowImportModal(false); setImportError(null); }} className={styles.modalCloseBtn}>
+                <X size={14} />
+              </button>
+            </div>
+
+            <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
+              <p style={{ fontSize: 12, color: TEXT_MUTED, margin: 0, lineHeight: 1.5 }}>
+                Upload a <code>.json</code> file or paste JSON generated by AI or exported from another session to render the page in the designer.
+              </p>
+
+              {/* Upload File Input */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <label
+                  style={{
+                    padding: "8px 14px", border: `1px dashed ${HATHOR_ORANGE}`, background: "rgba(242, 107, 33, 0.08)",
+                    color: HATHOR_ORANGE, borderRadius: 4, fontSize: 11, fontWeight: 800, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 6
+                  }}
+                >
+                  <Upload size={12} /> Choose .json File
+                  <input
+                    type="file"
+                    accept=".json,application/json"
+                    style={{ display: "none" }}
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                          const text = ev.target?.result as string;
+                          if (text) {
+                            setImportJsonText(text);
+                            handleImportJSON(text);
+                          }
+                        };
+                        reader.readAsText(file);
+                      }
+                    }}
+                  />
+                </label>
+                <span style={{ fontSize: 11, color: TEXT_MUTED }}>or paste raw JSON below:</span>
+              </div>
+
+              {/* Raw Textarea Input */}
+              <textarea
+                value={importJsonText}
+                onChange={e => { setImportJsonText(e.target.value); setImportError(null); }}
+                placeholder='Paste layout JSON here... e.g. { "sections": [...] }'
+                rows={12}
+                style={{
+                  width: "100%", background: "#0c0e12", border: `1px solid ${BORDER}`, color: "#e6edf3",
+                  fontFamily: "monospace", fontSize: 11, padding: 12, borderRadius: 4, outline: "none",
+                  resize: "vertical", boxSizing: "border-box"
+                }}
+              />
+
+              {importError && (
+                <div style={{ padding: "8px 12px", background: "rgba(231, 76, 60, 0.12)", border: "1px solid #e74c3c", color: "#e74c3c", fontSize: 11, borderRadius: 4, fontWeight: 700 }}>
+                  {importError}
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4 }}>
+                <button
+                  onClick={() => { setShowImportModal(false); setImportError(null); }}
+                  style={{ padding: "8px 16px", background: "transparent", border: `1px solid ${BORDER}`, color: TEXT_MUTED, borderRadius: 4, fontSize: 11, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleImportJSON(importJsonText)}
+                  style={{ padding: "8px 20px", background: HATHOR_ORANGE, border: "none", color: "#ffffff", borderRadius: 4, fontSize: 11, fontWeight: 900, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                >
+                  <Check size={12} /> Render Page Layout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Live Game Details Page Full-screen Preview Modal */}
       {showPreviewModal && createPortal(
         <div style={{
@@ -3482,7 +3774,26 @@ export default function DesignerPage() {
       <div className={styles.topToolbar}>
         <HathorLogo height={20} width="auto" className={styles.logo} />
         <div className={styles.toolbarDivider} />
-        <span className={styles.titleTag}>Store Page Designer</span>
+        <span className={styles.titleTag}>Developer Portal</span>
+        <div className={styles.toolbarDivider} />
+
+        {/* Step Flow Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 10, fontFamily: 'monospace' }}>
+          <button
+            onClick={() => navigate({ to: "/game-info-form" })}
+            style={{ background: "transparent", border: "1px solid #353c4d", borderRadius: 3, padding: "4px 10px", display: "flex", alignItems: "center", gap: 6, color: "#8C9AAA", cursor: "pointer" }}
+            title="Return to Step 1: Game Info"
+          >
+            <span style={{ width: 18, height: 18, borderRadius: "50%", border: "1px solid #353c4d", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 900 }}>1</span>
+            <span>Step 1: Game Info</span>
+          </button>
+          <span style={{ color: "rgba(140, 154, 170, 0.4)" }}>────────</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 10px", background: "rgba(242, 107, 33, 0.14)", border: `1px solid ${HATHOR_ORANGE}`, borderRadius: 3 }}>
+            <span style={{ width: 18, height: 18, borderRadius: "50%", background: HATHOR_ORANGE, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 900 }}>2</span>
+            <span style={{ color: HATHOR_ORANGE, fontWeight: 800 }}>Step 2: Store Designer</span>
+          </div>
+        </div>
+
         <div className={styles.toolbarDivider} />
         <input
           value={gameTitle} onChange={e => setGameTitle(e.target.value)}
@@ -3528,13 +3839,16 @@ export default function DesignerPage() {
         <button onClick={() => setShowPreviewModal(true)} className={styles.saveDraftBtn} style={{ background: "rgba(56, 211, 159, 0.14)", border: `1px solid ${GREEN_ACCENT}`, color: GREEN_ACCENT, fontWeight: 800 }}>
           <Eye size={12} /> Preview Game Page
         </button>
+        <button onClick={() => setShowImportModal(true)} className={styles.saveDraftBtn} style={{ background: "rgba(242, 107, 33, 0.14)", border: `1px solid ${HATHOR_ORANGE}`, color: HATHOR_ORANGE, fontWeight: 800 }}>
+          <FileUp size={12} /> Import JSON
+        </button>
         <button onClick={() => {
           showToast("Draft saved as JSON");
           console.log("Draft pageTheme JSON:", generatePageJSON(sections, pageSettings));
         }} className={styles.saveDraftBtn}>
           <Save size={11} /> Save Draft
         </button>
-        <button onClick={() => setShowPublishModal(true)} className={styles.saveDraftBtn} style={{ background: "transparent", border: `1px solid ${HATHOR_ORANGE}`, color: HATHOR_ORANGE }}>
+        <button onClick={() => setShowPublishModal(true)} className={styles.saveDraftBtn} style={{ background: "transparent", border: `1px solid ${BORDER}`, color: TEXT_MUTED }}>
           <FileJson size={11} /> View JSON
         </button>
         <button onClick={() => setShowPublishModal(true)} className={styles.publishBtn}>
