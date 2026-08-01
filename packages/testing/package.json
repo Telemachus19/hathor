@@ -19,9 +19,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hathor/contracts": "workspace:*"
+    "@hathor/contracts": "workspace:*",
+    "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "20.19.43",
     "@types/supertest": "7.2.1",
     "supertest": "7.2.2",

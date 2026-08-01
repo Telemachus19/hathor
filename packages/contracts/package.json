@@ -13,7 +13,7 @@
   },
   "scripts": {
     "generate:api": "openapi-typescript openapi/public-api.openapi.yaml -o src/generated/openapi.ts",
-    "build": "pnpm generate:api && tsup src/index.ts --format esm --dts",
+    "build": "corepack pnpm generate:api && tsup src/index.ts --format esm --dts",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",

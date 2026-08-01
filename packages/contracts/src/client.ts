@@ -65,8 +65,8 @@ export class ApiClient {
 
     // Middleware to attach Authorization Bearer header, Anti-CSRF headers, and handle errors
     this.fetchClient.use({
-      onRequest: async ({ request, options }) => {
-        const method = ((options as any)?.method || request.method || 'GET').toUpperCase();
+      onRequest: async ({ request }) => {
+        const method = (request.method || 'GET').toUpperCase();
         const isMutatingMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method);
 
         // Attach Authorization Bearer header if access token exists
