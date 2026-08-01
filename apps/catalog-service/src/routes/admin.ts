@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
@@ -46,37 +46,26 @@ router.patch(
     }
 
     try {
-      const [existingGame] = await catalogDb
-        .select()
-        .from(games)
-        .where(eq(games.id, gameId))
-        .limit(1);
+      const result = await catalogDb.transaction(async (tx) => {
+        // SELECT ... FOR UPDATE acquires a row-level lock to prevent
+        // concurrent status transitions from validating against stale data
+        const [existingGame] = await tx
+          .select()
+          .from(games)
+          .where(eq(games.id, gameId))
+          .limit(1)
+          .for('update');
 
-      if (!existingGame) {
-        return res.status(404).json({
-          success: false,
-          error: {
-            code: 'NOT_FOUND',
-            message: `Game not found: ${gameId}`,
-            correlationId,
-          },
-        });
-      }
+        if (!existingGame) {
+          return { error: 'NOT_FOUND' as const };
+        }
 
-      const priorStatus = existingGame.status || 'draft';
+        const priorStatus = existingGame.status || 'draft';
 
-      if (!isValidTransition(priorStatus, status)) {
-        return res.status(409).json({
-          success: false,
-          error: {
-            code: 'CONFLICT',
-            message: `Disallowed status transition from '${priorStatus}' to '${status}'`,
-            correlationId,
-          },
-        });
-      }
+        if (!isValidTransition(priorStatus, status)) {
+          return { error: 'CONFLICT' as const, priorStatus };
+        }
 
-      await catalogDb.transaction(async (tx) => {
         await tx
           .update(games)
           .set({
@@ -93,7 +82,31 @@ router.patch(
           reason: reason || null,
           correlationId,
         });
+
+        return { error: null as null };
       });
+
+      if (result.error === 'NOT_FOUND') {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: 'NOT_FOUND',
+            message: `Game not found: ${gameId}`,
+            correlationId,
+          },
+        });
+      }
+
+      if (result.error === 'CONFLICT') {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'CONFLICT',
+            message: `Disallowed status transition from '${result.priorStatus}' to '${status}'`,
+            correlationId,
+          },
+        });
+      }
 
       return res.status(204).send();
     } catch (error) {

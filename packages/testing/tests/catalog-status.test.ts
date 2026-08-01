@@ -36,6 +36,7 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
       from: vi.fn(() => chain),
       where: vi.fn(() => chain),
       limit: vi.fn(() => chain),
+      for: vi.fn(() => chain),
       then: vi.fn((onFulfilled, onRejected) => {
         return Promise.resolve().then(getNextSelectMock).then(onFulfilled, onRejected);
       }),
@@ -153,7 +154,7 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
   describe('2. Admin Game Status Route (PATCH /admin/games/:gameId/status)', () => {
     it('executes valid status transition (pending_review -> published) and records audit log', async () => {
       (globalThis as any).selectMockQueue = [
-        [{ id: gameId, creatorId, status: 'pending_review' }], // Existing game lookup
+        [{ id: gameId, creatorId, status: 'pending_review' }], // Existing game lookup (inside tx)
       ];
 
       const res = await request(app)
@@ -164,13 +165,14 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
       expect(res.status).toBe(204);
       expect(catalogDb.transaction).toHaveBeenCalled();
       const mockTx = (globalThis as any).mockTx;
+      expect(mockTx.select).toHaveBeenCalled();
       expect(mockTx.update).toHaveBeenCalled();
       expect(mockTx.insert).toHaveBeenCalled();
     });
 
     it('rejects disallowed status transition (draft -> published) with 409 CONFLICT', async () => {
       (globalThis as any).selectMockQueue = [
-        [{ id: gameId, creatorId, status: 'draft' }], // Existing game in draft state
+        [{ id: gameId, creatorId, status: 'draft' }], // Existing game in draft state (inside tx)
       ];
 
       const res = await request(app)
@@ -185,7 +187,7 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
 
     it('returns 404 NOT_FOUND for non-existent game', async () => {
       (globalThis as any).selectMockQueue = [
-        [], // Game not found
+        [], // Game not found (inside tx)
       ];
 
       const res = await request(app)
@@ -211,7 +213,7 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
   describe('3. Creator Game Status Route (PATCH /creator/games/:gameId/status)', () => {
     it('allows creator owner to submit draft game for review (draft -> pending_review)', async () => {
       (globalThis as any).selectMockQueue = [
-        [{ id: gameId, creatorId, status: 'draft' }], // Game owned by creatorId
+        [{ id: gameId, creatorId, status: 'draft' }], // Game owned by creatorId (inside tx)
       ];
 
       const res = await request(app)
@@ -222,15 +224,13 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
       expect(res.status).toBe(204);
       expect(catalogDb.transaction).toHaveBeenCalled();
       const mockTx = (globalThis as any).mockTx;
+      expect(mockTx.select).toHaveBeenCalled();
       expect(mockTx.update).toHaveBeenCalled();
       expect(mockTx.insert).toHaveBeenCalled();
     });
 
     it('rejects creator attempting to publish directly (draft -> published)', async () => {
-      (globalThis as any).selectMockQueue = [
-        [{ id: gameId, creatorId, status: 'draft' }],
-      ];
-
+      // Creator target status check happens before DB access — no mock queue needed
       const res = await request(app)
         .patch(`/creator/games/${gameId}/status`)
         .set('Authorization', `Bearer ${creatorToken}`)
@@ -258,3 +258,4 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
     });
   });
 });
+

@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
@@ -49,63 +49,45 @@ router.patch(
       });
     }
 
+    // Creator target status restriction check (stateless — no DB needed)
+    if (!isCreatorAllowedTargetStatus(status)) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: `Creators are not allowed to transition status directly to '${status}'. Only Admins can set status to '${status}'.`,
+          correlationId,
+        },
+      });
+    }
+
     try {
-      const [existingGame] = await catalogDb
-        .select()
-        .from(games)
-        .where(eq(games.id, gameId))
-        .limit(1);
+      const result = await catalogDb.transaction(async (tx) => {
+        // SELECT ... FOR UPDATE acquires a row-level lock to prevent
+        // concurrent status transitions from validating against stale data
+        const [existingGame] = await tx
+          .select()
+          .from(games)
+          .where(eq(games.id, gameId))
+          .limit(1)
+          .for('update');
 
-      if (!existingGame) {
-        return res.status(404).json({
-          success: false,
-          error: {
-            code: 'NOT_FOUND',
-            message: `Game not found: ${gameId}`,
-            correlationId,
-          },
-        });
-      }
+        if (!existingGame) {
+          return { error: 'NOT_FOUND' as const };
+        }
 
-      // 1. Verify creator ownership
-      if (existingGame.creatorId !== req.user!.id) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'FORBIDDEN',
-            message: 'You do not have permission to modify this game',
-            correlationId,
-          },
-        });
-      }
+        // Verify creator ownership
+        if (existingGame.creatorId !== req.user!.id) {
+          return { error: 'FORBIDDEN_OWNERSHIP' as const };
+        }
 
-      // 2. Verify creator target status restriction (e.g., cannot publish directly)
-      if (!isCreatorAllowedTargetStatus(status)) {
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'FORBIDDEN',
-            message: `Creators are not allowed to transition status directly to '${status}'. Only Admins can set status to '${status}'.`,
-            correlationId,
-          },
-        });
-      }
+        const priorStatus = existingGame.status || 'draft';
 
-      const priorStatus = existingGame.status || 'draft';
+        // Verify valid state machine transition
+        if (!isValidTransition(priorStatus, status)) {
+          return { error: 'CONFLICT' as const, priorStatus };
+        }
 
-      // 3. Verify valid state machine transition
-      if (!isValidTransition(priorStatus, status)) {
-        return res.status(409).json({
-          success: false,
-          error: {
-            code: 'CONFLICT',
-            message: `Disallowed status transition from '${priorStatus}' to '${status}'`,
-            correlationId,
-          },
-        });
-      }
-
-      await catalogDb.transaction(async (tx) => {
         await tx
           .update(games)
           .set({
@@ -122,7 +104,42 @@ router.patch(
           reason: reason || null,
           correlationId,
         });
+
+        return { error: null as null };
       });
+
+      if (result.error === 'NOT_FOUND') {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: 'NOT_FOUND',
+            message: `Game not found: ${gameId}`,
+            correlationId,
+          },
+        });
+      }
+
+      if (result.error === 'FORBIDDEN_OWNERSHIP') {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: 'You do not have permission to modify this game',
+            correlationId,
+          },
+        });
+      }
+
+      if (result.error === 'CONFLICT') {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'CONFLICT',
+            message: `Disallowed status transition from '${result.priorStatus}' to '${status}'`,
+            correlationId,
+          },
+        });
+      }
 
       return res.status(204).send();
     } catch (error) {
