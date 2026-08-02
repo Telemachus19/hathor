@@ -96,6 +96,7 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
       {
         sub: adminId,
         iss: 'hathor-auth-service',
+        aud: 'hathor-services',
         roles: ['gamer', 'creator', 'admin'],
         exp: Math.floor(Date.now() / 1000) + 900,
       },
@@ -106,6 +107,7 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
       {
         sub: creatorId,
         iss: 'hathor-auth-service',
+        aud: 'hathor-services',
         roles: ['gamer', 'creator'],
         exp: Math.floor(Date.now() / 1000) + 900,
       },
@@ -116,6 +118,7 @@ describe('Catalog Game Publication State Machine & Status Routes', () => {
       {
         sub: gamerId,
         iss: 'hathor-auth-service',
+        aud: 'hathor-services',
         roles: ['gamer'],
         exp: Math.floor(Date.now() / 1000) + 900,
       },

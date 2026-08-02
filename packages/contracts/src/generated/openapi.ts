@@ -84,7 +84,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/store/apps': {
+  '/store/games': {
     parameters: {
       query?: never;
       header?: never;
@@ -100,7 +100,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/store/apps/{slug}': {
+  '/store/games/{slug}': {
     parameters: {
       query?: never;
       header?: never;

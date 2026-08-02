@@ -5,12 +5,13 @@ import { authDb } from '../../../infrastructure/db/client.js';
 import { users, refreshTokenFamilies, refreshTokens } from '../../../infrastructure/db/schema.js';
 import { verifyPassword } from '../../../domain/password.js';
 import { generateAccessToken } from '../../../domain/token.js';
+import { ZodSchemas } from '@hathor/contracts';
 
 export async function loginHandler(req: Request, res: Response) {
   const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
-  const { email, password } = req.body;
 
-  if (!email || typeof email !== 'string' || !password || typeof password !== 'string') {
+  const parseResult = ZodSchemas.LoginRequest.safeParse(req.body);
+  if (!parseResult.success) {
     return res.status(401).json({
       success: false,
       error: {
@@ -24,6 +25,8 @@ export async function loginHandler(req: Request, res: Response) {
       },
     });
   }
+
+  const { email, password } = parseResult.data;
 
   try {
     const normalizedEmail = email.toLowerCase();

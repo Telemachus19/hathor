@@ -84,7 +84,7 @@ paths:
             content: { application/json: { schema: { $ref: '#/components/schemas/User' } } },
           }
         '401': { $ref: '#/components/responses/Unauthenticated' }
-  /store/apps:
+  /store/games:
     get:
       tags: [Store]
       operationId: listGames
@@ -105,7 +105,7 @@ paths:
             content: { application/json: { schema: { $ref: '#/components/schemas/GamePage' } } },
           }
         '400': { $ref: '#/components/responses/ValidationFailed' }
-  /store/apps/{slug}:
+  /store/games/{slug}:
     get:
       tags: [Store]
       operationId: getGameBySlug
