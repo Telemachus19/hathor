@@ -1,6 +1,25 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import jwt from 'jsonwebtoken';
+import { generateKeyPairSync, sign } from 'node:crypto';
+
+const { privateKey, publicKey } = generateKeyPairSync('rsa', {
+  modulusLength: 2048,
+  publicKeyEncoding: { type: 'spki', format: 'pem' },
+  privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+});
+
+process.env.JWT_PUBLIC_KEY = publicKey;
+
+function signJwt(payload: object, privateKeyPem: string): string {
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const base64UrlHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+  const base64UrlPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signatureInput = `${base64UrlHeader}.${base64UrlPayload}`;
+  const signature = sign('sha256', Buffer.from(signatureInput), privateKeyPem).toString(
+    'base64url'
+  );
+  return `${signatureInput}.${signature}`;
+}
 
 const mockSelectChain: any = {};
 mockSelectChain.from = vi.fn().mockReturnValue(mockSelectChain);
@@ -46,14 +65,26 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
   const creatorAId = 'creator-uuid-aaa';
   const creatorBId = 'creator-uuid-bbb';
 
-  const tokenCreatorA = jwt.sign(
-    { sub: creatorAId, roles: ['creator'] },
-    'secret-key'
+  const tokenCreatorA = signJwt(
+    {
+      sub: creatorAId,
+      iss: 'hathor-auth-service',
+      aud: 'hathor-services',
+      roles: ['creator'],
+      exp: Math.floor(Date.now() / 1000) + 900,
+    },
+    privateKey
   );
 
-  const tokenCreatorB = jwt.sign(
-    { sub: creatorBId, roles: ['creator'] },
-    'secret-key'
+  const tokenCreatorB = signJwt(
+    {
+      sub: creatorBId,
+      iss: 'hathor-auth-service',
+      aud: 'hathor-services',
+      roles: ['creator'],
+      exp: Math.floor(Date.now() / 1000) + 900,
+    },
+    privateKey
   );
 
   it('rejects unauthenticated requests with 401 Unauthorized', async () => {
@@ -141,9 +172,15 @@ describe('POST /creator/games - Draft Game Creation', () => {
   });
 
   const creatorAId = 'creator-uuid-aaa';
-  const tokenCreatorA = jwt.sign(
-    { sub: creatorAId, roles: ['creator'] },
-    'secret-key'
+  const tokenCreatorA = signJwt(
+    {
+      sub: creatorAId,
+      iss: 'hathor-auth-service',
+      aud: 'hathor-services',
+      roles: ['creator'],
+      exp: Math.floor(Date.now() / 1000) + 900,
+    },
+    privateKey
   );
 
   it('rejects unauthenticated creation requests with 401', async () => {

@@ -1,0 +1,50 @@
+{
+  "info": {
+    "_postman_id": "3d59e8ab-7c09-4d6b-bd8b-e85dcfac36b9",
+    "name": "Hathor Library Service API",
+    "description": "Collection to test the Hathor Library Service endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Liveness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{libraryBaseUrl}}/health/live",
+              "host": ["{{libraryBaseUrl}}"],
+              "path": ["health", "live"]
+            },
+            "description": "Verifies if the Library Service process is running."
+          },
+          "response": []
+        },
+        {
+          "name": "Readiness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{libraryBaseUrl}}/health/ready",
+              "host": ["{{libraryBaseUrl}}"],
+              "path": ["health", "ready"]
+            },
+            "description": "Verifies if the database and queue connections are ready."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "libraryBaseUrl",
+      "value": "http://localhost:5004",
+      "type": "string"
+    }
+  ]
+}

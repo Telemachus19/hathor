@@ -1,5 +1,7 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
+import cartRouter from './routes/cart.js';
+import txnRouter from './routes/txn.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -22,6 +24,9 @@ export function createCommerceApp(checkDependencies: ReadinessCheck): Express {
     })
   );
   app.use(express.json());
+
+  app.use('/cart', cartRouter);
+  app.use('/txn', txnRouter);
 
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({

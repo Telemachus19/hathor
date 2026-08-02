@@ -60,3 +60,22 @@ export const gameTags = catalogSchema.table(
     pk: primaryKey({ columns: [table.gameId, table.tagId] }),
   })
 );
+
+export const gameStatusTransitions = catalogSchema.table(
+  'game_status_transitions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    actorId: uuid('actor_id').notNull(),
+    priorStatus: varchar('prior_status', { length: 20 }).notNull(),
+    nextStatus: varchar('next_status', { length: 20 }).notNull(),
+    reason: text('reason'),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    gameIdx: index('idx_game_status_transitions_game').on(table.gameId),
+  })
+);

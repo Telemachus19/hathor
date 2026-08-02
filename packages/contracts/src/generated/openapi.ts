@@ -84,7 +84,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/store/apps': {
+  '/store/games': {
     parameters: {
       query?: never;
       header?: never;
@@ -100,7 +100,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/store/apps/{slug}': {
+  '/store/games/{slug}': {
     parameters: {
       query?: never;
       header?: never;
@@ -291,6 +291,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  '/creator/games/{gameId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Creator requests game status transition (e.g. submitting draft for review or retracting to draft). */
+    patch: operations['updateCreatorGameStatus'];
     trace?: never;
   };
   '/creator/games/{gameId}/ai/theme-proposals': {
@@ -1110,6 +1127,32 @@ export interface operations {
         content?: never;
       };
       403: components['responses']['Forbidden'];
+    };
+  };
+  updateCreatorGameStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GameStatusChangeRequest'];
+      };
+    };
+    responses: {
+      /** @description Status transition recorded */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+      409: components['responses']['Conflict'];
     };
   };
   proposeAiTheme: {

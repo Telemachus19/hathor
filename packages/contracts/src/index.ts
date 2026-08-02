@@ -25,3 +25,5 @@ export type AiThemeProposal = components['schemas']['AiThemeProposal'];
 export type RoleChangeRequest = components['schemas']['RoleChangeRequest'];
 export type GameStatusChangeRequest = components['schemas']['GameStatusChangeRequest'];
 export type ApiErrorResponse = components['schemas']['Error'];
+
+export { schemas as ZodSchemas } from './generated/zod.js';

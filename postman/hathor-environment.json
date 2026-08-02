@@ -1,0 +1,27 @@
+{
+  "id": "e028ff7a-3dbd-4f16-bd8b-7013ac365b2a",
+  "name": "Hathor Local Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "gameId",
+      "value": "e0bfa9da-411a-4d7a-8f5c-8973a9e3d0c2",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-07-29T16:00:00Z",
+  "_postman_exported_using": "Postman/11.0.0"
+}
