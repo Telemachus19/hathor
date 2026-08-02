@@ -52,5 +52,7 @@ export function verifyAccessToken(token: string): AccessTokenClaims {
   const { publicKeyPem } = getKeyPair();
   return jwt.verify(token, publicKeyPem, {
     algorithms: ['RS256'],
+    issuer: 'hathor-auth-service',
+    audience: 'hathor-services',
   }) as AccessTokenClaims;
 }
