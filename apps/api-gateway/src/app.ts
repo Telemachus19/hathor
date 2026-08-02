@@ -49,7 +49,12 @@ export function createGatewayApp(): Express {
     cors({
       origin: (origin, callback) => {
         // Allow requests with no Origin header (e.g. same-origin, server-to-server, health checks)
-        if (!origin || origin === corsOrigin || origin.startsWith('http://localhost:')) {
+        // or matching exact corsOrigin, localhost, or 127.0.0.1 origins
+        if (
+          !origin ||
+          origin === corsOrigin ||
+          /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+        ) {
           callback(null, true);
         } else {
           callback(null, false);
