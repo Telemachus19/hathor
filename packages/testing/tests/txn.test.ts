@@ -305,7 +305,14 @@ describe('Commerce Transaction & Checkout API Endpoints', () => {
         [], // Phase 1 idempotency check: none
         [{ userId, version: 1 }], // Phase 1 cart select
         [{ gameId }], // Phase 1 cart items
-        [{ key: idempotencyKey, userId, requestHash: 'different_hash_from_concurrent', orderId: existingOrderId }], // Phase 2 re-verification: different hash!
+        [
+          {
+            key: idempotencyKey,
+            userId,
+            requestHash: 'different_hash_from_concurrent',
+            orderId: existingOrderId,
+          },
+        ], // Phase 2 re-verification: different hash!
       ];
 
       const res = await request(app)

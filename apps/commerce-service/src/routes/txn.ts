@@ -49,7 +49,10 @@ async function checkAndReplayIdempotencyTx(
     return { isHandled: false as const };
   }
 
-  if (existingRecord.userId === currentUserId && existingRecord.requestHash === currentRequestHash) {
+  if (
+    existingRecord.userId === currentUserId &&
+    existingRecord.requestHash === currentRequestHash
+  ) {
     const [existingOrder] = await dbOrTx
       .select()
       .from(orders)
