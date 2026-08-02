@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   GameDetailsHeader,
   GameOwnershipBanner,
-  GameDetailsHero,
   GameAbout,
   GameSystemReqs,
   GameReviews,
@@ -24,7 +23,9 @@ import {
 } from '../routes/game-details/components';
 
 const REVERSE_NAME_MAP: Record<string, string> = {
-  GameHero: 'game-hero', 'game-hero': 'game-hero',
+  GameHero: 'media-carousel', 'game-hero': 'media-carousel',
+  MediaCarousel: 'media-carousel', 'media-carousel': 'media-carousel', MediaShowcase: 'media-carousel',
+  CarouselShowcase: 'media-carousel', Carousel: 'media-carousel', 'carousel': 'media-carousel',
   GameHeader: 'game-header', 'game-header': 'game-header',
   OwnershipBanner: 'ownership-banner', 'ownership-banner': 'ownership-banner',
   AboutGame: 'about-game', 'about-game': 'about-game',
@@ -36,7 +37,6 @@ const REVERSE_NAME_MAP: Record<string, string> = {
   SidebarCommunity: 'sidebar-community', 'sidebar-community': 'sidebar-community',
   Recommendations: 'recommendations', 'recommendations': 'recommendations',
   CustomGrid: 'grid', GridSection: 'grid', 'grid': 'grid',
-  CarouselShowcase: 'carousel', Carousel: 'carousel', 'carousel': 'carousel',
   FeaturesGrid: 'features', 'features': 'features',
   TwoColumns: 'two-col', 'two-col': 'two-col',
   CTABlock: 'cta', CTA: 'cta', 'cta': 'cta',
@@ -67,7 +67,11 @@ function normalizeNode(node: any): any {
   };
 }
 
-function ComponentSectionWrapper({ s, children }: { s: any; children: React.ReactNode }) {
+function ComponentSectionWrapper({ s, isTopLevel, children }: { s: any; isTopLevel?: boolean; children: React.ReactNode }) {
+  if (!isTopLevel) {
+    return <div style={{ width: '100%', boxSizing: 'border-box', marginBottom: s.mb ?? 16 }}>{children}</div>;
+  }
+
   const pt = s.pt ?? 0;
   const pb = s.pb ?? 0;
   const leftPad = s.pl ?? s.ph ?? 0;
@@ -115,7 +119,7 @@ function ComponentSectionWrapper({ s, children }: { s: any; children: React.Reac
           }}
         />
       )}
-      <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', boxSizing: 'border-box' }}>
         {children}
       </div>
     </div>
@@ -126,7 +130,9 @@ function ComponentNodeContent({ s, nodeKey, pageSettings }: { s: any; nodeKey: s
   const type = s.type;
   const device = s.device || pageSettings?.device;
 
-  if (type === 'game-hero') return <GameDetailsHero key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  if (type === 'media-carousel' || type === 'carousel' || type === 'game-hero') {
+    return <GameCarousel key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  }
   if (type === 'game-header') return <GameDetailsHeader key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'ownership-banner') return <GameOwnershipBanner key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'about-game') return <GameAbout key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
@@ -137,7 +143,6 @@ function ComponentNodeContent({ s, nodeKey, pageSettings }: { s: any; nodeKey: s
   if (type === 'sidebar-ratings') return <GameSidebarRatings key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'sidebar-community') return <GameSidebarCommunity key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'recommendations') return <MoreLikeThis key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'carousel') return <GameCarousel key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'features') return <GameFeatures key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'two-col') return <GameTwoCol key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'cta') return <GameCtaBlock key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
@@ -192,9 +197,9 @@ function ComponentNodeContent({ s, nodeKey, pageSettings }: { s: any; nodeKey: s
           return (
             <div key={col.id || cIdx} style={{ background: colBg, borderRadius: 4, padding: col.ph || 0, boxSizing: 'border-box', width: '100%', minWidth: 0 }}>
               {Array.isArray(colElements) ? colElements.map((el: any, eIdx: number) => (
-                <ComponentNodeRenderer key={el.id || eIdx} node={el} nodeKey={`${nodeKey}-col${cIdx}-el${eIdx}`} pageSettings={pageSettings} />
+                <ComponentNodeRenderer key={el.id || eIdx} node={el} nodeKey={`${nodeKey}-col${cIdx}-el${eIdx}`} pageSettings={pageSettings} isTopLevel={false} />
               )) : Object.entries(colElements).map(([elKey, elVal]) => (
-                <ComponentNodeRenderer key={elKey} node={elVal} nodeKey={elKey} pageSettings={pageSettings} />
+                <ComponentNodeRenderer key={elKey} node={elVal} nodeKey={elKey} pageSettings={pageSettings} isTopLevel={false} />
               ))}
             </div>
           );
@@ -206,22 +211,20 @@ function ComponentNodeContent({ s, nodeKey, pageSettings }: { s: any; nodeKey: s
   return <div key={nodeKey} />;
 }
 
-function ComponentNodeRenderer({ node, nodeKey, pageSettings }: { node: any; nodeKey: string | number; pageSettings?: any }) {
+function ComponentNodeRenderer({ node, nodeKey, pageSettings, isTopLevel = true }: { node: any; nodeKey: string | number; pageSettings?: any; isTopLevel?: boolean }) {
   const s = normalizeNode(node);
   return (
-    <ComponentSectionWrapper s={s}>
+    <ComponentSectionWrapper s={s} isTopLevel={isTopLevel}>
       <ComponentNodeContent s={s} nodeKey={nodeKey} pageSettings={pageSettings} />
     </ComponentSectionWrapper>
   );
 }
 
-/**
- * Pure JSON-to-React Node Renderer with ZERO assumptions & ZERO infinite recursion.
- */
-export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number; pageSettings?: any }> = ({
+export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number; pageSettings?: any; isTopLevel?: boolean }> = ({
   node,
   nodeKey,
   pageSettings,
+  isTopLevel = true,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -235,7 +238,7 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number; pageS
     return (
       <>
         {node.map((child, idx) => (
-          <PureJsonNode key={`${nodeKey}-${idx}`} node={child} nodeKey={`${nodeKey}-${idx}`} pageSettings={pageSettings} />
+          <PureJsonNode key={`${nodeKey}-${idx}`} node={child} nodeKey={`${nodeKey}-${idx}`} pageSettings={pageSettings} isTopLevel={isTopLevel} />
         ))}
       </>
     );
@@ -243,7 +246,7 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number; pageS
 
   if (typeof node === 'object') {
     if (node.component || node.type) {
-      return <ComponentNodeRenderer node={node} nodeKey={nodeKey} pageSettings={pageSettings} />;
+      return <ComponentNodeRenderer node={node} nodeKey={nodeKey} pageSettings={pageSettings} isTopLevel={isTopLevel} />;
     }
 
     const Tag = node.tag || 'div';
@@ -269,7 +272,7 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number; pageS
 
     const children =
       node.children !== undefined ? (
-        <PureJsonNode node={node.children} nodeKey={`${nodeKey}-c`} pageSettings={pageSettings} />
+        <PureJsonNode node={node.children} nodeKey={`${nodeKey}-c`} pageSettings={pageSettings} isTopLevel={false} />
       ) : null;
 
     return React.createElement(Tag, props, children);
@@ -278,9 +281,6 @@ export const PureJsonNode: React.FC<{ node: any; nodeKey: string | number; pageS
   return null;
 };
 
-/**
- * Parses raw string JSON or object JSON and converts it directly to React elements with 100% 1:1 component mapping.
- */
 export function parseAndRenderPureJson(jsonInput: string | Record<string, any>, overrideDevice?: string): React.ReactNode[] {
   let parsed: Record<string, any>;
   let pageSettings: any = undefined;
@@ -291,10 +291,7 @@ export function parseAndRenderPureJson(jsonInput: string | Record<string, any>, 
     } catch (e) {
       console.error('Failed to parse layout JSON:', e);
       return [
-        <div
-          key="err"
-          style={{ color: '#ff4d4d', padding: '1rem', background: 'rgba(255,0,0,0.1)' }}
-        >
+        <div key="err" style={{ color: '#ff4d4d', padding: '1rem', background: 'rgba(255,0,0,0.1)' }}>
           Invalid Layout JSON Payload
         </div>,
       ];
@@ -307,25 +304,29 @@ export function parseAndRenderPureJson(jsonInput: string | Record<string, any>, 
     return [];
   }
 
-  if (parsed.pageBody) {
-    pageSettings = parsed.pageBody;
+  if (parsed.pageBody || parsed.pageSettings) {
+    pageSettings = parsed.pageBody || parsed.pageSettings;
   }
 
   if (overrideDevice) {
     pageSettings = { ...(pageSettings || {}), device: overrideDevice };
   }
 
-  if (parsed.layout && typeof parsed.layout === 'object') {
-    parsed = parsed.layout;
-  }
-
+  let sectionNodes: any[] = [];
   if (Array.isArray(parsed)) {
-    return parsed.map((item, idx) => (
-      <PureJsonNode key={`node-${idx}`} node={item} nodeKey={`node-${idx}`} pageSettings={pageSettings} />
-    ));
+    sectionNodes = parsed;
+  } else if (Array.isArray(parsed.sections)) {
+    sectionNodes = parsed.sections;
+  } else if (parsed.layout && Array.isArray(parsed.layout.sections)) {
+    sectionNodes = parsed.layout.sections;
+  } else if (parsed.layout && typeof parsed.layout === 'object') {
+    sectionNodes = Object.values(parsed.layout);
+  } else {
+    const { pageBody, pageSettings: ps, theme, ...rest } = parsed;
+    sectionNodes = Object.values(rest);
   }
 
-  return Object.entries(parsed).map(([key, val]) => (
-    <PureJsonNode key={key} node={val} nodeKey={key} pageSettings={pageSettings} />
+  return sectionNodes.map((item, idx) => (
+    <PureJsonNode key={`sec-${idx}`} node={item} nodeKey={`sec-${idx}`} pageSettings={pageSettings} isTopLevel={true} />
   ));
 }

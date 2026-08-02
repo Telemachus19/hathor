@@ -8,7 +8,6 @@ export interface GameAboutProps {
 }
 
 const HATHOR_ORANGE = '#f26b21';
-const BORDER = '#2e3544';
 const TEXT_MUTED = '#7a8b9e';
 
 export const GameAbout: React.FC<GameAboutProps> = (props) => {
@@ -30,10 +29,13 @@ export const GameAbout: React.FC<GameAboutProps> = (props) => {
   const bg = s.aboutBg || s.bg || 'transparent';
   const borderColor = s.aboutBorder || s.borderColor || 'transparent';
   const borderRadius = s.aboutRadius ?? s.radius ?? 0;
-  const pt = s.pt ?? s.padTop ?? 0;
-  const pb = s.pb ?? s.padBottom ?? 0;
-  const pl = s.pl ?? s.ph ?? 0;
-  const pr = s.pr ?? s.ph ?? 0;
+  const isCard = (bg !== 'transparent' && bg !== 'none' && bg !== '') || (borderColor !== 'transparent' && borderColor !== 'none' && borderColor !== '');
+  const defaultPad = isCard ? (device === 'mobile' ? 16 : 24) : 0;
+  const pt = s.pt ?? s.padTop ?? defaultPad;
+  const pb = s.pb ?? s.padBottom ?? defaultPad;
+  const pl = s.pl ?? s.ph ?? defaultPad;
+  const pr = s.pr ?? s.ph ?? defaultPad;
+  const borderStyle = (borderColor && borderColor !== 'transparent' && borderColor !== 'none') ? `1px solid ${borderColor}` : 'none';
 
   return (
     <div
@@ -41,7 +43,7 @@ export const GameAbout: React.FC<GameAboutProps> = (props) => {
         width: '100%',
         boxSizing: 'border-box',
         background: bg,
-        border: borderColor !== 'transparent' ? `1px solid ${borderColor}` : 'none',
+        border: borderStyle,
         borderRadius: borderRadius,
         paddingTop: pt,
         paddingBottom: pb,
@@ -49,7 +51,7 @@ export const GameAbout: React.FC<GameAboutProps> = (props) => {
         paddingRight: pr,
       }}
     >
-      <div style={{ borderBottom: `1px solid ${s.headerBorder || BORDER}`, paddingBottom: 12, marginBottom: 24 }}>
+      <div style={{ borderBottom: (borderColor && borderColor !== 'transparent' && borderColor !== 'none') ? `1px solid ${borderColor}` : '1px solid rgba(255,255,255,0.1)', paddingBottom: 12, marginBottom: 24 }}>
         <h2 style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 16 : 18, fontWeight: 900, color: mainTitleColor, letterSpacing: '0.14em', textTransform: 'uppercase', margin: 0 }}>
           {title}
         </h2>

@@ -1,6 +1,5 @@
 export * from './GameDetailsHeader';
 export * from './GameOwnershipBanner';
-export * from './GameDetailsHero';
 export * from './GameAbout';
 export * from './GameSystemReqs';
 export * from './GameReviews';

@@ -107,28 +107,77 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
         <div className={styles.twoColInputs}>
           <div className={styles.fieldGroup}>
             <label className={styles.fieldLabelSub}>
-              <MemoryStick size={11} /> RAM (GB)
+              <MemoryStick size={11} /> RAM
             </label>
-            <input
-              type="text"
-              value={tierData.ram}
-              onChange={e => onChangeTier(tierKey, 'ram', e.target.value)}
-              placeholder="12"
-              className={styles.inputField}
-            />
+            <div style={{ display: 'flex', border: '1px solid #393E46', borderRadius: 3, overflow: 'hidden', background: '#1C2028' }}>
+              <input
+                type="text"
+                value={tierData.ram}
+                onChange={e => onChangeTier(tierKey, 'ram', e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="8"
+                style={{ flex: 1, border: 'none', background: 'transparent', color: '#EEEEEE', fontFamily: 'monospace', fontSize: 13, padding: '10px 14px', outline: 'none', width: 0 }}
+              />
+              <div style={{ padding: '0 14px', background: '#141820', borderLeft: '1px solid #393E46', color: '#8C9AAA', fontSize: 11, fontWeight: 700, fontFamily: 'monospace', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                GB
+              </div>
+            </div>
           </div>
 
           <div className={styles.fieldGroup}>
             <label className={styles.fieldLabelSub}>
-              <HardDrive size={11} /> Storage Space
+              <HardDrive size={11} /> STORAGE
             </label>
-            <input
-              type="text"
-              value={tierData.storageNum}
-              onChange={e => onChangeTier(tierKey, 'storageNum', e.target.value)}
-              placeholder="85"
-              className={styles.inputField}
-            />
+            <div style={{ display: 'flex', border: '1px solid #393E46', borderRadius: 3, overflow: 'hidden', background: '#1C2028' }}>
+              <input
+                type="text"
+                value={tierData.storageNum}
+                onChange={e => onChangeTier(tierKey, 'storageNum', e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="40"
+                style={{ flex: 1, border: 'none', background: 'transparent', color: '#EEEEEE', fontFamily: 'monospace', fontSize: 13, padding: '10px 14px', outline: 'none', width: 0 }}
+              />
+              <button
+                type="button"
+                onClick={() => onChangeTier(tierKey, 'storageSuffix', 'GB')}
+                style={{
+                  border: 'none',
+                  borderLeft: '1px solid #393E46',
+                  background: (tierData.storageSuffix || 'GB') === 'GB' ? '#482a1d' : '#141820',
+                  color: (tierData.storageSuffix || 'GB') === 'GB' ? '#f26b21' : '#8C9AAA',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  fontFamily: 'monospace',
+                  padding: '0 12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                GB
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeTier(tierKey, 'storageSuffix', 'MB')}
+                style={{
+                  border: 'none',
+                  borderLeft: '1px solid #393E46',
+                  background: tierData.storageSuffix === 'MB' ? '#482a1d' : '#141820',
+                  color: tierData.storageSuffix === 'MB' ? '#f26b21' : '#8C9AAA',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  fontFamily: 'monospace',
+                  padding: '0 12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                MB
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -16,6 +16,8 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({ s = {}, device = 'de
 
   const title = s.ctaTitle || s.title || 'PRE-ORDER NOW';
   const subtitle = s.ctaSubtitle || s.subtitle || 'Get exclusive pre-order bonuses and early access.';
+  const titleColor = s.ctaTitleColor || s.titleColor || TEXT_PRIMARY;
+  const subtitleColor = s.ctaSubtitleColor || s.subtitleColor || TEXT_MUTED;
   const btnText = s.ctaBtnText || s.btnText || 'BUY NOW';
   const btnBg = s.ctaBtnColor || s.btnBg || HATHOR_ORANGE;
   const btnTextColor = s.ctaBtnTextColor || s.btnTextColor || '#ffffff';
@@ -30,10 +32,10 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({ s = {}, device = 'de
       width: '100%',
       boxSizing: 'border-box'
     }}>
-      <h2 style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 18 : 24, fontWeight: 900, color: TEXT_PRIMARY, margin: '0 0 10px 0', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+      <h2 style={{ fontFamily: titleFont, fontSize: device === 'mobile' ? 18 : 24, fontWeight: 900, color: titleColor, margin: '0 0 10px 0', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
         {title}
       </h2>
-      <p style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 12 : 14, color: TEXT_MUTED, margin: '0 0 24px 0', lineHeight: 1.5 }}>
+      <p style={{ fontFamily: textFont, fontSize: device === 'mobile' ? 12 : 14, color: subtitleColor, margin: '0 0 24px 0', lineHeight: 1.5 }}>
         {subtitle}
       </p>
       <button style={{

@@ -34,7 +34,7 @@ export const GameOwnershipBanner: React.FC<GameOwnershipBannerProps> = ({ s = {}
       background: bg, border: `1px solid ${border}`, borderRadius: 4,
       padding: isMobile ? '12px 14px' : '14px 20px', display: 'flex', flexDirection: isMobile ? 'column' : 'row',
       alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: isMobile ? 12 : 16,
-      marginBottom: isMobile ? 20 : 28, width: '100%', boxSizing: 'border-box'
+      marginBottom: s.mb ?? 0, width: '100%', boxSizing: 'border-box'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ width: 36, height: 36, borderRadius: 3, border: `1px solid ${border}`, background: 'rgba(56, 211, 159, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: GREEN_ACCENT, flexShrink: 0 }}>

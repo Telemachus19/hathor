@@ -31,28 +31,64 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
   const cardBg = s.sideCardBg || SURFACE;
   const cardBorder = s.sideCardBorder || BORDER;
   const accentColor = s.sideAccentColor || HATHOR_ORANGE;
-  const headerFont = s.sideHeaderFont || props.pageSettings?.titleFont || "'Cinzel', serif";
-  const bodyColor = s.sideBodyColor || TEXT_MUTED;
+  const headerFont = s.sideHeaderFont || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const bodyColor = s.sideBodyColor || s.ownedSubtextColor || TEXT_MUTED;
   const isMobile = props.device === 'mobile';
 
+  // Colors for OWNED and BUY modes
   const headerColor = isOwned 
-    ? (s.ownedHeaderColor || s.sideHeaderColor || GREEN_ACCENT) 
-    : (s.unownedHeaderColor || s.sideHeaderColor || HATHOR_ORANGE);
+    ? (s.ownedTitleColor || s.ownedHeaderColor || GREEN_ACCENT) 
+    : (s.unownedTitleColor || s.unownedHeaderColor || s.sideHeaderColor || HATHOR_ORANGE);
 
-  const price = s.sidebarPrice || s.price || props.priceEgp || '0.00';
-  const discount = s.sidebarDiscount ?? s.discount ?? props.discountPercent ?? 10;
+  const priceColor = s.sidePriceColor || s.priceColor || GREEN_ACCENT;
+  const originalPriceColor = s.originalPriceColor || TEXT_MUTED;
+  const discountBg = s.discountBg || s.recsDiscountBg || HATHOR_ORANGE;
+  const discountTextColor = s.discountTextColor || "#ffffff";
 
+  // Price & Discount calculation (Prioritizing DB / previous info screen data props.priceEgp & props.discountPercent)
+  const catalogPrice = props.priceEgp;
+  const catalogDiscount = props.discountPercent;
+
+  const basePriceStr = (catalogPrice !== undefined && catalogPrice !== null && catalogPrice !== '')
+    ? String(catalogPrice)
+    : (s.sidebarPrice || s.price || '299.99');
+
+  const discount = (catalogDiscount !== undefined && catalogDiscount !== null)
+    ? Number(catalogDiscount)
+    : (s.sidebarDiscount ?? s.discount ?? 0);
+
+  const numericBasePrice = parseFloat(String(basePriceStr).replace(/[^0-9.]/g, ''));
+
+  let originalPriceText = '';
+  let finalPriceText = '';
+
+  if (!isNaN(numericBasePrice) && numericBasePrice > 0) {
+    if (discount > 0) {
+      const discountedVal = numericBasePrice * (1 - discount / 100);
+      originalPriceText = s.sidebarOriginalPrice || `EGP ${numericBasePrice.toFixed(2)}`;
+      finalPriceText = `EGP ${discountedVal.toFixed(2)}`;
+    } else {
+      finalPriceText = `EGP ${numericBasePrice.toFixed(2)}`;
+    }
+  } else {
+    finalPriceText = String(basePriceStr).startsWith('EGP') ? basePriceStr : `EGP ${basePriceStr}`;
+    if (discount > 0 && s.sidebarOriginalPrice) {
+      originalPriceText = s.sidebarOriginalPrice;
+    }
+  }
+
+  // Buttons
   const primaryBtnText = isOwned 
     ? (s.ownedPrimaryBtnText || "DOWNLOAD NOW") 
     : (s.unownedPrimaryBtnText || "ADD TO CART");
 
   const primaryBtnBg = isOwned 
     ? (s.ownedPrimaryBtnBg || GREEN_ACCENT) 
-    : (s.unownedPrimaryBtnBg || HATHOR_ORANGE);
+    : (s.unownedPrimaryBtnBg || s.primaryBtnBg || HATHOR_ORANGE);
 
   const primaryBtnTextColor = isOwned 
     ? (s.ownedPrimaryBtnTextColor || "#0e1116") 
-    : (s.unownedPrimaryBtnTextColor || "#ffffff");
+    : (s.unownedPrimaryBtnTextColor || s.primaryBtnTextColor || "#ffffff");
 
   const primaryBtnRadius = s.ctaBtnRadius ?? 3;
 
@@ -80,15 +116,22 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
         </>
       ) : (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, gap: 10, flexWrap: 'wrap' }}>
             {discount > 0 && (
-              <span style={{ background: HATHOR_ORANGE, color: '#fff', fontSize: 12, fontWeight: 900, padding: '4px 8px', borderRadius: 3, fontFamily: 'monospace' }}>
+              <span style={{ background: discountBg, color: discountTextColor, fontSize: 12, fontWeight: 900, padding: '4px 8px', borderRadius: 3, fontFamily: 'monospace' }}>
                 -{discount}%
               </span>
             )}
-            <span style={{ fontSize: 22, fontWeight: 900, color: GREEN_ACCENT, fontFamily: 'monospace' }}>
-              EGP {price}
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginLeft: 'auto' }}>
+              {discount > 0 && originalPriceText && (
+                <span style={{ fontSize: 11, color: originalPriceColor, textDecoration: 'line-through', fontFamily: 'monospace', opacity: 0.8, marginBottom: 2 }}>
+                  {originalPriceText}
+                </span>
+              )}
+              <span style={{ fontSize: 20, fontWeight: 900, color: priceColor, fontFamily: 'monospace' }}>
+                {finalPriceText}
+              </span>
+            </div>
           </div>
           <button style={{ width: '100%', background: primaryBtnBg, border: 'none', color: primaryBtnTextColor, padding: '12px 16px', borderRadius: primaryBtnRadius, fontWeight: 900, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, letterSpacing: '0.08em' }}>
             <ShoppingCart size={14} /> {primaryBtnText}
@@ -111,20 +154,22 @@ export const GameSidebarInfo: React.FC<GameDetailsSidebarProps> = (props) => {
   const cardBorder = s.infoCardBorder || BORDER;
   const titleFont = s.infoTitleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
   const titleColor = s.infoTitleColor || HATHOR_ORANGE;
+  const labelColor = s.infoLabelColor || TEXT_MUTED;
+  const valueColor = s.infoValueColor || s.infoTextColor || TEXT_PRIMARY;
   const labelFont = s.infoLabelFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
   const isMobile = props.device === 'mobile';
 
   return (
     <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: isMobile ? 14 : 20, width: '100%', boxSizing: 'border-box' }}>
-      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14, borderBottom: `1px solid ${BORDER}`, paddingBottom: 8, margin: '0 0 14px 0' }}>
+      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14, borderBottom: `1px solid ${cardBorder}`, paddingBottom: 8, margin: '0 0 14px 0' }}>
         {s.infoTitle || "GAME DETAILS"}
       </h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, color: TEXT_MUTED, fontFamily: labelFont }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Developer:</span> <strong style={{ color: TEXT_PRIMARY }}>{dev}</strong></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Publisher:</span> <strong style={{ color: TEXT_PRIMARY }}>{pub}</strong></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Release Date:</span> <strong style={{ color: TEXT_PRIMARY }}>{date}</strong></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Genre:</span> <strong style={{ color: TEXT_PRIMARY }}>{genre}</strong></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Platforms:</span> <strong style={{ color: TEXT_PRIMARY }}>{Array.isArray(platforms) ? platforms.join(', ') : String(platforms)}</strong></div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12, fontFamily: labelFont }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor }}>Developer:</span> <strong style={{ color: valueColor }}>{dev}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor }}>Publisher:</span> <strong style={{ color: valueColor }}>{pub}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor }}>Release Date:</span> <strong style={{ color: valueColor }}>{date}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor }}>Genre:</span> <strong style={{ color: valueColor }}>{genre}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor }}>Platforms:</span> <strong style={{ color: valueColor }}>{Array.isArray(platforms) ? platforms.join(', ') : String(platforms)}</strong></div>
       </div>
     </div>
   );
@@ -141,23 +186,25 @@ export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => 
   const titleFont = s.ratingsTitleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
   const titleColor = s.ratingsTitleColor || HATHOR_ORANGE;
   const fillColor = s.ratingsFillColor || HATHOR_ORANGE;
+  const labelColor = s.ratingsLabelColor || TEXT_MUTED;
+  const valueColor = s.ratingsValueColor || s.ratingsTextColor || TEXT_MUTED;
   const isMobile = props.device === 'mobile';
 
   return (
     <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: isMobile ? 14 : 20, width: '100%', boxSizing: 'border-box' }}>
-      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px 0', borderBottom: `1px solid ${BORDER}`, paddingBottom: 8 }}>
+      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px 0', borderBottom: `1px solid ${cardBorder}`, paddingBottom: 8 }}>
         {s.ratingsTitle || "RATING BREAKDOWN"}
       </h4>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {ratings.map((r: any, idx: number) => {
           const pct = r.percent ?? r.pct ?? 0;
           return (
-            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: TEXT_MUTED }}>
-              <span style={{ width: 40, fontFamily: 'monospace' }}>{r.stars} Stars</span>
-              <div style={{ flex: 1, height: 6, background: '#0f131a', borderRadius: 3, overflow: 'hidden' }}>
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11 }}>
+              <span style={{ width: 40, fontFamily: 'monospace', color: labelColor }}>{r.stars} Stars</span>
+              <div style={{ flex: 1, height: 6, background: 'rgba(0,0,0,0.2)', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{ width: `${pct}%`, height: '100%', background: fillColor }} />
               </div>
-              <span style={{ width: 30, textAlign: 'right', fontFamily: 'monospace' }}>{pct}%</span>
+              <span style={{ width: 30, textAlign: 'right', fontFamily: 'monospace', color: valueColor }}>{pct}%</span>
             </div>
           );
         })}
@@ -175,19 +222,22 @@ export const GameSidebarCommunity: React.FC<GameDetailsSidebarProps> = (props) =
   const cardBg = s.communityCardBg || SURFACE;
   const cardBorder = s.communityCardBorder || BORDER;
   const titleFont = s.communityTitleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
-  const titleColor = s.communityTitleColor || HATHOR_ORANGE;
+  const titleColor = s.communityTitleColor || s.commTitleColor || HATHOR_ORANGE;
+  const labelColor = s.communityLabelColor || s.commLabelColor || TEXT_MUTED;
+  const valueColor = s.communityValueColor || s.commValueColor || TEXT_PRIMARY;
+  const ratingColor = s.communityRatingColor || s.commRatingColor || GREEN_ACCENT;
   const textFont = props.pageSettings?.textFont || "'Raleway', sans-serif";
   const isMobile = props.device === 'mobile';
 
   return (
     <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 4, padding: isMobile ? 14 : 20, width: '100%', boxSizing: 'border-box' }}>
-      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px 0', borderBottom: `1px solid ${BORDER}`, paddingBottom: 8 }}>
+      <h4 style={{ fontFamily: titleFont, fontSize: 13, fontWeight: 900, color: titleColor, letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 14px 0', borderBottom: `1px solid ${cardBorder}`, paddingBottom: 8 }}>
         {s.communityTitle || "COMMUNITY"}
       </h4>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: TEXT_MUTED, fontFamily: textFont }}>Players:</span> <strong style={{ color: TEXT_PRIMARY, fontFamily: textFont }}>{players}</strong></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: TEXT_MUTED, fontFamily: textFont }}>Avg. Gameplay:</span> <strong style={{ color: TEXT_PRIMARY, fontFamily: textFont }}>{avgGameplay}</strong></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: TEXT_MUTED, fontFamily: textFont }}>Positive Rating:</span> <strong style={{ color: GREEN_ACCENT, fontFamily: textFont }}>{positive}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor, fontFamily: textFont }}>Players:</span> <strong style={{ color: valueColor, fontFamily: textFont }}>{players}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor, fontFamily: textFont }}>Avg. Gameplay:</span> <strong style={{ color: valueColor, fontFamily: textFont }}>{avgGameplay}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: labelColor, fontFamily: textFont }}>Positive Rating:</span> <strong style={{ color: ratingColor, fontFamily: textFont }}>{positive}</strong></div>
       </div>
     </div>
   );

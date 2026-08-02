@@ -1,5 +1,5 @@
 import React from 'react';
-import { GameDetailsHero } from '../routes/game-details/components/GameDetailsHero';
+import { GameCarousel } from '../routes/game-details/components/GameCarousel';
 import { GameDetailsHeader } from '../routes/game-details/components/GameDetailsHeader';
 import { GameOwnershipBanner } from '../routes/game-details/components/GameOwnershipBanner';
 import { GameAbout } from '../routes/game-details/components/GameAbout';
@@ -39,7 +39,7 @@ export interface ReactLayoutStructure {
  */
 export const DEFAULT_LAYOUT_JSON_STRING = JSON.stringify(
   {
-    hero: { id: 'hero', component: 'GameDetailsHero', enabled: true },
+    hero: { id: 'hero', component: 'MediaCarousel', enabled: true },
     mainColumn: [
       { id: 'header', component: 'GameDetailsHeader', enabled: true },
       { id: 'ownership_banner', component: 'GameOwnershipBanner', enabled: true },
@@ -59,7 +59,7 @@ export const DEFAULT_LAYOUT_JSON_STRING = JSON.stringify(
  */
 export const CUSTOM_LAYOUT_JSON_STRING = JSON.stringify(
   {
-    hero: { id: 'hero', component: 'GameDetailsHero', enabled: true },
+    hero: { id: 'hero', component: 'MediaCarousel', enabled: true },
     mainColumn: [
       {
         id: 'custom_banner',
@@ -103,7 +103,11 @@ export function convertJsonToReactLayout(
 
     switch (node.component) {
       case 'GameDetailsHero':
-        return <GameDetailsHero key={node.id} images={gameData.heroImages} />;
+      case 'GameCarousel':
+      case 'MediaCarousel':
+      case 'media-carousel':
+      case 'carousel':
+        return <GameCarousel key={node.id} images={gameData.heroImages} />;
 
       case 'GameDetailsHeader':
         return (

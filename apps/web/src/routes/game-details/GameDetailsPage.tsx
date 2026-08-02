@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './styles/GameDetailsPage.module.css';
-import { GameDetailsHero } from './components/GameDetailsHero';
+import { GameCarousel } from './components/GameCarousel';
 import { GameDetailsHeader } from './components/GameDetailsHeader';
 import { GameOwnershipBanner } from './components/GameOwnershipBanner';
 import { GameAbout } from './components/GameAbout';
@@ -54,16 +54,16 @@ export function getGameDataForSlug(slug?: string) {
       minimum: {
         os: 'Windows 10 (64-bit)',
         cpu: 'Intel Core i5 / AMD Ryzen 5',
-        ram: '8 GB RAM',
+        ram: '8 GB',
         gpu: 'NVIDIA GTX 1060 / AMD RX 580',
-        storage: '50 GB Available Space',
+        storage: '50 GB',
       },
       recommended: {
         os: 'Windows 11 (64-bit)',
         cpu: 'Intel Core i7 / AMD Ryzen 7',
-        ram: '16 GB RAM',
+        ram: '16 GB',
         gpu: 'NVIDIA RTX 3070 / AMD RX 6700 XT',
-        storage: '50 GB NVMe SSD',
+        storage: '50 GB',
       },
     },
     userReviews: [
@@ -264,7 +264,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       {/* RENDER THEME MODE */}
       {isDefaultTheme ? (
         <>
-          <GameDetailsHero images={currentGameData.heroImages} device={activeDevice} pageSettings={themeInfo.pageBody} />
+          <GameCarousel images={currentGameData.heroImages} device={activeDevice} pageSettings={themeInfo.pageBody} />
           <div className={styles.mainContainer} style={{ padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined }}>
             <div
               className={styles.layoutGrid}

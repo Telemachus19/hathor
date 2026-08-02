@@ -20,7 +20,6 @@ import { getGameInfoDraft } from "../game-info-form/gameInfoCache";
 import {
   GameDetailsHeader,
   GameOwnershipBanner,
-  GameDetailsHero,
   GameAbout,
   GameSystemReqs,
   GameReviews,
@@ -71,7 +70,20 @@ const WEIGHTS = [
 ];
 
 // ── HSV Color Conversion Helpers for Classic 2D Rectangular Picker ───────────
-function hsvToHex(h: number, s: number, v: number): string {
+function sanitizeHexInput(val: string): string {
+  if (!val) return '';
+  const trimmed = val.trim();
+  if (trimmed === 'transparent') return 'transparent';
+  if (trimmed.startsWith('linear-gradient') || trimmed.startsWith('radial-gradient') || trimmed.startsWith('rgba')) return trimmed;
+  let clean = trimmed;
+  if (!clean.startsWith('#')) {
+    clean = '#' + clean;
+  }
+  const hexDigits = clean.slice(1).replace(/[^0-9a-fA-F]/g, '').slice(0, 8);
+  return '#' + hexDigits;
+}
+
+function hsvToHex(h: number, s: number, v: number, alpha = 100): string {
   s /= 100;
   v /= 100;
   const i = Math.floor((h / 60) % 6);
@@ -89,13 +101,24 @@ function hsvToHex(h: number, s: number, v: number): string {
     case 5: r = v; g = p; b = q; break;
   }
   const toHex = (n: number) => Math.round(n * 255).toString(16).padStart(2, '0');
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  const baseHex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  if (alpha < 100) {
+    const alphaHex = Math.round((alpha / 100) * 255).toString(16).padStart(2, '0');
+    return `${baseHex}${alphaHex}`;
+  }
+  return baseHex;
 }
 
-function hexToHsv(hex: string): { h: number; s: number; v: number } {
+function hexToHsv(hex: string): { h: number; s: number; v: number; alpha: number } {
+  if (!hex || hex === 'transparent') return { h: 18, s: 86, v: 95, alpha: 0 };
   let c = hex.replace('#', '');
   if (c.length === 3) c = c.split('').map(x => x + x).join('');
-  if (c.length !== 6) return { h: 18, s: 86, v: 95 };
+  let alpha = 100;
+  if (c.length === 8) {
+    alpha = Math.round((parseInt(c.substring(6, 8), 16) / 255) * 100);
+    c = c.substring(0, 6);
+  }
+  if (c.length !== 6) return { h: 18, s: 86, v: 95, alpha: 100 };
   const r = parseInt(c.substring(0, 2), 16) / 255;
   const g = parseInt(c.substring(2, 4), 16) / 255;
   const b = parseInt(c.substring(4, 6), 16) / 255;
@@ -114,7 +137,7 @@ function hexToHsv(hex: string): { h: number; s: number; v: number } {
     }
     h /= 6;
   }
-  return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) };
+  return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100), alpha };
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -122,7 +145,7 @@ export type ElementType =
   | "heading" | "text" | "image" | "button" | "divider" | "spacer"
   | "game-header" | "ownership-banner" | "about-game" | "system-reqs" | "user-reviews"
   | "sidebar-cta" | "sidebar-info" | "sidebar-ratings" | "sidebar-community"
-  | "carousel" | "features" | "two-col" | "recommendations" | "game-hero" | "cta";
+  | "carousel" | "media-carousel" | "features" | "two-col" | "recommendations" | "game-hero" | "cta";
 
 export interface GridElement {
   id: string;
@@ -258,6 +281,7 @@ export interface RecItem {
 
 type SectionType =
   | "game-hero"
+  | "media-carousel"
   | "game-header"
   | "ownership-banner"
   | "about-game"
@@ -412,7 +436,7 @@ function createGridElement(type: ElementType): GridElement {
       pt: 0, pb: 0, pl: 0, pr: 0,
       gameCategory: (draft.genre || "GENRE").toUpperCase(),
       gameTitle: (draft.title || "YOUR GAME TITLE").toUpperCase(),
-      gameSubtitle: "DELUXE EDITION",
+      gameSubtitle: "",
       gameRatingScore: 9.4, gameReviewCount: "14.2k Reviews", gameDev: "Developer Name", gameReleaseDate: "Coming Soon",
       gameTags: draft.tags && draft.tags.length > 0 ? draft.tags : ["TAG 1", "TAG 2"],
       gameDesc: draft.shortDesc || "A short description of your game will appear here once entered in the Game Information form."
@@ -425,32 +449,32 @@ function createGridElement(type: ElementType): GridElement {
     };
     case "about-game": return {
       id, type, aboutTitle: "ABOUT THIS GAME",
-      pt: 16, pb: 16, pl: 16, pr: 16,
+      pt: 0, pb: 0, pl: 0, pr: 0,
       aboutSections: [
         { title: "SECTION TITLE", text: draft.shortDesc || "Add a description for this section." }
       ]
     };
     case "system-reqs": return {
       id, type,
-      pt: 16, pb: 16, pl: 16, pr: 16,
+      pt: 0, pb: 0, pl: 0, pr: 0,
       reqsMin: {
         os: (draft.minReq.os && draft.minReq.os.length > 0) ? draft.minReq.os.join(", ") : "Windows 10 (64-bit)",
         cpu: draft.minReq.cpu || "Intel Core i5 / AMD Ryzen 5",
-        ram: draft.minReq.ram ? `${draft.minReq.ram} GB RAM` : "8 GB RAM",
+        ram: draft.minReq.ram ? (draft.minReq.ram.toUpperCase().includes('GB') ? draft.minReq.ram : `${draft.minReq.ram} GB`) : "8 GB",
         gpu: draft.minReq.gpu || "NVIDIA GTX 1060 / AMD RX 580",
-        storage: draft.minReq.storageNum ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix} Available Space` : "50 GB Available Space"
+        storage: draft.minReq.storageNum ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix}` : "50 GB"
       },
       reqsRec: {
         os: (draft.recReq.os && draft.recReq.os.length > 0) ? draft.recReq.os.join(", ") : "Windows 11 (64-bit)",
         cpu: draft.recReq.cpu || "Intel Core i7 / AMD Ryzen 7",
-        ram: draft.recReq.ram ? `${draft.recReq.ram} GB RAM` : "16 GB RAM",
+        ram: draft.recReq.ram ? (draft.recReq.ram.toUpperCase().includes('GB') ? draft.recReq.ram : `${draft.recReq.ram} GB`) : "16 GB",
         gpu: draft.recReq.gpu || "NVIDIA RTX 3070 / AMD RX 6700 XT",
-        storage: draft.recReq.storageNum ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix} NVMe SSD` : "50 GB NVMe SSD"
+        storage: draft.recReq.storageNum ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix}` : "50 GB"
       }
     };
     case "user-reviews": return {
       id, type,
-      pt: 16, pb: 16, pl: 16, pr: 16,
+      pt: 0, pb: 0, pl: 0, pr: 0,
       reviewHeader: "USER REVIEWS",
       reviewCardBg: "#181c24",
       reviewCardBorder: BORDER,
@@ -522,23 +546,24 @@ function createGridElement(type: ElementType): GridElement {
 function createSection(type: SectionType): Section {
   const base = { id: uid(), bg: "transparent", bgImage: "", overlay: 0, pt: 0, pb: 0, ph: 0, radius: 0 };
   switch (type) {
-    case "game-hero": return {
-      ...base, type, pt: 0, pb: 0, ph: 0, bg: "transparent",
-      heroImages: [],
-      heroHeight: 480,
+    case "game-hero":
+    case "media-carousel": return {
+      ...base, type: "media-carousel", pt: 0, pb: 0, ph: 0, bg: "transparent",
+      heroImages: [], carouselImages: [],
+      heroHeight: 480, carouselHeight: 480, showThumbnails: true
     };
     case "text": return {
-      ...base, type, pt: 32, pb: 32, ph: 32,
+      ...base, type, pt: 24, pb: 24, ph: 0,
       textContent: "Add paragraph text here. Customize fonts, sizes, colors, alignment, and max width in the Properties inspector.",
       textFont: "'Raleway', sans-serif", textSize: 16, textWeight: "400", textColor: TEXT_MUTED, textAlign: "left", textLineHeight: 1.65, textMaxWidth: 700
     };
     case "image": return {
-      ...base, type, pt: 32, pb: 32, ph: 32,
+      ...base, type, pt: 24, pb: 24, ph: 0,
       imageSrc: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
       imageAlt: "Game screenshot", imageMaxWidth: 100, imageRadius: 4, imageShadow: true
     };
     case "features": return {
-      ...base, type, pt: 40, pb: 60, ph: 32,
+      ...base, type, pt: 24, pb: 32, ph: 0,
       featuresTitle: "KEY FEATURES", featuresTitleFont: "'Cinzel', serif", featuresTitleColor: "#ffffff", featuresCols: 3,
       featuresItems: [
         { icon: "🎮", title: "FEATURE ONE", desc: "Describe a key feature.", color: HATHOR_ORANGE },
@@ -547,22 +572,22 @@ function createSection(type: SectionType): Section {
       ]
     };
     case "cta": return {
-      ...base, type, pt: 48, pb: 48, ph: 32,
+      ...base, type, pt: 32, pb: 32, ph: 0,
       ctaTitle: "CALL TO ACTION", ctaSubtitle: "Add a compelling call to action subtitle.",
       ctaPrice: "0.00 EGP", ctaBtnText: "BUY NOW", ctaBtnColor: HATHOR_ORANGE, ctaBtnTextColor: "#ffffff",
       ctaTitleFont: "'Cinzel', serif", ctaTitleColor: "#ffffff", ctaSubtitleColor: TEXT_MUTED, ctaAlign: "center"
     };
     case "two-col": return {
-      ...base, type, pt: 40, pb: 40, ph: 32,
-      twoColRatio: "1:1", twoColGap: 40,
+      ...base, type, pt: 24, pb: 24, ph: 0,
+      twoColRatio: "1:1", twoColGap: 32,
       twoColLeftText: "Add text content here.",
       twoColLeftFont: "'Raleway', sans-serif", twoColLeftSize: 15, twoColLeftWeight: "400", twoColLeftColor: TEXT_MUTED,
       twoColRightImg: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop"
     };
-    case "divider": return { ...base, type, pt: 20, pb: 20, ph: 32, dividerColor: BORDER, dividerThickness: 1, dividerWidth: 100 };
-    case "spacer": return { ...base, type, pt: 0, pb: 0, ph: 0, spacerHeight: 40 };
+    case "divider": return { ...base, type, pt: 16, pb: 16, ph: 0, dividerColor: BORDER, dividerThickness: 1, dividerWidth: 100 };
+    case "spacer": return { ...base, type, pt: 0, pb: 0, ph: 0, spacerHeight: 32 };
     case "user-reviews": return {
-      ...base, type, pt: 0, pb: 40, ph: 0, bg: "transparent",
+      ...base, type, pt: 0, pb: 32, ph: 0, bg: "transparent",
       reviewHeader: "USER REVIEWS",
       reviewCardBg: SURFACE, reviewCardBorder: BORDER, reviewCardRadius: 4,
       reviewNameColor: TEXT_PRIMARY, reviewNameFont: "'Cinzel', serif",
@@ -570,11 +595,11 @@ function createSection(type: SectionType): Section {
       reviewStarColor: HATHOR_ORANGE, reviewBadgeBg: "rgba(46, 204, 113, 0.06)", reviewBadgeColor: "#2ecc71",
     };
     case "recommendations": return {
-      ...base, type, pt: 32, pb: 48, ph: 0, bg: "transparent",
+      ...base, type, pt: 24, pb: 32, ph: 0, bg: "transparent",
       recsTitle: "MORE LIKE THIS", recsCount: 4, recsCardBg: SURFACE, recsCardBorder: BORDER
     };
     case "grid": return {
-      ...base, type, bg: "transparent", pt: 40, pb: 60, ph: 40, gridGap: 40, gridTemplate: "2:1",
+      ...base, type, bg: "transparent", pt: 24, pb: 32, ph: 0, gridGap: 32, gridTemplate: "2:1",
       gridCols: [
         { id: uid(), bg: "transparent", pt: 0, pb: 0, ph: 0, radius: 0, elements: [] },
         { id: uid(), bg: "transparent", pt: 0, pb: 0, ph: 0, radius: 0, elements: [] },
@@ -587,15 +612,15 @@ function createSection(type: SectionType): Section {
 // ── Preset initial page ──
 const INITIAL: Section[] = [
   {
-    id: "sec_game_hero", type: "game-hero",
+    id: "sec_game_hero", type: "media-carousel",
     bg: "transparent", bgImage: "", overlay: 0, pt: 0, pb: 0, ph: 0, radius: 0,
-    heroImages: [],
-    heroHeight: 480,
+    heroImages: [], carouselImages: [],
+    heroHeight: 480, carouselHeight: 480, showThumbnails: true,
   },
   {
     id: "sec_main_layout", type: "grid",
-    bg: "transparent", bgImage: "", overlay: 0, pt: 32, pb: 48, ph: 32, radius: 0,
-    gridGap: 40,
+    bg: "transparent", bgImage: "", overlay: 0, pt: 24, pb: 32, ph: 0, radius: 0,
+    gridGap: 32,
     gridTemplate: "2:1",
     gridCols: [
       {
@@ -621,7 +646,7 @@ const INITIAL: Section[] = [
   },
   {
     id: "sec_recs_bottom", type: "recommendations",
-    bg: "transparent", bgImage: "", overlay: 0, pt: 32, pb: 48, ph: 32, radius: 0,
+    bg: "transparent", bgImage: "", overlay: 0, pt: 24, pb: 32, ph: 0, radius: 0,
     recsTitle: "MORE LIKE THIS",
     recsCount: 4,
     recsCardBg: SURFACE,
@@ -674,6 +699,7 @@ const PALETTE: { group: string; items: { type: SectionType | ElementType; label:
 
 const BLOCK_META: Record<string, { label: string; Icon: LucideIcon }> = {
   "game-hero": { label: "Media Showcase Hero", Icon: Film },
+  "media-carousel": { label: "Media Showcase", Icon: Film },
   "game-header": { label: "Game Header", Icon: Award },
   "ownership-banner": { label: "Ownership Bar", Icon: ShoppingBag },
   "about-game": { label: "About Game", Icon: Info },
@@ -744,6 +770,7 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
   const [hue, setHue] = useState(initialHsv.h);
   const [sat, setSat] = useState(initialHsv.s);
   const [val, setVal] = useState(initialHsv.v);
+  const [alpha, setAlpha] = useState(initialHsv.alpha);
 
   useEffect(() => {
     if (value && value.startsWith("#")) {
@@ -751,6 +778,7 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
       setHue(hsv.h);
       setSat(hsv.s);
       setVal(hsv.v);
+      setAlpha(hsv.alpha);
       setMode("solid");
     } else if (value && value.includes("gradient")) {
       setMode("gradient");
@@ -770,7 +798,7 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
 
     setSat(newSat);
     setVal(newVal);
-    onChange(hsvToHex(hue, newSat, newVal), skipHistory);
+    onChange(hsvToHex(hue, newSat, newVal, alpha), skipHistory);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -839,7 +867,7 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
       <input
         type="text"
         value={value || ""}
-        onChange={e => onChange(e.target.value)}
+        onChange={e => onChange(sanitizeHexInput(e.target.value))}
         className={styles.colorInput}
         placeholder={placeholder}
       />
@@ -955,6 +983,7 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
                 />
               </div>
 
+              {/* HUE SLIDER */}
               <div style={{ marginBottom: 10 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, fontFamily: "monospace", color: "#8C9AAA", marginBottom: 3 }}>
                   <span>HUE RAINBOW</span>
@@ -965,13 +994,35 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
                   onChange={e => {
                     const newHue = Number(e.target.value);
                     setHue(newHue);
-                    onChange(hsvToHex(newHue, sat, val), true);
+                    onChange(hsvToHex(newHue, sat, val, alpha), true);
                   }}
-                  onMouseUp={() => onChange(hsvToHex(hue, sat, val), false)}
-                  onTouchEnd={() => onChange(hsvToHex(hue, sat, val), false)}
+                  onMouseUp={() => onChange(hsvToHex(hue, sat, val, alpha), false)}
+                  onTouchEnd={() => onChange(hsvToHex(hue, sat, val, alpha), false)}
                   style={{
                     width: "100%", height: 8, borderRadius: 4, appearance: "none", outline: "none", cursor: "pointer",
                     background: "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
+                  }}
+                />
+              </div>
+
+              {/* OPACITY SLIDER */}
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, fontFamily: "monospace", color: "#8C9AAA", marginBottom: 3 }}>
+                  <span>OPACITY</span>
+                  <span style={{ color: HATHOR_ORANGE }}>{alpha}%</span>
+                </div>
+                <input
+                  type="range" min={0} max={100} value={alpha}
+                  onChange={e => {
+                    const newAlpha = Number(e.target.value);
+                    setAlpha(newAlpha);
+                    onChange(hsvToHex(hue, sat, val, newAlpha), true);
+                  }}
+                  onMouseUp={() => onChange(hsvToHex(hue, sat, val, alpha), false)}
+                  onTouchEnd={() => onChange(hsvToHex(hue, sat, val, alpha), false)}
+                  style={{
+                    width: "100%", height: 8, borderRadius: 4, appearance: "none", outline: "none", cursor: "pointer",
+                    background: `linear-gradient(to right, transparent, ${pureHueHex}), repeating-conic-gradient(#2a303c 0% 25%, #161a22 0% 50%) 50% / 6px 6px`
                   }}
                 />
               </div>
@@ -1026,15 +1077,15 @@ function ColorField({ value, onChange, placeholder = "#000000 or transparent" }:
                 <div>
                   <div style={{ fontSize: 9, fontFamily: "monospace", color: "#8C9AAA", marginBottom: 3 }}>START COLOR</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#141820", border: "1px solid #393E46", padding: 4, borderRadius: 3 }}>
-                    <input type="color" value={gradColor1.startsWith("#") ? gradColor1 : HATHOR_ORANGE} onChange={e => updateCustomGradient(gradAngle, e.target.value, gradColor2)} style={{ width: 18, height: 18, border: "none", padding: 0, background: "transparent", cursor: "pointer" }} />
-                    <input type="text" value={gradColor1} onChange={e => updateCustomGradient(gradAngle, e.target.value, gradColor2)} style={{ width: "100%", background: "transparent", border: "none", color: TEXT_PRIMARY, fontSize: 9, fontFamily: "monospace", outline: "none" }} />
+                    <input type="color" value={gradColor1.startsWith("#") ? gradColor1.slice(0, 7) : HATHOR_ORANGE} onChange={e => updateCustomGradient(gradAngle, e.target.value, gradColor2)} style={{ width: 18, height: 18, border: "none", padding: 0, background: "transparent", cursor: "pointer" }} />
+                    <input type="text" value={gradColor1} onChange={e => updateCustomGradient(gradAngle, sanitizeHexInput(e.target.value), gradColor2)} style={{ width: "100%", background: "transparent", border: "none", color: TEXT_PRIMARY, fontSize: 9, fontFamily: "monospace", outline: "none" }} />
                   </div>
                 </div>
                 <div>
                   <div style={{ fontSize: 9, fontFamily: "monospace", color: "#8C9AAA", marginBottom: 3 }}>END COLOR</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4, background: "#141820", border: "1px solid #393E46", padding: 4, borderRadius: 3 }}>
-                    <input type="color" value={gradColor2.startsWith("#") ? gradColor2 : "#141820"} onChange={e => updateCustomGradient(gradAngle, gradColor1, e.target.value)} style={{ width: 18, height: 18, border: "none", padding: 0, background: "transparent", cursor: "pointer" }} />
-                    <input type="text" value={gradColor2} onChange={e => updateCustomGradient(gradAngle, gradColor1, e.target.value)} style={{ width: "100%", background: "transparent", border: "none", color: TEXT_PRIMARY, fontSize: 9, fontFamily: "monospace", outline: "none" }} />
+                    <input type="color" value={gradColor2.startsWith("#") ? gradColor2.slice(0, 7) : "#141820"} onChange={e => updateCustomGradient(gradAngle, gradColor1, e.target.value)} style={{ width: 18, height: 18, border: "none", padding: 0, background: "transparent", cursor: "pointer" }} />
+                    <input type="text" value={gradColor2} onChange={e => updateCustomGradient(gradAngle, gradColor1, sanitizeHexInput(e.target.value))} style={{ width: "100%", background: "transparent", border: "none", color: TEXT_PRIMARY, fontSize: 9, fontFamily: "monospace", outline: "none" }} />
                   </div>
                 </div>
               </div>
@@ -1443,7 +1494,7 @@ function GridRenderer({ s, device, selectedColIdx, selectedElementId, onSelectCh
                     style={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
                     {isElSelected && <span className={styles.childElementTag}>{el.type}</span>}
 
-                    {el.type === "game-hero" && <GameDetailsHero s={el} device={device} />}
+                    {(el.type === "game-hero" || el.type === "media-carousel" || el.type === "carousel") && <GameCarousel s={el as any} device={device} pageSettings={pageSettings} />}
                     {el.type === "game-header" && <GameDetailsHeader s={el} device={device} pageSettings={pageSettings} />}
                     {el.type === "ownership-banner" && <GameOwnershipBanner s={el} device={device} />}
                     {el.type === "about-game" && <GameAbout s={el} device={device} pageSettings={pageSettings} />}
@@ -1454,7 +1505,6 @@ function GridRenderer({ s, device, selectedColIdx, selectedElementId, onSelectCh
                     {el.type === "sidebar-ratings" && <GameSidebarRatings s={el} device={device} pageSettings={pageSettings} />}
                     {el.type === "sidebar-community" && <GameSidebarCommunity s={el} device={device} pageSettings={pageSettings} />}
                     {el.type === "recommendations" && <MoreLikeThis s={el} device={device} pageSettings={pageSettings} />}
-                    {el.type === "carousel" && <GameCarousel s={el as any} device={device} pageSettings={pageSettings} />}
                     {el.type === "features" && <GameFeatures s={el as any} device={device} pageSettings={pageSettings} />}
                     {el.type === "two-col" && <GameTwoCol s={el as any} device={device} pageSettings={pageSettings} />}
                     {el.type === "cta" && <GameCtaBlock s={el as any} device={device} pageSettings={pageSettings} />}
@@ -1530,7 +1580,7 @@ function SectionWrapper({ section: s, device, pageSettings, selected, selectedCo
       </div>
 
       <div style={{ position: "relative", zIndex: 1, paddingTop: responsivePt, paddingBottom: responsivePb, paddingLeft: responsivePl, paddingRight: responsivePr, borderRadius: s.radius, boxSizing: "border-box" }}>
-        {s.type === "game-hero" && <GameDetailsHero s={s} device={device} />}
+        {(s.type === "game-hero" || s.type === "media-carousel" || s.type === "carousel") && <GameCarousel s={s as any} device={device} pageSettings={pageSettings} />}
         {s.type === "game-header" && <GameDetailsHeader s={s} device={device} pageSettings={pageSettings} />}
         {s.type === "ownership-banner" && <GameOwnershipBanner s={s} device={device} />}
         {s.type === "about-game" && <GameAbout s={s} device={device} pageSettings={pageSettings} />}
@@ -1545,7 +1595,6 @@ function SectionWrapper({ section: s, device, pageSettings, selected, selectedCo
         {s.type === "text" && <TextRenderer s={s} device={device} pageSettings={pageSettings} />}
         {s.type === "image" && <ImageRenderer s={s} />}
         {s.type === "button" && <ButtonRenderer s={s} />}
-        {s.type === "carousel" && <GameCarousel s={s} device={device} pageSettings={pageSettings} />}
         {s.type === "features" && <GameFeatures s={s} device={device} pageSettings={pageSettings} />}
         {s.type === "two-col" && <GameTwoCol s={s} device={device} pageSettings={pageSettings} />}
         {s.type === "grid" && <GridRenderer s={s} device={device} selectedColIdx={selectedColIdx} selectedElementId={selectedElementId} onSelectChild={onSelectChild} pageSettings={pageSettings} />}
@@ -2145,12 +2194,19 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
         {targetObj.type === "features" && (
           <PropSection title="Features Grid Settings">
             <PropRow label="Grid Header Title"><TxtInput value={targetObj.featuresTitle || ""} onChange={v => updateTarget({ featuresTitle: v })} placeholder="KEY FEATURES" /></PropRow>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.featuresTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ featuresTitleColor: v })} /></PropRow>
             <PropRow label="Columns Count">
               <SelField value={String(targetObj.featuresCols || 3)} onChange={v => updateTarget({ featuresCols: Number(v) })}
                 options={[{ label: "2 Columns", value: "2" }, { label: "3 Columns", value: "3" }, { label: "4 Columns", value: "4" }]} />
             </PropRow>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Feature Cards Styling & Colors</p>
+            <PropRow label="Card Background Color"><ColorField value={targetObj.featuresCardBg || targetObj.cardBg || SURFACE} onChange={v => updateTarget({ featuresCardBg: v, cardBg: v })} /></PropRow>
+            <PropRow label="Card Border Color"><ColorField value={targetObj.featuresCardBorder || targetObj.cardBorder || BORDER} onChange={v => updateTarget({ featuresCardBorder: v, cardBorder: v })} /></PropRow>
+            <PropRow label="Card Title Color"><ColorField value={targetObj.featureItemTitleColor || targetObj.itemTitleColor || TEXT_PRIMARY} onChange={v => updateTarget({ featureItemTitleColor: v, itemTitleColor: v })} /></PropRow>
+            <PropRow label="Card Description Text Color"><ColorField value={targetObj.featureItemDescColor || targetObj.itemDescColor || TEXT_MUTED} onChange={v => updateTarget({ featureItemDescColor: v, itemDescColor: v })} /></PropRow>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 12 }}>
               <p className={styles.propLabel}>Feature Cards ({(targetObj.featuresItems || []).length})</p>
               {(targetObj.featuresItems || []).map((item: any, i: number) => (
                 <div key={i} style={{ border: `1px solid ${BORDER}`, padding: 8, background: "rgba(20, 24, 32, 0.6)", display: "flex", flexDirection: "column", gap: 4 }}>
@@ -2179,6 +2235,21 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
           </PropSection>
         )}
 
+        {/* ── CTA BLOCK ── */}
+        {targetObj.type === "cta" && (
+          <PropSection title="Call To Action Settings">
+            <PropRow label="CTA Title"><TxtInput value={targetObj.ctaTitle || "CALL TO ACTION"} onChange={v => updateTarget({ ctaTitle: v })} /></PropRow>
+            <PropRow label="CTA Subtitle"><TxtInput value={targetObj.ctaSubtitle || ""} onChange={v => updateTarget({ ctaSubtitle: v })} /></PropRow>
+            <PropRow label="Title Color"><ColorField value={targetObj.ctaTitleColor || "#ffffff"} onChange={v => updateTarget({ ctaTitleColor: v })} /></PropRow>
+            <PropRow label="Subtitle Text Color"><ColorField value={targetObj.ctaSubtitleColor || TEXT_MUTED} onChange={v => updateTarget({ ctaSubtitleColor: v })} /></PropRow>
+            <PropRow label="Button Text"><TxtInput value={targetObj.ctaBtnText || "BUY NOW"} onChange={v => updateTarget({ ctaBtnText: v })} /></PropRow>
+            <PropRow label="Button Background Color"><ColorField value={targetObj.ctaBtnColor || HATHOR_ORANGE} onChange={v => updateTarget({ ctaBtnColor: v })} /></PropRow>
+            <PropRow label="Button Text Color"><ColorField value={targetObj.ctaBtnTextColor || "#ffffff"} onChange={v => updateTarget({ ctaBtnTextColor: v })} /></PropRow>
+            <PropRow label="Block Background"><ColorField value={targetObj.ctaBg || "linear-gradient(135deg, rgba(40, 24, 20, 0.6) 0%, rgba(18, 22, 30, 0.95) 100%)"} onChange={v => updateTarget({ ctaBg: v })} /></PropRow>
+            <PropRow label="Block Border Color"><ColorField value={targetObj.ctaBorder || HATHOR_ORANGE} onChange={v => updateTarget({ ctaBorder: v })} /></PropRow>
+          </PropSection>
+        )}
+
         {/* ── TWO COLUMNS PRESET ── */}
         {targetObj.type === "two-col" && (
           <PropSection title="Two Columns Settings">
@@ -2191,29 +2262,10 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
           </PropSection>
         )}
 
-        {/* ── CAROUSEL SHOWCASE ── */}
-        {targetObj.type === "carousel" && (
-          <PropSection title="Media Carousel Settings">
-            <PropRow label="Carousel Height"><NumField value={targetObj.carouselHeight || 420} onChange={v => updateTarget({ carouselHeight: v })} unit="px" min={200} max={800} step={20} /></PropRow>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0" }}>
-              <span className={styles.propLabel}>Thumbnail Bar</span>
-              <button onClick={() => updateTarget({ showThumbnails: !(targetObj.showThumbnails ?? true) })}
-                style={{ padding: "6px 12px", border: `1px solid ${(targetObj.showThumbnails ?? true) ? GREEN_ACCENT : BORDER}`, color: (targetObj.showThumbnails ?? true) ? GREEN_ACCENT : TEXT_MUTED, background: (targetObj.showThumbnails ?? true) ? "rgba(56, 211, 159, 0.12)" : "transparent", fontSize: 10, fontWeight: 700, cursor: "pointer", borderRadius: 3 }}>
-                {(targetObj.showThumbnails ?? true) ? "VISIBLE" : "HIDDEN"}
-              </button>
-            </div>
-            <MediaManagerList
-              items={targetObj.carouselImages || targetObj.mediaItems || []}
-              onChange={items => updateTarget({ carouselImages: items, mediaItems: items })}
-              label="Carousel Media (Images & Videos)"
-            />
-          </PropSection>
-        )}
-
-        {/* ── GAME HERO ── */}
-        {targetObj.type === "game-hero" && (
-          <PropSection title="Hero Media Showcase Settings">
-            <PropRow label="Hero Slider Height"><NumField value={targetObj.heroHeight || 480} onChange={v => updateTarget({ heroHeight: v })} unit="px" min={250} max={900} step={20} /></PropRow>
+        {/* ── MEDIA CAROUSEL (media-carousel / carousel / game-hero) ── */}
+        {(targetObj.type === "carousel" || targetObj.type === "media-carousel" || targetObj.type === "game-hero") && (
+          <PropSection title="Media Carousel Showcase Settings">
+            <PropRow label="Slider Height"><NumField value={targetObj.carouselHeight || targetObj.heroHeight || 420} onChange={v => updateTarget({ carouselHeight: v, heroHeight: v })} unit="px" min={200} max={900} step={20} /></PropRow>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0" }}>
               <span className={styles.propLabel}>Bottom Shadow Overlay</span>
               <button onClick={() => updateTarget({ heroShadowEnabled: !(targetObj.heroShadowEnabled ?? true) })}
@@ -2234,9 +2286,9 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
               </button>
             </div>
             <MediaManagerList
-              items={targetObj.heroImages || targetObj.mediaItems || []}
-              onChange={items => updateTarget({ heroImages: items, mediaItems: items })}
-              label="Hero Showcase Media (Images & Videos)"
+              items={targetObj.heroImages || targetObj.carouselImages || targetObj.mediaItems || []}
+              onChange={items => updateTarget({ heroImages: items, carouselImages: items, mediaItems: items })}
+              label="Media Showcase Items (Images & Videos)"
             />
           </PropSection>
         )}
@@ -2249,11 +2301,18 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
             <PropRow label="Title Font"><SelField value={targetObj.titleFont || targetObj.font || "'Cinzel', serif"} onChange={v => updateTarget({ titleFont: v, font: v })} options={FONTS} /></PropRow>
             <PropRow label="Subtitle & Badge Font"><SelField value={targetObj.subtitleFont || "'Cinzel', serif"} onChange={v => updateTarget({ subtitleFont: v })} options={FONTS} /></PropRow>
             <PropRow label="Body & Text Font"><SelField value={targetObj.textFont || "'Raleway', sans-serif"} onChange={v => updateTarget({ textFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Rating Score Font"><SelField value={targetObj.ratingScoreFont || targetObj.titleFont || "'Cinzel', serif"} onChange={v => updateTarget({ ratingScoreFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Review Count Font"><SelField value={targetObj.reviewCountFont || targetObj.textFont || "'Raleway', sans-serif"} onChange={v => updateTarget({ reviewCountFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Developer & Date Font"><SelField value={targetObj.devFont || targetObj.textFont || "'Raleway', sans-serif"} onChange={v => updateTarget({ devFont: v, dateFont: v })} options={FONTS} /></PropRow>
 
             <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Color Palette & Accents</p>
             <PropRow label="Title Color"><ColorField value={targetObj.titleColor || "#ffffff"} onChange={v => updateTarget({ titleColor: v })} /></PropRow>
             <PropRow label="Subtitle & Badge Color"><ColorField value={targetObj.subtitleColor || targetObj.badgeColor || HATHOR_ORANGE} onChange={v => updateTarget({ subtitleColor: v, badgeColor: v })} /></PropRow>
             <PropRow label="Star Rating Color"><ColorField value={targetObj.starColor || HATHOR_ORANGE} onChange={v => updateTarget({ starColor: v })} /></PropRow>
+            <PropRow label="Rating Score Text Color"><ColorField value={targetObj.ratingScoreColor || targetObj.headerRatingColor || "#ffffff"} onChange={v => updateTarget({ ratingScoreColor: v, headerRatingColor: v })} /></PropRow>
+            <PropRow label="Review Count Text Color"><ColorField value={targetObj.reviewCountColor || targetObj.headerReviewCountColor || TEXT_MUTED} onChange={v => updateTarget({ reviewCountColor: v, headerReviewCountColor: v })} /></PropRow>
+            <PropRow label="Developer Name Text Color"><ColorField value={targetObj.devColor || targetObj.headerDevColor || TEXT_PRIMARY} onChange={v => updateTarget({ devColor: v, headerDevColor: v })} /></PropRow>
+            <PropRow label="Release Date Text Color"><ColorField value={targetObj.dateColor || targetObj.headerDateColor || TEXT_PRIMARY} onChange={v => updateTarget({ dateColor: v, headerDateColor: v })} /></PropRow>
             <PropRow label="Tag Badges Background"><ColorField value={targetObj.tagBg || "rgba(255, 255, 255, 0.05)"} onChange={v => updateTarget({ tagBg: v })} /></PropRow>
             <PropRow label="Tag Badges Text Color"><ColorField value={targetObj.tagColor || TEXT_MUTED} onChange={v => updateTarget({ tagColor: v })} /></PropRow>
             <PropRow label="Tag Badges Border Color"><ColorField value={targetObj.tagBorder || BORDER} onChange={v => updateTarget({ tagBorder: v })} /></PropRow>
@@ -2272,13 +2331,6 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
               <PropRow label="Pad Left"><NumField value={targetObj.pl ?? targetObj.ph ?? targetObj.headerPadLeft ?? 0} onChange={v => updateTarget({ pl: v, ph: v, headerPadLeft: v })} unit="px" max={200} /></PropRow>
               <PropRow label="Pad Right"><NumField value={targetObj.pr ?? targetObj.ph ?? targetObj.headerPadRight ?? 0} onChange={v => updateTarget({ pr: v, ph: v, headerPadRight: v })} unit="px" max={200} /></PropRow>
             </div>
-
-            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Store Listing Overrides (Preview)</p>
-            <PropRow label="Category / Genre Badge"><TxtInput value={targetObj.gameCategory || ""} onChange={v => updateTarget({ gameCategory: v })} placeholder="ACTION RPG" /></PropRow>
-            <PropRow label="Game Title"><TxtInput value={targetObj.gameTitle || ""} onChange={v => updateTarget({ gameTitle: v })} /></PropRow>
-            <PropRow label="Subtitle / Tagline"><TxtInput value={targetObj.gameSubtitle || ""} onChange={v => updateTarget({ gameSubtitle: v })} placeholder="Optional tagline..." /></PropRow>
-            <PropRow label="Tags (comma separated)"><TxtInput value={(targetObj.gameTags || []).join(", ")} onChange={v => updateTarget({ gameTags: v.split(",").map((t: string) => t.trim()).filter(Boolean) })} placeholder="OPEN WORLD, SOULSLIKE" /></PropRow>
-            <PropRow label="Synopsis Description"><TxtArea value={targetObj.gameDesc || ""} onChange={v => updateTarget({ gameDesc: v })} rows={3} /></PropRow>
           </PropSection>
         )}
 
@@ -2364,20 +2416,6 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
               <PropRow label="Pad Top"><NumField value={targetObj.pt ?? 0} onChange={v => updateTarget({ pt: v })} unit="px" max={200} /></PropRow>
               <PropRow label="Pad Bottom"><NumField value={targetObj.pb ?? 0} onChange={v => updateTarget({ pb: v })} unit="px" max={200} /></PropRow>
             </div>
-
-            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Recommended Specifications</p>
-            <PropRow label="OS"><TxtInput value={(targetObj.reqsRec || {}).os || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), os: v } })} /></PropRow>
-            <PropRow label="CPU"><TxtInput value={(targetObj.reqsRec || {}).cpu || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), cpu: v } })} /></PropRow>
-            <PropRow label="RAM"><TxtInput value={(targetObj.reqsRec || {}).ram || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), ram: v } })} /></PropRow>
-            <PropRow label="GPU"><TxtInput value={(targetObj.reqsRec || {}).gpu || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), gpu: v } })} /></PropRow>
-            <PropRow label="Storage"><TxtInput value={(targetObj.reqsRec || {}).storage || ""} onChange={v => updateTarget({ reqsRec: { ...(targetObj.reqsRec || {}), storage: v } })} /></PropRow>
-
-            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Minimum Specifications</p>
-            <PropRow label="OS"><TxtInput value={(targetObj.reqsMin || {}).os || ""} onChange={v => updateTarget({ reqsMin: { ...(targetObj.reqsMin || {}), os: v } })} /></PropRow>
-            <PropRow label="CPU"><TxtInput value={(targetObj.reqsMin || {}).cpu || ""} onChange={v => updateTarget({ reqsMin: { ...(targetObj.reqsMin || {}), cpu: v } })} /></PropRow>
-            <PropRow label="RAM"><TxtInput value={(targetObj.reqsMin || {}).ram || ""} onChange={v => updateTarget({ reqsMin: { ...(targetObj.reqsMin || {}), ram: v } })} /></PropRow>
-            <PropRow label="GPU"><TxtInput value={(targetObj.reqsMin || {}).gpu || ""} onChange={v => updateTarget({ reqsMin: { ...(targetObj.reqsMin || {}), gpu: v } })} /></PropRow>
-            <PropRow label="Storage"><TxtInput value={(targetObj.reqsMin || {}).storage || ""} onChange={v => updateTarget({ reqsMin: { ...(targetObj.reqsMin || {}), storage: v } })} /></PropRow>
           </PropSection>
         )}
 
@@ -2424,19 +2462,27 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
             {(targetObj.sidebarOwned ?? true) ? (
               <>
                 <PropRow label="Header Title"><TxtInput value={targetObj.ownedTitle || "OWNED"} onChange={v => updateTarget({ ownedTitle: v })} /></PropRow>
+                <PropRow label="Header Title Color"><ColorField value={targetObj.ownedTitleColor || targetObj.ownedHeaderColor || GREEN_ACCENT} onChange={v => updateTarget({ ownedTitleColor: v, ownedHeaderColor: v })} /></PropRow>
                 <PropRow label="Subtext"><TxtInput value={targetObj.ownedSubtext || "In your library"} onChange={v => updateTarget({ ownedSubtext: v })} /></PropRow>
+                <PropRow label="Subtext Color"><ColorField value={targetObj.sideBodyColor || targetObj.ownedSubtextColor || TEXT_MUTED} onChange={v => updateTarget({ sideBodyColor: v, ownedSubtextColor: v })} /></PropRow>
                 <PropRow label="Primary Button Text"><TxtInput value={targetObj.ownedPrimaryBtnText || "DOWNLOAD NOW"} onChange={v => updateTarget({ ownedPrimaryBtnText: v })} /></PropRow>
                 <PropRow label="Primary Button Color"><ColorField value={targetObj.ownedPrimaryBtnBg || GREEN_ACCENT} onChange={v => updateTarget({ ownedPrimaryBtnBg: v })} /></PropRow>
+                <PropRow label="Primary Button Text Color"><ColorField value={targetObj.ownedPrimaryBtnTextColor || "#0e1116"} onChange={v => updateTarget({ ownedPrimaryBtnTextColor: v })} /></PropRow>
                 <PropRow label="Secondary Button Text"><TxtInput value={targetObj.ctaSecondaryBtnText || "VIEW IN LIBRARY"} onChange={v => updateTarget({ ctaSecondaryBtnText: v })} /></PropRow>
+                <PropRow label="Secondary Button Text Color"><ColorField value={targetObj.ctaSecondaryBtnTextColor || GREEN_ACCENT} onChange={v => updateTarget({ ctaSecondaryBtnTextColor: v })} /></PropRow>
+                <PropRow label="Secondary Button Border Color"><ColorField value={targetObj.ctaSecondaryBtnBorder || GREEN_ACCENT} onChange={v => updateTarget({ ctaSecondaryBtnBorder: v })} /></PropRow>
               </>
             ) : (
               <>
-                <PropRow label="Price"><TxtInput value={targetObj.sidebarPrice || "299.99"} onChange={v => updateTarget({ sidebarPrice: v })} placeholder="299.99" /></PropRow>
-                <PropRow label="Discount %"><NumField value={targetObj.sidebarDiscount ?? 10} onChange={v => updateTarget({ sidebarDiscount: v })} min={0} max={100} unit="%" /></PropRow>
+                <PropRow label="Price Text Color"><ColorField value={targetObj.sidePriceColor || targetObj.priceColor || GREEN_ACCENT} onChange={v => updateTarget({ sidePriceColor: v, priceColor: v })} /></PropRow>
+                <PropRow label="Strikethrough Price Color"><ColorField value={targetObj.originalPriceColor || TEXT_MUTED} onChange={v => updateTarget({ originalPriceColor: v })} /></PropRow>
+                <PropRow label="Discount Badge Background"><ColorField value={targetObj.discountBg || HATHOR_ORANGE} onChange={v => updateTarget({ discountBg: v })} /></PropRow>
                 <PropRow label="Button Text"><TxtInput value={targetObj.unownedPrimaryBtnText || "ADD TO CART"} onChange={v => updateTarget({ unownedPrimaryBtnText: v })} /></PropRow>
                 <PropRow label="Button Color"><ColorField value={targetObj.unownedPrimaryBtnBg || HATHOR_ORANGE} onChange={v => updateTarget({ unownedPrimaryBtnBg: v })} /></PropRow>
+                <PropRow label="Button Text Color"><ColorField value={targetObj.unownedPrimaryBtnTextColor || "#ffffff"} onChange={v => updateTarget({ unownedPrimaryBtnTextColor: v })} /></PropRow>
               </>
             )}
+            <PropRow label="Top Accent Line Color"><ColorField value={targetObj.sideAccentColor || HATHOR_ORANGE} onChange={v => updateTarget({ sideAccentColor: v })} /></PropRow>
             <PropRow label="Card Background"><ColorField value={targetObj.sideCardBg || SURFACE} onChange={v => updateTarget({ sideCardBg: v })} /></PropRow>
             <PropRow label="Card Border Color"><ColorField value={targetObj.sideCardBorder || BORDER} onChange={v => updateTarget({ sideCardBorder: v })} /></PropRow>
           </PropSection>
@@ -2446,12 +2492,9 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
         {targetObj.type === "sidebar-info" && (
           <PropSection title="Sidebar Game Details Settings">
             <PropRow label="Card Header Title"><TxtInput value={targetObj.infoTitle || "GAME DETAILS"} onChange={v => updateTarget({ infoTitle: v })} /></PropRow>
-            <PropRow label="Developer"><TxtInput value={targetObj.sideDev || "Omegabyte Studios"} onChange={v => updateTarget({ sideDev: v })} /></PropRow>
-            <PropRow label="Publisher"><TxtInput value={targetObj.sidePub || "Redline Inc"} onChange={v => updateTarget({ sidePub: v })} /></PropRow>
-            <PropRow label="Release Date"><TxtInput value={targetObj.sideDate || "March 15, 2025"} onChange={v => updateTarget({ sideDate: v })} /></PropRow>
-            <PropRow label="Genre"><TxtInput value={targetObj.sideGenre || "Action RPG"} onChange={v => updateTarget({ sideGenre: v })} /></PropRow>
-            <PropRow label="Platforms"><TxtInput value={Array.isArray(targetObj.sidePlatforms) ? targetObj.sidePlatforms.join(", ") : (targetObj.sidePlatforms || "Windows, macOS")} onChange={v => updateTarget({ sidePlatforms: v.split(",").map((s: string) => s.trim()).filter(Boolean) })} /></PropRow>
-            <PropRow label="Header Color"><ColorField value={targetObj.infoTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ infoTitleColor: v })} /></PropRow>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.infoTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ infoTitleColor: v })} /></PropRow>
+            <PropRow label="Field Label Color"><ColorField value={targetObj.infoLabelColor || TEXT_MUTED} onChange={v => updateTarget({ infoLabelColor: v })} /></PropRow>
+            <PropRow label="Value Text Color"><ColorField value={targetObj.infoValueColor || targetObj.infoTextColor || TEXT_PRIMARY} onChange={v => updateTarget({ infoValueColor: v, infoTextColor: v })} /></PropRow>
             <PropRow label="Card Background"><ColorField value={targetObj.infoCardBg || SURFACE} onChange={v => updateTarget({ infoCardBg: v })} /></PropRow>
             <PropRow label="Card Border Color"><ColorField value={targetObj.infoCardBorder || BORDER} onChange={v => updateTarget({ infoCardBorder: v })} /></PropRow>
           </PropSection>
@@ -2461,7 +2504,10 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
         {targetObj.type === "sidebar-ratings" && (
           <PropSection title="Sidebar Ratings Breakdown Settings">
             <PropRow label="Card Header Title"><TxtInput value={targetObj.ratingsTitle || "RATING BREAKDOWN"} onChange={v => updateTarget({ ratingsTitle: v })} /></PropRow>
-            <PropRow label="Progress Bar Color"><ColorField value={targetObj.ratingsFillColor || HATHOR_ORANGE} onChange={v => updateTarget({ ratingsFillColor: v })} /></PropRow>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.ratingsTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ ratingsTitleColor: v })} /></PropRow>
+            <PropRow label="Stars Label Color"><ColorField value={targetObj.ratingsLabelColor || TEXT_MUTED} onChange={v => updateTarget({ ratingsLabelColor: v })} /></PropRow>
+            <PropRow label="Percentage Value Color"><ColorField value={targetObj.ratingsValueColor || targetObj.ratingsTextColor || TEXT_MUTED} onChange={v => updateTarget({ ratingsValueColor: v, ratingsTextColor: v })} /></PropRow>
+            <PropRow label="Progress Bar Fill Color"><ColorField value={targetObj.ratingsFillColor || HATHOR_ORANGE} onChange={v => updateTarget({ ratingsFillColor: v })} /></PropRow>
             <PropRow label="Card Background"><ColorField value={targetObj.ratingsCardBg || SURFACE} onChange={v => updateTarget({ ratingsCardBg: v })} /></PropRow>
             <PropRow label="Card Border Color"><ColorField value={targetObj.ratingsCardBorder || BORDER} onChange={v => updateTarget({ ratingsCardBorder: v })} /></PropRow>
           </PropSection>
@@ -2471,9 +2517,10 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
         {targetObj.type === "sidebar-community" && (
           <PropSection title="Sidebar Community Stats Settings">
             <PropRow label="Card Header Title"><TxtInput value={targetObj.communityTitle || "COMMUNITY"} onChange={v => updateTarget({ communityTitle: v })} /></PropRow>
-            <PropRow label="Players Count"><TxtInput value={targetObj.sideOwners || "250,000+"} onChange={v => updateTarget({ sideOwners: v })} /></PropRow>
-            <PropRow label="Avg. Gameplay"><TxtInput value={targetObj.sideGameplay || "52 hrs"} onChange={v => updateTarget({ sideGameplay: v })} /></PropRow>
-            <PropRow label="Positive Rating %"><TxtInput value={targetObj.sidePositive || "94%"} onChange={v => updateTarget({ sidePositive: v })} /></PropRow>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.communityTitleColor || targetObj.commTitleColor || HATHOR_ORANGE} onChange={v => updateTarget({ communityTitleColor: v, commTitleColor: v })} /></PropRow>
+            <PropRow label="Field Label Color"><ColorField value={targetObj.communityLabelColor || targetObj.commLabelColor || TEXT_MUTED} onChange={v => updateTarget({ communityLabelColor: v, commLabelColor: v })} /></PropRow>
+            <PropRow label="Value Text Color"><ColorField value={targetObj.communityValueColor || targetObj.commValueColor || TEXT_PRIMARY} onChange={v => updateTarget({ communityValueColor: v, commValueColor: v })} /></PropRow>
+            <PropRow label="Positive Rating % Color"><ColorField value={targetObj.communityRatingColor || targetObj.commRatingColor || GREEN_ACCENT} onChange={v => updateTarget({ communityRatingColor: v, commRatingColor: v })} /></PropRow>
             <PropRow label="Card Background"><ColorField value={targetObj.communityCardBg || SURFACE} onChange={v => updateTarget({ communityCardBg: v })} /></PropRow>
             <PropRow label="Card Border Color"><ColorField value={targetObj.communityCardBorder || BORDER} onChange={v => updateTarget({ communityCardBorder: v })} /></PropRow>
           </PropSection>
@@ -2483,8 +2530,31 @@ function PropertiesPanel({ section, selectedColIdx, selectedElementId: propEleme
         {targetObj.type === "recommendations" && (
           <PropSection title="More Like This Settings">
             <PropRow label="Section Title"><TxtInput value={targetObj.recsTitle || "MORE LIKE THIS"} onChange={v => updateTarget({ recsTitle: v })} /></PropRow>
-            <PropRow label="Card Background / Free Gradient"><ColorField value={targetObj.recsCardBg || SURFACE} onChange={v => updateTarget({ recsCardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
-            <PropRow label="Card Border Color"><ColorField value={targetObj.recsCardBorder || BORDER} onChange={v => updateTarget({ recsCardBorder: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Typography & Fonts</p>
+            <PropRow label="Header Title Font"><SelField value={targetObj.recsTitleFont || targetObj.titleFont || "'Cinzel', serif"} onChange={v => updateTarget({ recsTitleFont: v, titleFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Card Title Font"><SelField value={targetObj.recsCardTitleFont || targetObj.itemTitleFont || "'Cinzel', serif"} onChange={v => updateTarget({ recsCardTitleFont: v, itemTitleFont: v })} options={FONTS} /></PropRow>
+            <PropRow label="Price Text Font"><SelField value={targetObj.recsPriceFont || "monospace"} onChange={v => updateTarget({ recsPriceFont: v })} options={FONTS} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Color Palette & Accents</p>
+            <PropRow label="Header Title Color"><ColorField value={targetObj.recsTitleColor || targetObj.titleColor || HATHOR_ORANGE} onChange={v => updateTarget({ recsTitleColor: v, titleColor: v })} /></PropRow>
+            <PropRow label="Card Title Color"><ColorField value={targetObj.recsCardTitleColor || targetObj.itemTitleColor || TEXT_PRIMARY} onChange={v => updateTarget({ recsCardTitleColor: v, itemTitleColor: v })} /></PropRow>
+            <PropRow label="Price Text Color"><ColorField value={targetObj.recsPriceColor || targetObj.priceColor || GREEN_ACCENT} onChange={v => updateTarget({ recsPriceColor: v, priceColor: v })} /></PropRow>
+            <PropRow label="Card Background / Free Gradient"><ColorField value={targetObj.recsCardBg || targetObj.cardBg || SURFACE} onChange={v => updateTarget({ recsCardBg: v, cardBg: v })} placeholder="e.g. #181c24 or linear-gradient(...)" /></PropRow>
+            <PropRow label="Card Border Color"><ColorField value={targetObj.recsCardBorder || targetObj.cardBorder || BORDER} onChange={v => updateTarget({ recsCardBorder: v, cardBorder: v })} /></PropRow>
+            <PropRow label="Card Radius"><NumField value={targetObj.recsCardRadius ?? targetObj.cardRadius ?? 4} onChange={v => updateTarget({ recsCardRadius: v, cardRadius: v })} unit="px" max={40} /></PropRow>
+            <PropRow label="Discount Badge Background"><ColorField value={targetObj.recsDiscountBg || targetObj.discountBg || HATHOR_ORANGE} onChange={v => updateTarget({ recsDiscountBg: v, discountBg: v })} /></PropRow>
+
+            <p className={styles.propLabel} style={{ fontWeight: 700, color: HATHOR_ORANGE, marginTop: 12 }}>Section Spacing & Padding</p>
+            <PropRow label="Section Background"><ColorField value={targetObj.recsBg || targetObj.bg || "transparent"} onChange={v => updateTarget({ recsBg: v, bg: v })} placeholder="e.g. transparent or #181c24" /></PropRow>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+              <PropRow label="Pad Top"><NumField value={targetObj.pt ?? 0} onChange={v => updateTarget({ pt: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Bottom"><NumField value={targetObj.pb ?? 0} onChange={v => updateTarget({ pb: v })} unit="px" max={200} /></PropRow>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <PropRow label="Pad Left"><NumField value={targetObj.pl ?? targetObj.ph ?? 0} onChange={v => updateTarget({ pl: v, ph: v })} unit="px" max={200} /></PropRow>
+              <PropRow label="Pad Right"><NumField value={targetObj.pr ?? targetObj.ph ?? 0} onChange={v => updateTarget({ pr: v, ph: v })} unit="px" max={200} /></PropRow>
+            </div>
           </PropSection>
         )}
 
@@ -3132,16 +3202,16 @@ function syncSectionsWithDraft(sections: Section[]): Section[] {
                 reqsMin: {
                   os: (draft.minReq.os && draft.minReq.os.length > 0) ? draft.minReq.os.join(", ") : (el.reqsMin?.os || "Windows 10 (64-bit)"),
                   cpu: draft.minReq.cpu || el.reqsMin?.cpu || "Intel Core i5-8400",
-                  ram: draft.minReq.ram ? `${draft.minReq.ram} GB RAM` : (el.reqsMin?.ram || "12 GB RAM"),
+                  ram: draft.minReq.ram ? (draft.minReq.ram.toUpperCase().includes('GB') ? draft.minReq.ram : `${draft.minReq.ram} GB`) : (el.reqsMin?.ram || "12 GB"),
                   gpu: draft.minReq.gpu || el.reqsMin?.gpu || "NVIDIA GTX 1070",
-                  storage: draft.minReq.storageNum ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix} Available Space` : (el.reqsMin?.storage || "85 GB Available Space")
+                  storage: draft.minReq.storageNum ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix}` : (el.reqsMin?.storage?.replace(/NVMe SSD|Available Space/gi, '').trim() || "85 GB")
                 },
                 reqsRec: {
                   os: (draft.recReq.os && draft.recReq.os.length > 0) ? draft.recReq.os.join(", ") : (el.reqsRec?.os || "Windows 11 (64-bit)"),
                   cpu: draft.recReq.cpu || el.reqsRec?.cpu || "Intel Core i7-12700K",
-                  ram: draft.recReq.ram ? `${draft.recReq.ram} GB RAM` : (el.reqsRec?.ram || "16 GB RAM"),
+                  ram: draft.recReq.ram ? (draft.recReq.ram.toUpperCase().includes('GB') ? draft.recReq.ram : `${draft.recReq.ram} GB`) : (el.reqsRec?.ram || "16 GB"),
                   gpu: draft.recReq.gpu || el.reqsRec?.gpu || "NVIDIA RTX 4070",
-                  storage: draft.recReq.storageNum ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix} NVMe SSD` : (el.reqsRec?.storage || "85 GB NVMe SSD")
+                  storage: draft.recReq.storageNum ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix}` : (el.reqsRec?.storage?.replace(/NVMe SSD|Available Space/gi, '').trim() || "85 GB")
                 }
               };
             }
@@ -3237,19 +3307,34 @@ export default function DesignerPage() {
         return;
       }
 
-      // Ensure all sections and elements have unique IDs
-      const sanitizedSections = importedSections.map(sec => ({
-        ...sec,
-        id: sec.id || uid(),
-        gridCols: sec.gridCols ? sec.gridCols.map(col => ({
-          ...col,
-          id: col.id || uid(),
-          elements: (col.elements || []).map(el => ({
-            ...el,
-            id: el.id || uid()
-          }))
-        })) : sec.gridCols
-      }));
+      const normalizeItem = (item: any) => {
+        let t = item.type || item.component || "text";
+        if (t === "GameHero" || t === "game-hero" || t === "MediaCarousel" || t === "media-carousel" || t === "CarouselShowcase" || t === "carousel") {
+          t = "media-carousel";
+        }
+        const imgs = item.heroImages || item.carouselImages || item.mediaItems || item.images || [];
+        return {
+          ...item,
+          type: t,
+          id: item.id || uid(),
+          heroImages: imgs,
+          carouselImages: imgs,
+          mediaItems: imgs,
+        };
+      };
+
+      // Ensure all sections and elements have unique IDs and normalized types
+      const sanitizedSections = importedSections.map(sec => {
+        const normSec = normalizeItem(sec);
+        return {
+          ...normSec,
+          gridCols: normSec.gridCols ? normSec.gridCols.map((col: any) => ({
+            ...col,
+            id: col.id || uid(),
+            elements: (col.elements || []).map((el: any) => normalizeItem(el))
+          })) : normSec.gridCols
+        };
+      });
 
       if (importedSettings) {
         setPageSettings(prev => ({ ...prev, ...importedSettings }));

@@ -24,17 +24,17 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
   const min = s.min || s.reqsMin || props.minimum || {
     os: 'Windows 10 (64-bit)',
     cpu: 'Intel Core i5 / AMD Ryzen 5',
-    ram: '8 GB RAM',
+    ram: '8 GB',
     gpu: 'NVIDIA GTX 1060 / AMD RX 580',
-    storage: '50 GB Available Space'
+    storage: '50 GB'
   };
 
   const rec = s.rec || s.reqsRec || props.recommended || {
     os: 'Windows 11 (64-bit)',
     cpu: 'Intel Core i7 / AMD Ryzen 7',
-    ram: '16 GB RAM',
+    ram: '16 GB',
     gpu: 'NVIDIA RTX 3070 / AMD RX 6700 XT',
-    storage: '50 GB NVMe SSD'
+    storage: '50 GB'
   };
 
   const currentSpecs = activeTab === 'recommended' ? rec : min;
@@ -45,7 +45,9 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
   const headerTitleColor = s.titleColor || s.headerTitleColor || '#f4b183';
   const accentColor = s.accentColor || s.reqsAccentColor || HATHOR_ORANGE;
   const cardBg = s.reqsCardBg || s.cardBg || s.bg || SURFACE;
-  const cardBorder = s.reqsCardBorder || s.cardBorder || s.borderColor || BORDER;
+  const rawBorder = s.reqsCardBorder || s.cardBorder || s.borderColor;
+  const cardBorder = (rawBorder === 'transparent' || rawBorder === 'none') ? 'transparent' : (rawBorder || BORDER);
+  const cardBorderCss = (cardBorder && cardBorder !== 'transparent' && cardBorder !== 'none') ? `1px solid ${cardBorder}` : 'none';
   const cardRadius = s.reqsRadius ?? s.cardRadius ?? 4;
   const labelColor = s.labelColor || TEXT_MUTED;
   const valueColor = s.valueColor || s.textColor || TEXT_PRIMARY;
@@ -58,20 +60,27 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
     { label: 'STORAGE', value: currentSpecs.storage, Icon: HardDrive },
   ];
 
+  const bg = s.reqsBg || 'transparent';
+  const isCard = (bg !== 'transparent' && bg !== '');
+  const pt = s.pt ?? (isCard ? 16 : 0);
+  const pb = s.pb ?? (isCard ? 16 : 0);
+  const pl = s.pl ?? s.ph ?? (isCard ? 16 : 0);
+  const pr = s.pr ?? s.ph ?? (isCard ? 16 : 0);
+
   return (
     <div
       style={{
         width: '100%',
         boxSizing: 'border-box',
-        background: s.reqsBg || 'transparent',
-        paddingTop: s.pt ?? 0,
-        paddingBottom: s.pb ?? 0,
-        paddingLeft: s.pl ?? s.ph ?? 0,
-        paddingRight: s.pr ?? s.ph ?? 0,
+        background: bg,
+        paddingTop: pt,
+        paddingBottom: pb,
+        paddingLeft: pl,
+        paddingRight: pr,
       }}
     >
       {/* Title with subtle bottom border */}
-      <div style={{ borderBottom: `1px solid ${s.headerBorder || cardBorder || BORDER}`, paddingBottom: 12, marginBottom: 20 }}>
+      <div style={{ borderBottom: (cardBorderCss !== 'none') ? cardBorderCss : '1px solid rgba(255,255,255,0.1)', paddingBottom: 12, marginBottom: 20 }}>
         <h2 style={{
           fontFamily: titleFont, fontSize: isMobile ? 16 : 18, fontWeight: 900,
           color: headerTitleColor, letterSpacing: '0.14em', textTransform: 'uppercase', margin: 0
@@ -85,8 +94,8 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
         <button
           onClick={() => setActiveTab('recommended')}
           style={{
-            background: activeTab === 'recommended' ? `${accentColor}22` : cardBg,
-            border: `1px solid ${activeTab === 'recommended' ? accentColor : cardBorder}`,
+            background: activeTab === 'recommended' ? (accentColor.startsWith('#') ? `${accentColor.slice(0, 7)}22` : accentColor) : cardBg,
+            border: activeTab === 'recommended' ? `1px solid ${accentColor}` : cardBorderCss,
             color: activeTab === 'recommended' ? accentColor : labelColor,
             padding: '8px 20px', borderRadius: 3, fontWeight: 900, fontSize: 11,
             letterSpacing: '0.12em', cursor: 'pointer', fontFamily: 'monospace', textTransform: 'uppercase'
@@ -97,8 +106,8 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
         <button
           onClick={() => setActiveTab('minimum')}
           style={{
-            background: activeTab === 'minimum' ? `${accentColor}22` : cardBg,
-            border: `1px solid ${activeTab === 'minimum' ? accentColor : cardBorder}`,
+            background: activeTab === 'minimum' ? (accentColor.startsWith('#') ? `${accentColor.slice(0, 7)}22` : accentColor) : cardBg,
+            border: activeTab === 'minimum' ? `1px solid ${accentColor}` : cardBorderCss,
             color: activeTab === 'minimum' ? accentColor : labelColor,
             padding: '8px 20px', borderRadius: 3, fontWeight: 900, fontSize: 11,
             letterSpacing: '0.12em', cursor: 'pointer', fontFamily: 'monospace', textTransform: 'uppercase'
@@ -117,7 +126,7 @@ export const GameSystemReqs: React.FC<GameSystemReqsProps> = (props) => {
               key={idx}
               style={{
                 background: cardBg,
-                border: `1px solid ${cardBorder}`,
+                border: cardBorderCss,
                 borderRadius: cardRadius,
                 padding: '14px 16px',
                 display: 'flex',

@@ -42,7 +42,7 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
   const subtitleFont = s.subtitleFont || titleFont;
   const textFont = s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
 
-  // Colors
+  // Colors & Fonts
   const badgeColor = s.badgeColor || s.subtitleColor || HATHOR_ORANGE;
   const titleColor = s.titleColor || '#ffffff';
   const subtitleColor = s.subtitleColor || HATHOR_ORANGE;
@@ -52,23 +52,37 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
   const tagColor = s.tagColor || TEXT_MUTED;
   const descColor = s.descColor || TEXT_MUTED;
 
+  const ratingScoreColor = s.ratingScoreColor || s.headerRatingColor || s.valueColor || '#ffffff';
+  const ratingScoreFont = s.ratingScoreFont || s.headerRatingFont || titleFont;
+  const reviewCountColor = s.reviewCountColor || s.headerReviewCountColor || s.descColor || TEXT_MUTED;
+  const reviewCountFont = s.reviewCountFont || s.headerReviewCountFont || textFont;
+  const devColor = s.devColor || s.headerDevColor || s.valueColor || TEXT_PRIMARY;
+  const devFont = s.devFont || s.headerDevFont || textFont;
+  const dateColor = s.dateColor || s.headerDateColor || s.valueColor || TEXT_PRIMARY;
+  const dateFont = s.dateFont || s.headerDateFont || textFont;
+  const bulletColor = s.bulletColor || s.metaSeparatorColor || TEXT_MUTED;
+
   // Container styling & padding
   const headerBg = s.headerBg || 'transparent';
   const headerBorder = s.headerBorder || 'transparent';
   const headerRadius = s.headerRadius ?? 0;
-  const pt = s.pt ?? s.headerPadTop ?? 0;
-  const pb = s.pb ?? s.headerPadBottom ?? 0;
-  const pl = s.pl ?? s.ph ?? s.headerPadLeft ?? 0;
-  const pr = s.pr ?? s.ph ?? s.headerPadRight ?? 0;
+
+  const isCard = (headerBg && headerBg !== 'transparent' && headerBg !== 'none') || (headerBorder && headerBorder !== 'transparent' && headerBorder !== 'none');
+  const defaultPad = isCard ? (device === 'mobile' ? 16 : 24) : 0;
+  const pt = s.pt ?? s.headerPadTop ?? defaultPad;
+  const pb = s.pb ?? s.headerPadBottom ?? defaultPad;
+  const pl = s.pl ?? s.ph ?? s.headerPadLeft ?? defaultPad;
+  const pr = s.pr ?? s.ph ?? s.headerPadRight ?? defaultPad;
+  const borderStyle = (headerBorder && headerBorder !== 'transparent' && headerBorder !== 'none') ? `1px solid ${headerBorder}` : 'none';
 
   return (
     <div
       style={{
-        marginBottom: device === 'mobile' ? 20 : 32,
+        marginBottom: s.mb ?? 0,
         width: '100%',
         boxSizing: 'border-box',
         background: headerBg,
-        border: headerBorder !== 'transparent' ? `1px solid ${headerBorder}` : 'none',
+        border: borderStyle,
         borderRadius: headerRadius,
         paddingTop: pt,
         paddingBottom: pb,
@@ -94,14 +108,14 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: device === 'mobile' ? 8 : 14, fontSize: device === 'mobile' ? 11 : 13, color: TEXT_MUTED, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: device === 'mobile' ? 8 : 14, fontSize: device === 'mobile' ? 11 : 13, marginBottom: 16, flexWrap: 'wrap' }}>
         <span style={{ color: starColor, letterSpacing: '0.1em' }}>★★★★★</span>
-        <span style={{ fontWeight: 800, color: '#ffffff', fontFamily: titleFont }}>{Number(ratingScore).toFixed(1)}</span>
-        <span style={{ fontSize: 11, opacity: 0.8, fontFamily: textFont }}>({reviewCount})</span>
-        <span style={{ opacity: 0.4 }}>•</span>
-        <span style={{ color: TEXT_PRIMARY, fontFamily: textFont }}>{developer}</span>
-        <span style={{ opacity: 0.4 }}>•</span>
-        <span style={{ color: TEXT_PRIMARY, fontFamily: textFont }}>{releaseDate}</span>
+        <span style={{ fontWeight: 800, color: ratingScoreColor, fontFamily: ratingScoreFont }}>{Number(ratingScore).toFixed(1)}</span>
+        <span style={{ fontSize: 11, color: reviewCountColor, fontFamily: reviewCountFont }}>({reviewCount})</span>
+        <span style={{ opacity: 0.4, color: bulletColor }}>•</span>
+        <span style={{ color: devColor, fontFamily: devFont }}>{developer}</span>
+        <span style={{ opacity: 0.4, color: bulletColor }}>•</span>
+        <span style={{ color: dateColor, fontFamily: dateFont }}>{releaseDate}</span>
       </div>
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
