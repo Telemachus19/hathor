@@ -67,6 +67,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     const claims = jwt.verify(token, publicKeyPem, {
       algorithms: ['RS256'],
+      issuer: 'hathor-auth-service',
+      audience: 'hathor-services',
     }) as any;
 
     if (!claims || !claims.sub) {
