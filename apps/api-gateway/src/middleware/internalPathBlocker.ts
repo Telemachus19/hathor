@@ -6,7 +6,8 @@ import { Request, Response, NextFunction } from 'express';
  * service-to-service paths must never be reachable from outside.
  */
 export function internalPathBlocker(req: Request, res: Response, next: NextFunction): void {
-  if (req.path.startsWith('/internal')) {
+  const targetUrl = decodeURIComponent(req.originalUrl || req.url || '').toLowerCase();
+  if (req.path.startsWith('/internal') || targetUrl.includes('/internal')) {
     res.status(403).json({
       error: {
         code: 'FORBIDDEN',
