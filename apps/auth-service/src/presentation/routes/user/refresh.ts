@@ -61,22 +61,27 @@ export async function refreshHandler(req: Request, res: Response) {
       });
     }
 
-    // 4. Token Reuse Detection
+    // 4. Token Reuse Detection (with 15-second grace period for concurrent in-flight requests)
     if (token.used) {
-      // Revoke the entire family
-      await authDb
-        .update(refreshTokenFamilies)
-        .set({ revoked: true })
-        .where(eq(refreshTokenFamilies.id, family.id));
+      const isRecentReuse =
+        token.createdAt && Date.now() - new Date(token.createdAt).getTime() < 15_000;
 
-      return res.status(401).json({
-        success: false,
-        error: {
-          code: 'UNAUTHENTICATED',
-          message: 'Token reuse detected. Session has been revoked.',
-          correlationId,
-        },
-      });
+      if (!isRecentReuse) {
+        // Revoke the entire family for genuine delayed reuse
+        await authDb
+          .update(refreshTokenFamilies)
+          .set({ revoked: true })
+          .where(eq(refreshTokenFamilies.id, family.id));
+
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'UNAUTHENTICATED',
+            message: 'Token reuse detected. Session has been revoked.',
+            correlationId,
+          },
+        });
+      }
     }
 
     // 5. Query user to get current roles and authorizationVersion

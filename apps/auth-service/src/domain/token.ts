@@ -48,11 +48,20 @@ export function generateAccessToken(user: {
 /**
  * Verifies a token using the public key and returns its typed claims.
  */
-export function verifyAccessToken(token: string): AccessTokenClaims {
+export function verifyAccessToken(
+  token: string,
+  expectedAudience?: jwt.VerifyOptions['audience']
+): AccessTokenClaims {
   const { publicKeyPem } = getKeyPair();
   return jwt.verify(token, publicKeyPem, {
     algorithms: ['RS256'],
     issuer: 'hathor-auth-service',
-    audience: 'hathor-services',
-  }) as AccessTokenClaims;
+    audience: expectedAudience || [
+      'hathor-services',
+      'catalog-service',
+      'commerce-service',
+      'library-service',
+      'auth-service',
+    ],
+  }) as unknown as AccessTokenClaims;
 }

@@ -149,6 +149,7 @@ if (isMain) {
 
     console.log(`Starting admin bootstrap for target gamer: "${email}"...`);
     const result = await runBootstrap({ email, secret, envSecret, db: authDb });
+    delete process.env.INITIAL_ADMIN_BOOTSTRAP_SECRET;
 
     if (result.success) {
       console.log('✅', result.message);
