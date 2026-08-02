@@ -345,8 +345,9 @@ function CheckoutPage() {
             <div className={styles.paymentTabGroup}>
               <button
                 type="button"
-                className={`${styles.paymentTab} ${paymentTab === 'credit_card' ? styles.paymentTabActive : ''
-                  }`}
+                className={`${styles.paymentTab} ${
+                  paymentTab === 'credit_card' ? styles.paymentTabActive : ''
+                }`}
                 onClick={() => setPaymentTab('credit_card')}
               >
                 💳 CREDIT CARD
@@ -354,8 +355,9 @@ function CheckoutPage() {
 
               <button
                 type="button"
-                className={`${styles.paymentTab} ${paymentTab === 'paypal' ? styles.paymentTabActive : ''
-                  }`}
+                className={`${styles.paymentTab} ${
+                  paymentTab === 'paypal' ? styles.paymentTabActive : ''
+                }`}
                 onClick={() => setPaymentTab('paypal')}
               >
                 🅿 PAYPAL
@@ -363,8 +365,9 @@ function CheckoutPage() {
 
               <button
                 type="button"
-                className={`${styles.paymentTab} ${paymentTab === 'simulated' ? styles.paymentTabActive : ''
-                  }`}
+                className={`${styles.paymentTab} ${
+                  paymentTab === 'simulated' ? styles.paymentTabActive : ''
+                }`}
                 onClick={() => setPaymentTab('simulated')}
               >
                 📱 LOCAL SIMULATORS
@@ -453,24 +456,27 @@ function CheckoutPage() {
               </div>
               <div className={styles.simulatorGrid}>
                 <div
-                  className={`${styles.simulatorOption} ${selectedMethod === 'sim_fawry' ? styles.simulatorOptionActive : ''
-                    }`}
+                  className={`${styles.simulatorOption} ${
+                    selectedMethod === 'sim_fawry' ? styles.simulatorOptionActive : ''
+                  }`}
                   onClick={() => setSelectedMethod('sim_fawry')}
                 >
                   <div className={styles.simulatorOptionName}>🏪 Fawry Simulator</div>
                 </div>
 
                 <div
-                  className={`${styles.simulatorOption} ${selectedMethod === 'sim_vodafone_cash' ? styles.simulatorOptionActive : ''
-                    }`}
+                  className={`${styles.simulatorOption} ${
+                    selectedMethod === 'sim_vodafone_cash' ? styles.simulatorOptionActive : ''
+                  }`}
                   onClick={() => setSelectedMethod('sim_vodafone_cash')}
                 >
                   <div className={styles.simulatorOptionName}>📱 Vodafone Cash</div>
                 </div>
 
                 <div
-                  className={`${styles.simulatorOption} ${selectedMethod === 'sim_instapay' ? styles.simulatorOptionActive : ''
-                    }`}
+                  className={`${styles.simulatorOption} ${
+                    selectedMethod === 'sim_instapay' ? styles.simulatorOptionActive : ''
+                  }`}
                   onClick={() => setSelectedMethod('sim_instapay')}
                 >
                   <div className={styles.simulatorOptionName}>⚡ InstaPay</div>
