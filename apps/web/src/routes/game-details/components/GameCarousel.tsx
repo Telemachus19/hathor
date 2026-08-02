@@ -46,7 +46,15 @@ function getMediaPoster(item: any): string {
   return '';
 }
 
-function RenderMediaContent({ item, style, bg }: { item: any; style?: React.CSSProperties; bg?: string }) {
+function RenderMediaContent({
+  item,
+  style,
+  bg,
+}: {
+  item: any;
+  style?: React.CSSProperties;
+  bg?: string;
+}) {
   const url = getMediaUrl(item);
   const isVideo = isMediaVideo(item);
   const poster = getMediaPoster(item);
@@ -84,7 +92,13 @@ function RenderMediaContent({ item, style, bg }: { item: any; style?: React.CSSP
         muted
         loop
         playsInline
-        style={{ width: '100%', height: '100%', objectFit: 'contain', background: contentBg, ...style }}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+          background: contentBg,
+          ...style,
+        }}
       />
     );
   }
@@ -93,30 +107,46 @@ function RenderMediaContent({ item, style, bg }: { item: any; style?: React.CSSP
     <img
       src={url}
       alt=""
-      style={{ width: '100%', height: '100%', objectFit: 'contain', background: contentBg, ...style }}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+        background: contentBg,
+        ...style,
+      }}
     />
   );
 }
 
-export const GameCarousel: React.FC<GameCarouselProps> = ({ s = {}, images, device = 'desktop' }) => {
+export const GameCarousel: React.FC<GameCarouselProps> = ({
+  s = {},
+  images,
+  device = 'desktop',
+}) => {
   const [activeIdx, setActiveIdx] = useState(0);
   const [isLightbox, setIsLightbox] = useState(false);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const rawMedia = (s.carouselImages && s.carouselImages.length > 0)
-    ? s.carouselImages
-    : (s.heroImages && s.heroImages.length > 0)
-    ? s.heroImages
-    : (s.mediaItems && s.mediaItems.length > 0)
-    ? s.mediaItems
-    : (s.media && s.media.length > 0)
-    ? s.media
-    : (images && images.length > 0)
-    ? images
-    : null;
+  const rawMedia =
+    s.carouselImages && s.carouselImages.length > 0
+      ? s.carouselImages
+      : s.heroImages && s.heroImages.length > 0
+        ? s.heroImages
+        : s.mediaItems && s.mediaItems.length > 0
+          ? s.mediaItems
+          : s.media && s.media.length > 0
+            ? s.media
+            : images && images.length > 0
+              ? images
+              : null;
 
   const mediaItems = rawMedia || [
-    { type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop' },
+    {
+      type: 'video',
+      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      poster:
+        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
+    },
     'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop',
@@ -142,13 +172,14 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({ s = {}, images, devi
   };
 
   const heroH = s.carouselHeight || s.heroHeight || 480;
-  const responsiveHeroHeight = device === 'mobile' ? Math.min(heroH, 260) : device === 'tablet' ? Math.min(heroH, 360) : heroH;
+  const responsiveHeroHeight =
+    device === 'mobile' ? Math.min(heroH, 260) : device === 'tablet' ? Math.min(heroH, 360) : heroH;
   const thumbWidth = device === 'mobile' ? 110 : device === 'tablet' ? 140 : 180;
   const thumbHeight = device === 'mobile' ? 60 : device === 'tablet' ? 80 : 100;
   const showThumbnails = s.showThumbnails ?? true;
   const heroShadowEnabled = s.heroShadowEnabled ?? s.shadowOverlay ?? true;
   const heroShadowColor = s.heroShadowColor || s.shadowColor || '#212631';
-  const sectionBg = (s.bg && s.bg !== 'transparent') ? s.bg : (s.carouselBg || 'transparent');
+  const sectionBg = s.bg && s.bg !== 'transparent' ? s.bg : s.carouselBg || 'transparent';
 
   const getShadowGradient = (color: string) => {
     if (!color || color === 'transparent') return 'none';
@@ -158,7 +189,9 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({ s = {}, images, devi
       if (color.length === 9) {
         const alphaHex = color.slice(7, 9);
         const alphaNum = parseInt(alphaHex, 16);
-        const midAlphaHex = Math.round(alphaNum * 0.5).toString(16).padStart(2, '0');
+        const midAlphaHex = Math.round(alphaNum * 0.5)
+          .toString(16)
+          .padStart(2, '0');
         return `linear-gradient(to bottom, transparent 0%, ${baseHex}${midAlphaHex} 65%, ${color} 100%)`;
       }
       return `linear-gradient(to bottom, transparent 0%, ${baseHex}77 65%, ${baseHex} 100%)`;
@@ -169,7 +202,18 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({ s = {}, images, devi
   return (
     <div style={{ width: '100%', background: sectionBg, position: 'relative' }}>
       <div
-        style={{ position: 'relative', width: '100%', height: responsiveHeroHeight, overflow: 'hidden', cursor: 'pointer', transition: 'all 0.25s ease', background: sectionBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: responsiveHeroHeight,
+          overflow: 'hidden',
+          cursor: 'pointer',
+          transition: 'all 0.25s ease',
+          background: sectionBg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         onClick={() => setIsLightbox(true)}
       >
         <RenderMediaContent item={mediaItems[activeIdx]} bg={sectionBg} />
@@ -184,21 +228,87 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({ s = {}, images, devi
           />
         )}
 
-        <div style={{ position: 'absolute', bottom: device === 'mobile' ? 10 : 20, right: device === 'mobile' ? 12 : 24, background: 'rgba(14, 17, 22, 0.8)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: device === 'mobile' ? 6 : 10, borderRadius: 4, display: 'flex', backdropFilter: 'blur(4px)' }}>
+        <div
+          style={{
+            position: 'absolute',
+            bottom: device === 'mobile' ? 10 : 20,
+            right: device === 'mobile' ? 12 : 24,
+            background: 'rgba(14, 17, 22, 0.8)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: '#fff',
+            padding: device === 'mobile' ? 6 : 10,
+            borderRadius: 4,
+            display: 'flex',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
           <Maximize2 size={device === 'mobile' ? 12 : 16} />
         </div>
 
-        <button onClick={handlePrev} style={{ position: 'absolute', left: device === 'mobile' ? 8 : 24, top: '50%', transform: 'translateY(-50%)', width: device === 'mobile' ? 32 : 44, height: device === 'mobile' ? 32 : 44, background: 'rgba(33, 38, 49, 0.75)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', borderRadius: 2, zIndex: 10 }}>
+        <button
+          onClick={handlePrev}
+          style={{
+            position: 'absolute',
+            left: device === 'mobile' ? 8 : 24,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: device === 'mobile' ? 32 : 44,
+            height: device === 'mobile' ? 32 : 44,
+            background: 'rgba(33, 38, 49, 0.75)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            borderRadius: 2,
+            zIndex: 10,
+          }}
+        >
           <ChevronLeft size={device === 'mobile' ? 16 : 20} />
         </button>
-        <button onClick={handleNext} style={{ position: 'absolute', right: device === 'mobile' ? 8 : 24, top: '50%', transform: 'translateY(-50%)', width: device === 'mobile' ? 32 : 44, height: device === 'mobile' ? 32 : 44, background: 'rgba(33, 38, 49, 0.75)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', borderRadius: 2, zIndex: 10 }}>
+        <button
+          onClick={handleNext}
+          style={{
+            position: 'absolute',
+            right: device === 'mobile' ? 8 : 24,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: device === 'mobile' ? 32 : 44,
+            height: device === 'mobile' ? 32 : 44,
+            background: 'rgba(33, 38, 49, 0.75)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            borderRadius: 2,
+            zIndex: 10,
+          }}
+        >
           <ChevronRight size={device === 'mobile' ? 16 : 20} />
         </button>
       </div>
 
       {showThumbnails && (
-        <div style={{ maxWidth: 1280, margin: device === 'mobile' ? '-1.5rem auto 0' : '-3rem auto 0', position: 'relative', zIndex: 5, padding: device === 'mobile' ? '0 12px' : '0 24px' }}>
-          <div style={{ display: 'flex', gap: device === 'mobile' ? 8 : 16, overflowX: 'auto', paddingBottom: device === 'mobile' ? 8 : 12 }}>
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: device === 'mobile' ? '-1.5rem auto 0' : '-3rem auto 0',
+            position: 'relative',
+            zIndex: 5,
+            padding: device === 'mobile' ? '0 12px' : '0 24px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: device === 'mobile' ? 8 : 16,
+              overflowX: 'auto',
+              paddingBottom: device === 'mobile' ? 8 : 12,
+            }}
+          >
             {mediaItems.map((item: any, idx: number) => {
               const url = getMediaUrl(item);
               const isVideo = isMediaVideo(item);
@@ -207,25 +317,86 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({ s = {}, images, devi
               return (
                 <button
                   key={idx}
-                  ref={(el) => { thumbRefs.current[idx] = el; }}
-                  onClick={(e) => { e.stopPropagation(); setActiveIdx(idx); }}
-                  style={{ width: thumbWidth, height: thumbHeight, flexShrink: 0, borderRadius: 4, overflow: 'hidden', border: idx === activeIdx ? `2px solid ${HATHOR_ORANGE}` : '2px solid transparent', opacity: idx === activeIdx ? 1 : 0.7, cursor: 'pointer', background: SURFACE, padding: 0, position: 'relative' }}
+                  ref={(el) => {
+                    thumbRefs.current[idx] = el;
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveIdx(idx);
+                  }}
+                  style={{
+                    width: thumbWidth,
+                    height: thumbHeight,
+                    flexShrink: 0,
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    border:
+                      idx === activeIdx ? `2px solid ${HATHOR_ORANGE}` : '2px solid transparent',
+                    opacity: idx === activeIdx ? 1 : 0.7,
+                    cursor: 'pointer',
+                    background: SURFACE,
+                    padding: 0,
+                    position: 'relative',
+                  }}
                 >
                   {isVideo ? (
-                    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#0e1116' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                        background: '#0e1116',
+                      }}
+                    >
                       {poster ? (
-                        <img src={poster} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img
+                          src={poster}
+                          alt=""
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
                       ) : (
-                        <video src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <video
+                          src={url}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
                       )}
-                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ width: 26, height: 26, borderRadius: '50%', background: HATHOR_ORANGE, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
-                          <Play size={11} fill="#ffffff" color="#ffffff" style={{ marginLeft: 1 }} />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'rgba(0,0,0,0.45)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 26,
+                            height: 26,
+                            borderRadius: '50%',
+                            background: HATHOR_ORANGE,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.8)',
+                          }}
+                        >
+                          <Play
+                            size={11}
+                            fill="#ffffff"
+                            color="#ffffff"
+                            style={{ marginLeft: 1 }}
+                          />
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img
+                      src={url}
+                      alt=""
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
                   )}
                 </button>
               );
@@ -234,26 +405,112 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({ s = {}, images, devi
         </div>
       )}
 
-      {isLightbox && createPortal(
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999999, background: 'rgba(10, 12, 16, 0.95)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }} onClick={() => setIsLightbox(false)}>
-          <div style={{ position: 'absolute', top: 24, left: 32, right: 32, display: 'flex', justifyContent: 'space-between', color: '#fff', zIndex: 10 }}>
-            <span style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: 14 }}>MEDIA {activeIdx + 1} OF {mediaItems.length}</span>
-            <button onClick={() => setIsLightbox(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', padding: 8, cursor: 'pointer', borderRadius: 4 }}>
-              <X size={18} />
+      {isLightbox &&
+        createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999999,
+              background: 'rgba(10, 12, 16, 0.95)',
+              backdropFilter: 'blur(16px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 32,
+            }}
+            onClick={() => setIsLightbox(false)}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: 24,
+                left: 32,
+                right: 32,
+                display: 'flex',
+                justifyContent: 'space-between',
+                color: '#fff',
+                zIndex: 10,
+              }}
+            >
+              <span style={{ fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: 14 }}>
+                MEDIA {activeIdx + 1} OF {mediaItems.length}
+              </span>
+              <button
+                onClick={() => setIsLightbox(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.15)',
+                  border: 'none',
+                  color: '#fff',
+                  padding: 8,
+                  cursor: 'pointer',
+                  borderRadius: 4,
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <button
+              onClick={handlePrev}
+              style={{
+                position: 'absolute',
+                left: 32,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(20,24,32,0.85)',
+                border: '1px solid rgba(255,255,255,0.25)',
+                color: '#fff',
+                width: 50,
+                height: 50,
+                borderRadius: 4,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10,
+              }}
+            >
+              <ChevronLeft size={24} />
             </button>
-          </div>
-          <button onClick={handlePrev} style={{ position: 'absolute', left: 32, top: '50%', transform: 'translateY(-50%)', background: 'rgba(20,24,32,0.85)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', width: 50, height: 50, borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-            <ChevronLeft size={24} />
-          </button>
-          <div style={{ maxWidth: '90vw', maxHeight: '82vh', width: '100%', height: '82vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => e.stopPropagation()}>
-            <RenderMediaContent item={mediaItems[activeIdx]} />
-          </div>
-          <button onClick={handleNext} style={{ position: 'absolute', right: 32, top: '50%', transform: 'translateY(-50%)', background: 'rgba(20,24,32,0.85)', border: '1px solid rgba(255,255,255,0.25)', color: '#fff', width: 50, height: 50, borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-            <ChevronRight size={24} />
-          </button>
-        </div>,
-        document.body
-      )}
+            <div
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '82vh',
+                width: '100%',
+                height: '82vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <RenderMediaContent item={mediaItems[activeIdx]} />
+            </div>
+            <button
+              onClick={handleNext}
+              style={{
+                position: 'absolute',
+                right: 32,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'rgba(20,24,32,0.85)',
+                border: '1px solid rgba(255,255,255,0.25)',
+                color: '#fff',
+                width: 50,
+                height: 50,
+                borderRadius: 4,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10,
+              }}
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

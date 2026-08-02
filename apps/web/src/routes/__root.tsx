@@ -17,7 +17,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
   const location = useLocation();
-  const isStandalonePage = location.pathname.startsWith('/designer') || location.pathname.startsWith('/game-info-form');
+  const isStandalonePage =
+    location.pathname.startsWith('/designer') || location.pathname.startsWith('/game-info-form');
 
   if (isStandalonePage) {
     return <Outlet />;

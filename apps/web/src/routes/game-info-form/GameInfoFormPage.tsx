@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowRight, Check } from 'lucide-react';
-import { saveGameInfoDraft, getGameInfoDraft, EMPTY_GAME_DRAFT, GameInfoDraft, SystemReqSpec } from './gameInfoCache';
+import {
+  saveGameInfoDraft,
+  getGameInfoDraft,
+  EMPTY_GAME_DRAFT,
+  GameInfoDraft,
+  SystemReqSpec,
+} from './gameInfoCache';
 import { GameInfoFormHeader } from './-components/GameInfoFormHeader';
 import { BasicDetailsCard } from './-components/BasicDetailsCard';
 import { ClassificationCard } from './-components/ClassificationCard';
@@ -22,7 +28,7 @@ export default function GameInfoFormPage() {
   }, []);
 
   function handleFieldChange<K extends keyof GameInfoDraft>(key: K, val: GameInfoDraft[K]) {
-    setDraft(prev => {
+    setDraft((prev) => {
       const updated = { ...prev, [key]: val };
       saveGameInfoDraft(updated);
       return updated;
@@ -30,10 +36,10 @@ export default function GameInfoFormPage() {
   }
 
   function handleTierChange(tier: 'minReq' | 'recReq', key: keyof SystemReqSpec, val: any) {
-    setDraft(prev => {
+    setDraft((prev) => {
       const updated = {
         ...prev,
-        [tier]: { ...prev[tier], [key]: val }
+        [tier]: { ...prev[tier], [key]: val },
       };
       saveGameInfoDraft(updated);
       return updated;
@@ -58,42 +64,42 @@ export default function GameInfoFormPage() {
       {/* Main Form Content */}
       <div className={styles.contentArea}>
         <div className={styles.contentInner}>
-
           {/* Heading */}
           <div className={styles.headerSection}>
             <p className={styles.stepSubTag}>Catalog Metadata Entry</p>
             <h1 className={styles.mainHeading}>Game Information & Specifications</h1>
             <p className={styles.mainSubheading}>
-              Enter basic metadata, genre classification, and system requirements. This info is cached in draft state and directly populates your store layout components in the Page Designer.
+              Enter basic metadata, genre classification, and system requirements. This info is
+              cached in draft state and directly populates your store layout components in the Page
+              Designer.
             </p>
           </div>
 
           {/* Grid Layout: Left Column (Details/Media) & Right Column (System Specs) */}
           <div className={styles.gridContainer}>
-
             {/* Left Column */}
             <div className={styles.leftColumn}>
               <BasicDetailsCard
                 title={draft.title}
                 shortDesc={draft.shortDesc}
                 priceEgp={draft.priceEgp}
-                onChangeTitle={v => handleFieldChange('title', v)}
-                onChangeShortDesc={v => handleFieldChange('shortDesc', v)}
-                onChangePriceEgp={v => handleFieldChange('priceEgp', v)}
+                onChangeTitle={(v) => handleFieldChange('title', v)}
+                onChangeShortDesc={(v) => handleFieldChange('shortDesc', v)}
+                onChangePriceEgp={(v) => handleFieldChange('priceEgp', v)}
               />
 
               <ClassificationCard
                 genre={draft.genre}
                 tags={draft.tags}
-                onChangeGenre={v => handleFieldChange('genre', v)}
-                onChangeTags={v => handleFieldChange('tags', v)}
+                onChangeGenre={(v) => handleFieldChange('genre', v)}
+                onChangeTags={(v) => handleFieldChange('tags', v)}
               />
 
               <MediaAssetsCard
                 bannerUrl={draft.bannerUrl}
                 trailerUrl={draft.trailerUrl}
-                onChangeBannerUrl={v => handleFieldChange('bannerUrl', v)}
-                onChangeTrailerUrl={v => handleFieldChange('trailerUrl', v)}
+                onChangeBannerUrl={(v) => handleFieldChange('bannerUrl', v)}
+                onChangeTrailerUrl={(v) => handleFieldChange('trailerUrl', v)}
               />
             </div>
 
@@ -105,18 +111,27 @@ export default function GameInfoFormPage() {
                 onChangeTier={handleTierChange}
               />
             </div>
-
           </div>
 
           {/* Footer Action */}
           <div className={styles.footerContainer}>
             <div className={styles.statusText}>
               {savedToast ? (
-                <span style={{ color: '#38d39f', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span
+                  style={{
+                    color: '#38d39f',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
                   <Check size={14} /> Draft Saved & Cached
                 </span>
               ) : (
-                <span>Catalog Status: <span style={{ color: '#FD7014' }}>"draft"</span> (cached locally)</span>
+                <span>
+                  Catalog Status: <span style={{ color: '#FD7014' }}>"draft"</span> (cached locally)
+                </span>
               )}
             </div>
 
@@ -130,7 +145,6 @@ export default function GameInfoFormPage() {
               <ArrowRight size={14} />
             </button>
           </div>
-
         </div>
       </div>
     </div>

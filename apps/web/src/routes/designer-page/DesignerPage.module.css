@@ -7,8 +7,12 @@
   width: 100vw;
   overflow: hidden;
   background-color: #222831;
-  color: #EEEEEE;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #eeeeee;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 .toast {
@@ -21,13 +25,13 @@
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  background-color: #1C2028;
+  background-color: #1c2028;
   border: 1px solid rgba(253, 112, 20, 0.3);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   font-size: 11px;
   font-family: monospace;
   letter-spacing: 0.1em;
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 
 /* Top Toolbar */
@@ -37,8 +41,8 @@
   align-items: center;
   gap: 12px;
   padding: 0 16px;
-  background-color: #1C2028;
-  border-bottom: 1px solid #393E46;
+  background-color: #1c2028;
+  border-bottom: 1px solid #393e46;
   flex-shrink: 0;
 }
 
@@ -50,7 +54,7 @@
 .toolbarDivider {
   width: 1px;
   height: 20px;
-  background-color: #393E46;
+  background-color: #393e46;
 }
 
 .titleTag {
@@ -67,7 +71,7 @@
   font-size: 12px;
   font-weight: 900;
   font-family: 'Cinzel', serif;
-  color: #EEEEEE;
+  color: #eeeeee;
   border: none;
   border-bottom: 1px solid transparent;
   outline: none;
@@ -76,7 +80,7 @@
 }
 
 .gameTitleInput:focus {
-  border-bottom-color: #FD7014;
+  border-bottom-color: #fd7014;
 }
 
 .toolbarSpacer {
@@ -85,7 +89,7 @@
 
 .deviceToggleGroup {
   display: flex;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -97,19 +101,19 @@
   width: 32px;
   height: 32px;
   background: transparent;
-  color: #8C9AAA;
+  color: #8c9aaa;
   border: none;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .deviceBtn:not(:last-child) {
-  border-right: 1px solid #393E46;
+  border-right: 1px solid #393e46;
 }
 
 .deviceBtnActive {
   background-color: rgba(253, 112, 20, 0.15);
-  color: #FD7014;
+  color: #fd7014;
 }
 
 .iconActionBtn {
@@ -119,7 +123,7 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: #8C9AAA;
+  color: #8c9aaa;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -127,7 +131,7 @@
 }
 
 .iconActionBtn:hover:not(:disabled) {
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 
 .iconActionBtn:disabled {
@@ -142,9 +146,9 @@
   font-weight: 700;
   font-family: monospace;
   letter-spacing: 0.1em;
-  color: #8C9AAA;
+  color: #8c9aaa;
   background: transparent;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -154,8 +158,8 @@
 }
 
 .saveDraftBtn:hover {
-  color: #EEEEEE;
-  border-color: #8C9AAA;
+  color: #eeeeee;
+  border-color: #8c9aaa;
 }
 
 .publishBtn {
@@ -166,7 +170,7 @@
   font-family: monospace;
   letter-spacing: 0.1em;
   color: #ffffff;
-  background-color: #FD7014;
+  background-color: #fd7014;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -191,8 +195,8 @@
 /* Left Sidebar — Block Palette */
 .leftSidebar {
   width: 240px;
-  background-color: #1C2028;
-  border-right: 1px solid #393E46;
+  background-color: #1c2028;
+  border-right: 1px solid #393e46;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -201,12 +205,12 @@
 
 .paletteHeader {
   padding: 12px 16px;
-  border-bottom: 1px solid #393E46;
+  border-bottom: 1px solid #393e46;
   font-size: 10px;
   font-weight: 800;
   font-family: monospace;
   letter-spacing: 0.15em;
-  color: #8C9AAA;
+  color: #8c9aaa;
   text-transform: uppercase;
 }
 
@@ -242,7 +246,7 @@
 
 .paletteCard:hover {
   background-color: #222831;
-  border-color: #393E46;
+  border-color: #393e46;
   transform: translateX(2px);
 }
 
@@ -250,24 +254,24 @@
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  background-color: #1C2028;
-  border: 1px solid #393E46;
+  background-color: #1c2028;
+  border: 1px solid #393e46;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #FD7014;
+  color: #fd7014;
   flex-shrink: 0;
 }
 
 .paletteCardLabel {
   font-size: 12px;
   font-weight: 600;
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 
 .paletteCardDesc {
   font-size: 10px;
-  color: #8C9AAA;
+  color: #8c9aaa;
   margin-top: 2px;
 }
 
@@ -302,7 +306,7 @@
   align-items: center;
   justify-content: center;
   padding: 80px 20px;
-  color: #8C9AAA;
+  color: #8c9aaa;
   gap: 12px;
 }
 
@@ -330,7 +334,7 @@
   position: absolute;
   top: -24px;
   left: 0;
-  background-color: #1C2028;
+  background-color: #1c2028;
   border: 1px solid #f26b21;
   color: #f26b21;
   font-size: 9px;
@@ -345,19 +349,21 @@
   align-items: center;
   gap: 6px;
   z-index: 90;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .sectionHandleBadge:hover {
   background-color: #f26b21;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 /* Child Element Hover & Interactive Outlines */
 .childElementWrapper {
   position: relative;
   outline: 1px dashed transparent;
-  transition: outline-color 0.15s, background-color 0.15s;
+  transition:
+    outline-color 0.15s,
+    background-color 0.15s;
   border-radius: 2px;
   cursor: pointer;
   padding: 2px;
@@ -369,7 +375,7 @@
 }
 
 .childElementSelected {
-  outline: 2px solid #FD7014 !important;
+  outline: 2px solid #fd7014 !important;
   background-color: rgba(253, 112, 20, 0.08) !important;
 }
 
@@ -377,8 +383,8 @@
   position: absolute;
   top: -16px;
   left: 4px;
-  background-color: #FD7014;
-  color: #FFFFFF;
+  background-color: #fd7014;
+  color: #ffffff;
   font-size: 8px;
   font-family: monospace;
   font-weight: 800;
@@ -409,7 +415,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #FD7014;
+  background-color: #fd7014;
   color: #ffffff;
   font-size: 9px;
   font-family: monospace;
@@ -427,7 +433,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background-color: #1C2028;
+  background-color: #1c2028;
   border: 1px solid #353c4d;
   border-radius: 4px;
   padding: 3px;
@@ -442,7 +448,7 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: #8C9AAA;
+  color: #8c9aaa;
   border: none;
   border-radius: 3px;
   cursor: pointer;
@@ -451,7 +457,7 @@
 
 .sectionToolBtn:hover:not(:disabled) {
   background-color: #222831;
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 
 .sectionToolBtn:disabled {
@@ -462,8 +468,8 @@
 /* Right Sidebar — Properties Panel */
 .rightSidebar {
   width: 300px;
-  background-color: #1C2028;
-  border-left: 1px solid #393E46;
+  background-color: #1c2028;
+  border-left: 1px solid #393e46;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -472,7 +478,7 @@
 
 .propsHeader {
   padding: 12px 16px;
-  border-bottom: 1px solid #393E46;
+  border-bottom: 1px solid #393e46;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -480,14 +486,14 @@
   font-weight: 800;
   font-family: monospace;
   letter-spacing: 0.1em;
-  color: #FD7014;
+  color: #fd7014;
   text-transform: uppercase;
 }
 
 .emptyProps {
   padding: 60px 20px;
   text-align: center;
-  color: #8C9AAA;
+  color: #8c9aaa;
   font-size: 12px;
   display: flex;
   flex-direction: column;
@@ -496,7 +502,7 @@
 }
 
 .propSection {
-  border-bottom: 1px solid #393E46;
+  border-bottom: 1px solid #393e46;
 }
 
 .propSectionTitle {
@@ -524,14 +530,14 @@
 .propLabel {
   font-size: 10px;
   font-family: monospace;
-  color: #8C9AAA;
+  color: #8c9aaa;
 }
 
 .colorField {
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   padding: 4px 8px;
   background-color: #222831;
 }
@@ -548,7 +554,7 @@
   background: transparent;
   font-size: 11px;
   font-family: monospace;
-  color: #EEEEEE;
+  color: #eeeeee;
   border: none;
   outline: none;
 }
@@ -556,7 +562,7 @@
 .numField {
   display: flex;
   align-items: center;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   background-color: #222831;
 }
 
@@ -564,14 +570,14 @@
   padding: 6px 10px;
   border: none;
   background: transparent;
-  color: #8C9AAA;
+  color: #8c9aaa;
   font-size: 12px;
   cursor: pointer;
   transition: color 0.15s;
 }
 
 .numBtn:hover {
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 
 .numInput {
@@ -580,7 +586,7 @@
   text-align: center;
   font-size: 11px;
   font-family: monospace;
-  color: #EEEEEE;
+  color: #eeeeee;
   border: none;
   outline: none;
   padding: 6px 0;
@@ -591,11 +597,11 @@
   font-size: 9px;
   font-family: monospace;
   padding: 0 6px;
-  color: #8C9AAA;
+  color: #8c9aaa;
 }
 
 .txtInput {
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   background-color: #222831;
 }
 
@@ -605,13 +611,13 @@
   padding: 8px 10px;
   font-size: 11px;
   font-family: monospace;
-  color: #EEEEEE;
+  color: #eeeeee;
   border: none;
   outline: none;
 }
 
 .txtArea {
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   background-color: #222831;
 }
 
@@ -621,14 +627,14 @@
   padding: 8px 10px;
   font-size: 11px;
   font-family: monospace;
-  color: #EEEEEE;
+  color: #eeeeee;
   border: none;
   outline: none;
   resize: vertical;
 }
 
 .selField {
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   background-color: #222831;
 }
 
@@ -638,7 +644,7 @@
   padding: 8px 10px;
   font-size: 11px;
   font-family: monospace;
-  color: #EEEEEE;
+  color: #eeeeee;
   border: none;
   outline: none;
   cursor: pointer;
@@ -646,7 +652,7 @@
 
 .alignGroup {
   display: flex;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
 }
 
 .alignBtn {
@@ -656,19 +662,19 @@
   justify-content: center;
   padding: 6px 0;
   background: transparent;
-  color: #8C9AAA;
+  color: #8c9aaa;
   border: none;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .alignBtn:not(:last-child) {
-  border-right: 1px solid #393E46;
+  border-right: 1px solid #393e46;
 }
 
 .alignBtnActive {
   background-color: rgba(253, 112, 20, 0.15);
-  color: #FD7014;
+  color: #fd7014;
 }
 
 .sliderHeader {
@@ -680,19 +686,19 @@
 .sliderValue {
   font-size: 10px;
   font-family: monospace;
-  color: #FD7014;
+  color: #fd7014;
 }
 
 .sliderInput {
   width: 100%;
-  accent-color: #FD7014;
+  accent-color: #fd7014;
   cursor: pointer;
 }
 
 /* Custom Grid Controls */
 .gridColTabs {
   display: flex;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -704,19 +710,19 @@
   font-size: 10px;
   font-family: monospace;
   background: transparent;
-  color: #8C9AAA;
+  color: #8c9aaa;
   border: none;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .gridColTab:not(:last-child) {
-  border-right: 1px solid #393E46;
+  border-right: 1px solid #393e46;
 }
 
 .gridColTabActive {
   background-color: rgba(253, 112, 20, 0.15);
-  color: #FD7014;
+  color: #fd7014;
   font-weight: 700;
 }
 
@@ -735,9 +741,9 @@
   gap: 4px;
   padding: 8px 4px;
   background-color: #222831;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
-  color: #8C9AAA;
+  color: #8c9aaa;
   font-size: 9px;
   font-family: monospace;
   cursor: pointer;
@@ -745,8 +751,8 @@
 }
 
 .addElementBtn:hover {
-  border-color: #FD7014;
-  color: #FD7014;
+  border-color: #fd7014;
+  color: #fd7014;
   background-color: rgba(253, 112, 20, 0.08);
 }
 
@@ -756,21 +762,21 @@
   justify-content: space-between;
   padding: 8px 10px;
   background-color: #222831;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   font-size: 11px;
   font-family: monospace;
-  color: #EEEEEE;
+  color: #eeeeee;
   cursor: pointer;
   transition: border-color 0.15s;
 }
 
 .elementCard:hover {
-  border-color: #8C9AAA;
+  border-color: #8c9aaa;
 }
 
 .elementCardActive {
-  border-color: #FD7014 !important;
+  border-color: #fd7014 !important;
   background-color: rgba(253, 112, 20, 0.08);
 }
 
@@ -788,7 +794,7 @@
   justify-content: center;
   background: transparent;
   border: none;
-  color: #8C9AAA;
+  color: #8c9aaa;
   cursor: pointer;
   border-radius: 2px;
   transition: color 0.15s;
@@ -804,7 +810,7 @@
   font-weight: 800;
   font-family: monospace;
   letter-spacing: 0.25em;
-  color: #FD7014;
+  color: #fd7014;
   margin-bottom: 6px;
   text-transform: uppercase;
 }
@@ -813,7 +819,7 @@
   font-family: 'Cinzel', serif;
   font-size: 42px;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #ffffff;
   line-height: 1.1;
   letter-spacing: 0.03em;
   margin: 0 0 6px 0;
@@ -824,7 +830,7 @@
   font-size: 11px;
   font-family: monospace;
   letter-spacing: 0.2em;
-  color: #8C9AAA;
+  color: #8c9aaa;
   margin-bottom: 16px;
   text-transform: uppercase;
 }
@@ -839,28 +845,28 @@
 }
 
 .starGroup {
-  color: #FD7014;
+  color: #fd7014;
   letter-spacing: 2px;
   font-size: 14px;
 }
 
 .ratingScoreText {
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 800;
   font-family: monospace;
 }
 
 .reviewCountText {
-  color: #8C9AAA;
+  color: #8c9aaa;
   font-size: 12px;
 }
 
 .dotDivider {
-  color: #393E46;
+  color: #393e46;
 }
 
 .metaText {
-  color: #EEEEEE;
+  color: #eeeeee;
   font-size: 12px;
   font-family: monospace;
 }
@@ -874,8 +880,8 @@
 
 .tagPillItem {
   background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid #393E46;
-  color: #8C9AAA;
+  border: 1px solid #393e46;
+  color: #8c9aaa;
   padding: 4px 10px;
   font-size: 10px;
   font-family: monospace;
@@ -885,7 +891,7 @@
 }
 
 .gameHeaderDesc {
-  color: #CCCCCC;
+  color: #cccccc;
   font-family: 'Raleway', sans-serif;
   font-size: 14px;
   line-height: 1.7;
@@ -917,7 +923,7 @@
 }
 
 .ownershipSubText {
-  color: #8C9AAA;
+  color: #8c9aaa;
   font-size: 11px;
   margin-top: 2px;
 }
@@ -964,7 +970,7 @@
 /* System Requirements */
 .sysReqWrap {
   background-color: #12161f;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   padding: 24px;
 }
@@ -973,7 +979,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #393E46;
+  border-bottom: 1px solid #393e46;
   padding-bottom: 16px;
   margin-bottom: 20px;
 }
@@ -982,7 +988,7 @@
   font-family: 'Cinzel', serif;
   font-size: 20px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #ffffff;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin: 0;
@@ -999,17 +1005,17 @@
   font-family: monospace;
   font-weight: 700;
   border-radius: 2px;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   background: transparent;
-  color: #8C9AAA;
+  color: #8c9aaa;
   cursor: pointer;
   letter-spacing: 0.1em;
 }
 
 .sysReqTabActive {
-  background-color: #FD7014;
-  color: #FFFFFF;
-  border-color: #FD7014;
+  background-color: #fd7014;
+  color: #ffffff;
+  border-color: #fd7014;
 }
 
 .sysReqGrid {
@@ -1020,7 +1026,7 @@
 
 .sysReqCard {
   background-color: #0d0d14;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   padding: 12px 14px;
   border-radius: 2px;
 }
@@ -1028,7 +1034,7 @@
 .sysReqLabel {
   font-size: 9px;
   font-family: monospace;
-  color: #FD7014;
+  color: #fd7014;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   margin-bottom: 4px;
@@ -1036,21 +1042,21 @@
 
 .sysReqVal {
   font-size: 12px;
-  color: #EEEEEE;
+  color: #eeeeee;
   font-weight: 600;
 }
 
 /* User Reviews */
 .reviewsWrap {
   background-color: #12161f;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   padding: 24px;
 }
 
 .reviewCard {
   background-color: #0d0d14;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   padding: 16px;
   border-radius: 4px;
   margin-top: 14px;
@@ -1067,7 +1073,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   object-fit: cover;
 }
 
@@ -1075,25 +1081,25 @@
   font-size: 12px;
   font-family: monospace;
   font-weight: 700;
-  color: #EEEEEE;
+  color: #eeeeee;
 }
 
 .reviewDate {
   font-size: 10px;
-  color: #8C9AAA;
+  color: #8c9aaa;
   margin-left: auto;
 }
 
 .reviewBody {
   font-size: 13px;
-  color: #CCCCCC;
+  color: #cccccc;
   line-height: 1.6;
 }
 
 /* Sidebar Cards */
 .sideCard {
   background-color: #12161f;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   padding: 20px;
   margin-bottom: 20px;
@@ -1104,10 +1110,10 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.2em;
-  color: #FD7014;
+  color: #fd7014;
   text-transform: uppercase;
   margin: 0 0 16px 0;
-  border-bottom: 1px solid #393E46;
+  border-bottom: 1px solid #393e46;
   padding-bottom: 8px;
 }
 
@@ -1121,12 +1127,12 @@
 }
 
 .sideInfoLabel {
-  color: #8C9AAA;
+  color: #8c9aaa;
   font-family: monospace;
 }
 
 .sideInfoVal {
-  color: #EEEEEE;
+  color: #eeeeee;
   font-weight: 600;
 }
 
@@ -1137,7 +1143,7 @@
   margin-bottom: 8px;
   font-size: 10px;
   font-family: monospace;
-  color: #8C9AAA;
+  color: #8c9aaa;
 }
 
 .ratingTrack {
@@ -1146,12 +1152,12 @@
   background-color: #0d0d14;
   border-radius: 3px;
   overflow: hidden;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
 }
 
 .ratingFill {
   height: 100%;
-  background-color: #FD7014;
+  background-color: #fd7014;
   border-radius: 3px;
 }
 
@@ -1165,15 +1171,17 @@
 
 .recCard {
   background-color: #12161f;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 4px;
   overflow: hidden;
-  transition: transform 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
 }
 
 .recCard:hover {
   transform: translateY(-4px);
-  border-color: #FD7014;
+  border-color: #fd7014;
 }
 
 .recImgWrap {
@@ -1193,8 +1201,8 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background-color: #FD7014;
-  color: #FFFFFF;
+  background-color: #fd7014;
+  color: #ffffff;
   font-size: 10px;
   font-weight: 800;
   font-family: monospace;
@@ -1209,7 +1217,7 @@
 .recGenre {
   font-size: 9px;
   font-family: monospace;
-  color: #8C9AAA;
+  color: #8c9aaa;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   margin-bottom: 4px;
@@ -1219,7 +1227,7 @@
   font-family: 'Cinzel', serif;
   font-size: 14px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #ffffff;
   margin: 0 0 10px 0;
 }
 
@@ -1248,13 +1256,19 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modalCard {
   background-color: #141820;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 8px;
   max-width: 760px;
   width: 100%;
@@ -1267,7 +1281,7 @@
   font-family: 'Cinzel', serif;
   font-size: 26px;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #ffffff;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin: 0 0 8px 0;
@@ -1275,7 +1289,7 @@
 
 .modalSub {
   font-size: 13px;
-  color: #8C9AAA;
+  color: #8c9aaa;
   margin: 0 0 32px 0;
   font-family: 'Raleway', sans-serif;
 }
@@ -1288,7 +1302,7 @@
 
 .modalOptionCard {
   background-color: #0d0d14;
-  border: 1px solid #393E46;
+  border: 1px solid #393e46;
   border-radius: 6px;
   padding: 28px 24px;
   display: flex;
@@ -1300,7 +1314,7 @@
 }
 
 .modalOptionCard:hover {
-  border-color: #FD7014;
+  border-color: #fd7014;
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(253, 112, 20, 0.15);
 }
@@ -1319,7 +1333,7 @@
   font-family: 'Cinzel', serif;
   font-size: 16px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: #ffffff;
   margin: 0 0 10px 0;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1327,7 +1341,7 @@
 
 .modalOptionCard p {
   font-size: 12px;
-  color: #8C9AAA;
+  color: #8c9aaa;
   line-height: 1.6;
   margin: 0 0 20px 0;
   flex: 1;
@@ -1335,8 +1349,8 @@
 
 .modalBtnPrimary {
   width: 100%;
-  background-color: #FD7014;
-  color: #FFFFFF;
+  background-color: #fd7014;
+  color: #ffffff;
   border: none;
   padding: 12px;
   border-radius: 4px;
@@ -1386,7 +1400,7 @@
 
 .themedScrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #FD7014 rgba(28, 32, 40, 0.6);
+  scrollbar-color: #fd7014 rgba(28, 32, 40, 0.6);
 }
 
 .themedScrollbar::-webkit-scrollbar {
@@ -1401,7 +1415,7 @@
 }
 
 .themedScrollbar::-webkit-scrollbar-thumb {
-  background: #FD7014;
+  background: #fd7014;
   border-radius: 99px;
   box-shadow: 0 0 8px rgba(253, 112, 20, 0.4);
 }

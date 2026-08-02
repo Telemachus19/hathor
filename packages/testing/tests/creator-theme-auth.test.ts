@@ -184,9 +184,7 @@ describe('POST /creator/games - Draft Game Creation', () => {
   );
 
   it('rejects unauthenticated creation requests with 401', async () => {
-    const res = await request(app)
-      .post('/creator/games')
-      .send({ title: 'New Game' });
+    const res = await request(app).post('/creator/games').send({ title: 'New Game' });
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);

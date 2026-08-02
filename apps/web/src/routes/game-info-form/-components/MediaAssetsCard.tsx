@@ -26,7 +26,7 @@ export const MediaAssetsCard: React.FC<MediaAssetsCardProps> = ({
           <input
             type="text"
             value={bannerUrl}
-            onChange={e => onChangeBannerUrl(e.target.value)}
+            onChange={(e) => onChangeBannerUrl(e.target.value)}
             placeholder="https://images.unsplash.com/photo-..."
             className={styles.inputField}
           />
@@ -35,7 +35,9 @@ export const MediaAssetsCard: React.FC<MediaAssetsCardProps> = ({
               <img
                 src={bannerUrl}
                 alt="Banner preview"
-                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
+                }}
               />
             </div>
           )}
@@ -46,7 +48,7 @@ export const MediaAssetsCard: React.FC<MediaAssetsCardProps> = ({
           <input
             type="text"
             value={trailerUrl}
-            onChange={e => onChangeTrailerUrl(e.target.value)}
+            onChange={(e) => onChangeTrailerUrl(e.target.value)}
             placeholder="https://youtube.com/..."
             className={styles.inputField}
           />

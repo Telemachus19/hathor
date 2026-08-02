@@ -44,11 +44,7 @@ router.put(
     try {
       const callerId = req.user!.id;
       const { gameId } = req.params;
-      const [game] = await catalogDb
-        .select()
-        .from(games)
-        .where(eq(games.id, gameId))
-        .limit(1);
+      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
 
       if (!game) {
         return res.status(404).json({
@@ -146,9 +142,10 @@ router.post(
         });
       }
 
-      const baseSlug = customSlug && typeof customSlug === 'string' && customSlug.trim()
-        ? slugifyTitle(customSlug)
-        : slugifyTitle(title);
+      const baseSlug =
+        customSlug && typeof customSlug === 'string' && customSlug.trim()
+          ? slugifyTitle(customSlug)
+          : slugifyTitle(title);
 
       const uniqueSuffix = Date.now().toString(36).slice(-4);
       const slug = `${baseSlug}-${uniqueSuffix}`;

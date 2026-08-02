@@ -9,13 +9,18 @@ export interface SystemReqsCardProps {
   onChangeTier: (tier: 'minReq' | 'recReq', key: keyof SystemReqSpec, val: any) => void;
 }
 
-const OS_OPTIONS = ["Windows 10", "Windows 11", "macOS 12", "macOS 13", "macOS 14", "Ubuntu 20.04", "Ubuntu 22.04", "Steam OS"];
+const OS_OPTIONS = [
+  'Windows 10',
+  'Windows 11',
+  'macOS 12',
+  'macOS 13',
+  'macOS 14',
+  'Ubuntu 20.04',
+  'Ubuntu 22.04',
+  'Steam OS',
+];
 
-export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
-  minReq,
-  recReq,
-  onChangeTier,
-}) => {
+export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({ minReq, recReq, onChangeTier }) => {
   const [sysTab, setSysTab] = useState<'min' | 'rec'>('min');
 
   const tierKey = sysTab === 'min' ? 'minReq' : 'recReq';
@@ -23,7 +28,7 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
 
   function toggleOs(os: string) {
     const currentOs = tierData.os || [];
-    const updated = currentOs.includes(os) ? currentOs.filter(s => s !== os) : [...currentOs, os];
+    const updated = currentOs.includes(os) ? currentOs.filter((s) => s !== os) : [...currentOs, os];
     onChangeTier(tierKey, 'os', updated);
   }
 
@@ -59,7 +64,7 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
             <Globe size={11} /> Supported Operating Systems
           </label>
           <div className={styles.pillsContainer}>
-            {OS_OPTIONS.map(os => {
+            {OS_OPTIONS.map((os) => {
               const active = (tierData.os || []).includes(os);
               return (
                 <button
@@ -83,7 +88,7 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
           <input
             type="text"
             value={tierData.cpu}
-            onChange={e => onChangeTier(tierKey, 'cpu', e.target.value)}
+            onChange={(e) => onChangeTier(tierKey, 'cpu', e.target.value)}
             placeholder="e.g. Intel Core i5-8400 / AMD Ryzen 5 2600"
             className={styles.inputField}
           />
@@ -97,7 +102,7 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
           <input
             type="text"
             value={tierData.gpu}
-            onChange={e => onChangeTier(tierKey, 'gpu', e.target.value)}
+            onChange={(e) => onChangeTier(tierKey, 'gpu', e.target.value)}
             placeholder="e.g. NVIDIA GTX 1070 (8GB)"
             className={styles.inputField}
           />
@@ -109,15 +114,48 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
             <label className={styles.fieldLabelSub}>
               <MemoryStick size={11} /> RAM
             </label>
-            <div style={{ display: 'flex', border: '1px solid #393E46', borderRadius: 3, overflow: 'hidden', background: '#1C2028' }}>
+            <div
+              style={{
+                display: 'flex',
+                border: '1px solid #393E46',
+                borderRadius: 3,
+                overflow: 'hidden',
+                background: '#1C2028',
+              }}
+            >
               <input
                 type="text"
                 value={tierData.ram}
-                onChange={e => onChangeTier(tierKey, 'ram', e.target.value.replace(/[^0-9]/g, ''))}
+                onChange={(e) =>
+                  onChangeTier(tierKey, 'ram', e.target.value.replace(/[^0-9]/g, ''))
+                }
                 placeholder="8"
-                style={{ flex: 1, border: 'none', background: 'transparent', color: '#EEEEEE', fontFamily: 'monospace', fontSize: 13, padding: '10px 14px', outline: 'none', width: 0 }}
+                style={{
+                  flex: 1,
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#EEEEEE',
+                  fontFamily: 'monospace',
+                  fontSize: 13,
+                  padding: '10px 14px',
+                  outline: 'none',
+                  width: 0,
+                }}
               />
-              <div style={{ padding: '0 14px', background: '#141820', borderLeft: '1px solid #393E46', color: '#8C9AAA', fontSize: 11, fontWeight: 700, fontFamily: 'monospace', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div
+                style={{
+                  padding: '0 14px',
+                  background: '#141820',
+                  borderLeft: '1px solid #393E46',
+                  color: '#8C9AAA',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  fontFamily: 'monospace',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 GB
               </div>
             </div>
@@ -127,13 +165,33 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({
             <label className={styles.fieldLabelSub}>
               <HardDrive size={11} /> STORAGE
             </label>
-            <div style={{ display: 'flex', border: '1px solid #393E46', borderRadius: 3, overflow: 'hidden', background: '#1C2028' }}>
+            <div
+              style={{
+                display: 'flex',
+                border: '1px solid #393E46',
+                borderRadius: 3,
+                overflow: 'hidden',
+                background: '#1C2028',
+              }}
+            >
               <input
                 type="text"
                 value={tierData.storageNum}
-                onChange={e => onChangeTier(tierKey, 'storageNum', e.target.value.replace(/[^0-9]/g, ''))}
+                onChange={(e) =>
+                  onChangeTier(tierKey, 'storageNum', e.target.value.replace(/[^0-9]/g, ''))
+                }
                 placeholder="40"
-                style={{ flex: 1, border: 'none', background: 'transparent', color: '#EEEEEE', fontFamily: 'monospace', fontSize: 13, padding: '10px 14px', outline: 'none', width: 0 }}
+                style={{
+                  flex: 1,
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#EEEEEE',
+                  fontFamily: 'monospace',
+                  fontSize: 13,
+                  padding: '10px 14px',
+                  outline: 'none',
+                  width: 0,
+                }}
               />
               <button
                 type="button"

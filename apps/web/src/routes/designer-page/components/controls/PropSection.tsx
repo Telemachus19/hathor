@@ -1,5 +1,5 @@
-import React from "react";
-import styles from "../../DesignerPage.module.css";
+import React from 'react';
+import styles from '../../DesignerPage.module.css';
 
 export function PropSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (

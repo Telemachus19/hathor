@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Check } from "lucide-react";
-import { getGameInfoDraft } from "../game-info-form/gameInfoCache";
+import { useState, useEffect } from 'react';
+import { Check } from 'lucide-react';
+import { getGameInfoDraft } from '../game-info-form/gameInfoCache';
 import {
   Section,
   PageSettings,
@@ -11,19 +11,19 @@ import {
   GREEN_ACCENT,
   createSection,
   createGridElement,
-  uid
-} from "./types/designerTypes";
-import { INITIAL, syncSectionsWithDraft, generatePageJSON } from "./utils/schemaUtils";
-import { BLOCK_META } from "./components/sidebar/paletteConfig";
-import { DesignerHeader } from "./components/header/DesignerHeader";
-import { BlockPalette } from "./components/sidebar/BlockPalette";
-import { DesignerCanvas } from "./components/canvas/DesignerCanvas";
-import { PropertiesPanel } from "./components/inspector/PropertiesPanel";
-import { TemplateModal } from "./components/modals/TemplateModal";
-import { PublishModal } from "./components/modals/PublishModal";
-import { ImportModal } from "./components/modals/ImportModal";
-import { PreviewModal } from "./components/modals/PreviewModal";
-import styles from "./DesignerPage.module.css";
+  uid,
+} from './types/designerTypes';
+import { INITIAL, syncSectionsWithDraft, generatePageJSON } from './utils/schemaUtils';
+import { BLOCK_META } from './components/sidebar/paletteConfig';
+import { DesignerHeader } from './components/header/DesignerHeader';
+import { BlockPalette } from './components/sidebar/BlockPalette';
+import { DesignerCanvas } from './components/canvas/DesignerCanvas';
+import { PropertiesPanel } from './components/inspector/PropertiesPanel';
+import { TemplateModal } from './components/modals/TemplateModal';
+import { PublishModal } from './components/modals/PublishModal';
+import { ImportModal } from './components/modals/ImportModal';
+import { PreviewModal } from './components/modals/PreviewModal';
+import styles from './DesignerPage.module.css';
 
 export default function DesignerPage() {
   const [state, setState] = useState(() => {
@@ -38,33 +38,33 @@ export default function DesignerPage() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         setSelectedId(null);
         setSelectedColIdx(null);
         setSelectedElementId(null);
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const [showModal, setShowModal] = useState<boolean>(true);
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
-  const [importJsonText, setImportJsonText] = useState<string>("");
+  const [importJsonText, setImportJsonText] = useState<string>('');
   const [importError, setImportError] = useState<string | null>(null);
-  const [previewDevice, setPreviewDevice] = useState<Device>("desktop");
+  const [previewDevice, setPreviewDevice] = useState<Device>('desktop');
 
-  const [device, setDevice] = useState<Device>("desktop");
-  const [gameTitle, setGameTitle] = useState(() => getGameInfoDraft().title || "YOUR GAME TITLE");
+  const [device, setDevice] = useState<Device>('desktop');
+  const [gameTitle, setGameTitle] = useState(() => getGameInfoDraft().title || 'YOUR GAME TITLE');
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     const draft = getGameInfoDraft();
     if (draft) {
       if (draft.title) setGameTitle(draft.title.toUpperCase());
-      setState(prev => {
+      setState((prev) => {
         const synced = syncSectionsWithDraft(prev.sections);
         return {
           ...prev,
@@ -83,7 +83,7 @@ export default function DesignerPage() {
   }
 
   function mutateSections(newSections: Section[], skipHistory = false) {
-    setState(prev => {
+    setState((prev) => {
       if (skipHistory) {
         const newHistory = [...prev.history];
         newHistory[prev.historyIdx] = newSections;
@@ -102,7 +102,7 @@ export default function DesignerPage() {
   }
 
   function undo() {
-    setState(prev => {
+    setState((prev) => {
       if (prev.historyIdx <= 0) return prev;
       const idx = prev.historyIdx - 1;
       return { sections: prev.history[idx], history: prev.history, historyIdx: idx };
@@ -110,7 +110,7 @@ export default function DesignerPage() {
   }
 
   function redo() {
-    setState(prev => {
+    setState((prev) => {
       if (prev.historyIdx >= prev.history.length - 1) return prev;
       const idx = prev.historyIdx + 1;
       return { sections: prev.history[idx], history: prev.history, historyIdx: idx };
@@ -120,7 +120,7 @@ export default function DesignerPage() {
   function handleImportJSON(jsonString: string) {
     try {
       if (!jsonString.trim()) {
-        setImportError("Please paste JSON content or select a .json file.");
+        setImportError('Please paste JSON content or select a .json file.');
         return;
       }
       const parsed = JSON.parse(jsonString);
@@ -129,26 +129,35 @@ export default function DesignerPage() {
 
       if (Array.isArray(parsed)) {
         importedSections = parsed;
-      } else if (parsed && typeof parsed === "object") {
+      } else if (parsed && typeof parsed === 'object') {
         if (Array.isArray(parsed.sections)) {
           importedSections = parsed.sections;
         }
-        if (parsed.pageSettings && typeof parsed.pageSettings === "object") {
+        if (parsed.pageSettings && typeof parsed.pageSettings === 'object') {
           importedSettings = parsed.pageSettings;
-        } else if (parsed.pageBody && typeof parsed.pageBody === "object") {
+        } else if (parsed.pageBody && typeof parsed.pageBody === 'object') {
           importedSettings = parsed.pageBody;
         }
       }
 
       if (!importedSections || importedSections.length === 0) {
-        setImportError("No valid sections found in JSON. Expected { sections: [...] } or Section[].");
+        setImportError(
+          'No valid sections found in JSON. Expected { sections: [...] } or Section[].'
+        );
         return;
       }
 
       const normalizeItem = (item: any) => {
-        let t = item.type || item.component || "text";
-        if (t === "GameHero" || t === "game-hero" || t === "MediaCarousel" || t === "media-carousel" || t === "CarouselShowcase" || t === "carousel") {
-          t = "media-carousel";
+        let t = item.type || item.component || 'text';
+        if (
+          t === 'GameHero' ||
+          t === 'game-hero' ||
+          t === 'MediaCarousel' ||
+          t === 'media-carousel' ||
+          t === 'CarouselShowcase' ||
+          t === 'carousel'
+        ) {
+          t = 'media-carousel';
         }
         const imgs = item.heroImages || item.carouselImages || item.mediaItems || item.images || [];
         return {
@@ -161,20 +170,22 @@ export default function DesignerPage() {
         };
       };
 
-      const sanitizedSections = importedSections.map(sec => {
+      const sanitizedSections = importedSections.map((sec) => {
         const normSec = normalizeItem(sec);
         return {
           ...normSec,
-          gridCols: normSec.gridCols ? normSec.gridCols.map((col: any) => ({
-            ...col,
-            id: col.id || uid(),
-            elements: (col.elements || []).map((el: any) => normalizeItem(el))
-          })) : normSec.gridCols
+          gridCols: normSec.gridCols
+            ? normSec.gridCols.map((col: any) => ({
+                ...col,
+                id: col.id || uid(),
+                elements: (col.elements || []).map((el: any) => normalizeItem(el)),
+              }))
+            : normSec.gridCols,
         };
       });
 
       if (importedSettings) {
-        setPageSettings(prev => ({ ...prev, ...importedSettings }));
+        setPageSettings((prev) => ({ ...prev, ...importedSettings }));
       }
 
       mutateSections(sanitizedSections);
@@ -182,20 +193,25 @@ export default function DesignerPage() {
       setSelectedColIdx(null);
       setSelectedElementId(null);
       setShowImportModal(false);
-      setImportJsonText("");
+      setImportJsonText('');
       setImportError(null);
-      showToast("Layout JSON imported and rendered successfully!");
+      showToast('Layout JSON imported and rendered successfully!');
     } catch (err: any) {
-      setImportError(`Invalid JSON format: ${err?.message || "Syntax error"}`);
+      setImportError(`Invalid JSON format: ${err?.message || 'Syntax error'}`);
     }
   }
 
   function addSection(type: SectionType | ElementType) {
-    const activeSection = sections.find(s => s.id === selectedId);
+    const activeSection = sections.find((s) => s.id === selectedId);
 
-    if (activeSection && activeSection.type === "grid" && selectedColIdx !== null && selectedColIdx !== undefined) {
-      if (type === "grid") {
-        showToast("Cannot nest a Multi-Column Layout inside another Column");
+    if (
+      activeSection &&
+      activeSection.type === 'grid' &&
+      selectedColIdx !== null &&
+      selectedColIdx !== undefined
+    ) {
+      if (type === 'grid') {
+        showToast('Cannot nest a Multi-Column Layout inside another Column');
         return;
       }
 
@@ -218,23 +234,34 @@ export default function DesignerPage() {
     showToast(`Added Section: ${BLOCK_META[type]?.label || type}`);
   }
 
-  function addGridSection(template: string = "1:1") {
+  function addGridSection(template: string = '1:1') {
     const colCountMap: Record<string, number> = {
-      "1": 1,
-      "1:1": 2, "1:2": 2, "2:1": 2,
-      "1:1:1": 3, "1:2:1": 3, "2:1:1": 3, "1:1:2": 3,
-      "1:1:1:1": 4
+      '1': 1,
+      '1:1': 2,
+      '1:2': 2,
+      '2:1': 2,
+      '1:1:1': 3,
+      '1:2:1': 3,
+      '2:1:1': 3,
+      '1:1:2': 3,
+      '1:1:1:1': 4,
     };
     const reqCols = colCountMap[template] || 2;
     const gridCols = Array.from({ length: reqCols }, () => ({
-      id: uid(), bg: "transparent", pt: 0, pb: 0, ph: 0, radius: 0, elements: []
+      id: uid(),
+      bg: 'transparent',
+      pt: 0,
+      pb: 0,
+      ph: 0,
+      radius: 0,
+      elements: [],
     }));
 
     const newGrid: Section = {
       id: uid(),
-      type: "grid",
-      bg: "transparent",
-      bgImage: "",
+      type: 'grid',
+      bg: 'transparent',
+      bgImage: '',
       overlay: 0,
       pt: 32,
       pb: 48,
@@ -244,7 +271,7 @@ export default function DesignerPage() {
       radius: 0,
       gridTemplate: template,
       gridGap: 40,
-      gridCols: gridCols
+      gridCols: gridCols,
     };
 
     mutateSections([...sections, newGrid]);
@@ -255,7 +282,10 @@ export default function DesignerPage() {
   }
 
   function updateSection(id: string, updates: Partial<Section>, skipHistory = false) {
-    mutateSections(sections.map(s => s.id === id ? { ...s, ...updates } : s), skipHistory);
+    mutateSections(
+      sections.map((s) => (s.id === id ? { ...s, ...updates } : s)),
+      skipHistory
+    );
   }
 
   function moveUp(i: number) {
@@ -280,7 +310,7 @@ export default function DesignerPage() {
     setSelectedId(duped.id);
     setSelectedColIdx(null);
     setSelectedElementId(null);
-    showToast("Block duplicated");
+    showToast('Block duplicated');
   }
 
   function deleteSection(i: number) {
@@ -290,7 +320,7 @@ export default function DesignerPage() {
     setSelectedElementId(null);
   }
 
-  const selectedSection = sections.find(s => s.id === selectedId) ?? null;
+  const selectedSection = sections.find((s) => s.id === selectedId) ?? null;
 
   return (
     <div className={styles.designerContainer}>
@@ -304,7 +334,7 @@ export default function DesignerPage() {
             setSelectedColIdx(null);
             setSelectedElementId(null);
             setShowModal(false);
-            showToast("Loaded Default Game Details Layout");
+            showToast('Loaded Default Game Details Layout');
           }}
           onSelectBlank={() => {
             setState({ sections: [], history: [[]], historyIdx: 0 });
@@ -312,7 +342,7 @@ export default function DesignerPage() {
             setSelectedColIdx(null);
             setSelectedElementId(null);
             setShowModal(false);
-            showToast("Started with Blank Canvas");
+            showToast('Started with Blank Canvas');
           }}
         />
       )}
@@ -373,8 +403,8 @@ export default function DesignerPage() {
         onOpenPreview={() => setShowPreviewModal(true)}
         onOpenImport={() => setShowImportModal(true)}
         onSaveDraft={() => {
-          showToast("Draft saved as JSON");
-          console.log("Draft pageTheme JSON:", generatePageJSON(sections, pageSettings));
+          showToast('Draft saved as JSON');
+          console.log('Draft pageTheme JSON:', generatePageJSON(sections, pageSettings));
         }}
         onOpenPublish={() => setShowPublishModal(true)}
       />
@@ -397,7 +427,7 @@ export default function DesignerPage() {
             setSelectedColIdx(null);
             setSelectedElementId(null);
           }}
-          onSelectSection={id => {
+          onSelectSection={(id) => {
             setSelectedId(id);
             setSelectedColIdx(null);
             setSelectedElementId(null);

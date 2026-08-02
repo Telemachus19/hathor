@@ -72,7 +72,7 @@ export function saveGameInfoDraft(partial: Partial<GameInfoDraft>): GameInfoDraf
 
     // Also update in list of drafts
     const allDrafts = getAllGameDrafts();
-    const idx = allDrafts.findIndex(d => d.id === updated.id);
+    const idx = allDrafts.findIndex((d) => d.id === updated.id);
     if (idx >= 0) {
       allDrafts[idx] = updated;
     } else {

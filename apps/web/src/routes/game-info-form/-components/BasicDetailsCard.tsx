@@ -30,7 +30,7 @@ export const BasicDetailsCard: React.FC<BasicDetailsCardProps> = ({
           <input
             type="text"
             value={title}
-            onChange={e => onChangeTitle(e.target.value)}
+            onChange={(e) => onChangeTitle(e.target.value)}
             placeholder="Enter your game title (e.g. ELDEN THRONE)..."
             className={styles.inputField}
           />
@@ -40,7 +40,7 @@ export const BasicDetailsCard: React.FC<BasicDetailsCardProps> = ({
           <label className={styles.fieldLabel}>Short Description</label>
           <textarea
             value={shortDesc}
-            onChange={e => onChangeShortDesc(e.target.value)}
+            onChange={(e) => onChangeShortDesc(e.target.value)}
             placeholder="A compelling one-to-two sentence summary of your game. What makes it unique?"
             rows={3}
             className={styles.textareaField}
@@ -56,7 +56,7 @@ export const BasicDetailsCard: React.FC<BasicDetailsCardProps> = ({
               min={0}
               step={0.01}
               value={priceEgp}
-              onChange={e => onChangePriceEgp(e.target.value)}
+              onChange={(e) => onChangePriceEgp(e.target.value)}
               placeholder="299.99"
               className={styles.priceInput}
             />

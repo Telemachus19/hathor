@@ -97,9 +97,7 @@ export function getGameDataForSlug(slug?: string) {
         discountPercent: 0,
         bannerUrl:
           'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop',
-        tags: [
-          { name: 'Tag', slug: 'tag' },
-        ],
+        tags: [{ name: 'Tag', slug: 'tag' }],
       },
       {
         title: 'SIMILAR GAME 2',
@@ -155,7 +153,11 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
   const [activeThemeMode] = useState<ThemeMode>('default');
   const currentGameData = getGameDataForSlug(slug);
 
-  const getThemeInfo = (): { theme: string; layout: Record<string, any>; pageBody?: Record<string, any> } => {
+  const getThemeInfo = (): {
+    theme: string;
+    layout: Record<string, any>;
+    pageBody?: Record<string, any>;
+  } => {
     if (activeThemeMode !== 'default') {
       switch (activeThemeMode) {
         case 'cyberpunk':
@@ -243,13 +245,15 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
     }
   };
 
-  const bgImageStyle = themeInfo.pageBody?.bgImage ? {
-    backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
-    backgroundSize: themeInfo.pageBody.bgSize || 'cover',
-    backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
-    backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
-    backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
-  } : {};
+  const bgImageStyle = themeInfo.pageBody?.bgImage
+    ? {
+        backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
+        backgroundSize: themeInfo.pageBody.bgSize || 'cover',
+        backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
+        backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
+        backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
+      }
+    : {};
 
   return (
     <div
@@ -264,8 +268,15 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       {/* RENDER THEME MODE */}
       {isDefaultTheme ? (
         <>
-          <GameCarousel images={currentGameData.heroImages} device={activeDevice} pageSettings={themeInfo.pageBody} />
-          <div className={styles.mainContainer} style={{ padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined }}>
+          <GameCarousel
+            images={currentGameData.heroImages}
+            device={activeDevice}
+            pageSettings={themeInfo.pageBody}
+          />
+          <div
+            className={styles.mainContainer}
+            style={{ padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined }}
+          >
             <div
               className={styles.layoutGrid}
               style={{
@@ -287,8 +298,14 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                   device={activeDevice}
                   pageSettings={themeInfo.pageBody}
                 />
-                {isAuthenticated && <GameOwnershipBanner device={activeDevice} pageSettings={themeInfo.pageBody} />}
-                <GameAbout sections={activeAboutSections} device={activeDevice} pageSettings={themeInfo.pageBody} />
+                {isAuthenticated && (
+                  <GameOwnershipBanner device={activeDevice} pageSettings={themeInfo.pageBody} />
+                )}
+                <GameAbout
+                  sections={activeAboutSections}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
+                />
                 <GameSystemReqs
                   minimum={currentGameData.systemReqs.minimum}
                   recommended={currentGameData.systemReqs.recommended}
@@ -319,11 +336,21 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                 />
               </div>
             </div>
-            <MoreLikeThis games={currentGameData.moreLikeThisGames} device={activeDevice} pageSettings={themeInfo.pageBody} />
+            <MoreLikeThis
+              games={currentGameData.moreLikeThisGames}
+              device={activeDevice}
+              pageSettings={themeInfo.pageBody}
+            />
           </div>
         </>
       ) : (
-        <div className={styles.mainContainer} style={{ paddingTop: '2.5rem', padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined }}>
+        <div
+          className={styles.mainContainer}
+          style={{
+            paddingTop: '2.5rem',
+            padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined,
+          }}
+        >
           {parseAndRenderPureJson(themeInfo.layout, activeDevice)}
         </div>
       )}
