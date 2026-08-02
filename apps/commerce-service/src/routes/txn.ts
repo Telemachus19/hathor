@@ -31,6 +31,62 @@ function computeRequestHash(body: any): string {
   return createHash('sha256').update(canonicalStr).digest('hex');
 }
 
+// Helper to perform in-transaction atomic lookup and replay format check
+async function checkAndReplayIdempotencyTx(
+  dbOrTx: any,
+  key: string,
+  currentUserId: string,
+  currentRequestHash: string,
+  correlationId: string
+) {
+  const [existingRecord] = await dbOrTx
+    .select()
+    .from(idempotencyRecords)
+    .where(eq(idempotencyRecords.key, key))
+    .limit(1);
+
+  if (!existingRecord) {
+    return { isHandled: false as const };
+  }
+
+  if (existingRecord.userId === currentUserId && existingRecord.requestHash === currentRequestHash) {
+    const [existingOrder] = await dbOrTx
+      .select()
+      .from(orders)
+      .where(eq(orders.id, existingRecord.orderId))
+      .limit(1);
+
+    if (existingOrder) {
+      return {
+        isHandled: true as const,
+        status: 200,
+        body: {
+          id: existingOrder.id,
+          status: existingOrder.status,
+          paymentMethod: existingOrder.paymentMethod,
+          paymentReference: existingOrder.paymentReference,
+          totalAmountEgp: existingOrder.totalAmountEgp,
+          currency: existingOrder.currency || 'EGP',
+          expiresAt: existingOrder.expiresAt.toISOString(),
+        },
+      };
+    }
+  }
+
+  return {
+    isHandled: true as const,
+    status: 409,
+    body: {
+      success: false,
+      error: {
+        code: 'CONFLICT',
+        message: 'Idempotency-Key has already been used with different parameters',
+        correlationId,
+      },
+    },
+  };
+}
+
 // 1. POST /txn/init (Initialize idempotent order)
 router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
@@ -77,52 +133,33 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
   const requestHash = computeRequestHash(req.body);
 
   try {
-    // 3. Check for existing idempotency record
-    const [existingRecord] = await commerceDb
-      .select()
-      .from(idempotencyRecords)
-      .where(eq(idempotencyRecords.key, idempotencyKey))
-      .limit(1);
-
-    if (existingRecord) {
-      if (existingRecord.userId === userId && existingRecord.requestHash === requestHash) {
-        // Replay existing order
-        const [existingOrder] = await commerceDb
-          .select()
-          .from(orders)
-          .where(eq(orders.id, existingRecord.orderId))
-          .limit(1);
-
-        if (existingOrder) {
-          return res.status(200).json({
-            id: existingOrder.id,
-            status: existingOrder.status,
-            paymentMethod: existingOrder.paymentMethod,
-            paymentReference: existingOrder.paymentReference,
-            totalAmountEgp: existingOrder.totalAmountEgp,
-            currency: existingOrder.currency || 'EGP',
-            expiresAt: existingOrder.expiresAt.toISOString(),
-          });
-        }
-      }
-
-      // Idempotency key conflict (different user or different request hash)
-      return res.status(409).json({
-        success: false,
-        error: {
-          code: 'CONFLICT',
-          message: 'Idempotency-Key has already been used with different parameters',
-          correlationId,
-        },
-      });
-    }
-
-    // 4. Phase 1 DB Transaction: Lock cart, verify version, read items
+    // 3. Phase 1 DB Transaction: Atomic transaction advisory lock, idempotency check, cart lock & version verify
     type Phase1Result =
-      | { success: false; errorStatus: number; code: string; message: string }
+      | { success: false; handled: true; status: number; body: any }
+      | { success: false; handled: false; errorStatus: number; code: string; message: string }
       | { success: true; gameIds: string[] };
 
     const phase1Result: Phase1Result = await commerceDb.transaction(async (tx) => {
+      // Acquire atomic PostgreSQL transaction advisory lock for the idempotency key string
+      if (typeof (tx as any).execute === 'function') {
+        await (tx as any).execute(
+          sql`SELECT pg_advisory_xact_lock(hashtext(${'idempotency:' + idempotencyKey}))`
+        );
+      }
+
+      // In-transaction atomic check for existing idempotency record
+      const check = await checkAndReplayIdempotencyTx(
+        tx,
+        idempotencyKey,
+        userId,
+        requestHash,
+        correlationId
+      );
+      if (check.isHandled) {
+        return { success: false, handled: true, status: check.status, body: check.body };
+      }
+
+      // Lock cart FOR UPDATE and verify version
       const [cart] = await tx
         .select()
         .from(carts)
@@ -133,6 +170,7 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
       if (!cart || cart.version !== cartVersion) {
         return {
           success: false,
+          handled: false,
           errorStatus: 409,
           code: 'CONFLICT',
           message: 'Cart version mismatch or cart does not exist',
@@ -147,6 +185,7 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
       if (items.length === 0) {
         return {
           success: false,
+          handled: false,
           errorStatus: 422,
           code: 'VALIDATION_FAILED',
           message: 'Cannot initialize order for an empty cart',
@@ -157,6 +196,9 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
     });
 
     if (!phase1Result.success) {
+      if (phase1Result.handled) {
+        return res.status(phase1Result.status).json(phase1Result.body);
+      }
       return res.status(phase1Result.errorStatus).json({
         success: false,
         error: {
@@ -169,13 +211,13 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
 
     const gameIds = phase1Result.gameIds;
 
-    // 5. Inter-service calls (outside DB transaction): Catalog quotes + Library ownership check
+    // 4. Inter-service calls (outside DB transaction): Catalog quotes + Library ownership check
     const [quoteResponse, ownedGameIds] = await Promise.all([
       getCatalogQuotes(gameIds, correlationId),
       checkLibraryOwnership(userId, gameIds, correlationId),
     ]);
 
-    // 6. Validate quote sellability and ownership
+    // 5. Validate quote sellability and ownership
     for (const item of quoteResponse.items) {
       if (!item.sellable) {
         return res.status(409).json({
@@ -200,7 +242,7 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
       }
     }
 
-    // 7. Calculate server-authoritative EGP total
+    // 6. Calculate server-authoritative EGP total
     let totalCents = 0;
     for (const item of quoteResponse.items) {
       totalCents += Math.round(parseFloat(item.priceEgp) * 100);
@@ -211,11 +253,32 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
     const paymentReference = `SIM-${randomUUID().substring(0, 8).toUpperCase()}`;
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes TTL
 
-    // 8. Phase 2 DB Transaction: Lock cart again, re-verify version, create order & snapshots
+    // 7. Phase 2 DB Transaction: Lock cart again, re-verify version, create order & snapshots
     type Phase2Result =
-      { success: false; errorStatus: number; code: string; message: string } | { success: true };
+      | { success: false; handled: true; status: number; body: any }
+      | { success: false; handled: false; errorStatus: number; code: string; message: string }
+      | { success: true };
 
     const phase2Result: Phase2Result = await commerceDb.transaction(async (tx) => {
+      // Acquire atomic PostgreSQL transaction advisory lock
+      if (typeof (tx as any).execute === 'function') {
+        await (tx as any).execute(
+          sql`SELECT pg_advisory_xact_lock(hashtext(${'idempotency:' + idempotencyKey}))`
+        );
+      }
+
+      // Re-verify idempotency record in case a concurrent request completed during inter-service calls
+      const check = await checkAndReplayIdempotencyTx(
+        tx,
+        idempotencyKey,
+        userId,
+        requestHash,
+        correlationId
+      );
+      if (check.isHandled) {
+        return { success: false, handled: true, status: check.status, body: check.body };
+      }
+
       const [cart] = await tx
         .select()
         .from(carts)
@@ -226,6 +289,7 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
       if (!cart || cart.version !== cartVersion) {
         return {
           success: false,
+          handled: false,
           errorStatus: 409,
           code: 'CONFLICT',
           message: 'Cart version mismatch or cart was modified during checkout',
@@ -288,6 +352,9 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
     });
 
     if (!phase2Result.success) {
+      if (phase2Result.handled) {
+        return res.status(phase2Result.status).json(phase2Result.body);
+      }
       return res.status(phase2Result.errorStatus).json({
         success: false,
         error: {
@@ -308,6 +375,22 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
       expiresAt: expiresAt.toISOString(),
     });
   } catch (error) {
+    // Defensive fallback for unexpected DB unique constraint error (e.g. Postgres 23505)
+    try {
+      const fallbackCheck = await checkAndReplayIdempotencyTx(
+        commerceDb,
+        idempotencyKey,
+        userId,
+        requestHash,
+        correlationId
+      );
+      if (fallbackCheck.isHandled) {
+        return res.status(fallbackCheck.status).json(fallbackCheck.body);
+      }
+    } catch {
+      // Ignore fallback error and proceed to standard error handling
+    }
+
     if (error instanceof DependencyUnavailableError) {
       return res.status(503).json({
         success: false,

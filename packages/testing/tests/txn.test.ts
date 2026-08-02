@@ -68,6 +68,7 @@ vi.mock('../../../apps/commerce-service/src/infrastructure/db/client.js', () => 
     insert: vi.fn(createMockInsertChain),
     update: vi.fn(createMockUpdateChain),
     delete: vi.fn(createMockDeleteChain),
+    execute: vi.fn(() => Promise.resolve()),
   };
 
   (globalThis as any).mockTx = mockTx;
@@ -76,6 +77,7 @@ vi.mock('../../../apps/commerce-service/src/infrastructure/db/client.js', () => 
     commerceDb: {
       select: vi.fn(createMockSelectChain),
       insert: vi.fn(createMockInsertChain),
+      execute: vi.fn(() => Promise.resolve()),
       transaction: vi.fn((callback) => callback(mockTx)),
     },
   };
@@ -177,10 +179,11 @@ describe('Commerce Transaction & Checkout API Endpoints', () => {
   describe('2. Idempotent Order Initialization (POST /txn/init)', () => {
     it('successfully initializes order and calculates server-authoritative EGP total', async () => {
       (globalThis as any).selectMockQueue = [
-        [], // Query 1: idempotency record check (none)
+        [], // Query 1: Phase 1 idempotency record check (none)
         [{ userId, version: 1 }], // Query 2: Phase 1 cart select
         [{ gameId }], // Query 3: Phase 1 cart items select
-        [{ userId, version: 1 }], // Query 4: Phase 2 cart re-verify select
+        [], // Query 4: Phase 2 idempotency record re-check (none)
+        [{ userId, version: 1 }], // Query 5: Phase 2 cart re-verify select
       ];
 
       const res = await request(app)
@@ -254,6 +257,66 @@ describe('Commerce Transaction & Checkout API Endpoints', () => {
       expect(res.status).toBe(409);
       expect(res.body.error.code).toBe('CONFLICT');
     });
+
+    it('handles atomic lock re-verification during concurrent requests with same Idempotency-Key', async () => {
+      const existingOrderId = randomUUID();
+      const existingOrder = {
+        id: existingOrderId,
+        userId,
+        status: 'payment_pending',
+        paymentMethod: 'sim_fawry',
+        paymentReference: 'SIM-CONCUR123',
+        totalAmountEgp: '299.99',
+        currency: 'EGP',
+        expiresAt: new Date(Date.now() + 900000),
+      };
+
+      const crypto = await import('node:crypto');
+      const hash = crypto
+        .createHash('sha256')
+        .update(JSON.stringify({ paymentMethod: 'sim_fawry', cartVersion: 1 }))
+        .digest('hex');
+
+      // Simulate Request 2 where Phase 1 saw no record, but Phase 2 re-verification finds the committed record
+      (globalThis as any).selectMockQueue = [
+        [], // Phase 1 idempotency check: none
+        [{ userId, version: 1 }], // Phase 1 cart select
+        [{ gameId }], // Phase 1 cart items
+        [{ key: idempotencyKey, userId, requestHash: hash, orderId: existingOrderId }], // Phase 2 re-verification: found!
+        [existingOrder], // Phase 2 order retrieval for replay
+      ];
+
+      const res = await request(app)
+        .post('/txn/init')
+        .set('Authorization', `Bearer ${token}`)
+        .set('Idempotency-Key', idempotencyKey)
+        .send({ paymentMethod: 'sim_fawry', cartVersion: 1 });
+
+      expect(res.status).toBe(200);
+      expect(res.body.id).toBe(existingOrderId);
+      expect(res.body.paymentReference).toBe('SIM-CONCUR123');
+    });
+
+    it('returns 409 CONFLICT during concurrent request re-verification if request parameters differ', async () => {
+      const existingOrderId = randomUUID();
+
+      // Simulate Request 2 where Phase 1 saw no record, but Phase 2 finds record committed with different requestHash
+      (globalThis as any).selectMockQueue = [
+        [], // Phase 1 idempotency check: none
+        [{ userId, version: 1 }], // Phase 1 cart select
+        [{ gameId }], // Phase 1 cart items
+        [{ key: idempotencyKey, userId, requestHash: 'different_hash_from_concurrent', orderId: existingOrderId }], // Phase 2 re-verification: different hash!
+      ];
+
+      const res = await request(app)
+        .post('/txn/init')
+        .set('Authorization', `Bearer ${token}`)
+        .set('Idempotency-Key', idempotencyKey)
+        .send({ paymentMethod: 'sim_fawry', cartVersion: 1 });
+
+      expect(res.status).toBe(409);
+      expect(res.body.error.code).toBe('CONFLICT');
+    });
   });
 
   describe('3. Business Rules Enforcement', () => {
@@ -275,10 +338,11 @@ describe('Commerce Transaction & Checkout API Endpoints', () => {
 
     it('rejects order initialization if cart is modified during inter-service RPC calls (Phase 2 re-verification failure)', async () => {
       (globalThis as any).selectMockQueue = [
-        [], // Query 1: idempotency check
+        [], // Query 1: Phase 1 idempotency check
         [{ userId, version: 1 }], // Query 2: Phase 1 cart check ok
         [{ gameId }], // Query 3: Phase 1 cart items read
-        [{ userId, version: 2 }], // Query 4: Phase 2 re-check finds cart version updated to 2
+        [], // Query 4: Phase 2 idempotency record re-check (none)
+        [{ userId, version: 2 }], // Query 5: Phase 2 re-check finds cart version updated to 2
       ];
 
       const res = await request(app)
