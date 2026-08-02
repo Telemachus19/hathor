@@ -29,13 +29,19 @@ function signJwt(payload: object): string {
 }
 
 // 2. Load public-api.openapi.yaml specification
-const specPath = path.resolve(__dirname, '../../../packages/contracts/openapi/public-api.openapi.yaml');
+const specPath = path.resolve(
+  __dirname,
+  '../../../packages/contracts/openapi/public-api.openapi.yaml'
+);
 const openApiDoc = yaml.load(fs.readFileSync(specPath, 'utf8')) as any;
 
 const ajv = new Ajv({ strict: false, allErrors: true });
 addFormats(ajv);
 
-function validateOpenApiSchema(schemaName: string, data: any): { valid: boolean; errorsText?: string } {
+function validateOpenApiSchema(
+  schemaName: string,
+  data: any
+): { valid: boolean; errorsText?: string } {
   const targetSchema = openApiDoc?.components?.schemas?.[schemaName];
   if (!targetSchema) {
     throw new Error(`Schema '${schemaName}' not found in OpenAPI spec`);
@@ -258,9 +264,7 @@ describe('M2.5.1 OpenAPI Schema Contract Tests', () => {
     });
 
     it('GET /cart unauthenticated response conforms strictly to Error OpenAPI schema', async () => {
-      const res = await request(commerceApp)
-        .get('/cart')
-        .set('X-Correlation-ID', correlationId);
+      const res = await request(commerceApp).get('/cart').set('X-Correlation-ID', correlationId);
 
       expect(res.status).toBe(401);
       const validation = validateOpenApiSchema('Error', res.body);
