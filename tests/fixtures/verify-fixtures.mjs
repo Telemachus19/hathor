@@ -14,7 +14,7 @@ const checks = [
   [
     process.env.COMMERCE_DB_URL,
     "select count(*)::int as count from information_schema.tables where table_schema = 'commerce'",
-    4,
+    6,
     'commerce tables',
   ],
   [
