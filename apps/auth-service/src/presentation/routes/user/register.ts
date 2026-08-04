@@ -5,45 +5,22 @@ import { authDb } from '../../../infrastructure/db/client.js';
 import { users } from '../../../infrastructure/db/schema.js';
 import { hashPassword } from '../../../domain/password.js';
 import { TurnstileVerifier } from '../../../domain/turnstile.js';
+import { ZodSchemas } from '@hathor/contracts';
 
 export function registerHandler(turnstileVerifier: TurnstileVerifier) {
   return async (req: Request, res: Response) => {
     const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
-    const { email, password, displayName, captchaToken } = req.body;
+    // 1. Input Validation via OpenAPI-generated Zod Schema
+    const parseResult = ZodSchemas.RegisterRequest.safeParse(req.body);
+    if (!parseResult.success) {
+      const details: Record<string, string> = {};
+      for (const issue of parseResult.error.issues) {
+        const path = issue.path[0];
+        if (path && typeof path === 'string' && !details[path]) {
+          details[path] = issue.message;
+        }
+      }
 
-    // 1. Input Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const details: Record<string, string> = {};
-
-    if (
-      !displayName ||
-      typeof displayName !== 'string' ||
-      displayName.length < 3 ||
-      displayName.length > 100
-    ) {
-      details.displayName = 'Display name must be between 3 and 100 characters.';
-    }
-    if (!email || typeof email !== 'string' || email.length > 255 || !emailRegex.test(email)) {
-      details.email = 'Please enter a valid email address.';
-    }
-    if (
-      !password ||
-      typeof password !== 'string' ||
-      password.length < 12 ||
-      password.length > 128
-    ) {
-      details.password = 'Password must be between 12 and 128 characters long.';
-    }
-    if (
-      !captchaToken ||
-      typeof captchaToken !== 'string' ||
-      captchaToken.length < 1 ||
-      captchaToken.length > 4096
-    ) {
-      details.captchaToken = 'Invalid or missing CAPTCHA token.';
-    }
-
-    if (Object.keys(details).length > 0) {
       return res.status(422).json({
         success: false,
         error: {
@@ -54,6 +31,8 @@ export function registerHandler(turnstileVerifier: TurnstileVerifier) {
         },
       });
     }
+
+    const { email, password, displayName, captchaToken } = parseResult.data;
 
     try {
       // 2. Verify Turnstile

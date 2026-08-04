@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './styles/GameDetailsPage.module.css';
-import { GameDetailsHero } from './components/GameDetailsHero';
+import { GameCarousel } from './components/GameCarousel';
 import { GameDetailsHeader } from './components/GameDetailsHeader';
 import { GameOwnershipBanner } from './components/GameOwnershipBanner';
 import { GameAbout } from './components/GameAbout';
@@ -25,119 +25,106 @@ export function getGameDataForSlug(slug?: string) {
     title: formattedTitle,
     slug: currentSlug,
     subtitle: `${formattedTitle} EDITION`,
-    category: 'ACTION RPG',
-    ratingScore: 9.4,
-    reviewCount: '14.2k Reviews',
-    totalReviews: '48.2k total',
-    developer: 'Omegabyte Studios',
-    publisher: 'Redline Inc',
-    releaseDate: 'March 15, 2025',
-    storage: '92.00 GB',
-    priceEgp: '299.99',
-    discountPercent: 10,
-    platforms: ['WINDOWS', 'MAC'],
+    category: 'GENRE',
+    ratingScore: 0,
+    reviewCount: '0 Reviews',
+    totalReviews: '0 total',
+    developer: 'Developer Name',
+    publisher: 'Publisher Name',
+    releaseDate: 'Coming Soon',
+    storage: '0.00 GB',
+    priceEgp: '0.00',
+    discountPercent: 0,
+    platforms: ['WINDOWS'],
     tags: [
-      { name: 'OPEN WORLD', slug: 'open-world' },
-      { name: 'SOULSLIKE', slug: 'soulslike' },
-      { name: 'DARK FANTASY', slug: 'dark-fantasy' },
-      { name: 'SINGLE PLAYER', slug: 'single-player' },
-      { name: 'RPG', slug: 'rpg' },
-      { name: 'ATMOSPHERIC', slug: 'atmospheric' },
+      { name: 'TAG 1', slug: 'tag-1' },
+      { name: 'TAG 2', slug: 'tag-2' },
     ],
-    shortDescription: `A vast open-world experience set in ${formattedTitle}. Forge your path, face relentless enemies, and uncover ancient secrets behind the kingdom's collapse.`,
-    fullDescription: `The world of ${formattedTitle} stretches across centuries of fallen magic. Explore decaying sanctuaries and face legendary boss guardians in unforgiving, patient combat.`,
-    bannerUrl:
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
-    heroImages: [
-      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop',
-    ],
+    shortDescription: `Your game description will appear here.`,
+    fullDescription: `Your detailed game description will appear here.`,
+    bannerUrl: '',
+    heroImages: [],
     aboutSections: [
       {
         title: `ABOUT THIS GAME`,
-        description: `Explore the world of ${formattedTitle}. Uncover ancient mysteries, master combat dynamics, and forge your journey.`,
+        description: `Describe your game's unique features, mechanics, and world.`,
       },
     ],
     systemReqs: {
       minimum: {
         os: 'Windows 10 (64-bit)',
-        cpu: 'Intel Core i5-8400 / AMD Ryzen 5 2600',
-        ram: '12 GB RAM',
-        gpu: 'NVIDIA GeForce GTX 1070 (8GB) / AMD Radeon RX 590',
-        storage: '85 GB Available Space',
+        cpu: 'Intel Core i5 / AMD Ryzen 5',
+        ram: '8 GB',
+        gpu: 'NVIDIA GTX 1060 / AMD RX 580',
+        storage: '50 GB',
       },
       recommended: {
         os: 'Windows 11 (64-bit)',
-        cpu: 'Intel Core i7-12700K / AMD Ryzen 7 7800X3D',
-        ram: '16 GB RAM',
-        gpu: 'NVIDIA GeForce RTX 4070 (12GB) / AMD Radeon RX 7800 XT',
-        storage: '85 GB NVMe SSD',
+        cpu: 'Intel Core i7 / AMD Ryzen 7',
+        ram: '16 GB',
+        gpu: 'NVIDIA RTX 3070 / AMD RX 6700 XT',
+        storage: '50 GB',
       },
     },
     userReviews: [
       {
-        id: 'rev-1',
-        userName: 'KHEPRI_VII',
-        userAvatarInitials: 'KH',
-        ratingScore: 9.6,
-        date: 'Jun 15, 2025',
-        comment: `Masterpiece! ${formattedTitle} exceeded all my expectations with its world design and combat polish.`,
-        helpfulCount: 54,
+        id: 'rev-sample',
+        userName: 'SAMPLE_USER',
+        userAvatarInitials: 'SU',
+        ratingScore: 0,
+        date: 'No reviews yet',
+        comment: 'Player reviews will appear here once the game is published and reviewed.',
+        helpfulCount: 0,
         recommended: true,
       },
     ],
     ratingsBreakdown: [
-      { stars: 5, percent: 82 },
-      { stars: 4, percent: 12 },
-      { stars: 3, percent: 4 },
-      { stars: 2, percent: 1 },
-      { stars: 1, percent: 1 },
+      { stars: 5, percent: 0 },
+      { stars: 4, percent: 0 },
+      { stars: 3, percent: 0 },
+      { stars: 2, percent: 0 },
+      { stars: 1, percent: 0 },
     ],
     communityStats: {
-      playersCount: '250,000+',
-      positiveRatingPct: '94%',
+      playersCount: '0',
+      positiveRatingPct: '0%',
     },
     moreLikeThisGames: [
       {
-        title: 'SHATTERED REALM',
-        slug: 'shattered-realm',
-        priceEgp: '349.00',
-        discountPercent: 20,
+        title: 'SIMILAR GAME 1',
+        slug: 'similar-game-1',
+        priceEgp: '0.00',
+        discountPercent: 0,
         bannerUrl:
           'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop',
-        tags: [
-          { name: 'Action', slug: 'action' },
-          { name: 'RPG', slug: 'rpg' },
-        ],
+        tags: [{ name: 'Tag', slug: 'tag' }],
       },
       {
-        title: 'CRIMSON ACCORD',
-        slug: 'crimson-accord',
-        priceEgp: '524.99',
+        title: 'SIMILAR GAME 2',
+        slug: 'similar-game-2',
+        priceEgp: '0.00',
         discountPercent: 0,
         bannerUrl:
           'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop',
-        tags: [{ name: 'Dark Fantasy', slug: 'dark-fantasy' }],
+        tags: [{ name: 'Tag', slug: 'tag' }],
       },
       {
-        title: 'ASHEN TALE',
-        slug: 'ashen-tale',
-        priceEgp: '529.99',
+        title: 'SIMILAR GAME 3',
+        slug: 'similar-game-3',
+        priceEgp: '0.00',
         discountPercent: 0,
         bannerUrl:
           'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&auto=format&fit=crop',
-        tags: [{ name: 'Adventure', slug: 'adventure' }],
+        tags: [{ name: 'Tag', slug: 'tag' }],
       },
       {
-        title: 'MOON REQUIEM',
-        slug: 'moon-requiem',
-        priceEgp: '169.99',
-        discountPercent: 50,
+        title: 'SIMILAR GAME 4',
+        slug: 'similar-game-4',
+        priceEgp: '0.00',
+        discountPercent: 0,
         bannerUrl:
           'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=600&auto=format&fit=crop',
-        tags: [{ name: 'Gothic', slug: 'gothic' }],
+        tags: [{ name: 'Tag', slug: 'tag' }],
       },
     ],
   };
@@ -145,6 +132,7 @@ export function getGameDataForSlug(slug?: string) {
 
 export interface GameDetailsPageProps {
   slug?: string;
+  device?: 'desktop' | 'tablet' | 'mobile';
   themeConfig?:
     | {
         theme?: 'default' | 'custom';
@@ -159,13 +147,17 @@ type ThemeMode = 'default' | 'cyberpunk' | 'fantasy' | 'retro' | 'minimal' | 'sc
 /**
  * GameDetailsPage orchestrator located inside src/routes/game-details/.
  */
-export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeConfig }) => {
+export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeConfig, device }) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated ?? false;
   const [activeThemeMode] = useState<ThemeMode>('default');
   const currentGameData = getGameDataForSlug(slug);
 
-  const getThemeInfo = (): { theme: string; layout: Record<string, any> } => {
+  const getThemeInfo = (): {
+    theme: string;
+    layout: Record<string, any>;
+    pageBody?: Record<string, any>;
+  } => {
     if (activeThemeMode !== 'default') {
       switch (activeThemeMode) {
         case 'cyberpunk':
@@ -187,9 +179,10 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
         return {
           theme: parsed.theme || 'default',
           layout: parsed.layout || {},
+          pageBody: parsed.pageBody || parsed.pageSettings || {},
         };
       } catch (e) {
-        return { theme: 'default', layout: {} };
+        return { theme: 'default', layout: {}, pageBody: {} };
       }
     }
 
@@ -197,18 +190,21 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       return {
         theme: (themeConfig as any).theme || 'default',
         layout: (themeConfig as any).layout || {},
+        pageBody: (themeConfig as any).pageBody || (themeConfig as any).pageSettings || {},
       };
     }
 
-    return { theme: 'default', layout: {} };
+    return { theme: 'default', layout: {}, pageBody: {} };
   };
 
   const themeInfo = getThemeInfo();
+  const activeDevice = device || themeInfo.pageBody?.device || 'desktop';
+  const isMobileLayout = activeDevice === 'mobile' || activeDevice === 'tablet';
+
   const isDefaultTheme =
     themeInfo.theme === 'default' ||
     !themeInfo.layout ||
-    Object.keys(themeInfo.layout).length === 0 ||
-    'gameAbout' in themeInfo.layout;
+    Object.keys(themeInfo.layout).length === 0;
 
   const customAboutSections = themeInfo.layout?.gameAbout?.sections;
   const activeAboutSections =
@@ -217,6 +213,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       : currentGameData.aboutSections;
 
   const getThemeBackgroundColor = (): string => {
+    if (themeInfo.pageBody?.bg && themeInfo.pageBody.bg !== 'transparent') {
+      return themeInfo.pageBody.bg;
+    }
     if (!isDefaultTheme) {
       try {
         if (themeInfo.layout.pageCanvas?.style?.background) {
@@ -246,11 +245,22 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
     }
   };
 
+  const bgImageStyle = themeInfo.pageBody?.bgImage
+    ? {
+        backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
+        backgroundSize: themeInfo.pageBody.bgSize || 'cover',
+        backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
+        backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
+        backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
+      }
+    : {};
+
   return (
     <div
       className={styles.page}
       style={{
         background: getThemeBackgroundColor(),
+        ...bgImageStyle,
         transition: 'background 0.3s ease',
         minHeight: '100vh',
       }}
@@ -258,9 +268,22 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
       {/* RENDER THEME MODE */}
       {isDefaultTheme ? (
         <>
-          <GameDetailsHero images={currentGameData.heroImages} />
-          <div className={styles.mainContainer}>
-            <div className={styles.layoutGrid}>
+          <GameCarousel
+            images={currentGameData.heroImages}
+            device={activeDevice}
+            pageSettings={themeInfo.pageBody}
+          />
+          <div
+            className={styles.mainContainer}
+            style={{ padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined }}
+          >
+            <div
+              className={styles.layoutGrid}
+              style={{
+                gridTemplateColumns: isMobileLayout ? '1fr' : undefined,
+                gap: isMobileLayout ? '1.5rem' : '2.5rem',
+              }}
+            >
               <div className={styles.mainColumn}>
                 <GameDetailsHeader
                   title={currentGameData.title}
@@ -272,17 +295,29 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                   releaseDate={currentGameData.releaseDate}
                   tags={currentGameData.tags}
                   description={currentGameData.shortDescription}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
                 />
-                {isAuthenticated && <GameOwnershipBanner />}
-                <GameAbout sections={activeAboutSections} />
+                {isAuthenticated && (
+                  <GameOwnershipBanner device={activeDevice} pageSettings={themeInfo.pageBody} />
+                )}
+                <GameAbout
+                  sections={activeAboutSections}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
+                />
                 <GameSystemReqs
                   minimum={currentGameData.systemReqs.minimum}
                   recommended={currentGameData.systemReqs.recommended}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
                 />
                 <GameReviews
                   score={currentGameData.ratingScore}
                   totalReviews={currentGameData.totalReviews}
                   reviews={currentGameData.userReviews}
+                  device={activeDevice}
+                  pageSettings={themeInfo.pageBody}
                 />
               </div>
               <div className={styles.sidebarColumn}>
@@ -297,15 +332,26 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                   platforms={currentGameData.platforms}
                   ratingsBreakdown={currentGameData.ratingsBreakdown}
                   communityStats={currentGameData.communityStats}
+                  device={activeDevice}
                 />
               </div>
             </div>
-            <MoreLikeThis games={currentGameData.moreLikeThisGames} />
+            <MoreLikeThis
+              games={currentGameData.moreLikeThisGames}
+              device={activeDevice}
+              pageSettings={themeInfo.pageBody}
+            />
           </div>
         </>
       ) : (
-        <div className={styles.mainContainer} style={{ paddingTop: '2.5rem' }}>
-          {parseAndRenderPureJson(themeInfo.layout)}
+        <div
+          className={styles.mainContainer}
+          style={{
+            paddingTop: '2.5rem',
+            padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined,
+          }}
+        >
+          {parseAndRenderPureJson(themeInfo.layout, activeDevice)}
         </div>
       )}
     </div>

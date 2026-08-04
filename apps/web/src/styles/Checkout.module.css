@@ -1,0 +1,681 @@
+/* ========================================
+   CHECKOUT PAGE STYLES (HATHOR DESIGN SYSTEM)
+   Matches the exact visual layout from Hathor UI design
+======================================== */
+
+.pageContainer {
+  min-height: calc(100vh - 160px);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+.stepCompleted {
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepActive {
+  color: var(--accent-orange);
+  font-weight: 700;
+  border-bottom: 2px solid var(--accent-orange);
+  padding-bottom: 2px;
+}
+
+.stepPending {
+  color: var(--text-subtle);
+}
+
+.stepSeparator {
+  color: var(--border-color-light);
+}
+
+/* Header */
+.pageHeader {
+  margin-bottom: 36px;
+}
+
+.subtitle {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  color: var(--accent-orange);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-cream);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.titleHighlight {
+  color: var(--accent-orange);
+}
+
+/* Grid Layout */
+.checkoutGrid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+}
+
+@media (max-width: 960px) {
+  .checkoutGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form Sections */
+.sectionCard {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: var(--accent-orange);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sectionHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionHeaderTitle::before {
+  content: '—';
+  color: var(--accent-orange);
+  margin-right: 4px;
+}
+
+/* Form Controls */
+.formRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  color: var(--text-gold-muted);
+  text-transform: uppercase;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: var(--text-cream);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.inputWithIcon {
+  padding-left: 40px;
+}
+
+.input:focus {
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 2px var(--accent-orange-glow);
+}
+
+/* Checkboxes */
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-orange);
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Payment Method Tabs */
+.paymentTabGroup {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.paymentTab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.paymentTabActive {
+  background-color: var(--bg-card);
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+  box-shadow: 0 0 12px var(--accent-orange-glow);
+}
+
+.paymentTab:hover:not(.paymentTabActive) {
+  border-color: var(--border-color-light);
+  color: var(--text-cream);
+}
+
+/* Local Simulator Selector inside Payment Method */
+.simulatorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.simulatorOption {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.simulatorOptionActive {
+  border-color: var(--accent-orange);
+  background-color: var(--accent-orange-glow);
+}
+
+.simulatorOptionName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-cream);
+}
+
+/* SSL Footer Note */
+.sslNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: rgba(18, 21, 29, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+/* Order Summary Sidebar */
+.summaryCard {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  position: sticky;
+  top: 100px;
+}
+
+.summaryTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: var(--text-gold-muted);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.summaryTitleText::before {
+  content: '—';
+  color: var(--accent-orange);
+  margin-right: 6px;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.itemIconBox {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-orange);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.itemIconBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-cream);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+.itemMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemTag {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.discountBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: var(--accent-orange);
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.itemPrice {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-white);
+}
+
+/* Promo Code Box */
+.promoSection {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.promoTitle {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: var(--text-gold-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.promoTitle::before {
+  content: '—';
+  color: var(--accent-orange);
+  margin-right: 6px;
+}
+
+.promoInputRow {
+  display: flex;
+  gap: 8px;
+}
+
+.applyBtn {
+  padding: 0 18px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-cream);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.applyBtn:hover {
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+.promoHint {
+  font-size: 0.7rem;
+  color: var(--text-subtle);
+  margin-top: 6px;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 16px 0;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.totalLabel {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-cream);
+  letter-spacing: 1px;
+}
+
+.totalPrice {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--accent-orange);
+}
+
+/* Action Button */
+.placeOrderBtn {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--accent-orange);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px var(--accent-orange-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.placeOrderBtn:hover:not(:disabled) {
+  background-color: var(--accent-orange-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-orange-glow);
+}
+
+.placeOrderBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorBanner {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: rgba(255, 77, 79, 0.15);
+  border: 1px solid rgba(255, 77, 79, 0.4);
+  border-radius: 6px;
+  color: #ff4d4f;
+  font-size: 0.85rem;
+}
+
+/* ========================================
+   PAYMENT PENDING VIEW STYLES
+======================================== */
+
+.pendingContainer {
+  max-width: 680px;
+  margin: 40px auto;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.statusIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: var(--accent-orange-glow);
+  border: 2px solid var(--accent-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 2rem;
+  color: var(--accent-orange);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 107, 33, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 16px rgba(242, 107, 33, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 107, 33, 0);
+  }
+}
+
+.pendingTitle {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-cream);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.pendingSubtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+}
+
+.refCard {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.refLabel {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: var(--text-gold-muted);
+  text-transform: uppercase;
+}
+
+.refCode {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--accent-orange);
+  letter-spacing: 3px;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.detailBox {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.detailValue {
+  font-weight: 600;
+  color: var(--text-cream);
+  font-size: 0.95rem;
+}
+
+.timerBadge {
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+.btnGroup {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.secondaryBtn {
+  padding: 14px 28px;
+  background-color: transparent;
+  color: var(--text-cream);
+  border: 1px solid var(--border-color-light);
+  border-radius: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.secondaryBtn:hover {
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+.emptyCartContainer {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.emptyCartTitle {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--text-cream);
+}

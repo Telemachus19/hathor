@@ -122,3 +122,52 @@ export function useGameBySlug(slug?: string) {
     enabled: !!slug,
   });
 }
+
+/**
+ * Updates a game theme payload on the Catalog Service via API Gateway.
+ * Enforces creator authorization and owner verification.
+ */
+export async function updateGameTheme(
+  gameId: string,
+  pageTheme: Record<string, any>,
+  token?: string
+): Promise<{ success: boolean; data?: any; error?: any }> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${apiBaseUrl}/creator/games/${gameId}/theme`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(pageTheme),
+  });
+
+  return response.json();
+}
+
+/**
+ * Creates a draft game on the Catalog Service via API Gateway.
+ * Forces status = "draft" and pageTheme = {}.
+ */
+export async function createCreatorGame(
+  gameData: Record<string, any>,
+  token?: string
+): Promise<{ success: boolean; data?: any; error?: any }> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${apiBaseUrl}/creator/games`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(gameData),
+  });
+
+  return response.json();
+}

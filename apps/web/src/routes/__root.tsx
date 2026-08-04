@@ -1,4 +1,4 @@
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
+import { createRootRouteWithContext, Outlet, useLocation } from '@tanstack/react-router';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import type { AuthContextValue } from '../context/AuthContext';
@@ -16,6 +16,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
+  const location = useLocation();
+  const isStandalonePage =
+    location.pathname.startsWith('/designer') || location.pathname.startsWith('/game-info-form');
+
+  if (isStandalonePage) {
+    return <Outlet />;
+  }
+
   return (
     <>
       <Navbar />

@@ -10,6 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as DesignerPageRouteImport } from './routes/designer-page'
+import { Route as GameInfoFormRouteImport } from './routes/game-info-form'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -19,6 +22,21 @@ import { Route as StoreGamesSlugRouteImport } from './routes/store.games.$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignerPageRoute = DesignerPageRouteImport.update({
+  id: '/designer-page',
+  path: '/designer-page',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GameInfoFormRoute = GameInfoFormRouteImport.update({
+  id: '/game-info-form',
+  path: '/game-info-form',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryRoute = LibraryRouteImport.update({
@@ -49,6 +67,9 @@ const StoreGamesSlugRoute = StoreGamesSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/designer-page': typeof DesignerPageRoute
+  '/game-info-form': typeof GameInfoFormRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -57,6 +78,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/designer-page': typeof DesignerPageRoute
+  '/game-info-form': typeof GameInfoFormRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -66,6 +90,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/designer-page': typeof DesignerPageRoute
+  '/game-info-form': typeof GameInfoFormRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -76,6 +103,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/checkout'
+    | '/designer-page'
+    | '/game-info-form'
     | '/library'
     | '/login'
     | '/profile'
@@ -84,6 +114,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/checkout'
+    | '/designer-page'
+    | '/game-info-form'
     | '/library'
     | '/login'
     | '/profile'
@@ -92,6 +125,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/checkout'
+    | '/designer-page'
+    | '/game-info-form'
     | '/library'
     | '/login'
     | '/profile'
@@ -101,6 +137,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckoutRoute: typeof CheckoutRoute
+  DesignerPageRoute: typeof DesignerPageRoute
+  GameInfoFormRoute: typeof GameInfoFormRoute
   LibraryRoute: typeof LibraryRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
@@ -115,6 +154,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/designer-page': {
+      id: '/designer-page'
+      path: '/designer-page'
+      fullPath: '/designer-page'
+      preLoaderRoute: typeof DesignerPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/game-info-form': {
+      id: '/game-info-form'
+      path: '/game-info-form'
+      fullPath: '/game-info-form'
+      preLoaderRoute: typeof GameInfoFormRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library': {
@@ -157,6 +217,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckoutRoute: CheckoutRoute,
+  DesignerPageRoute: DesignerPageRoute,
+  GameInfoFormRoute: GameInfoFormRoute,
   LibraryRoute: LibraryRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
