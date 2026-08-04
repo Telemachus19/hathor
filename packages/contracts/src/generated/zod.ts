@@ -58,7 +58,7 @@ const Game = z
     slug: z.string(),
     title: z.string(),
     shortDescription: z.string().optional(),
-    priceEgp: z.string().regex(/^\\d+\\.\\d{2}$/),
+    priceEgp: z.string().regex(/^\d+\.\d{2}$/),
     currency: z.string(),
     status: z.enum(['draft', 'pending_review', 'published', 'rejected', 'suspended']),
     theme: ThemeDocument,
@@ -94,7 +94,7 @@ const Order = z
     ]),
     paymentMethod: z.enum(['sim_fawry', 'sim_vodafone_cash', 'sim_instapay']),
     paymentReference: z.string().optional(),
-    totalAmountEgp: z.string().regex(/^\\d+\\.\\d{2}$/),
+    totalAmountEgp: z.string().regex(/^\d+\.\d{2}$/),
     currency: z.string(),
     expiresAt: z.string().datetime({ offset: true }),
   })
@@ -106,7 +106,7 @@ const SimulatorWebhook = z
     occurredAt: z.string().datetime({ offset: true }),
     merchantId: z.string(),
     orderReference: z.string(),
-    amountEgp: z.string().regex(/^\\d+\\.\\d{2}$/),
+    amountEgp: z.string().regex(/^\d+\.\d{2}$/),
     currency: z.string(),
     status: z.enum(['paid', 'failed']),
   })
@@ -133,7 +133,7 @@ const CreateGameRequest = z
     title: z.string().min(1).max(255),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     shortDescription: z.string().min(1).max(500),
-    priceEgp: z.string().regex(/^\\d+\\.\\d{2}$/),
+    priceEgp: z.string().regex(/^\d+\.\d{2}$/),
   })
   .passthrough();
 const GameStatusChangeRequest = z

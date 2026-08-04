@@ -518,7 +518,7 @@ components:
         slug: { type: string }
         title: { type: string }
         shortDescription: { type: string }
-        priceEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+        priceEgp: { type: string, pattern: '^\d+\.\d{2}$' }
         currency: { type: string, const: EGP }
         status: { type: string, enum: [draft, pending_review, published, rejected, suspended] }
         theme: { $ref: '#/components/schemas/ThemeDocument' }
@@ -608,7 +608,7 @@ components:
           }
         paymentMethod: { type: string, enum: [sim_fawry, sim_vodafone_cash, sim_instapay] }
         paymentReference: { type: string }
-        totalAmountEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+        totalAmountEgp: { type: string, pattern: '^\d+\.\d{2}$' }
         currency: { type: string, const: EGP }
         expiresAt: { type: string, format: date-time }
     SimulatorWebhook:
@@ -619,7 +619,7 @@ components:
         occurredAt: { type: string, format: date-time }
         merchantId: { type: string }
         orderReference: { type: string }
-        amountEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+        amountEgp: { type: string, pattern: '^\d+\.\d{2}$' }
         currency: { type: string, const: EGP }
         status: { type: string, enum: [paid, failed] }
     SimulatePaymentRequest:
@@ -665,7 +665,7 @@ components:
         title: { type: string, minLength: 1, maxLength: 255 }
         slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' }
         shortDescription: { type: string, minLength: 1, maxLength: 500 }
-        priceEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+        priceEgp: { type: string, pattern: '^\d+\.\d{2}$' }
     AiThemeProposalRequest:
       type: object
       additionalProperties: false
