@@ -196,6 +196,25 @@ describe('M2.5.1 OpenAPI Schema Contract Tests', () => {
           json: async () => ({ ownedGameIds: (globalThis as any).mockOwnedGameIds || [] }),
         } as any;
       }
+      if (urlStr.includes('/internal/v1/catalog/quotes')) {
+        return {
+          ok: true,
+          json: async () => ({
+            quoteId: '00000000-0000-0000-0000-000000000088',
+            expiresAt: new Date(Date.now() + 900000).toISOString(),
+            items: [
+              {
+                gameId,
+                title: 'Cyberpunk Odyssey',
+                sellable: true,
+                priceEgp: '299.99',
+                currency: 'EGP',
+                priceVersion: 'v1',
+              },
+            ],
+          }),
+        } as any;
+      }
       return { ok: false, status: 404, statusText: 'Not Found' } as any;
     });
   });
@@ -335,6 +354,58 @@ describe('M2.5.1 OpenAPI Schema Contract Tests', () => {
         .set('X-Correlation-ID', correlationId);
 
       expect(res.status).toBe(400);
+      const validation = validateOpenApiSchema('Error', res.body);
+      expect(validation.valid, validation.errorsText).toBe(true);
+    });
+  });
+
+  describe('3. Transaction & Checkout Endpoints (/txn/init)', () => {
+    it('POST /txn/init 201 response conforms strictly to Order OpenAPI schema', async () => {
+      (globalThis as any).commerceSelectQueue = [
+        [], // Phase 1 idempotency check: none
+        [{ userId, version: 1 }], // Phase 1 cart check
+        [{ gameId }], // Phase 1 cart items
+        [], // Phase 2 idempotency check: none
+        [{ userId, version: 1 }], // Phase 2 cart re-verify
+      ];
+
+      const res = await request(commerceApp)
+        .post('/txn/init')
+        .set('Authorization', `Bearer ${token}`)
+        .set('Idempotency-Key', '00000000-0000-0000-0000-000000000099')
+        .send({ paymentMethod: 'sim_fawry', cartVersion: 1 });
+
+      expect(res.status).toBe(201);
+      const validation = validateOpenApiSchema('Order', res.body);
+      expect(validation.valid, validation.errorsText).toBe(true);
+    });
+
+    it('POST /txn/init 400 invalid request (missing Idempotency-Key) conforms strictly to Error OpenAPI schema', async () => {
+      const res = await request(commerceApp)
+        .post('/txn/init')
+        .set('Authorization', `Bearer ${token}`)
+        .set('X-Correlation-ID', correlationId)
+        .send({ paymentMethod: 'sim_fawry', cartVersion: 1 });
+
+      expect(res.status).toBe(400);
+      const validation = validateOpenApiSchema('Error', res.body);
+      expect(validation.valid, validation.errorsText).toBe(true);
+    });
+
+    it('POST /txn/init 409 stale cart version conforms strictly to Error OpenAPI schema', async () => {
+      (globalThis as any).commerceSelectQueue = [
+        [], // idempotency check: none
+        [{ userId, version: 2 }], // cart has version 2, client sent version 1
+      ];
+
+      const res = await request(commerceApp)
+        .post('/txn/init')
+        .set('Authorization', `Bearer ${token}`)
+        .set('Idempotency-Key', '00000000-0000-0000-0000-000000000099')
+        .set('X-Correlation-ID', correlationId)
+        .send({ paymentMethod: 'sim_fawry', cartVersion: 1 });
+
+      expect(res.status).toBe(409);
       const validation = validateOpenApiSchema('Error', res.body);
       expect(validation.valid, validation.errorsText).toBe(true);
     });

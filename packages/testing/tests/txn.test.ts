@@ -239,6 +239,35 @@ describe('Commerce Transaction & Checkout API Endpoints', () => {
       expect(res.status).toBe(200);
       expect(res.body.id).toBe(existingOrderId);
       expect(res.body.paymentReference).toBe('SIM-ABC12345');
+
+      const mockTx = (globalThis as any).mockTx;
+      expect(mockTx.insert).not.toHaveBeenCalled();
+    });
+
+    it('ignores client price tampering in payload and calculates server-authoritative EGP total from catalog quotes', async () => {
+      (globalThis as any).selectMockQueue = [
+        [], // Phase 1 idempotency check: none
+        [{ userId, version: 1 }], // Phase 1 cart select
+        [{ gameId }], // Phase 1 cart items select
+        [], // Phase 2 idempotency check: none
+        [{ userId, version: 1 }], // Phase 2 cart re-verify
+      ];
+
+      // Client attempts to pass a fake price override in body
+      const res = await request(app)
+        .post('/txn/init')
+        .set('Authorization', `Bearer ${token}`)
+        .set('Idempotency-Key', idempotencyKey)
+        .send({
+          paymentMethod: 'sim_fawry',
+          cartVersion: 1,
+          totalAmountEgp: '0.01',
+          priceEgp: '0.00',
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.totalAmountEgp).toBe('299.99'); // Calculated strictly from catalog quote service, not body override
+      expect(res.body.totalAmountEgp).not.toBe('0.01');
     });
 
     it('rejects duplicate key with different payload with 409 CONFLICT', async () => {

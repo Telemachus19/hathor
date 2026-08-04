@@ -80,7 +80,7 @@ paths:
                         gameId: { type: string, format: uuid }
                         title: { type: string }
                         sellable: { type: boolean }
-                        priceEgp: { type: string, pattern: '^\\d+\\.\\d{2}$' }
+                        priceEgp: { type: string, pattern: '^\d+\.\d{2}$' }
                         currency: { type: string, const: EGP }
                         priceVersion: { type: string }
         '401': { description: Invalid service credential }
