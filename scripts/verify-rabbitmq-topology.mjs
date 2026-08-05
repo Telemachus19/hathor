@@ -4,10 +4,7 @@ import yaml from 'js-yaml';
 
 const rootDir = process.cwd();
 const defPath = path.join(rootDir, 'docker/rabbitmq/definitions.json');
-const asyncApiPath = path.join(
-  rootDir,
-  'packages/contracts/asyncapi/domain-events.asyncapi.yaml'
-);
+const asyncApiPath = path.join(rootDir, 'packages/contracts/asyncapi/domain-events.asyncapi.yaml');
 
 console.log('Verifying RabbitMQ declarative topology definitions...');
 
@@ -105,9 +102,7 @@ for (const reqB of requiredBindings) {
       b.routing_key === reqB.routing_key
   );
   if (!found) {
-    throw new Error(
-      `Missing binding: ${reqB.source} -> ${reqB.destination} (${reqB.routing_key})`
-    );
+    throw new Error(`Missing binding: ${reqB.source} -> ${reqB.destination} (${reqB.routing_key})`);
   }
 }
 console.log('✓ All exchange & queue bindings verified against topology specification');
@@ -123,12 +118,15 @@ if (fs.existsSync(asyncApiPath)) {
   }
 
   const exchangeName =
-    channel?.bindings?.amqp?.exchange?.name ||
-    channel?.publish?.bindings?.amqp?.exchange?.name;
+    channel?.bindings?.amqp?.exchange?.name || channel?.publish?.bindings?.amqp?.exchange?.name;
   if (exchangeName !== 'hathor.domain.events') {
-    throw new Error(`AsyncAPI exchange mismatch: expected hathor.domain.events, got ${exchangeName}`);
+    throw new Error(
+      `AsyncAPI exchange mismatch: expected hathor.domain.events, got ${exchangeName}`
+    );
   }
   console.log('✓ AsyncAPI domain-events contract alignment confirmed');
 }
 
-console.log('\nRabbitMQ topology, exchanges, queues, DLQs, and persistent configs verified successfully!');
+console.log(
+  '\nRabbitMQ topology, exchanges, queues, DLQs, and persistent configs verified successfully!'
+);
