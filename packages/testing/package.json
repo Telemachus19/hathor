@@ -23,6 +23,7 @@
     "@zodios/core": "^10.9.6",
     "ajv": "^8.20.0",
     "ajv-formats": "^2.1.1",
+    "amqplib": "^0.10.4",
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.3",
     "openapi-fetch": "^0.17.0",
