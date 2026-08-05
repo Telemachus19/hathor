@@ -3,18 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./src/index.ts",
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
-    "generate:api": "openapi-typescript openapi/public-api.openapi.yaml -o src/generated/openapi.ts && openapi-zod-client openapi/public-api.openapi.yaml -o src/generated/zod.ts --export-schemas",
-    "build": "corepack pnpm generate:api && tsup src/index.ts --format esm --dts",
-    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "generate:api": "openapi-typescript openapi/public-api.openapi.yaml -o src/generated/openapi.ts && openapi-zod-client openapi/public-api.openapi.yaml -o src/generated/zod.ts --export-schemas && prettier --write src/generated/openapi.ts src/generated/zod.ts",
+    "build": "npm run generate:api && tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "lint:openapi": "redocly lint --config redocly.yaml openapi/public-api.openapi.yaml openapi/internal-api.openapi.yaml",

@@ -13,7 +13,7 @@ ARG VITE_USE_MOCK_AUTH="false"
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_USE_MOCK_AUTH=$VITE_USE_MOCK_AUTH
 
-RUN pnpm --filter @hathor/contracts build && pnpm --filter @hathor/web build
+RUN pnpm --filter @hathor/web... build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf

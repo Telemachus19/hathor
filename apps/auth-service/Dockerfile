@@ -8,7 +8,7 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY . .
 RUN pnpm install --filter @hathor/auth-service... --frozen-lockfile
-RUN pnpm --filter @hathor/auth-service build
+RUN pnpm --filter @hathor/auth-service... build
 
 FROM node:20.15-alpine AS runtime
 WORKDIR /app

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 RUN apk add --no-cache python3 make g++
 RUN pnpm install --filter @hathor/api-gateway... --frozen-lockfile
-RUN pnpm --filter @hathor/api-gateway build
+RUN pnpm --filter @hathor/api-gateway... build
 
 FROM node:20.15-alpine AS runtime
 WORKDIR /app
