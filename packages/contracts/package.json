@@ -5,10 +5,10 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "generate:api": "openapi-typescript openapi/public-api.openapi.yaml -o src/generated/openapi.ts && openapi-zod-client openapi/public-api.openapi.yaml -o src/generated/zod.ts --export-schemas",
-    "build": "pnpm generate:api && tsup src/index.ts --format cjs,esm --dts",
+    "build": "npm run generate:api && tsup src/index.ts --format cjs,esm --dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
