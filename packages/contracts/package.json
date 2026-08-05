@@ -15,7 +15,7 @@
     }
   },
   "scripts": {
-    "generate:api": "openapi-typescript openapi/public-api.openapi.yaml -o src/generated/openapi.ts && openapi-zod-client openapi/public-api.openapi.yaml -o src/generated/zod.ts --export-schemas",
+    "generate:api": "openapi-typescript openapi/public-api.openapi.yaml -o src/generated/openapi.ts && openapi-zod-client openapi/public-api.openapi.yaml -o src/generated/zod.ts --export-schemas && prettier --write src/generated/openapi.ts src/generated/zod.ts",
     "build": "npm run generate:api && tsup src/index.ts --format cjs,esm --dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "typecheck": "tsc --noEmit",
