@@ -1,0 +1,96 @@
+{
+  "rabbit_version": "3.13.4",
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "users": [],
+  "permissions": [],
+  "topic_permissions": [],
+  "exchanges": [
+    {
+      "name": "hathor.domain.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "hathor.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "hathor.retry",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "library.order-paid.queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "hathor.retry",
+        "x-dead-letter-routing-key": "library.order-paid.retry"
+      }
+    },
+    {
+      "name": "library.order-paid-retry.queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 5000,
+        "x-dead-letter-exchange": "hathor.domain.events",
+        "x-dead-letter-routing-key": "commerce.order.paid.v1"
+      }
+    },
+    {
+      "name": "hathor.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "hathor.domain.events",
+      "vhost": "/",
+      "destination": "library.order-paid.queue",
+      "destination_type": "queue",
+      "routing_key": "commerce.order.paid.v1",
+      "arguments": {}
+    },
+    {
+      "source": "hathor.retry",
+      "vhost": "/",
+      "destination": "library.order-paid-retry.queue",
+      "destination_type": "queue",
+      "routing_key": "library.order-paid.retry",
+      "arguments": {}
+    },
+    {
+      "source": "hathor.dlx",
+      "vhost": "/",
+      "destination": "hathor.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    }
+  ]
+}
