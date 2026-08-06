@@ -27,3 +27,12 @@ export const userWishlists = librarySchema.table(
     pk: primaryKey({ columns: [table.userId, table.gameId] }),
   })
 );
+
+export const processedEvents = librarySchema.table(
+  'processed_events',
+  {
+    eventId: uuid('event_id').primaryKey(),
+    processedAt: timestamp('processed_at', { withTimezone: true }).defaultNow(),
+  }
+);
+
