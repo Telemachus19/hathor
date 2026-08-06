@@ -465,6 +465,9 @@ importers:
       ajv-formats:
         specifier: ^2.1.1
         version: 2.1.1(ajv@8.20.0)
+      amqplib:
+        specifier: ^2.0.1
+        version: 2.0.1
       js-yaml:
         specifier: ^4.1.0
         version: 4.3.0
@@ -478,6 +481,9 @@ importers:
         specifier: ^3.23.8
         version: 3.25.76
     devDependencies:
+      '@types/amqplib':
+        specifier: ^0.10.8
+        version: 0.10.8
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
