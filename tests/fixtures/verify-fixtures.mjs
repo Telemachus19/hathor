@@ -20,7 +20,7 @@ const checks = [
   [
     process.env.LIBRARY_DB_URL,
     "select count(*)::int as count from information_schema.tables where table_schema = 'library'",
-    3,
+    5,
     'library tables',
   ],
 ];
