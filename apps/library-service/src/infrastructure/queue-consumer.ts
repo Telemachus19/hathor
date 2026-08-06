@@ -1,7 +1,8 @@
+import { randomUUID } from 'node:crypto';
 import amqp from 'amqplib';
 import { z } from 'zod';
 import { libraryDb } from './db/client.js';
-import { processedEvents, userLicenses } from './db/schema.js';
+import { processedEvents, userLicenses, entitlementAudit, outboxEvents } from './db/schema.js';
 
 // 1. Zod runtime schema matching the AsyncAPI contract for commerce.order.paid.v1
 export const OrderPaidEventSchema = z.object({
@@ -61,24 +62,57 @@ async function sendToDlq(channel: amqp.Channel, msg: amqp.ConsumeMessage, reason
   channel.ack(msg);
 }
 
-// Core processing transaction (processed_events & licenses commit atomically)
+// Core processing transaction (processed_events, licenses, audits & outbox commit atomically)
 async function processOrderPaidEvent(event: OrderPaidEvent) {
   try {
     await libraryDb.transaction(async (tx) => {
       // Step A: Insert eventId into processed_events to guarantee exact idempotency
       await tx.insert(processedEvents).values({
         eventId: event.eventId,
+        eventType: event.eventType,
+        correlationId: event.correlationId,
       });
 
-      // Step B: Insert all licenses
+      // Step B: Insert all licenses and audit logs
       for (const item of event.payload.items) {
         await tx.insert(userLicenses).values({
           userId: event.payload.userId,
           gameId: item.gameId,
           sourceOrderId: event.payload.orderId,
+          fulfillmentEventId: event.eventId,
           pricePaidEgp: item.pricePaidEgp,
+          currency: item.currency,
+        });
+
+        await tx.insert(entitlementAudit).values({
+          userId: event.payload.userId,
+          gameId: item.gameId,
+          action: 'grant',
+          actor: 'system',
+          correlationId: event.correlationId,
         });
       }
+
+      // Step C: Stage the entitlement granted event in the local outbox
+      const outboxPayload = {
+        eventId: randomUUID(),
+        eventType: 'library.entitlement.granted.v1',
+        schemaVersion: 1,
+        occurredAt: new Date().toISOString(),
+        correlationId: event.correlationId,
+        producer: 'library-service',
+        payload: {
+          orderId: event.payload.orderId,
+          userId: event.payload.userId,
+          gameIds: event.payload.items.map((item) => item.gameId),
+        },
+      };
+
+      await tx.insert(outboxEvents).values({
+        eventType: 'library.entitlement.granted.v1',
+        payload: outboxPayload,
+        status: 'pending',
+      });
     });
     console.log(`Successfully processed event ${event.eventId} and granted licenses.`);
   } catch (error: any) {
