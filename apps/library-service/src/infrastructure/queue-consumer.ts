@@ -3,6 +3,7 @@ import amqp from 'amqplib';
 import { z } from 'zod';
 import { libraryDb } from './db/client.js';
 import { processedEvents, userLicenses, entitlementAudit, outboxEvents } from './db/schema.js';
+import { triggerOutboxProcessing } from './outbox-worker.js';
 
 // 1. Zod runtime schema matching the AsyncAPI contract for commerce.order.paid.v1
 export const OrderPaidEventSchema = z.object({
@@ -160,6 +161,9 @@ export async function startQueueConsumer(rabbitmqUrl: string) {
 
       // Process event and grant licenses
       await processOrderPaidEvent(validationResult.data);
+      
+      // Trigger outbox processing immediately
+      triggerOutboxProcessing();
       
       // Acknowledge the message upon successful transaction commit
       channel.ack(msg);

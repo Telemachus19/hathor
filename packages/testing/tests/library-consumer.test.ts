@@ -89,7 +89,7 @@ describe('Library Queue Consumer & Idempotency Ledger', () => {
 
     // Assert database transaction is executed and inserts are called
     expect(getMockDb().transaction).toHaveBeenCalled();
-    expect(getMockTx().insert).toHaveBeenCalledTimes(2); // processedEvent, userLicense
+    expect(getMockTx().insert).toHaveBeenCalledTimes(4); // processedEvent, userLicense, entitlementAudit, outboxEvent
 
     // Assert message is ACKed
     expect(getMockChannel().ack).toHaveBeenCalledWith(msg);
