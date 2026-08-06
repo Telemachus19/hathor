@@ -15,6 +15,13 @@
       "when": 1786021278528,
       "tag": "0001_pale_sandman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1786026605008,
+      "tag": "0002_true_hiroim",
+      "breakpoints": true
     }
   ]
 }
