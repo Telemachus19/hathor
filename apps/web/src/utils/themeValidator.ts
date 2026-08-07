@@ -27,9 +27,8 @@ export interface ThemeValidationResult {
 const CSS_SECURITY_PATTERNS = ThemeDocument.securityRules.disallowRawCSS.forbiddenPatterns.map(
   (p) => new RegExp(p, 'i')
 );
-const SCRIPT_SECURITY_PATTERNS = ThemeDocument.securityRules.disallowScriptTags.forbiddenPatterns.map(
-  (p) => new RegExp(p, 'i')
-);
+const SCRIPT_SECURITY_PATTERNS =
+  ThemeDocument.securityRules.disallowScriptTags.forbiddenPatterns.map((p) => new RegExp(p, 'i'));
 const SQL_SECURITY_PATTERNS = ThemeDocument.securityRules.disallowSQLKeywords.forbiddenPatterns.map(
   (p) => new RegExp(p, 'i')
 );
@@ -106,8 +105,8 @@ export function validateThemeAgainstDocument(userThemeJson: unknown): ThemeValid
   const sections = Array.isArray(themeObj.sections)
     ? themeObj.sections
     : Array.isArray(themeObj)
-    ? themeObj
-    : null;
+      ? themeObj
+      : null;
 
   if (sections) {
     sections.forEach((section: any, idx: number) => {
@@ -173,13 +172,7 @@ function validateSection(
 
   const compSpec = (ThemeDocument.components as Record<string, any>)[componentKey];
   if (compSpec && compSpec.editableProperties) {
-    validateProperties(
-      section,
-      pathPrefix,
-      compSpec.editableProperties,
-      errors,
-      warnings
-    );
+    validateProperties(section, pathPrefix, compSpec.editableProperties, errors, warnings);
   }
 
   // Handle grid nested columns and elements recursively
@@ -203,7 +196,12 @@ function validateProperties(
   warnings: ValidationWarning[]
 ) {
   for (const [propName, propValue] of Object.entries(obj)) {
-    if (propName === 'id' || propName === 'type' || propName === 'gridCols' || propName === 'elements') {
+    if (
+      propName === 'id' ||
+      propName === 'type' ||
+      propName === 'gridCols' ||
+      propName === 'elements'
+    ) {
       continue;
     }
 
@@ -238,7 +236,11 @@ function validateProperties(
         });
       }
     } else if (sanitization === 'border_color') {
-      if (typeof propValue === 'string' && !BORDER_REGEX.test(propValue.trim()) && !COLOR_REGEX.test(propValue.trim())) {
+      if (
+        typeof propValue === 'string' &&
+        !BORDER_REGEX.test(propValue.trim()) &&
+        !COLOR_REGEX.test(propValue.trim())
+      ) {
         errors.push({
           path: propPath,
           message: `Invalid border format "${propValue}". Must be hex, rgba, transparent, none, or border shorthand (e.g. 1px solid #353c4d).`,
@@ -278,7 +280,11 @@ function validateProperties(
         }
       }
     } else if (sanitization === 'plain_text') {
-      if (typeof propValue === 'string' && propSpec.maxLength && propValue.length > propSpec.maxLength) {
+      if (
+        typeof propValue === 'string' &&
+        propSpec.maxLength &&
+        propValue.length > propSpec.maxLength
+      ) {
         errors.push({
           path: propPath,
           message: `Text length (${propValue.length}) exceeds maximum limit of ${propSpec.maxLength} characters.`,
@@ -380,14 +386,23 @@ function checkStringSecurity(val: string, path: string, errors: ValidationError[
 
 function getRefValues(refPath?: string): string[] | undefined {
   if (!refPath) return undefined;
-  if (refPath === 'globalConstraints.allowedFonts') return ThemeDocument.globalConstraints.allowedFonts;
-  if (refPath === 'globalConstraints.allowedFontWeights') return ThemeDocument.globalConstraints.allowedFontWeights;
-  if (refPath === 'globalConstraints.allowedAlignments') return ThemeDocument.globalConstraints.allowedAlignments;
-  if (refPath === 'globalConstraints.allowedTextTransforms') return ThemeDocument.globalConstraints.allowedTextTransforms;
-  if (refPath === 'globalConstraints.allowedGridTemplates') return ThemeDocument.globalConstraints.allowedGridTemplates;
-  if (refPath === 'globalConstraints.allowedBackgroundSizes') return ThemeDocument.globalConstraints.allowedBackgroundSizes;
-  if (refPath === 'globalConstraints.allowedBackgroundPositions') return ThemeDocument.globalConstraints.allowedBackgroundPositions;
-  if (refPath === 'globalConstraints.allowedBackgroundRepeats') return ThemeDocument.globalConstraints.allowedBackgroundRepeats;
-  if (refPath === 'globalConstraints.allowedBackgroundAttachments') return ThemeDocument.globalConstraints.allowedBackgroundAttachments;
+  if (refPath === 'globalConstraints.allowedFonts')
+    return ThemeDocument.globalConstraints.allowedFonts;
+  if (refPath === 'globalConstraints.allowedFontWeights')
+    return ThemeDocument.globalConstraints.allowedFontWeights;
+  if (refPath === 'globalConstraints.allowedAlignments')
+    return ThemeDocument.globalConstraints.allowedAlignments;
+  if (refPath === 'globalConstraints.allowedTextTransforms')
+    return ThemeDocument.globalConstraints.allowedTextTransforms;
+  if (refPath === 'globalConstraints.allowedGridTemplates')
+    return ThemeDocument.globalConstraints.allowedGridTemplates;
+  if (refPath === 'globalConstraints.allowedBackgroundSizes')
+    return ThemeDocument.globalConstraints.allowedBackgroundSizes;
+  if (refPath === 'globalConstraints.allowedBackgroundPositions')
+    return ThemeDocument.globalConstraints.allowedBackgroundPositions;
+  if (refPath === 'globalConstraints.allowedBackgroundRepeats')
+    return ThemeDocument.globalConstraints.allowedBackgroundRepeats;
+  if (refPath === 'globalConstraints.allowedBackgroundAttachments')
+    return ThemeDocument.globalConstraints.allowedBackgroundAttachments;
   return undefined;
 }

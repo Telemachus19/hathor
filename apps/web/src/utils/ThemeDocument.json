@@ -13,30 +13,10 @@
       "'Space Grotesk', sans-serif",
       "monospace"
     ],
-    "allowedFontWeights": [
-      "400",
-      "500",
-      "600",
-      "700",
-      "800",
-      "900"
-    ],
-    "allowedAlignments": [
-      "left",
-      "center",
-      "right"
-    ],
-    "allowedTextTransforms": [
-      "uppercase",
-      "capitalize",
-      "lowercase",
-      "none"
-    ],
-    "allowedUrlProtocols": [
-      "http:",
-      "https:",
-      "data:"
-    ],
+    "allowedFontWeights": ["400", "500", "600", "700", "800", "900"],
+    "allowedAlignments": ["left", "center", "right"],
+    "allowedTextTransforms": ["uppercase", "capitalize", "lowercase", "none"],
+    "allowedUrlProtocols": ["http:", "https:", "data:"],
     "allowedGridTemplates": [
       "1",
       "1:1",
@@ -49,13 +29,7 @@
       "3:1",
       "1:3"
     ],
-    "allowedBackgroundSizes": [
-      "cover",
-      "contain",
-      "auto",
-      "100% 100%",
-      "100% auto"
-    ],
+    "allowedBackgroundSizes": ["cover", "contain", "auto", "100% 100%", "100% auto"],
     "allowedBackgroundPositions": [
       "center center",
       "top center",
@@ -63,17 +37,8 @@
       "top left",
       "top right"
     ],
-    "allowedBackgroundRepeats": [
-      "no-repeat",
-      "repeat",
-      "repeat-x",
-      "repeat-y"
-    ],
-    "allowedBackgroundAttachments": [
-      "scroll",
-      "fixed",
-      "local"
-    ],
+    "allowedBackgroundRepeats": ["no-repeat", "repeat", "repeat-x", "repeat-y"],
+    "allowedBackgroundAttachments": ["scroll", "fixed", "local"],
     "maxStringLength": 5000,
     "maxArrayItems": 50
   },
@@ -2013,15 +1978,7 @@
         "btnIcon": {
           "type": "string",
           "editable": true,
-          "allowedValues": [
-            "download",
-            "library",
-            "cart",
-            "check",
-            "thumbs-up",
-            "star",
-            "none"
-          ],
+          "allowedValues": ["download", "library", "cart", "check", "thumbs-up", "star", "none"],
           "sanitization": "enum_check"
         },
         "btnRadius": {
@@ -2128,11 +2085,7 @@
         "twoColRatio": {
           "type": "string",
           "editable": true,
-          "allowedValues": [
-            "1:1",
-            "2:1",
-            "1:2"
-          ],
+          "allowedValues": ["1:1", "2:1", "1:2"],
           "sanitization": "enum_check"
         },
         "twoColGap": {
@@ -2145,10 +2098,7 @@
         "twoColLeftType": {
           "type": "string",
           "editable": true,
-          "allowedValues": [
-            "text",
-            "image"
-          ],
+          "allowedValues": ["text", "image"],
           "sanitization": "enum_check"
         },
         "twoColLeftText": {
@@ -2198,10 +2148,7 @@
         "twoColRightType": {
           "type": "string",
           "editable": true,
-          "allowedValues": [
-            "text",
-            "image"
-          ],
+          "allowedValues": ["text", "image"],
           "sanitization": "enum_check"
         },
         "twoColRightText": {
@@ -2349,11 +2296,7 @@
         "dividerStyle": {
           "type": "string",
           "editable": true,
-          "allowedValues": [
-            "solid",
-            "dashed",
-            "dotted"
-          ],
+          "allowedValues": ["solid", "dashed", "dotted"],
           "sanitization": "enum_check"
         },
         "dividerWidth": {
