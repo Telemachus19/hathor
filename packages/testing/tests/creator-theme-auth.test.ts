@@ -89,7 +89,7 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
 
   it('rejects unauthenticated requests with 401 Unauthorized', async () => {
     const res = await request(app)
-      .put('/creator/games/game-123/theme')
+      .put('/creator/games/super-action-game/theme')
       .send({ primaryColor: '#f26b21' });
 
     expect(res.status).toBe(401);
@@ -97,11 +97,11 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
     expect(res.body.error.code).toBe('UNAUTHENTICATED');
   });
 
-  it('rejects with 404 Not Found if game does not exist', async () => {
+  it('rejects with 404 Not Found if game slug does not exist', async () => {
     mockSelectChain.limit.mockResolvedValueOnce([]);
 
     const res = await request(app)
-      .put('/creator/games/non-existent-game/theme')
+      .put('/creator/games/non-existent-slug/theme')
       .set('Authorization', `Bearer ${tokenCreatorA}`)
       .send({ primaryColor: '#f26b21' });
 
@@ -110,11 +110,12 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
     expect(res.body.error.code).toBe('GAME_NOT_FOUND');
   });
 
-  it('rejects unauthorized access with HTTP 403 Forbidden when Creator B attempts to update Creator A game (IDOR protection)', async () => {
+  it('rejects unauthorized access with HTTP 403 Forbidden when Creator B attempts to update Creator A game by slug (IDOR protection)', async () => {
     // Game is owned by Creator A
     mockSelectChain.limit.mockResolvedValueOnce([
       {
         id: 'game-123',
+        slug: 'super-action-game',
         creatorId: creatorAId,
         title: 'Super Action Game',
         pageTheme: {},
@@ -123,7 +124,7 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
 
     // Request sent by Creator B
     const res = await request(app)
-      .put('/creator/games/game-123/theme')
+      .put('/creator/games/super-action-game/theme')
       .set('Authorization', `Bearer ${tokenCreatorB}`)
       .send({ primaryColor: '#ff0000' });
 
@@ -134,30 +135,74 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
     expect(catalogDb.update).not.toHaveBeenCalled();
   });
 
-  it('succeeds with 200 OK when Creator A updates their own game theme', async () => {
+  it('succeeds with 200 OK when Creator A updates their own game theme using game slug', async () => {
     // Game is owned by Creator A
     mockSelectChain.limit.mockResolvedValueOnce([
       {
         id: 'game-123',
+        slug: 'super-action-game',
         creatorId: creatorAId,
         title: 'Super Action Game',
         pageTheme: {},
       },
     ]);
 
-    const newTheme = { primaryColor: '#f26b21', mode: 'dark' };
+    const newTheme = {
+      pageSettings: { accentColor: '#f26b21' },
+      sections: [],
+    };
 
-    // Request sent by Creator A
+    // Request sent by Creator A with slug parameter
     const res = await request(app)
-      .put('/creator/games/game-123/theme')
+      .put('/creator/games/super-action-game/theme')
       .set('Authorization', `Bearer ${tokenCreatorA}`)
       .send(newTheme);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.gameId).toBe('game-123');
+    expect(res.body.data.slug).toBe('super-action-game');
     expect(res.body.data.pageTheme).toEqual(newTheme);
     expect(catalogDb.update).toHaveBeenCalled();
+  });
+
+  it('rejects invalid theme JSON payload with 400 Bad Request and VALIDATION_FAILED', async () => {
+    // Game is owned by Creator A
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: 'game-123',
+        slug: 'super-action-game',
+        creatorId: creatorAId,
+        title: 'Super Action Game',
+        pageTheme: {},
+      },
+    ]);
+
+    const invalidTheme = {
+      sections: [
+        {
+          id: 'sec_1',
+          type: 'about-game',
+          aboutSections: [
+            {
+              title: 'Malicious',
+              text: '<script>alert("XSS")</script>',
+            },
+          ],
+        },
+      ],
+    };
+
+    const res = await request(app)
+      .put('/creator/games/super-action-game/theme')
+      .set('Authorization', `Bearer ${tokenCreatorA}`)
+      .send(invalidTheme);
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_FAILED');
+    expect(res.body.error.details.some((e: any) => e.code === 'SECURITY_VIOLATION')).toBe(true);
+    expect(catalogDb.update).not.toHaveBeenCalled();
   });
 });
 
