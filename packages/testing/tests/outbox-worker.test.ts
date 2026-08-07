@@ -101,9 +101,8 @@ describe('Transactional Outbox Worker, Retry Engine, & Metrics Suite', () => {
   });
 
   it('6. insertOutboxEventTx inserts outbox records into transaction handle with PENDING status', async () => {
-    const { insertOutboxEventTx } = await import(
-      '../../../apps/commerce-service/src/infrastructure/outbox/outbox-helper.js'
-    );
+    const { insertOutboxEventTx } =
+      await import('../../../apps/commerce-service/src/infrastructure/outbox/outbox-helper.js');
     let insertedValues: any = null;
     const mockTx = {
       insert: (_table: any) => ({
@@ -133,5 +132,3 @@ describe('Transactional Outbox Worker, Retry Engine, & Metrics Suite', () => {
     });
   });
 });
-
-

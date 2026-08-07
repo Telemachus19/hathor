@@ -40,12 +40,11 @@ export class OutboxWorker {
     this.maxRetries = config.maxRetries ?? 5;
     this.primaryExchange = config.primaryExchange ?? 'hathor.domain.events';
     this.dlxExchange = config.dlxExchange ?? 'hathor.dlx';
-    this.monitoredQueues =
-      config.monitoredQueues ?? [
-        'library.order-paid.queue',
-        'library.order-paid-retry.queue',
-        'hathor.dlq',
-      ];
+    this.monitoredQueues = config.monitoredQueues ?? [
+      'library.order-paid.queue',
+      'library.order-paid-retry.queue',
+      'hathor.dlq',
+    ];
   }
 
   public start(): void {
