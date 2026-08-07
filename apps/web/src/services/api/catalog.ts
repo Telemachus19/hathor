@@ -124,11 +124,11 @@ export function useGameBySlug(slug?: string) {
 }
 
 /**
- * Updates a game theme payload on the Catalog Service via API Gateway.
+ * Updates a game theme payload on the Catalog Service via API Gateway using the game slug.
  * Enforces creator authorization and owner verification.
  */
 export async function updateGameTheme(
-  gameId: string,
+  slug: string,
   pageTheme: Record<string, any>,
   token?: string
 ): Promise<{ success: boolean; data?: any; error?: any }> {
@@ -139,7 +139,7 @@ export async function updateGameTheme(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${apiBaseUrl}/creator/games/${gameId}/theme`, {
+  const response = await fetch(`${apiBaseUrl}/creator/games/${slug}/theme`, {
     method: 'PUT',
     headers,
     body: JSON.stringify(pageTheme),

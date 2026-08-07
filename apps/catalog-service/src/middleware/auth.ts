@@ -95,6 +95,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     return next();
   } catch (error) {
+    console.error('requireAuth token verification error:', error);
     return res.status(401).json({
       success: false,
       error: {

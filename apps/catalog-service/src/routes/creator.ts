@@ -9,6 +9,7 @@ import {
   isCreatorAllowedTargetStatus,
   VALID_GAME_STATUSES,
 } from '../domain/stateMachine.js';
+import { validateThemeAgainstDocument } from '../utils/themeValidator.js';
 
 const router: Router = Router();
 
@@ -27,12 +28,13 @@ function slugifyTitle(title: string): string {
 }
 
 /**
- * PUT /creator/games/:gameId/theme
+ * PUT /creator/games/:slug/theme
  * Creator Authorization & Ownership Verification (creator_id == caller_id).
+ * Strictly looks up game by slug parameter.
  * Rejects unauthorized access attempts with HTTP 403 Forbidden to prevent cross-creator IDOR.
  */
 router.put(
-  '/games/:gameId/theme',
+  '/games/:slug/theme',
   requireAuth,
   requireRole('creator'),
   async (req: AuthenticatedRequest, res: Response) => {
@@ -43,15 +45,16 @@ router.put(
 
     try {
       const callerId = req.user!.id;
-      const { gameId } = req.params;
-      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+      const { slug } = req.params;
+
+      const [game] = await catalogDb.select().from(games).where(eq(games.slug, slug)).limit(1);
 
       if (!game) {
         return res.status(404).json({
           success: false,
           error: {
             code: 'GAME_NOT_FOUND',
-            message: 'Game not found',
+            message: `Game not found for slug: ${slug}`,
             correlationId,
           },
         });
@@ -70,18 +73,34 @@ router.put(
       }
 
       const themePayload = req.body || {};
+
+      // Validate theme JSON payload against specification & security rules
+      const validationResult = validateThemeAgainstDocument(themePayload);
+      if (!validationResult.valid) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Theme JSON validation failed',
+            details: validationResult.errors,
+            correlationId,
+          },
+        });
+      }
+
       await catalogDb
         .update(games)
         .set({
           pageTheme: themePayload,
           updatedAt: new Date(),
         })
-        .where(eq(games.id, gameId));
+        .where(eq(games.id, game.id));
 
       return res.status(200).json({
         success: true,
         data: {
           gameId: game.id,
+          slug: game.slug,
           pageTheme: themePayload,
         },
       });
