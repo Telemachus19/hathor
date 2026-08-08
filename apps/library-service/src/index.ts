@@ -35,4 +35,3 @@ app.listen(PORT, () => {
 process.on('SIGTERM', () => {
   void libraryPool.end().finally(() => process.exit(0));
 });
-

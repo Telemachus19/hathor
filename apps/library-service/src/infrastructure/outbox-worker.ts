@@ -50,16 +50,10 @@ async function processPendingOutbox() {
 
         // Publish message with publisher confirm
         await new Promise<void>((resolve, reject) => {
-          confirmChannel!.publish(
-            exchange,
-            routingKey,
-            content,
-            { persistent: true },
-            (err) => {
-              if (err) reject(err);
-              else resolve();
-            }
-          );
+          confirmChannel!.publish(exchange, routingKey, content, { persistent: true }, (err) => {
+            if (err) reject(err);
+            else resolve();
+          });
         });
 
         // Mark as published on success
@@ -70,7 +64,6 @@ async function processPendingOutbox() {
             publishedAt: new Date(),
           })
           .where(eq(outboxEvents.id, event.id));
-
       } catch (err: any) {
         console.error(`Failed to publish outbox event ${event.id}:`, err);
         await libraryDb

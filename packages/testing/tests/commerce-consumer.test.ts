@@ -77,7 +77,11 @@ describe('Commerce Queue Consumer & Order Fulfillment', () => {
       from: vi.fn(() => mockSelectChain),
       where: vi.fn(() => mockSelectChain),
       for: vi.fn(() => mockSelectChain),
-      limit: vi.fn(() => Promise.resolve([{ id: 'd3810ea3-1da8-4be8-89c0-f89a9da8cd72', status: 'fulfillment_pending' }])),
+      limit: vi.fn(() =>
+        Promise.resolve([
+          { id: 'd3810ea3-1da8-4be8-89c0-f89a9da8cd72', status: 'fulfillment_pending' },
+        ])
+      ),
     };
     getMockTx().select.mockReturnValue(mockSelectChain);
 
@@ -118,7 +122,9 @@ describe('Commerce Queue Consumer & Order Fulfillment', () => {
       from: vi.fn(() => mockSelectChain),
       where: vi.fn(() => mockSelectChain),
       for: vi.fn(() => mockSelectChain),
-      limit: vi.fn(() => Promise.resolve([{ id: 'd3810ea3-1da8-4be8-89c0-f89a9da8cd72', status: 'fulfilled' }])),
+      limit: vi.fn(() =>
+        Promise.resolve([{ id: 'd3810ea3-1da8-4be8-89c0-f89a9da8cd72', status: 'fulfilled' }])
+      ),
     };
     getMockTx().select.mockReturnValue(mockSelectChain);
 

@@ -36,21 +36,16 @@ function getDeathCount(headers: any): number {
 async function sendToDlq(channel: amqp.Channel, msg: amqp.ConsumeMessage, reason: string) {
   const routingKey = msg.fields.routingKey || 'library.entitlement.granted.v1';
   console.error(`Sending message to DLQ due to: ${reason}`);
-  
-  channel.publish(
-    'hathor.dlx',
-    routingKey,
-    msg.content,
-    {
-      headers: {
-        ...msg.properties.headers,
-        'x-original-routing-key': routingKey,
-        'x-death-reason': reason,
-      },
-      persistent: true,
-    }
-  );
-  
+
+  channel.publish('hathor.dlx', routingKey, msg.content, {
+    headers: {
+      ...msg.properties.headers,
+      'x-original-routing-key': routingKey,
+      'x-death-reason': reason,
+    },
+    persistent: true,
+  });
+
   // Acknowledge the original message so it doesn't remain in the queue
   channel.ack(msg);
 }
@@ -79,10 +74,7 @@ async function processEntitlementGrantedEvent(event: LibraryEntitlementGrantedEv
     }
 
     // Update order status to fulfilled
-    await tx
-      .update(orders)
-      .set({ status: 'fulfilled' })
-      .where(eq(orders.id, orderId));
+    await tx.update(orders).set({ status: 'fulfilled' }).where(eq(orders.id, orderId));
 
     // Append state transition record
     await tx.insert(orderStateTransitions).values({
@@ -98,10 +90,10 @@ async function processEntitlementGrantedEvent(event: LibraryEntitlementGrantedEv
 export async function startQueueConsumer(rabbitmqUrl: string) {
   const connection = await amqp.connect(rabbitmqUrl);
   const channel = await connection.createChannel();
-  
+
   // Set prefetch to 1 for load balancing
   await channel.prefetch(1);
-  
+
   const queueName = 'commerce.entitlement-granted.queue';
   console.log(`Starting consumer on queue "${queueName}"...`);
 
@@ -128,7 +120,7 @@ export async function startQueueConsumer(rabbitmqUrl: string) {
 
       // Process event and fulfill order
       await processEntitlementGrantedEvent(validationResult.data);
-      
+
       // Acknowledge the message upon successful transaction commit
       channel.ack(msg);
     } catch (err: any) {
