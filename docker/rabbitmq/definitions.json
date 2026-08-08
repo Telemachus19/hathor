@@ -5,8 +5,24 @@
       "name": "/"
     }
   ],
-  "users": [],
-  "permissions": [],
+  "users": [
+    {
+      "name": "hathor_app",
+      "password_hash": "FmHERToPlv5h0ppXi+WZtGth7QbQqA+T36/V7cPrPO3hkQEb",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": ["administrator"],
+      "limits": {}
+    }
+  ],
+  "permissions": [
+    {
+      "user": "hathor_app",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
   "topic_permissions": [],
   "exchanges": [
     {
@@ -60,6 +76,27 @@
       }
     },
     {
+      "name": "commerce.entitlement-granted.queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "hathor.retry",
+        "x-dead-letter-routing-key": "commerce.entitlement-granted.retry"
+      }
+    },
+    {
+      "name": "commerce.entitlement-granted-retry.queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-message-ttl": 5000,
+        "x-dead-letter-exchange": "hathor.domain.events",
+        "x-dead-letter-routing-key": "library.entitlement.granted.v1"
+      }
+    },
+    {
       "name": "hathor.dlq",
       "vhost": "/",
       "durable": true,
@@ -82,6 +119,22 @@
       "destination": "library.order-paid-retry.queue",
       "destination_type": "queue",
       "routing_key": "library.order-paid.retry",
+      "arguments": {}
+    },
+    {
+      "source": "hathor.domain.events",
+      "vhost": "/",
+      "destination": "commerce.entitlement-granted.queue",
+      "destination_type": "queue",
+      "routing_key": "library.entitlement.granted.v1",
+      "arguments": {}
+    },
+    {
+      "source": "hathor.retry",
+      "vhost": "/",
+      "destination": "commerce.entitlement-granted-retry.queue",
+      "destination_type": "queue",
+      "routing_key": "commerce.entitlement-granted.retry",
       "arguments": {}
     },
     {

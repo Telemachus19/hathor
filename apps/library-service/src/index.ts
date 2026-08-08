@@ -2,6 +2,8 @@ import * as dotenv from 'dotenv';
 import { createLibraryApp } from './app.js';
 import { libraryPool } from './infrastructure/db/client.js';
 import { checkRabbitMq } from './infrastructure/rabbitmq-health.js';
+import { startQueueConsumer } from './infrastructure/queue-consumer.js';
+import { startOutboxWorker } from './infrastructure/outbox-worker.js';
 
 dotenv.config();
 
@@ -18,6 +20,16 @@ const app = createLibraryApp(async () => {
 
 app.listen(PORT, () => {
   console.log(`Hathor Library Service running on port ${PORT}`);
+
+  startQueueConsumer(RABBITMQ_URL).catch((err) => {
+    console.error('Failed to start RabbitMQ consumer:', err);
+    process.exit(1);
+  });
+
+  startOutboxWorker(RABBITMQ_URL).catch((err) => {
+    console.error('Failed to start RabbitMQ outbox worker:', err);
+    process.exit(1);
+  });
 });
 
 process.on('SIGTERM', () => {
