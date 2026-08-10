@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import { randomUUID, createHmac } from 'crypto';
 import type { Express } from 'express';
 import request from 'supertest';
@@ -9,14 +9,74 @@ import { commerceDb } from '../../infrastructure/db/client.js';
 import { orders, orderItems, paymentEvents, orderStateTransitions, outboxEvents } from '../../infrastructure/db/schema.js';
 import { createCommerceApp } from '../../app.js';
 
-process.env.SIMULATOR_WEBHOOK_SECRET = 'test_simulator_webhook_secret_key_123';
-process.env.JWT_SECRET = 'test_jwt_secret';
+import { createPublicKey } from 'crypto';
+import { createServer, Server } from 'http';
 
+process.env.SIMULATOR_WEBHOOK_SECRET = 'test_simulator_webhook_secret_key_123';
+process.env.AUTH_SERVICE_URL = 'http://127.0.0.1:5001';
+
+const privateKey = `-----BEGIN PRIVATE KEY-----
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCdLI4kdTiawrJi
+slBnkAgDfLYSOJSS9v/BYnycfGCjCyOhKukbb32SyRY6c2gOguE5LSD01j89IGed
+T8AHQ1cOVVwyUYtrxYravGWvoiyjQZ/pgbtltYpcWY6tIraJOsMo5rc5z4ldiTO7
+KyFZrBOvAXjeUim/g+0VxJpMD+qvYNXm/OIkjSzQmTELjjX0OLA2GZU2HvBYg/jI
+tCM+lqx8rm3VaAVAUhqgWVFmjYDO0E8hTj+v4ga07vnzh6FV0yQGn41thlwBSzIu
+AAQpTh35fvza5pxbPbR+WR148rNEoJj/XHJKdUY8QrPv5ZOIEux6eUGcQRaKDVLa
+TF+DhRi5AgMBAAECggEAFwZlrVwZxnwyt0gxhLZiIialIo6030G9blZP9Hm5C3GQ
+juXzH8CJuBTqw3XQHt4YAfEFRLDVM055t18tPbMk//XLy5hMESXvhUM3r07V9LWi
+qEnHyurZIdXB08XD0V8xI18HJPotAK2ejTMQj+soOAlCbGlDcemw8/Eo/G8RfY76
+iVwjszRepeeK/YuzVklKx84qAyjR/wWjboPO/2RNIM5w8FDtdth/XAvh+Nqgr1N3
+UrRX/eK5fJ7L1jh3+6+mquH3+6iW97IH11l0N5tyy1G32PqvXpDl/txHJXSC/odB
+ypIw83ta7JkVB0UakA+0CtzDNrwuaqn2SQU5+p60bQKBgQDJhKRfmHh7ZYYkJxmK
+TO+9fyTyMiu56Psm/gNYkaaMzZWJd+wavZe50HnNRlqQgXfi0p2OvEVGVCsozQLZ
+3cxRid2xnliczSX77iO8Oxu5Cuaey6stEyGSBhnIIE/9Ttkn0EkRqiRZuNJQzxlZ
+CE3lSv2WS2U+uSq+c9Y8ROPfhQKBgQDHqsuejkrJPFpcZayEFWSVi8fMaQUbalMZ
+J8pNfkl4NtTZz/3zpjnt7S19UetKN2ISWZCdevgkHUTw/oN+bHvln/v1KfaHIIwE
+KBTEo5rcsFiss5CsDNxYO2DRN43QUthYeiFbE0yIjJW1JUmHpFpfpnBhoo/U4xEf
+w14DTfhopQKBgQCHC6PYCGadUyD881LzUrHKzPzmbebNtKsyq0F0xk7VxyPyNvJ7
+zRhzxpkJjp88ffbog3pg4ByQj/FIa3MAq9mzvu9Zi6MYmYZd+W3rQ7VFYV/BhP2W
+vF5f7ES0z6qrN37hZnzBIMMxeWFAFDmJZ75D7ehZIvebfB1/+kLUqtoGvQKBgQDG
+cUKkWEmNzZUFRev67oQkeWNfDnWL9NWYJ8rR0BTXDK/ptuVv9iKXDOXsKrHN9lNb
+Z3bqfWAIDKsLVfl8efd9lc7FsCobzMY8D1XsxanRctb+9gxwYuvQKVulNDCW/u+U
+p/Vk3j5vbEISYne8/yTu8a256+ZFsFPBnNtgL2sXHQKBgQCr41e5R1fPxE7xOWIt
+upYt6DOYenaQNgAbuItQuVXWJs9AhcLOI4Bk83XZJNXqF1yrI8qWwF2V7HWlNM9m
+DDhq9Bqq2Q5DUXjtifv/LI4EseEE122Lgd5Pwi/GEg4YQlSVtnAZat+9xFSLjOIB
+9rppLqf+VLyTMzFdXkiS2hPSTw==
+-----END PRIVATE KEY-----`;
+
+const publicKey = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnSyOJHU4msKyYrJQZ5AI
+A3y2EjiUkvb/wWJ8nHxgowsjoSrpG299kskWOnNoDoLhOS0g9NY/PSBnnU/AB0NX
+DlVcMlGLa8WK2rxlr6Iso0Gf6YG7ZbWKXFmOrSK2iTrDKOa3Oc+JXYkzuyshWawT
+rwF43lIpv4PtFcSaTA/qr2DV5vziJI0s0JkxC4419DiwNhmVNh7wWIP4yLQjPpas
+fK5t1WgFQFIaoFlRZo2AztBPIU4/r+IGtO7584ehVdMkBp+NbYZcAUsyLgAEKU4d
++X782uacWz20flkdePKzRKCY/1xySnVGPEKz7+WTiBLsenlBnEEWig1S2kxfg4UY
+uQIDAQAB
+-----END PUBLIC KEY-----`;
+
+const jwk = createPublicKey(publicKey).export({ format: 'jwk' });
 describe('Payment Simulator Integration', () => {
   let app: Express;
+  let mockAuthServer: Server;
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    mockAuthServer = createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ keys: [jwk] }));
+    });
+    
+    await new Promise<void>((resolve) => mockAuthServer.listen(5001, '127.0.0.1', resolve));
+
     app = createCommerceApp(async () => {});
+  });
+
+  afterAll(async () => {
+    await new Promise<void>((resolve, reject) => {
+      mockAuthServer.close((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
   });
 
   afterEach(async () => {
@@ -27,8 +87,18 @@ describe('Payment Simulator Integration', () => {
     await commerceDb.delete(orders);
   });
 
+
   const generateToken = (userId: string) => {
-    return jwt.sign({ id: userId, email: 'test@example.com' }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    return jwt.sign(
+      { sub: userId, email: 'test@example.com' },
+      privateKey,
+      {
+        algorithm: 'RS256',
+        issuer: 'hathor-auth-service',
+        audience: 'hathor-services',
+        expiresIn: '1h',
+      }
+    );
   };
 
   const createPendingOrder = async (userId: string, overrides: Partial<typeof orders.$inferInsert> = {}) => {
