@@ -2,6 +2,7 @@ import {
   decimal,
   index,
   integer,
+  jsonb,
   pgSchema,
   primaryKey,
   timestamp,
@@ -90,3 +91,24 @@ export const orderStateTransitions = commerceSchema.table('order_state_transitio
   correlationId: uuid('correlation_id'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
+
+export const outboxEvents = commerceSchema.table(
+  'outbox_events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    aggregateType: varchar('aggregate_type', { length: 50 }).notNull(),
+    aggregateId: uuid('aggregate_id').notNull(),
+    eventType: varchar('event_type', { length: 100 }).notNull(),
+    payload: jsonb('payload').notNull(),
+    status: varchar('status', { length: 20 }).default('PENDING').notNull(),
+    retryCount: integer('retry_count').default(0).notNull(),
+    lastError: varchar('last_error', { length: 1000 }),
+    correlationId: uuid('correlation_id'),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    outboxStatusIdx: index('idx_outbox_status_created').on(table.status, table.createdAt),
+  })
+);

@@ -2,6 +2,11 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import amqp from 'amqplib';
 import { startQueueConsumer } from '../../../apps/library-service/src/infrastructure/queue-consumer.js';
 
+vi.mock('../../../apps/library-service/src/infrastructure/outbox-worker.js', () => ({
+  triggerOutboxProcessing: vi.fn(),
+  startOutboxWorker: vi.fn(),
+}));
+
 // Setup database mocks inside the factory function to avoid hoisting issues
 vi.mock('../../../apps/library-service/src/infrastructure/db/client.js', () => {
   const mockTx = {
@@ -71,7 +76,6 @@ describe('Library Queue Consumer & Idempotency Ledger', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    // Spy on amqp.connect to intercept the connection call and return mockConn
     vi.spyOn(amqp, 'connect').mockResolvedValue(mockConn as any);
 
     // Initialize the consumer to capture the callback
