@@ -543,4 +543,110 @@ router.post('/webhooks/simulator', async (req: Request, res: Response) => {
   }
 });
 
+// 4. POST /:orderId/simulate-payment (Simulate payment outcome)
+router.post('/:orderId/simulate-payment', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user!.id;
+  const { orderId } = req.params;
+  const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
+  const { outcome } = req.body || {};
+
+  if (outcome !== 'paid' && outcome !== 'failed') {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_FAILED',
+        message: 'Invalid outcome (must be "paid" or "failed")',
+        correlationId,
+      },
+    });
+  }
+
+  try {
+    const [order] = await commerceDb
+      .select()
+      .from(orders)
+      .where(eq(orders.id, orderId))
+      .limit(1);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Order not found',
+          correlationId,
+        },
+      });
+    }
+
+    if (order.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'You do not have access to this order',
+          correlationId,
+        },
+      });
+    }
+
+    if (order.status !== 'payment_pending' || order.expiresAt < new Date()) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'CONFLICT',
+          message: 'Order is not pending payment or has expired',
+          correlationId,
+        },
+      });
+    }
+
+    const ALLOWED_PAYMENT_METHODS = ['sim_fawry', 'sim_vodafone_cash', 'sim_instapay'];
+    if (!ALLOWED_PAYMENT_METHODS.includes(order.paymentMethod)) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'CONFLICT',
+          message: 'Order payment method does not support simulation',
+          correlationId,
+        },
+      });
+    }
+
+    // Construct the SimulatorWebhook payload
+    const payload: SimulatorWebhook = {
+      eventId: randomUUID(),
+      paymentReference: order.paymentReference,
+      amountEgp: order.totalAmountEgp,
+      currency: order.currency || 'EGP',
+      outcome: outcome as 'paid' | 'failed',
+      occurredAt: new Date().toISOString(),
+    };
+
+    const result = await processPaymentCallbackTx(payload, correlationId);
+    if (result.success) {
+      return res.status(202).send();
+    } else {
+      return res.status(result.errorStatus).json({
+        success: false,
+        error: {
+          code: result.code,
+          message: result.message,
+          correlationId,
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error simulating payment:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to simulate payment',
+        correlationId,
+      },
+    });
+  }
+});
+
 export default router;
