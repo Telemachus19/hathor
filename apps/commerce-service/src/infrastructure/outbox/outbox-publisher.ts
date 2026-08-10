@@ -58,8 +58,27 @@ export class OutboxPublisher {
   }
 
   private reset(): void {
+    const oldChannel = this.channel;
+    const oldConnection = this.connection;
     this.channel = null;
     this.connection = null;
+
+    if (oldChannel) {
+      try {
+        oldChannel.removeAllListeners();
+        void oldChannel.close().catch(() => {});
+      } catch {
+        // Ignore errors during cleanup
+      }
+    }
+    if (oldConnection) {
+      try {
+        oldConnection.removeAllListeners();
+        void oldConnection.close().catch(() => {});
+      } catch {
+        // Ignore errors during cleanup
+      }
+    }
   }
 
   /**

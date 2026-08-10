@@ -131,4 +131,51 @@ describe('Transactional Outbox Worker, Retry Engine, & Metrics Suite', () => {
       retryCount: 0,
     });
   });
+
+  it('7. OutboxPublisher.reset() removes event listeners and safely closes previous channel and connection', () => {
+    const publisher = new OutboxPublisher('amqp://localhost:5672');
+    let channelClosed = false;
+    let connectionClosed = false;
+    let channelListenersRemoved = false;
+    let connectionListenersRemoved = false;
+
+    (publisher as any).channel = {
+      removeAllListeners: () => {
+        channelListenersRemoved = true;
+      },
+      close: async () => {
+        channelClosed = true;
+      },
+    };
+    (publisher as any).connection = {
+      removeAllListeners: () => {
+        connectionListenersRemoved = true;
+      },
+      close: async () => {
+        connectionClosed = true;
+      },
+    };
+
+    (publisher as any).reset();
+
+    expect((publisher as any).channel).toBeNull();
+    expect((publisher as any).connection).toBeNull();
+    expect(channelListenersRemoved).toBe(true);
+    expect(connectionListenersRemoved).toBe(true);
+    expect(channelClosed).toBe(true);
+    expect(connectionClosed).toBe(true);
+  });
+
+  it('8. OutboxWorker DLQ gauge reports actual RabbitMQ DLQ queue depth', async () => {
+    const mockPublisher = {
+      publishWithConfirm: async () => {},
+      getQueueDepth: async (queue: string) => (queue === 'hathor.dlq' ? 7 : 0),
+    } as unknown as OutboxPublisher;
+
+    const worker = new OutboxWorker(mockPublisher);
+    await (worker as any).updateGaugeMetrics();
+
+    const metricsText = await metricsRegistry.metrics();
+    expect(metricsText).toContain('hathor_outbox_dlq_depth_total 7');
+  });
 });
