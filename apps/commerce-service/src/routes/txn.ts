@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { eq, and, sql } from 'drizzle-orm';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomUUID, createHmac, timingSafeEqual } from 'node:crypto';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { commerceDb } from '../infrastructure/db/client.js';
 import {
@@ -11,6 +11,7 @@ import {
   idempotencyRecords,
 } from '../infrastructure/db/schema.js';
 import { transitionOrderStatus } from '../services/order-state.js';
+import { processPaymentCallbackTx, SimulatorWebhook } from '../services/payment-processor.js';
 import {
   checkLibraryOwnership,
   DependencyUnavailableError,
@@ -466,6 +467,79 @@ router.get('/:orderId', requireAuth, async (req: AuthenticatedRequest, res: Resp
         correlationId,
       },
     });
+  }
+});
+
+// 3. POST /webhooks/simulator (Simulator Webhook Ingestion)
+router.post('/webhooks/simulator', async (req: Request, res: Response) => {
+  const secret = process.env.SIMULATOR_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('SIMULATOR_WEBHOOK_SECRET is not configured');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  const rawBody = (req as any).rawBody;
+  if (!rawBody) {
+    return res.status(401).json({ error: 'Invalid signature (no body)' });
+  }
+
+  const providedSignature = req.headers['x-hathor-signature'];
+  if (typeof providedSignature !== 'string') {
+    return res.status(401).json({ error: 'Invalid signature (missing header)' });
+  }
+
+  const expectedSignature = createHmac('sha256', secret).update(rawBody).digest('hex');
+
+  if (
+    providedSignature.length !== expectedSignature.length ||
+    !timingSafeEqual(Buffer.from(providedSignature), Buffer.from(expectedSignature))
+  ) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  let payload: SimulatorWebhook;
+  try {
+    payload = JSON.parse(rawBody.toString('utf8'));
+  } catch {
+    return res.status(422).json({ error: 'Invalid payload JSON' });
+  }
+
+  // Check timestamp freshness
+  if (!payload.occurredAt) {
+    return res.status(422).json({ error: 'Missing occurredAt' });
+  }
+
+  const occurredAtMs = new Date(payload.occurredAt).getTime();
+  const nowMs = Date.now();
+  if (isNaN(occurredAtMs) || occurredAtMs > nowMs || nowMs - occurredAtMs > 300_000) {
+    return res.status(422).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_FAILED',
+        message: 'Timestamp is stale or invalid',
+      },
+    });
+  }
+
+  const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
+
+  try {
+    const result = await processPaymentCallbackTx(payload, correlationId);
+    if (result.success) {
+      return res.status(result.status).send();
+    } else {
+      return res.status(result.errorStatus).json({
+        success: false,
+        error: {
+          code: result.code,
+          message: result.message,
+          correlationId,
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error in webhook ingestion:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

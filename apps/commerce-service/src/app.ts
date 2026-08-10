@@ -24,7 +24,15 @@ export function createCommerceApp(checkDependencies: ReadinessCheck): Express {
       exposedHeaders: ['X-Correlation-ID'],
     })
   );
-  app.use(express.json());
+  app.use(
+    express.json({
+      verify: (req: any, res, buf) => {
+        if (buf && buf.length) {
+          req.rawBody = buf;
+        }
+      },
+    })
+  );
 
   app.get('/metrics', async (_req: Request, res: Response) => {
     try {
