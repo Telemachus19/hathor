@@ -23,6 +23,7 @@ import { TemplateModal } from './components/modals/TemplateModal';
 import { PublishModal } from './components/modals/PublishModal';
 import { ImportModal } from './components/modals/ImportModal';
 import { PreviewModal } from './components/modals/PreviewModal';
+import { validateThemeAgainstDocument } from '../../utils/themeValidator';
 import styles from './DesignerPage.module.css';
 
 export default function DesignerPage() {
@@ -124,6 +125,19 @@ export default function DesignerPage() {
         return;
       }
       const parsed = JSON.parse(jsonString);
+
+      // Validate theme against ThemeDocument specification & anti-injection rules
+      const validation = validateThemeAgainstDocument(parsed);
+      if (!validation.valid) {
+        const primaryError = validation.errors[0];
+        setImportError(
+          `Validation Rejected (${primaryError.code}): ${primaryError.message}${
+            primaryError.path ? ` at [${primaryError.path}]` : ''
+          }`
+        );
+        return;
+      }
+
       let importedSections: Section[] = [];
       let importedSettings: Partial<PageSettings> | null = null;
 
