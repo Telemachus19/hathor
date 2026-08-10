@@ -9,8 +9,8 @@ import {
   orders,
   orderItems,
   idempotencyRecords,
-  orderStateTransitions,
 } from '../infrastructure/db/schema.js';
+import { transitionOrderStatus } from '../services/order-state.js';
 import {
   checkLibraryOwnership,
   DependencyUnavailableError,
@@ -334,12 +334,7 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
       });
 
       // Record order state transition audit
-      await tx.insert(orderStateTransitions).values({
-        orderId,
-        fromStatus: null,
-        toStatus: 'payment_pending',
-        correlationId,
-      });
+      await transitionOrderStatus(tx, orderId, null, 'payment_pending', correlationId);
 
       // Clear caller's cart items and bump cart version
       await tx.delete(cartItems).where(eq(cartItems.userId, userId));
