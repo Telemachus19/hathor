@@ -51,8 +51,6 @@ const mockConn = {
 const getMockChannel = () => mockChannel;
 const getConsumeCallback = () => (globalThis as any).libraryConsumeCallback;
 
-import { startQueueConsumer } from '../../../apps/library-service/src/infrastructure/queue-consumer.js';
-
 describe('Library Queue Consumer & Idempotency Ledger', () => {
   const validEvent = {
     eventId: 'e98e727f-9ce0-482a-a92c-882299bd0c72',

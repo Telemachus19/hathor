@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import { createCommerceApp } from './app.js';
 import { commercePool } from './infrastructure/db/client.js';
+import { checkRabbitMq } from './infrastructure/rabbitmq-health.js';
 import { OutboxPublisher } from './infrastructure/outbox/outbox-publisher.js';
 import { OutboxWorker } from './infrastructure/outbox/outbox-worker.js';
 import { startQueueConsumer } from './infrastructure/queue-consumer.js';
