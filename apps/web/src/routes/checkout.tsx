@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useAuth } from '../context/AuthContext';
+import { requireAuth } from '../utils/authGuard';
 import { useCart, useInitializeOrder, useCatalogGames, OrderResponse } from '../services/api';
 import styles from '../styles/Checkout.module.css';
 
 export const Route = createFileRoute('/checkout')({
+  beforeLoad: ({ context, location }) => {
+    requireAuth(context.auth, location.href);
+  },
   component: CheckoutPage,
 });
 
@@ -12,22 +16,40 @@ type PaymentMethod = 'sim_fawry' | 'sim_vodafone_cash' | 'sim_instapay';
 type PaymentTab = 'credit_card' | 'paypal' | 'simulated';
 
 function CheckoutPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, status, user } = useAuth();
   const navigate = useNavigate();
 
   // Contact Info State
   const [firstName, setFirstName] = useState(
-    user?.displayName ? user.displayName.split(' ')[0] : 'John'
+    user?.displayName ? user.displayName.split(' ')[0] : ''
   );
-  const [lastName, setLastName] = useState('Doe');
-  const [email, setEmail] = useState(user?.email || 'your@email.com');
+  const [lastName, setLastName] = useState(
+    user?.displayName && user.displayName.split(' ').length > 1
+      ? user.displayName.split(' ').slice(1).join(' ')
+      : ''
+  );
+  const [email, setEmail] = useState(user?.email || '');
   const [subscribeAlerts, setSubscribeAlerts] = useState(true);
+
+  // Sync user details once auth loads
+  useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email);
+    }
+    if (user?.displayName) {
+      const parts = user.displayName.split(' ');
+      setFirstName(parts[0]);
+      if (parts.length > 1) {
+        setLastName(parts.slice(1).join(' '));
+      }
+    }
+  }, [user]);
 
   // Payment State
   const [paymentTab, setPaymentTab] = useState<PaymentTab>('credit_card');
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('sim_fawry');
   const [cardNumber, setCardNumber] = useState('');
-  const [nameOnCard, setNameOnCard] = useState('John Doe');
+  const [nameOnCard, setNameOnCard] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [saveCard, setSaveCard] = useState(false);
@@ -46,12 +68,12 @@ function CheckoutPage() {
   const { data: catalogData } = useCatalogGames({ limit: 50 });
   const initOrderMutation = useInitializeOrder();
 
-  // Redirect unauthenticated users to login
+  // Redirect unauthenticated users to login only after auth status is settled
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate({ to: '/login' });
+    if (status !== 'loading' && !isAuthenticated) {
+      void navigate({ to: '/login' });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, status, navigate]);
 
   // Countdown timer for payment-pending state
   useEffect(() => {
@@ -241,6 +263,14 @@ function CheckoutPage() {
       setErrorMessage(err.message || 'Failed to initialize checkout. Please try again.');
     }
   };
+
+  if (status === 'loading' || isCartLoading) {
+    return (
+      <div className={styles.pageContainer} style={{ textAlign: 'center', padding: '4rem' }}>
+        <p style={{ color: 'var(--text-muted)' }}>Loading checkout session...</p>
+      </div>
+    );
+  }
 
   if (cartItemsList.length === 0) {
     return (

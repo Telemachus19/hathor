@@ -1,4 +1,5 @@
-import React from 'react';
+import { Link } from '@tanstack/react-router';
+import { useAuth } from '../../../context/AuthContext';
 import styles from '../styles/Navbar.module.css';
 import {
   SearchIcon,
@@ -14,38 +15,51 @@ import {
 import logoSvg from '../assets/hathor-logo.svg';
 
 export const Navbar: React.FC = () => {
+  const auth = useAuth();
+  const isAuthenticated = auth?.isAuthenticated ?? false;
+
   return (
     <nav>
       {/* Top Navbar (Black background) */}
       <div className={styles.navbarTopWrapper}>
         <div className={styles.navbarTop}>
-          <a href="#" className={styles.logoArea}>
+          <Link to="/" className={styles.logoArea}>
             <img src={logoSvg} alt="Hathor Logo" className={styles.logoPlaceholder} />
             <span className={styles.logoText}>HATHOR</span>
-          </a>
+          </Link>
 
           <div className={styles.navLinks}>
-            <a href="#" className={`${styles.navLink} ${styles.navLinkActive}`}>
+            <Link to="/" className={`${styles.navLink} ${styles.navLinkActive}`}>
               STORE
-            </a>
-            <a href="#" className={styles.navLink}>
+            </Link>
+            <Link to="/library" className={styles.navLink}>
               LIBRARY
-            </a>
-            <a href="#" className={styles.navLink}>
-              GUEST
-            </a>
+            </Link>
+            {isAuthenticated ? (
+              <Link to="/profile" className={styles.navLink}>
+                PROFILE
+              </Link>
+            ) : (
+              <Link to="/login" className={styles.navLink}>
+                GUEST
+              </Link>
+            )}
           </div>
 
           <div className={styles.navActions}>
             <button className={styles.iconBtn} aria-label="Language">
               <GlobeIcon />
             </button>
-            <button className={styles.iconBtn} aria-label="Cart">
-              <CartIcon />
-            </button>
-            <button className={styles.loginBtn}>
-              <LoginIcon /> LOGIN
-            </button>
+            {isAuthenticated && (
+              <Link to="/cart" className={styles.iconBtn} aria-label="Cart">
+                <CartIcon />
+              </Link>
+            )}
+            {!isAuthenticated && (
+              <Link to="/login" className={styles.loginBtn}>
+                <LoginIcon /> LOGIN
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -54,18 +68,18 @@ export const Navbar: React.FC = () => {
       <div className={styles.navbarBottomWrapper}>
         <div className={styles.navbarBottom}>
           <div className={styles.filters}>
-            <a href="#" className={`${styles.filterLink} ${styles.filterLinkActive}`}>
+            <Link to="/" className={`${styles.filterLink} ${styles.filterLinkActive}`}>
               <FlameIcon /> DEALS
-            </a>
-            <a href="#" className={styles.filterLink}>
+            </Link>
+            <Link to="/" className={styles.filterLink}>
               <TrophyIcon /> TOP RATED
-            </a>
-            <a href="#" className={styles.filterLink}>
+            </Link>
+            <Link to="/" className={styles.filterLink}>
               <SparkleIcon /> NEW ARRIVALS
-            </a>
-            <a href="#" className={styles.filterLink}>
+            </Link>
+            <Link to="/" className={styles.filterLink}>
               <TrendingIcon /> TRENDING
-            </a>
+            </Link>
           </div>
 
           <div className={styles.searchWrap}>
@@ -75,9 +89,11 @@ export const Navbar: React.FC = () => {
             <input type="text" className={styles.searchInput} placeholder="Search games..." />
           </div>
 
-          <a href="#" className={styles.wishlistLink}>
-            <HeartIcon /> WISHLIST
-          </a>
+          {isAuthenticated && (
+            <Link to="/" className={styles.wishlistLink}>
+              <HeartIcon /> WISHLIST
+            </Link>
+          )}
         </div>
       </div>
     </nav>

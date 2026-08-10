@@ -14,3 +14,4 @@ export const apiClient: ApiClient = createApiClient({
 export { ApiClient };
 export * from './catalog';
 export * from './commerce';
+export * from './library';

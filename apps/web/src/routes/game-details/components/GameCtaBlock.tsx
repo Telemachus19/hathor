@@ -4,9 +4,11 @@ export interface GameCtaBlockProps {
   s?: any;
   device?: 'desktop' | 'tablet' | 'mobile';
   pageSettings?: any;
+  isOwned?: boolean;
 }
 
 const HATHOR_ORANGE = '#f26b21';
+const GREEN_ACCENT = '#38d39f';
 const TEXT_PRIMARY = '#ffffff';
 const TEXT_MUTED = '#94a3b8';
 
@@ -14,18 +16,23 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({
   s = {},
   device = 'desktop',
   pageSettings,
+  isOwned: isOwnedProp,
 }) => {
+  const isOwned = isOwnedProp ?? (s.isOwned === true);
   const titleFont = s.font || s.titleFont || pageSettings?.titleFont || "'Cinzel', serif";
   const textFont = s.textFont || pageSettings?.textFont || "'Raleway', sans-serif";
 
-  const title = s.ctaTitle || s.title || 'PRE-ORDER NOW';
-  const subtitle =
-    s.ctaSubtitle || s.subtitle || 'Get exclusive pre-order bonuses and early access.';
-  const titleColor = s.ctaTitleColor || s.titleColor || TEXT_PRIMARY;
+  const title = isOwned ? s.ownedTitle || 'IN YOUR LIBRARY' : s.ctaTitle || s.title || 'PRE-ORDER NOW';
+  const subtitle = isOwned
+    ? s.ownedSubtitle || 'You already own this game. Access it from your library.'
+    : s.ctaSubtitle || s.subtitle || 'Get exclusive pre-order bonuses and early access.';
+  const titleColor = isOwned ? GREEN_ACCENT : s.ctaTitleColor || s.titleColor || TEXT_PRIMARY;
   const subtitleColor = s.ctaSubtitleColor || s.subtitleColor || TEXT_MUTED;
-  const btnText = s.ctaBtnText || s.btnText || 'BUY NOW';
-  const btnBg = s.ctaBtnColor || s.btnBg || HATHOR_ORANGE;
-  const btnTextColor = s.ctaBtnTextColor || s.btnTextColor || '#ffffff';
+  const btnText = isOwned
+    ? s.ownedBtnText || 'VIEW IN LIBRARY'
+    : s.ctaBtnText || s.btnText || 'BUY NOW';
+  const btnBg = isOwned ? GREEN_ACCENT : s.ctaBtnColor || s.btnBg || HATHOR_ORANGE;
+  const btnTextColor = isOwned ? '#0e1116' : s.ctaBtnTextColor || s.btnTextColor || '#ffffff';
 
   return (
     <div

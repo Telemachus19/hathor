@@ -10,6 +10,7 @@ import { GameDetailsSidebar } from './components/GameDetailsSidebar';
 import { MoreLikeThis } from './components/MoreLikeThis';
 import { parseAndRenderPureJson } from '../../utils/pureJsonRenderer';
 import { useAuth } from '../../context/AuthContext';
+import { useGameOwnership, type CatalogGameItem } from '../../services/api';
 
 import cyberpunkTheme from './config/themes/cyberpunkTheme.json';
 import fantasyTheme from './config/themes/fantasyTheme.json';
@@ -132,6 +133,8 @@ export function getGameDataForSlug(slug?: string) {
 
 export interface GameDetailsPageProps {
   slug?: string;
+  gameId?: string;
+  gameData?: CatalogGameItem;
   device?: 'desktop' | 'tablet' | 'mobile';
   themeConfig?:
     | {
@@ -147,11 +150,35 @@ type ThemeMode = 'default' | 'cyberpunk' | 'fantasy' | 'retro' | 'minimal' | 'sc
 /**
  * GameDetailsPage orchestrator located inside src/routes/game-details/.
  */
-export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeConfig, device }) => {
+export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
+  slug,
+  gameId,
+  gameData,
+  themeConfig,
+  device,
+}) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated ?? false;
+  const { data: isOwned } = useGameOwnership(gameId);
   const [activeThemeMode] = useState<ThemeMode>('default');
-  const currentGameData = getGameDataForSlug(slug);
+  const baseData = getGameDataForSlug(slug);
+
+  const currentGameData = {
+    ...baseData,
+    ...(gameData
+      ? {
+          title: gameData.title || baseData.title,
+          priceEgp: gameData.priceEgp || baseData.priceEgp,
+          discountPercent:
+            gameData.discountPercent !== undefined
+              ? gameData.discountPercent
+              : baseData.discountPercent,
+          shortDescription: gameData.shortDescription || baseData.shortDescription,
+          bannerUrl: gameData.bannerUrl || baseData.bannerUrl,
+          tags: gameData.tags?.length ? gameData.tags : baseData.tags,
+        }
+      : {}),
+  };
 
   const getThemeInfo = (): {
     theme: string;
@@ -298,8 +325,12 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                   device={activeDevice}
                   pageSettings={themeInfo.pageBody}
                 />
-                {isAuthenticated && (
-                  <GameOwnershipBanner device={activeDevice} pageSettings={themeInfo.pageBody} />
+                {isAuthenticated && Boolean(isOwned) && (
+                  <GameOwnershipBanner
+                    device={activeDevice}
+                    pageSettings={themeInfo.pageBody}
+                    isOwned={Boolean(isOwned)}
+                  />
                 )}
                 <GameAbout
                   sections={activeAboutSections}
@@ -323,6 +354,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
               <div className={styles.sidebarColumn}>
                 <GameDetailsSidebar
                   isAuthenticated={isAuthenticated}
+                  isOwned={Boolean(isOwned)}
                   priceEgp={currentGameData.priceEgp}
                   discountPercent={currentGameData.discountPercent}
                   developer={currentGameData.developer}

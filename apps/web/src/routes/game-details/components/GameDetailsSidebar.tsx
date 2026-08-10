@@ -4,6 +4,7 @@ import { ShoppingCart, Download, Library } from 'lucide-react';
 export interface GameDetailsSidebarProps {
   s?: any;
   isAuthenticated?: boolean;
+  isOwned?: boolean;
   priceEgp?: string;
   discountPercent?: number;
   developer?: string;
@@ -26,7 +27,7 @@ const TEXT_MUTED = '#94a3b8';
 
 export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
   const s = props.s || {};
-  const isOwned = s.sidebarOwned ?? props.isAuthenticated ?? true;
+  const isOwned = props.isOwned ?? (s.sidebarOwned === true ? true : false);
 
   const cardBg = s.sideCardBg || SURFACE;
   const cardBorder = s.sideCardBorder || BORDER;

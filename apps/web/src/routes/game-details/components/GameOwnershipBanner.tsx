@@ -5,6 +5,7 @@ export interface GameOwnershipBannerProps {
   s?: any;
   device?: 'desktop' | 'tablet' | 'mobile';
   pageSettings?: any;
+  isOwned?: boolean;
 }
 
 const GREEN_ACCENT = '#38d39f';
@@ -14,7 +15,11 @@ const SURFACE = '#181c24';
 export const GameOwnershipBanner: React.FC<GameOwnershipBannerProps> = ({
   s = {},
   device = 'desktop',
+  isOwned,
 }) => {
+  if (isOwned === false) {
+    return null;
+  }
   const isMobile = device === 'mobile';
   const bg = s.ownershipBg || SURFACE;
   const border = s.ownershipBorder || 'rgba(56, 211, 159, 0.4)';

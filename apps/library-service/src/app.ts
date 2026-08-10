@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
 import internalRouter from './routes/internal.js';
+import inventoryRouter from './routes/inventory.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -24,6 +25,7 @@ export function createLibraryApp(checkDependencies: ReadinessCheck): Express {
   );
   app.use(express.json());
 
+  app.use('/inventory', inventoryRouter);
   app.use('/internal/v1/library', internalRouter);
 
   app.get('/health/live', (_req: Request, res: Response) => {
