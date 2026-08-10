@@ -15,13 +15,13 @@ const ALLOWED_TRANSITIONS: Record<string, Set<OrderStatus>> = {
   // initial states (null or created mapping to initial order insertion)
   null: new Set(['payment_pending']),
   created: new Set(['payment_pending']),
-  
+
   // flow states
   payment_pending: new Set(['payment_confirmed', 'payment_failed', 'expired', 'cancelled']),
   payment_confirmed: new Set(['fulfillment_pending', 'revoked']),
   fulfillment_pending: new Set(['fulfilled', 'revoked']),
   fulfilled: new Set(['revoked']),
-  
+
   // terminal states
   expired: new Set(),
   payment_failed: new Set(),
@@ -30,7 +30,11 @@ const ALLOWED_TRANSITIONS: Record<string, Set<OrderStatus>> = {
 };
 
 export class IllegalStateTransitionError extends Error {
-  constructor(public from: string | null, public to: OrderStatus, public orderId?: string) {
+  constructor(
+    public from: string | null,
+    public to: OrderStatus,
+    public orderId?: string
+  ) {
     super(`Illegal state transition from '${from}' to '${to}' for order ${orderId || 'unknown'}`);
     this.name = 'IllegalStateTransitionError';
   }
@@ -45,7 +49,7 @@ export async function transitionOrderStatus(
 ): Promise<void> {
   const stateKey = currentStatus === null ? 'null' : currentStatus;
   const allowed = ALLOWED_TRANSITIONS[stateKey];
-  
+
   if (!allowed || !allowed.has(newStatus)) {
     throw new IllegalStateTransitionError(currentStatus, newStatus, orderId);
   }
@@ -53,10 +57,7 @@ export async function transitionOrderStatus(
   // Update order status if it's not a new order insertion
   // (New order insertion is expected to be handled by the caller creating the record)
   if (currentStatus !== null && currentStatus !== 'created') {
-    await tx
-      .update(orders)
-      .set({ status: newStatus })
-      .where(eq(orders.id, orderId));
+    await tx.update(orders).set({ status: newStatus }).where(eq(orders.id, orderId));
   }
 
   // Append state transition audit record

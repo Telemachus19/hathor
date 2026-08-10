@@ -108,13 +108,16 @@ export async function processPaymentCallbackTx(
     // 9. Transition the order through the centralized state machine
     if (payload.outcome === 'paid') {
       await transitionOrderStatus(tx, order.id, order.status, 'payment_confirmed', correlationId);
-      await transitionOrderStatus(tx, order.id, 'payment_confirmed', 'fulfillment_pending', correlationId);
+      await transitionOrderStatus(
+        tx,
+        order.id,
+        'payment_confirmed',
+        'fulfillment_pending',
+        correlationId
+      );
 
       // 10. If payment succeeds, insert commerce.order.paid.v1 outbox event
-      const items = await tx
-        .select()
-        .from(orderItems)
-        .where(eq(orderItems.orderId, order.id));
+      const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, order.id));
 
       const orderPaidPayload = {
         orderId: order.id,
