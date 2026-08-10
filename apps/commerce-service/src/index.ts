@@ -1,9 +1,9 @@
 import * as dotenv from 'dotenv';
 import { createCommerceApp } from './app.js';
 import { commercePool } from './infrastructure/db/client.js';
-import { checkRabbitMq } from './infrastructure/rabbitmq-health.js';
 import { OutboxPublisher } from './infrastructure/outbox/outbox-publisher.js';
 import { OutboxWorker } from './infrastructure/outbox/outbox-worker.js';
+import { startQueueConsumer } from './infrastructure/queue-consumer.js';
 
 dotenv.config();
 
@@ -28,6 +28,10 @@ const app = createCommerceApp(async () => {
 app.listen(PORT, () => {
   console.log(`Hathor Commerce Service running on port ${PORT}`);
   outboxWorker.start();
+  startQueueConsumer(RABBITMQ_URL).catch((err) => {
+    console.error('Failed to start RabbitMQ consumer:', err);
+    process.exit(1);
+  });
 });
 
 const gracefulShutdown = () => {
