@@ -211,7 +211,18 @@ function ComponentNodeContent({
   if (type === 'user-reviews')
     return <GameReviews key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'sidebar-cta')
-    return <GameSidebarCta key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+    return (
+      <GameSidebarCta
+        key={nodeKey}
+        s={s}
+        device={device}
+        pageSettings={pageSettings}
+        gameId={pageSettings?.gameId}
+        isDesignerPreview={pageSettings?.isDesignerPreview}
+        isAuthenticated={pageSettings?.isAuthenticated}
+        isOwned={pageSettings?.isOwned}
+      />
+    );
   if (type === 'sidebar-info')
     return <GameSidebarInfo key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'sidebar-ratings')
@@ -225,7 +236,18 @@ function ComponentNodeContent({
   if (type === 'two-col')
     return <GameTwoCol key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'cta')
-    return <GameCtaBlock key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+    return (
+      <GameCtaBlock
+        key={nodeKey}
+        s={s}
+        device={device}
+        pageSettings={pageSettings}
+        gameId={pageSettings?.gameId}
+        isDesignerPreview={pageSettings?.isDesignerPreview}
+        isAuthenticated={pageSettings?.isAuthenticated}
+        isOwned={pageSettings?.isOwned}
+      />
+    );
   if (type === 'heading')
     return <HeadingRenderer key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'text')
@@ -417,7 +439,8 @@ export const PureJsonNode: React.FC<{
 
 export function parseAndRenderPureJson(
   jsonInput: string | Record<string, any>,
-  overrideDevice?: string
+  overrideDevice?: string,
+  extraSettings?: Record<string, any>
 ): React.ReactNode[] {
   let parsed: Record<string, any>;
   let pageSettings: any = undefined;
@@ -448,8 +471,12 @@ export function parseAndRenderPureJson(
     pageSettings = parsed.pageBody || parsed.pageSettings;
   }
 
-  if (overrideDevice) {
-    pageSettings = { ...(pageSettings || {}), device: overrideDevice };
+  if (overrideDevice || extraSettings) {
+    pageSettings = {
+      ...(pageSettings || {}),
+      ...(overrideDevice ? { device: overrideDevice } : {}),
+      ...(extraSettings || {}),
+    };
   }
 
   let sectionNodes: any[] = [];

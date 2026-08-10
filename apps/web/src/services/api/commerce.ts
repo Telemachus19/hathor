@@ -165,7 +165,8 @@ export function useAddCartItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addCartItem,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(['user-cart'], data);
       queryClient.invalidateQueries({ queryKey: ['user-cart'] });
     },
   });
@@ -178,7 +179,8 @@ export function useRemoveCartItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: removeCartItem,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(['user-cart'], data);
       queryClient.invalidateQueries({ queryKey: ['user-cart'] });
     },
   });

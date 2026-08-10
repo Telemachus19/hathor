@@ -156,7 +156,12 @@ export function GridRenderer({
                       <GameReviews s={el} device={device} pageSettings={pageSettings} />
                     )}
                     {el.type === 'sidebar-cta' && (
-                      <GameSidebarCta s={el} device={device} pageSettings={pageSettings} />
+                      <GameSidebarCta
+                        s={el}
+                        device={device}
+                        pageSettings={pageSettings}
+                        isDesignerPreview={true}
+                      />
                     )}
                     {el.type === 'sidebar-info' && (
                       <GameSidebarInfo s={el} device={device} pageSettings={pageSettings} />
@@ -177,7 +182,12 @@ export function GridRenderer({
                       <GameTwoCol s={el as any} device={device} pageSettings={pageSettings} />
                     )}
                     {el.type === 'cta' && (
-                      <GameCtaBlock s={el as any} device={device} pageSettings={pageSettings} />
+                      <GameCtaBlock
+                        s={el as any}
+                        device={device}
+                        pageSettings={pageSettings}
+                        isDesignerPreview={true}
+                      />
                     )}
 
                     {el.type === 'heading' && (

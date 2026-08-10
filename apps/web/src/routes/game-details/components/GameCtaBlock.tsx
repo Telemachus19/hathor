@@ -1,10 +1,15 @@
 import React from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { useAddCartItem } from '../../../services/api/commerce';
 
 export interface GameCtaBlockProps {
   s?: any;
   device?: 'desktop' | 'tablet' | 'mobile';
   pageSettings?: any;
   isOwned?: boolean;
+  gameId?: string;
+  isDesignerPreview?: boolean;
+  isAuthenticated?: boolean;
 }
 
 const HATHOR_ORANGE = '#f26b21';
@@ -17,8 +22,29 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({
   device = 'desktop',
   pageSettings,
   isOwned: isOwnedProp,
+  gameId,
+  isDesignerPreview,
+  isAuthenticated,
 }) => {
+  const navigate = useNavigate();
+  const addCartMutation = useAddCartItem();
   const isOwned = isOwnedProp ?? (s.isOwned === true);
+
+  const handleClick = () => {
+    if (isDesignerPreview) return;
+    if (isOwned) {
+      void navigate({ to: '/library' });
+      return;
+    }
+    if (!isAuthenticated) {
+      void navigate({ to: '/login' });
+      return;
+    }
+    if (gameId) {
+      addCartMutation.mutate(gameId);
+    }
+    void navigate({ to: '/cart' });
+  };
   const titleFont = s.font || s.titleFont || pageSettings?.titleFont || "'Cinzel', serif";
   const textFont = s.textFont || pageSettings?.textFont || "'Raleway', sans-serif";
 
@@ -73,6 +99,7 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({
         {subtitle}
       </p>
       <button
+        onClick={handleClick}
         style={{
           background: btnBg,
           color: btnTextColor,

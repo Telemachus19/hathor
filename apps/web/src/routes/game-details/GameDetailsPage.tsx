@@ -159,7 +159,8 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
 }) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated ?? false;
-  const { data: isOwned } = useGameOwnership(gameId);
+  const effectiveGameId = gameId || (gameData as any)?.id;
+  const { data: isOwned } = useGameOwnership(effectiveGameId);
   const [activeThemeMode] = useState<ThemeMode>('default');
   const baseData = getGameDataForSlug(slug);
 
@@ -353,6 +354,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
               </div>
               <div className={styles.sidebarColumn}>
                 <GameDetailsSidebar
+                  gameId={effectiveGameId}
                   isAuthenticated={isAuthenticated}
                   isOwned={Boolean(isOwned)}
                   priceEgp={currentGameData.priceEgp}
@@ -383,7 +385,11 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
             padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined,
           }}
         >
-          {parseAndRenderPureJson(themeInfo.layout, activeDevice)}
+          {parseAndRenderPureJson(themeInfo.layout, activeDevice, {
+            gameId: effectiveGameId,
+            isAuthenticated,
+            isOwned: Boolean(isOwned),
+          })}
         </div>
       )}
     </div>

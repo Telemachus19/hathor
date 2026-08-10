@@ -1,8 +1,12 @@
 import React from 'react';
 import { ShoppingCart, Download, Library } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { useAddCartItem } from '../../../services/api/commerce';
 
 export interface GameDetailsSidebarProps {
   s?: any;
+  gameId?: string;
+  isDesignerPreview?: boolean;
   isAuthenticated?: boolean;
   isOwned?: boolean;
   priceEgp?: string;
@@ -26,8 +30,26 @@ const TEXT_PRIMARY = '#ffffff';
 const TEXT_MUTED = '#94a3b8';
 
 export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
+  const navigate = useNavigate();
+  const addCartMutation = useAddCartItem();
   const s = props.s || {};
   const isOwned = props.isOwned ?? (s.sidebarOwned === true ? true : false);
+
+  const handlePrimaryClick = () => {
+    if (props.isDesignerPreview) return;
+    if (isOwned) {
+      void navigate({ to: '/library' });
+      return;
+    }
+    if (!props.isAuthenticated) {
+      void navigate({ to: '/login' });
+      return;
+    }
+    if (props.gameId) {
+      addCartMutation.mutate(props.gameId);
+    }
+    void navigate({ to: '/cart' });
+  };
 
   const cardBg = s.sideCardBg || SURFACE;
   const cardBorder = s.sideCardBorder || BORDER;
@@ -246,6 +268,7 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
             </div>
           </div>
           <button
+            onClick={handlePrimaryClick}
             style={{
               width: '100%',
               background: primaryBtnBg,

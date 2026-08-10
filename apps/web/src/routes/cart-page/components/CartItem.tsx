@@ -42,11 +42,14 @@ export const CartItemComponent: React.FC<CartItemProps> = ({ game, onRemove, onW
 
         <div className={styles.itemFooter}>
           <div className={styles.tagList}>
-            {game.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className={styles.tagItem}>
-                {tag}
-              </span>
-            ))}
+            {game.tags.slice(0, 3).map((tag, idx) => {
+              const tagName = typeof tag === 'string' ? tag : (tag as any)?.name || 'Tag';
+              return (
+                <span key={`${tagName}-${idx}`} className={styles.tagItem}>
+                  {tagName}
+                </span>
+              );
+            })}
           </div>
 
           <div className={styles.itemPriceRating}>
