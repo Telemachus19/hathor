@@ -112,3 +112,16 @@ export const outboxEvents = commerceSchema.table(
     outboxStatusIdx: index('idx_outbox_status_created').on(table.status, table.createdAt),
   })
 );
+
+export const paymentEvents = commerceSchema.table('payment_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  orderId: uuid('order_id')
+    .notNull()
+    .references(() => orders.id, { onDelete: 'cascade' }),
+  provider: varchar('provider', { length: 50 }).notNull(),
+  providerEventId: varchar('provider_event_id', { length: 100 }).unique().notNull(),
+  status: varchar('status', { length: 30 }).notNull(),
+  amountEgp: decimal('amount_egp', { precision: 10, scale: 2 }).notNull(),
+  rawPayload: jsonb('raw_payload').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
