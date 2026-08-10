@@ -28,7 +28,15 @@ export class OutboxPublisher {
     this.connecting = true;
     try {
       const connection = await amqp.connect(this.connectionUrl);
-      const channel = await connection.createConfirmChannel();
+      let channel: ConfirmChannel;
+      try {
+        channel = await connection.createConfirmChannel();
+      } catch (channelError) {
+        // Explicitly close the connection if channel creation fails
+        // to prevent orphaned sockets and heartbeat memory leaks
+        await connection.close().catch(() => {});
+        throw channelError;
+      }
 
       this.connection = connection;
       this.channel = channel;
