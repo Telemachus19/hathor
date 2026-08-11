@@ -32,6 +32,16 @@ export const LibraryPage: React.FC = () => {
   const licenses = libraryLicenses || [];
   const pendingList = pendingOrders || [];
 
+  // Filter out expired orders from pending list
+  const activePendingList = pendingList.filter((order) => {
+    if (order.status === 'expired') return false;
+    if (order.expiresAt) {
+      const expiryTime = new Date(order.expiresAt).getTime();
+      if (!isNaN(expiryTime) && expiryTime <= Date.now()) return false;
+    }
+    return true;
+  });
+
   // Map owned licenses to DisplayGame items
   const ownedGames: DisplayGame[] = licenses.map((lic) => {
     const catalogGame = catalogGames.find(
@@ -65,7 +75,7 @@ export const LibraryPage: React.FC = () => {
   });
 
   // Map pending orders to DisplayGame items
-  const pendingGames: DisplayGame[] = pendingList.flatMap((order) =>
+  const pendingGames: DisplayGame[] = activePendingList.flatMap((order) =>
     (order.items || []).map((item) => {
       const catalogGame = catalogGames.find(
         (g) => (g as any).id === item.gameId || g.slug === item.gameId

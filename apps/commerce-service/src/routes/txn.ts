@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray, gt } from 'drizzle-orm';
 import { createHash, randomUUID, createHmac, timingSafeEqual } from 'node:crypto';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { commerceDb } from '../infrastructure/db/client.js';
@@ -413,7 +413,80 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
   }
 });
 
-// 2. GET /txn/:orderId (Fetch single order details)
+// 2. GET /txn/orders (List caller's orders and items)
+router.get('/orders', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user!.id;
+  const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
+  const statusFilter = req.query.status as string | undefined;
+
+  try {
+    const now = new Date();
+    const whereConditions = [eq(orders.userId, userId), gt(orders.expiresAt, now)];
+    if (statusFilter) {
+      whereConditions.push(eq(orders.status, statusFilter));
+    }
+
+    const userOrders = await commerceDb
+      .select()
+      .from(orders)
+      .where(and(...whereConditions));
+
+    if (userOrders.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+      });
+    }
+
+    const orderIds = userOrders.map((o) => o.id);
+    const items = await commerceDb
+      .select()
+      .from(orderItems)
+      .where(inArray(orderItems.orderId, orderIds));
+
+    const itemsByOrderId: Record<string, typeof items> = {};
+    for (const item of items) {
+      if (!itemsByOrderId[item.orderId]) {
+        itemsByOrderId[item.orderId] = [];
+      }
+      itemsByOrderId[item.orderId].push(item);
+    }
+
+    const responseData = userOrders.map((order) => ({
+      id: order.id,
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      paymentReference: order.paymentReference,
+      totalAmountEgp: order.totalAmountEgp,
+      currency: order.currency || 'EGP',
+      expiresAt: order.expiresAt.toISOString(),
+      createdAt: order.createdAt ? order.createdAt.toISOString() : new Date().toISOString(),
+      items: (itemsByOrderId[order.id] || []).map((item) => ({
+        gameId: item.gameId,
+        titleSnapshot: item.titleSnapshot,
+        pricePaidEgp: item.pricePaidEgp,
+        currency: item.currency,
+      })),
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: responseData,
+    });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch user orders',
+        correlationId,
+      },
+    });
+  }
+});
+
+// 3. GET /txn/:orderId (Fetch single order details)
 router.get('/:orderId', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
   const { orderId } = req.params;

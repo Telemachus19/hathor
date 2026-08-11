@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { randomUUID } from 'node:crypto';
 import { commerceDb } from '../infrastructure/db/client.js';
 import { orders, orderItems, paymentEvents } from '../infrastructure/db/schema.js';
 import { transitionOrderStatus } from './order-state.js';
@@ -119,23 +120,35 @@ export async function processPaymentCallbackTx(
       // 10. If payment succeeds, insert commerce.order.paid.v1 outbox event
       const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, order.id));
 
-      const orderPaidPayload = {
-        orderId: order.id,
-        userId: order.userId,
-        items: items.map((item) => ({
-          gameId: item.gameId,
-          titleSnapshot: item.titleSnapshot,
-          pricePaidEgp: item.pricePaidEgp,
-          currency: item.currency,
-        })),
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const eventCorrelationId =
+        correlationId && UUID_REGEX.test(correlationId) ? correlationId : order.id || randomUUID();
+
+      const fullOrderPaidEvent = {
+        eventId: randomUUID(),
+        eventType: 'commerce.order.paid.v1',
+        schemaVersion: 1,
+        occurredAt: new Date().toISOString(),
+        correlationId: eventCorrelationId,
+        producer: 'commerce-service',
+        payload: {
+          orderId: order.id,
+          userId: order.userId,
+          items: items.map((item) => ({
+            gameId: item.gameId,
+            titleSnapshot: item.titleSnapshot,
+            pricePaidEgp: parseFloat(item.pricePaidEgp).toFixed(2),
+            currency: item.currency || 'EGP',
+          })),
+        },
       };
 
       await insertOutboxEventTx(tx, {
         aggregateType: 'order',
         aggregateId: order.id,
         eventType: 'commerce.order.paid.v1',
-        payload: orderPaidPayload,
-        correlationId: correlationId || order.id, // Ensure correlation ID exists
+        payload: fullOrderPaidEvent,
+        correlationId: eventCorrelationId,
       });
     } else {
       await transitionOrderStatus(tx, order.id, order.status, 'payment_failed', correlationId);
