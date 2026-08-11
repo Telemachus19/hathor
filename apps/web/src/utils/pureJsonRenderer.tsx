@@ -221,6 +221,8 @@ function ComponentNodeContent({
         isDesignerPreview={pageSettings?.isDesignerPreview}
         isAuthenticated={pageSettings?.isAuthenticated}
         isOwned={pageSettings?.isOwned}
+        isOwnershipCheckPending={pageSettings?.isOwnershipCheckPending}
+        isOwnershipCheckError={pageSettings?.isOwnershipCheckError}
       />
     );
   if (type === 'sidebar-info')
@@ -246,6 +248,8 @@ function ComponentNodeContent({
         isDesignerPreview={pageSettings?.isDesignerPreview}
         isAuthenticated={pageSettings?.isAuthenticated}
         isOwned={pageSettings?.isOwned}
+        isOwnershipCheckPending={pageSettings?.isOwnershipCheckPending}
+        isOwnershipCheckError={pageSettings?.isOwnershipCheckError}
       />
     );
   if (type === 'heading')

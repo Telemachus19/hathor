@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiBaseUrl, apiClient } from './index';
 import { useAuth } from '../../context/AuthContext';
+import { fetchUserLibrary } from './library';
 
 export interface CartItem {
   gameId: string;
@@ -56,10 +57,55 @@ export async function fetchCart(): Promise<CartResponse> {
 }
 
 /**
- * Adds an item to the caller's cart.
+ * Adds an item to the caller's cart after verifying no active unexpired pending order exists for that game.
  */
 export async function addCartItem(gameId: string): Promise<CartResponse> {
   const token = apiClient.getAccessToken();
+
+  if (token) {
+    // 1. Verify caller does NOT already own this game in their library
+    try {
+      const libraryLicenses = await fetchUserLibrary();
+      const isAlreadyOwned = libraryLicenses.some(
+        (lic) => lic.gameId === gameId || (lic as any).id === gameId
+      );
+      if (isAlreadyOwned) {
+        throw new Error('You already own this game in your library.');
+      }
+    } catch (err: any) {
+      if (err.message?.includes('already own this game')) {
+        throw err;
+      }
+    }
+
+    // 2. Verify caller does NOT already have an active unexpired pending payment order for this game
+    try {
+      const pendingOrders = await fetchUserOrders('payment_pending');
+      const now = Date.now();
+      const hasActivePendingOrder = pendingOrders.some((order) => {
+        if (order.status !== 'payment_pending') return false;
+        if (order.expiresAt) {
+          const expiryMs = new Date(order.expiresAt).getTime();
+          if (!isNaN(expiryMs) && expiryMs <= now) return false;
+        }
+        return Array.isArray(order.items) && order.items.some((item) => item.gameId === gameId);
+      });
+
+      if (hasActivePendingOrder) {
+        throw new Error(
+          'You already have an active pending payment order for this game. Please complete or wait for your pending payment in your Library before adding it again.'
+        );
+      }
+    } catch (err: any) {
+      if (
+        err.message?.includes('active pending payment order') ||
+        err.message?.includes('already own this game')
+      ) {
+        throw err;
+      }
+    }
+  }
+
   const response = await fetch(`${apiBaseUrl}/cart/${gameId}`, {
     method: 'POST',
     headers: {

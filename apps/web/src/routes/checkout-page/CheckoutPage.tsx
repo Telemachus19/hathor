@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Mail, User as UserIcon } from 'lucide-react';
-import { useNavigate, Link } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../context/AuthContext';
-import { useCart, useInitializeOrder, useCatalogGames, OrderResponse } from '../../services/api';
+import {
+  useCart,
+  useInitializeOrder,
+  useCatalogGames,
+  fetchOrder,
+  OrderResponse,
+} from '../../services/api';
 import {
   PaymentTab,
   SimulatedPaymentMethod,
@@ -70,23 +76,53 @@ export const CheckoutPage: React.FC = () => {
 
   // Auth Redirect Guard
   useEffect(() => {
-    if (status !== 'loading' && !isAuthenticated) {
+    if (status === 'unauthenticated') {
       void navigate({ to: '/login' });
     }
-  }, [isAuthenticated, status, navigate]);
+  }, [status, navigate]);
 
-  // Timer countdown
+  // Empty Cart Redirect Guard (redirects directly accessed or refreshed checkout with empty cart to /library)
   useEffect(() => {
-    if (!createdOrder) return;
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+    if (
+      status === 'authenticated' &&
+      !isCartLoading &&
+      !createdOrder &&
+      (!cart || !cart.items || cart.items.length === 0)
+    ) {
+      void navigate({ to: '/library', replace: true });
+    }
+  }, [status, isCartLoading, createdOrder, cart, navigate]);
+
+  // Timer countdown based on server authoritative expiresAt
+  useEffect(() => {
+    if (!createdOrder || !createdOrder.expiresAt) return;
+
+    const updateTimer = () => {
+      const remainingMs = new Date(createdOrder.expiresAt).getTime() - Date.now();
+      const seconds = Math.max(0, Math.floor(remainingMs / 1000));
+      setTimeLeft(seconds);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
   }, [createdOrder]);
 
-  if (!isAuthenticated) return null;
+  // 1. Loading state (auth refresh or cart query in flight)
+  if (status === 'idle' || status === 'loading' || isCartLoading) {
+    return (
+      <div className={styles.pageContainer}>
+        <div className={styles.contentWrapper} style={{ textAlign: 'center', padding: '5rem 0' }}>
+          <p style={{ color: '#94a3b8', fontFamily: 'monospace' }}>Loading checkout session...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // If order initialized, show pending simulator view
+  // 2. Unauthenticated state (redirecting to /login)
+  if (status === 'unauthenticated' || !isAuthenticated) return null;
+
+  // 3. Active Order state (rendering pending simulation view)
   if (createdOrder) {
     return (
       <div className={styles.pageContainer}>
@@ -158,39 +194,20 @@ export const CheckoutPage: React.FC = () => {
         paymentMethod: selectedMethod,
         cartVersion: cart.version,
       });
-      setCreatedOrder(order);
+      const verifiedOrder = await fetchOrder(order.id).catch(() => order);
+      setCreatedOrder(verifiedOrder);
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to initialize checkout. Please try again.');
     }
   };
 
-  if (status === 'loading' || isCartLoading) {
-    return (
-      <div className={styles.pageContainer}>
-        <div className={styles.contentWrapper} style={{ textAlign: 'center', padding: '5rem 0' }}>
-          <p style={{ color: '#94a3b8', fontFamily: 'monospace' }}>Loading checkout session...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Empty Cart Guard: Redirect to /library if cart is empty and no local order creation is active
   if (cartItemsList.length === 0) {
+    void navigate({ to: '/library', replace: true });
     return (
       <div className={styles.pageContainer}>
         <div className={styles.contentWrapper} style={{ textAlign: 'center', padding: '5rem 0' }}>
-          <h2 className={styles.pageTitle} style={{ marginBottom: '1rem' }}>
-            Your Cart is <span className={styles.highlightText}>Empty</span>
-          </h2>
-          <p style={{ color: '#94a3b8', fontFamily: 'monospace', marginBottom: '1.5rem' }}>
-            Add some games to your cart to proceed with checkout.
-          </p>
-          <Link
-            to="/"
-            className={styles.placeOrderBtn}
-            style={{ maxWidth: 220, margin: '0 auto', textDecoration: 'none' }}
-          >
-            Browse Store
-          </Link>
+          <p style={{ color: '#94a3b8', fontFamily: 'monospace' }}>Redirecting to Library...</p>
         </div>
       </div>
     );

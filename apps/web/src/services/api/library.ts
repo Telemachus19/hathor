@@ -20,21 +20,19 @@ export interface UserLibraryLicense {
  */
 export async function checkGameOwnership(gameId: string): Promise<boolean> {
   if (!gameId) return false;
-  try {
-    const token = apiClient.getAccessToken();
-    const response = await fetch(`${apiBaseUrl}/inventory/check/${gameId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+  const token = apiClient.getAccessToken();
+  const response = await fetch(`${apiBaseUrl}/inventory/check/${gameId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
 
-    if (!response.ok) return false;
-    const data = (await response.json()) as OwnershipResponse;
-    return Boolean(data.owned);
-  } catch (e) {
-    return false;
+  if (!response.ok) {
+    throw new Error(`Failed to check game ownership status (HTTP ${response.status})`);
   }
+  const data = (await response.json()) as OwnershipResponse;
+  return Boolean(data.owned);
 }
 
 /**
@@ -48,7 +46,6 @@ export function useGameOwnership(gameId?: string) {
     queryKey: ['game-ownership', gameId],
     queryFn: () => checkGameOwnership(gameId!),
     enabled: isAuthenticated && Boolean(gameId),
-    initialData: false,
   });
 }
 
@@ -85,5 +82,6 @@ export function useUserLibrary() {
     queryFn: fetchUserLibrary,
     enabled: isAuthenticated,
     initialData: [],
+    refetchInterval: 5000,
   });
 }

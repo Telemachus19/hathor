@@ -699,6 +699,25 @@
   box-shadow: 0 6px 20px rgba(242, 107, 33, 0.55);
 }
 
+.grantingBanner {
+  width: 100%;
+  background: rgba(56, 211, 159, 0.12);
+  border: 1px solid rgba(56, 211, 159, 0.4);
+  color: #38d39f;
+  padding: 0.9rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
 .navBtnGroup {
   display: flex;
   gap: 1rem;
@@ -739,4 +758,17 @@
 
 .primaryNavBtn:hover {
   background-color: #e55c10;
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

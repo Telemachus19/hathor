@@ -11,10 +11,14 @@ interface GridCardProps {
 export const GridCard: React.FC<GridCardProps> = ({ game }) => {
   const simulatePaymentMutation = useSimulatePayment();
 
-  const handleSimulatePayment = (e: React.MouseEvent) => {
+  const handleSimulatePayment = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!game.sourceOrderId) return;
-    simulatePaymentMutation.mutate({ orderId: game.sourceOrderId, outcome: 'paid' });
+    try {
+      await simulatePaymentMutation.mutateAsync({ orderId: game.sourceOrderId, outcome: 'paid' });
+    } catch (err: any) {
+      // Error captured by mutation state
+    }
   };
 
   return (

@@ -136,6 +136,7 @@ export interface GameDetailsPageProps {
   gameId?: string;
   gameData?: CatalogGameItem;
   device?: 'desktop' | 'tablet' | 'mobile';
+  isDesignerPreview?: boolean;
   themeConfig?:
     | {
         theme?: 'default' | 'custom';
@@ -156,11 +157,23 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
   gameData,
   themeConfig,
   device,
+  isDesignerPreview,
 }) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated ?? false;
   const effectiveGameId = gameId || (gameData as any)?.id;
-  const { data: isOwned } = useGameOwnership(effectiveGameId);
+  const {
+    data: isOwned,
+    isLoading: isOwnershipLoading,
+    isFetching: isOwnershipFetching,
+    isError: isOwnershipError,
+  } = useGameOwnership(effectiveGameId);
+  const isOwnershipCheckPending =
+    isAuthenticated &&
+    Boolean(effectiveGameId) &&
+    (isOwnershipLoading || (isOwnershipFetching && isOwned === undefined));
+  const isOwnershipCheckError =
+    isAuthenticated && Boolean(effectiveGameId) && Boolean(isOwnershipError);
   const [activeThemeMode] = useState<ThemeMode>('default');
   const baseData = getGameDataForSlug(slug);
 
@@ -355,8 +368,11 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
               <div className={styles.sidebarColumn}>
                 <GameDetailsSidebar
                   gameId={effectiveGameId}
+                  isDesignerPreview={isDesignerPreview}
                   isAuthenticated={isAuthenticated}
                   isOwned={Boolean(isOwned)}
+                  isOwnershipCheckPending={Boolean(isOwnershipCheckPending)}
+                  isOwnershipCheckError={Boolean(isOwnershipCheckError)}
                   priceEgp={currentGameData.priceEgp}
                   discountPercent={currentGameData.discountPercent}
                   developer={currentGameData.developer}
@@ -387,8 +403,11 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
         >
           {parseAndRenderPureJson(themeInfo.layout, activeDevice, {
             gameId: effectiveGameId,
+            isDesignerPreview,
             isAuthenticated,
             isOwned: Boolean(isOwned),
+            isOwnershipCheckPending: Boolean(isOwnershipCheckPending),
+            isOwnershipCheckError: Boolean(isOwnershipCheckError),
           })}
         </div>
       )}

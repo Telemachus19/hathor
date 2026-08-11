@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Clock, ShieldCheck, Library, ShoppingCart, Zap, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Clock, ShieldCheck, Library, ShoppingCart, Zap, CheckCircle, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { OrderResponse, useSimulatePayment } from '../../../services/api';
+import { fetchUserLibrary } from '../../../services/api/library';
 import styles from '../styles/CheckoutPage.module.css';
 
 interface CheckoutPendingViewProps {
@@ -11,33 +13,82 @@ interface CheckoutPendingViewProps {
 
 export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order, timeLeft }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const simulatePaymentMutation = useSimulatePayment();
   const [isFulfilled, setIsFulfilled] = useState(false);
+  const [isGrantingEntitlement, setIsGrantingEntitlement] = useState(false);
 
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+  // Compute authoritative remaining time from server's expiresAt
+  const remainingMs = order.expiresAt ? new Date(order.expiresAt).getTime() - Date.now() : 0;
+  const activeRemainingSec = order.expiresAt
+    ? Math.max(0, Math.floor(remainingMs / 1000))
+    : timeLeft;
+
+  const minutes = Math.floor(activeRemainingSec / 60);
+  const seconds = activeRemainingSec % 60;
   const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-  const handleSimulatePayment = () => {
-    simulatePaymentMutation.mutate(
-      { orderId: order.id, outcome: 'paid' },
-      {
-        onSuccess: () => {
-          setIsFulfilled(true);
-          setTimeout(() => {
+  // Poll inventory asynchronously until the expected license exists for this order
+  useEffect(() => {
+    if (!isGrantingEntitlement) return;
+
+    let attempts = 0;
+    const maxAttempts = 20; // Up to 15 seconds of active polling
+    const intervalMs = 750;
+    const startTime = Date.now();
+    const minVisualFeedbackMs = 1500; // Minimum spinner feedback duration so user visually perceives verification
+
+    const pollInterval = setInterval(async () => {
+      attempts++;
+      try {
+        const userLicenses = await fetchUserLibrary();
+        const hasLicense = userLicenses.some((lic) => lic.sourceOrderId === order.id);
+
+        if (hasLicense || attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          const elapsedTime = Date.now() - startTime;
+          const remainingDelay = Math.max(0, minVisualFeedbackMs - elapsedTime);
+
+          setTimeout(async () => {
+            setIsGrantingEntitlement(false);
+            await queryClient.invalidateQueries({ queryKey: ['user-library'] });
+            await queryClient.invalidateQueries({ queryKey: ['user-orders'] });
             void navigate({ to: '/library' });
-          }, 1500);
-        },
+          }, remainingDelay);
+        }
+      } catch (err) {
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          setIsGrantingEntitlement(false);
+          await queryClient.invalidateQueries({ queryKey: ['user-library'] });
+          void navigate({ to: '/library' });
+        }
       }
-    );
+    }, intervalMs);
+
+    return () => clearInterval(pollInterval);
+  }, [isGrantingEntitlement, order.id, queryClient, navigate]);
+
+  const handleSimulatePayment = async () => {
+    try {
+      await simulatePaymentMutation.mutateAsync({ orderId: order.id, outcome: 'paid' });
+      setIsFulfilled(true);
+      setIsGrantingEntitlement(true);
+    } catch (err: any) {
+      // Error captured by simulatePaymentMutation.isError banner
+    }
   };
+
+  const isProcessing = simulatePaymentMutation.isPending || isGrantingEntitlement;
 
   return (
     <div className={styles.pendingWrapper}>
       <div className={styles.pendingAccentBar} />
 
       <div className={styles.statusIcon}>
-        {isFulfilled ? (
+        {isProcessing ? (
+          <Loader2 size={48} className={styles.spinIcon} style={{ color: '#38d39f' }} />
+        ) : isFulfilled ? (
           <CheckCircle size={48} style={{ color: '#38d39f' }} />
         ) : (
           <Clock size={48} style={{ color: 'var(--primary-color, #f26b21)' }} />
@@ -45,13 +96,23 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
       </div>
 
       <h1 className={styles.pendingTitle}>
-        {isFulfilled ? 'Payment Confirmed!' : 'Order Initialized'}
+        {simulatePaymentMutation.isPending
+          ? 'Processing Payment...'
+          : isGrantingEntitlement
+            ? 'Granting Entitlements...'
+            : isFulfilled
+              ? 'Payment Confirmed!'
+              : 'Order Initialized'}
       </h1>
 
       <p className={styles.pendingSubtitle}>
-        {isFulfilled
-          ? 'Your payment was confirmed successfully! Adding games to your library...'
-          : 'Your order is created and awaiting payment confirmation via your selected channel.'}
+        {simulatePaymentMutation.isPending
+          ? 'Connecting to payment provider gateway...'
+          : isGrantingEntitlement
+            ? 'Payment processed! Verifying game license in your library...'
+            : isFulfilled
+              ? 'Your payment was confirmed successfully! Adding games to your library...'
+              : 'Your order is created and awaiting payment confirmation via your selected channel.'}
       </p>
 
       {/* Payment Reference Code Display */}
@@ -88,9 +149,13 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
           <div className={styles.pendingDetailLabel}>Status</div>
           <div
             className={styles.pendingDetailValue}
-            style={{ color: isFulfilled ? '#38d39f' : '#f26b21' }}
+            style={{ color: isFulfilled || isProcessing ? '#38d39f' : '#f26b21' }}
           >
-            {isFulfilled ? 'FULFILLED' : order.status.toUpperCase().replace('_', ' ')}
+            {isFulfilled
+              ? 'FULFILLED'
+              : isProcessing
+                ? 'PROCESSING'
+                : order.status.toUpperCase().replace('_', ' ')}
           </div>
         </div>
 
@@ -132,16 +197,29 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
         </div>
       )}
 
-      {/* Simulator Trigger CTA */}
-      {!isFulfilled && (
-        <button
-          type="button"
-          onClick={handleSimulatePayment}
-          disabled={simulatePaymentMutation.isPending}
-          className={styles.simulatePayBtn}
-        >
-          <Zap size={16} />{' '}
-          {simulatePaymentMutation.isPending ? 'Processing Payment...' : 'Simulate Payment Success'}
+      {/* Simulator Trigger CTA / Active Processing & Granting Banner */}
+      {simulatePaymentMutation.isPending ? (
+        <div className={styles.grantingBanner}>
+          <Loader2
+            size={18}
+            className={styles.spinIcon}
+            style={{ color: 'var(--primary-color, #f26b21)' }}
+          />
+          <span>Connecting to Payment Provider...</span>
+        </div>
+      ) : isGrantingEntitlement ? (
+        <div className={styles.grantingBanner}>
+          <Loader2 size={18} className={styles.spinIcon} style={{ color: '#38d39f' }} />
+          <span>Payment Confirmed — Granting License...</span>
+        </div>
+      ) : isFulfilled ? (
+        <div className={styles.grantingBanner}>
+          <CheckCircle size={18} style={{ color: '#38d39f' }} />
+          <span>License Granted — Redirecting to Library...</span>
+        </div>
+      ) : (
+        <button type="button" onClick={handleSimulatePayment} className={styles.simulatePayBtn}>
+          <Zap size={16} /> Simulate Payment Success
         </button>
       )}
 

@@ -9,6 +9,7 @@ import {
   orders,
   orderItems,
   idempotencyRecords,
+  paymentEvents,
 } from '../infrastructure/db/schema.js';
 import { transitionOrderStatus } from '../services/order-state.js';
 import { processPaymentCallbackTx, SimulatorWebhook } from '../services/payment-processor.js';
@@ -616,6 +617,11 @@ router.post('/webhooks/simulator', async (req: Request, res: Response) => {
   }
 });
 
+function generateDeterministicUuid(seed: string): string {
+  const hash = createHash('sha256').update(seed).digest('hex');
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
+
 // 4. POST /:orderId/simulate-payment (Simulate payment outcome)
 router.post(
   '/:orderId/simulate-payment',
@@ -662,17 +668,6 @@ router.post(
         });
       }
 
-      if (order.status !== 'payment_pending' || order.expiresAt < new Date()) {
-        return res.status(409).json({
-          success: false,
-          error: {
-            code: 'CONFLICT',
-            message: 'Order is not pending payment or has expired',
-            correlationId,
-          },
-        });
-      }
-
       const ALLOWED_PAYMENT_METHODS = ['sim_fawry', 'sim_vodafone_cash', 'sim_instapay'];
       if (!ALLOWED_PAYMENT_METHODS.includes(order.paymentMethod)) {
         return res.status(409).json({
@@ -685,9 +680,44 @@ router.post(
         });
       }
 
-      // Construct the SimulatorWebhook payload
+      // Read optional Idempotency-Key header from client if provided
+      const idempotencyKey =
+        (req.headers['idempotency-key'] as string) || (req.headers['x-idempotency-key'] as string);
+
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+      // Stable event identity for this simulator attempt
+      const eventId = idempotencyKey
+        ? UUID_REGEX.test(idempotencyKey)
+          ? idempotencyKey
+          : generateDeterministicUuid(`sim-pay:${order.id}:${idempotencyKey}`)
+        : generateDeterministicUuid(`sim-pay:${order.id}:${outcome}`);
+
+      // Check if an event with this stable eventId was already processed for this order
+      const [existingPaymentEvent] = await commerceDb
+        .select()
+        .from(paymentEvents)
+        .where(eq(paymentEvents.providerEventId, eventId))
+        .limit(1);
+
+      // If no existing payment event and order is not pending or is expired, reject with 409
+      if (
+        !existingPaymentEvent &&
+        (order.status !== 'payment_pending' || order.expiresAt < new Date())
+      ) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'CONFLICT',
+            message: 'Order is not pending payment or has expired',
+            correlationId,
+          },
+        });
+      }
+
+      // Construct the SimulatorWebhook payload with the stable eventId
       const payload: SimulatorWebhook = {
-        eventId: randomUUID(),
+        eventId,
         paymentReference: order.paymentReference,
         amountEgp: order.totalAmountEgp,
         currency: order.currency || 'EGP',

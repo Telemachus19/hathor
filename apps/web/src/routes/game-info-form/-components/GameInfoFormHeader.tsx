@@ -8,7 +8,7 @@ export const GameInfoFormHeader: React.FC = () => {
 
   return (
     <div className={styles.topBar}>
-      <HathorLogo height={20} width="auto" />
+      <HathorLogo height={32} width="auto" />
       <div className={styles.topBarDivider} />
       <span className={styles.portalTag}>Developer Portal</span>
       <div style={{ flex: 1 }} />

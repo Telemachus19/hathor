@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Tag, AlertTriangle } from 'lucide-react';
+import { Lock, Tag, AlertTriangle, Loader2 } from 'lucide-react';
 import { CheckoutMappedItem } from '../types';
 import { GlyphAccent } from './GlyphAccent';
 import styles from '../styles/CheckoutPage.module.css';
@@ -123,7 +123,15 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
             disabled={isLoading || hasOwnedItems || items.length === 0}
             className={styles.placeOrderBtn}
           >
-            <Lock size={14} /> {isLoading ? 'Processing...' : 'Complete Order'}
+            {isLoading ? (
+              <>
+                <Loader2 size={16} className={styles.spinIcon} /> Creating Order...
+              </>
+            ) : (
+              <>
+                <Lock size={14} /> Complete Order
+              </>
+            )}
           </button>
         </div>
       </div>

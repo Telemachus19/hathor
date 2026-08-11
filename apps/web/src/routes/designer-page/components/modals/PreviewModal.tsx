@@ -191,6 +191,7 @@ export function PreviewModal({
           }}
         >
           <GameDetailsPage
+            isDesignerPreview={true}
             themeConfig={generatePageJSON(sections, { ...pageSettings, device: previewDevice })}
           />
         </div>

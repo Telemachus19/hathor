@@ -12,6 +12,7 @@ import {
   FileJson,
   Eye,
 } from 'lucide-react';
+import { HathorLogo } from '../../../../assets';
 import { Device, HATHOR_ORANGE, GREEN_ACCENT, BORDER, TEXT_MUTED } from '../../types/designerTypes';
 import styles from '../../DesignerPage.module.css';
 
@@ -48,17 +49,7 @@ export function DesignerHeader({
 
   return (
     <div className={styles.topToolbar}>
-      <span
-        style={{
-          color: HATHOR_ORANGE,
-          fontWeight: 900,
-          fontFamily: 'monospace',
-          fontSize: 13,
-          letterSpacing: '0.1em',
-        }}
-      >
-        HATHOR
-      </span>
+      <HathorLogo height={32} width="auto" />
       <div className={styles.toolbarDivider} />
       <span className={styles.titleTag}>Developer Portal</span>
       <div className={styles.toolbarDivider} />

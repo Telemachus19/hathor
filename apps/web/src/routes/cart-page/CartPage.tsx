@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ShoppingCart, ArrowLeft, ChevronRight, Tag, TrendingUp } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
+import { ShoppingCart, ArrowLeft, ChevronRight, Tag, TrendingUp, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { CartGame, SuggestedGame } from './types';
 import { initialSuggestedGames } from './data/cartData';
 import { CartItemComponent } from './components/CartItem';
@@ -13,7 +13,8 @@ import { useCatalogGames } from '../../services/api/catalog';
 import styles from './styles/CartPage.module.css';
 
 export const CartPage: React.FC = () => {
-  const { data: serverCartResponse } = useCart();
+  const navigate = useNavigate();
+  const { data: serverCartResponse, isLoading: isCartLoading } = useCart();
   const { data: catalogResponse } = useCatalogGames();
   const removeMutation = useRemoveCartItem();
   const addMutation = useAddCartItem();
@@ -52,9 +53,13 @@ export const CartPage: React.FC = () => {
     };
   });
 
-  const handleRemove = (id: string | number) => {
+  const handleRemove = async (id: string | number) => {
     if (typeof id === 'string') {
-      removeMutation.mutate(id);
+      try {
+        await removeMutation.mutateAsync(id);
+      } catch (err: any) {
+        // Silently handle error state
+      }
     }
   };
 
@@ -62,9 +67,18 @@ export const CartPage: React.FC = () => {
     handleRemove(id);
   };
 
-  const handleAddSuggested = (suggested: SuggestedGame) => {
+  const handleAddSuggested = async (suggested: SuggestedGame) => {
     if (typeof suggested.id === 'string') {
-      addMutation.mutate(suggested.id);
+      try {
+        await addMutation.mutateAsync(suggested.id);
+      } catch (err: any) {
+        const msg = err.message?.toLowerCase() || '';
+        if (msg.includes('pending') || msg.includes('library') || msg.includes('already own')) {
+          await navigate({ to: '/library' });
+        } else if (msg.includes('already in') || msg.includes('cart')) {
+          await navigate({ to: '/cart' });
+        }
+      }
     }
   };
 
@@ -106,7 +120,23 @@ export const CartPage: React.FC = () => {
 
         <HieroDivider />
 
-        {cartItems.length === 0 ? (
+        {isCartLoading ? (
+          <div
+            style={{
+              padding: '4rem 1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem',
+              color: '#94a3b8',
+              fontFamily: 'monospace',
+            }}
+          >
+            <Loader2 size={32} style={{ color: '#f26b21', animation: 'spin 1s linear infinite' }} />
+            <span>Fetching your cart items...</span>
+          </div>
+        ) : cartItems.length === 0 ? (
           <EmptyCart />
         ) : (
           <div className={styles.cartLayout}>
