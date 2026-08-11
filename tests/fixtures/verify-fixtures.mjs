@@ -12,6 +12,12 @@ const checks = [
     'catalog tags',
   ],
   [
+    process.env.CATALOG_DB_URL,
+    "select count(*)::int as count from catalog.game_builds where state = 'published'",
+    22,
+    'catalog game_builds',
+  ],
+  [
     process.env.COMMERCE_DB_URL,
     "select count(*)::int as count from information_schema.tables where table_schema = 'commerce'",
     7,
