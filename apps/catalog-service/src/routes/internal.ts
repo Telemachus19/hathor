@@ -1,9 +1,9 @@
 import { Router, Response } from 'express';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, and, desc } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { requireServiceAuth, AuthenticatedServiceRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
-import { games } from '../infrastructure/db/schema.js';
+import { games, gameBuilds } from '../infrastructure/db/schema.js';
 import { formatPriceEgp } from '../utils/pricing.js';
 
 const router: Router = Router();
@@ -175,6 +175,85 @@ router.post(
       });
     }
   }
+);
+
+async function handleGetPublishedBuild(req: AuthenticatedServiceRequest, res: Response) {
+  const correlationId =
+    (req.headers['x-correlation-id'] as string) ||
+    (req.headers['correlation-id'] as string) ||
+    randomUUID();
+
+  const { gameId } = req.params;
+
+  if (!gameId || !UUID_REGEX.test(gameId)) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_FAILED',
+        message: 'Invalid gameId format (must be a valid UUID)',
+        correlationId,
+      },
+    });
+  }
+
+  try {
+    const [buildRecord] = await catalogDb
+      .select({
+        id: gameBuilds.id,
+        gameId: gameBuilds.gameId,
+        version: gameBuilds.version,
+        objectKey: gameBuilds.objectKey,
+        checksumSha256: gameBuilds.checksumSha256,
+        sizeBytes: gameBuilds.sizeBytes,
+        state: gameBuilds.state,
+      })
+      .from(gameBuilds)
+      .where(and(eq(gameBuilds.gameId, gameId), eq(gameBuilds.state, 'published')))
+      .orderBy(desc(gameBuilds.publishedAt))
+      .limit(1);
+
+    if (!buildRecord) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: `No published build found for gameId: ${gameId}`,
+          correlationId,
+        },
+      });
+    }
+
+    return res.status(200).json({
+      buildId: buildRecord.id,
+      gameId: buildRecord.gameId,
+      version: buildRecord.version,
+      objectKey: buildRecord.objectKey,
+      sha256: buildRecord.checksumSha256,
+      sizeBytes: buildRecord.sizeBytes,
+      state: buildRecord.state,
+    });
+  } catch (error) {
+    console.error('Error fetching published build for game:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch published build metadata',
+        correlationId,
+      },
+    });
+  }
+}
+
+router.get(
+  '/games/:gameId/published-build',
+  requireServiceAuth('catalog.build.read'),
+  handleGetPublishedBuild
+);
+router.get(
+  '/catalog/games/:gameId/published-build',
+  requireServiceAuth('catalog.build.read'),
+  handleGetPublishedBuild
 );
 
 export default router;
