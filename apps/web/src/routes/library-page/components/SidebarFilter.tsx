@@ -1,23 +1,18 @@
 import React from 'react';
 import { Filter } from 'lucide-react';
+import { DynamicFilterItem } from '../types';
 import styles from '../styles/LibraryPage.module.css';
 
-interface FilterItem {
-  label: string;
-}
-
 interface SidebarFilterProps {
-  filters: FilterItem[];
+  filters: DynamicFilterItem[];
   activeFilter: string;
   onSelectFilter: (label: string) => void;
-  updateCount: number;
 }
 
 export const SidebarFilter: React.FC<SidebarFilterProps> = ({
   filters,
   activeFilter,
   onSelectFilter,
-  updateCount,
 }) => {
   return (
     <aside className={styles.sidebarDesktop}>
@@ -26,11 +21,11 @@ export const SidebarFilter: React.FC<SidebarFilterProps> = ({
         <div className={styles.sidebarContent}>
           <div className={styles.filterHeader}>
             <Filter size={10} className={styles.badgeIcon} />
-            <span className={styles.filterTitle}>Filter</span>
+            <span className={styles.filterTitle}>Genres</span>
           </div>
 
           <div className={styles.filterList}>
-            {filters.map(({ label }) => {
+            {filters.map(({ label, count }) => {
               const isActive = activeFilter === label;
               return (
                 <button
@@ -38,10 +33,8 @@ export const SidebarFilter: React.FC<SidebarFilterProps> = ({
                   onClick={() => onSelectFilter(label)}
                   className={`${styles.filterBtn} ${isActive ? styles.filterBtnActive : ''}`}
                 >
-                  {label}
-                  {label === 'Updates' && updateCount > 0 && (
-                    <span className={styles.updateCountBadge}>{updateCount}</span>
-                  )}
+                  <span>{label}</span>
+                  <span className={styles.updateCountBadge}>{count}</span>
                 </button>
               );
             })}

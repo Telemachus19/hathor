@@ -1,43 +1,37 @@
 import React from 'react';
-import { RefreshCw, Download, Star } from 'lucide-react';
-import { LibraryGame } from '../types';
-import { StatusPill } from './StatusPill';
+import { Star, Clock, Zap } from 'lucide-react';
+import { DisplayGame } from '../types';
+import { useSimulatePayment } from '../../../services/api';
 import styles from '../styles/LibraryPage.module.css';
 
 interface GridCardProps {
-  game: LibraryGame;
+  game: DisplayGame;
 }
 
 export const GridCard: React.FC<GridCardProps> = ({ game }) => {
+  const simulatePaymentMutation = useSimulatePayment();
+
+  const handleSimulatePayment = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!game.sourceOrderId) return;
+    simulatePaymentMutation.mutate({ orderId: game.sourceOrderId, outcome: 'paid' });
+  };
+
   return (
     <div className={styles.card}>
-      {/* Update ribbon */}
-      {game.status === 'update-available' && (
-        <div className={styles.cardUpdateRibbon}>
+      {/* Pending status ribbon */}
+      {game.isPending && (
+        <div className={styles.cardUpdateRibbon} style={{ background: 'linear-gradient(90deg, #f26b21, #e55c10)' }}>
           <span className={styles.ribbonBadge}>
-            <RefreshCw size={7} />
-            Update
+            <Clock size={8} />
+            Pending Payment
           </span>
-        </div>
-      )}
-
-      {/* Not-installed overlay */}
-      {game.status === 'not-installed' && (
-        <div className={styles.cardOverlayNotInstalled}>
-          <div className={styles.notInstalledContent}>
-            <Download size={18} style={{ color: '#888' }} />
-            <span className={styles.notInstalledText}>Not Installed</span>
-          </div>
         </div>
       )}
 
       {/* Cover image */}
       <div className={styles.coverWrap}>
-        <img
-          src={game.coverImage}
-          alt={game.title}
-          className={`${styles.coverImage} ${game.status === 'not-installed' ? styles.coverImageNotInstalled : ''}`}
-        />
+        <img src={game.coverImage} alt={game.title} className={styles.coverImage} />
         <div className={styles.coverGradient} />
       </div>
 
@@ -59,9 +53,40 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
           ))}
         </div>
 
-        <div style={{ marginTop: '0.125rem' }}>
-          <StatusPill status={game.status} version={game.updateVersion} />
-        </div>
+        {game.isPending ? (
+          <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <div style={{ fontSize: '0.6rem', color: 'var(--primary-color, #f26b21)', fontFamily: 'monospace', fontWeight: 800 }}>
+              REF: {game.paymentReference || 'PENDING'}
+            </div>
+            <button
+              type="button"
+              onClick={handleSimulatePayment}
+              disabled={simulatePaymentMutation.isPending}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3rem',
+                backgroundColor: 'var(--primary-color, #f26b21)',
+                color: '#0e1116',
+                border: 'none',
+                padding: '0.35rem 0.6rem',
+                borderRadius: '3px',
+                fontSize: '0.6rem',
+                fontWeight: 900,
+                fontFamily: "'Cinzel', serif",
+                cursor: 'pointer',
+                letterSpacing: '0.1em',
+              }}
+            >
+              <Zap size={10} /> {simulatePaymentMutation.isPending ? 'Processing...' : 'Simulate Payment'}
+            </button>
+          </div>
+        ) : (
+          <div style={{ marginTop: '0.35rem', fontSize: '0.6rem', color: '#38d39f', fontFamily: 'monospace' }}>
+            ✓ OWNED · {game.purchaseDate}
+          </div>
+        )}
       </div>
     </div>
   );

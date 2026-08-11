@@ -1,12 +1,12 @@
 import React from 'react';
 import { Gamepad2, Star, Eye } from 'lucide-react';
-import { LibraryGame } from '../types';
-import { StatusPill } from './StatusPill';
+import { Link } from '@tanstack/react-router';
+import { DisplayGame } from '../types';
 import { GlyphAccent } from './GlyphAccent';
 import styles from '../styles/LibraryPage.module.css';
 
 interface LibraryHeroProps {
-  game: LibraryGame;
+  game: DisplayGame;
 }
 
 export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
@@ -56,15 +56,14 @@ export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
           </div>
 
           <div className={styles.heroStatusGroup}>
-            <StatusPill status={game.status} version={game.updateVersion} />
-            <span className={styles.ownedTag}>Owned since {game.purchaseDate}</span>
+            <span className={styles.ownedTag}>✓ Owned since {game.purchaseDate}</span>
           </div>
         </div>
 
-        <button className={styles.heroButton}>
+        <Link to="/" className={styles.heroButton} style={{ textDecoration: 'none' }}>
           <Eye size={12} />
-          View Details
-        </button>
+          View Game
+        </Link>
       </div>
     </div>
   );

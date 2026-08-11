@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiBaseUrl, apiClient } from './index';
+import { useAuth } from '../../context/AuthContext';
 
 export interface CartItem {
   gameId: string;
@@ -19,14 +20,14 @@ export interface InitializeTransactionRequest {
 export interface OrderResponse {
   id: string;
   status:
-    | 'payment_pending'
-    | 'payment_confirmed'
-    | 'fulfillment_pending'
-    | 'fulfilled'
-    | 'expired'
-    | 'payment_failed'
-    | 'cancelled'
-    | 'revoked';
+  | 'payment_pending'
+  | 'payment_confirmed'
+  | 'fulfillment_pending'
+  | 'fulfilled'
+  | 'expired'
+  | 'payment_failed'
+  | 'cancelled'
+  | 'revoked';
   paymentMethod: 'sim_fawry' | 'sim_vodafone_cash' | 'sim_instapay';
   paymentReference?: string;
   totalAmountEgp: string;
@@ -209,3 +210,97 @@ export function useOrder(orderId?: string) {
     enabled: !!orderId,
   });
 }
+
+export interface UserOrderItem {
+  gameId: string;
+  titleSnapshot: string;
+  pricePaidEgp: string;
+  currency: string;
+}
+
+export interface UserOrder {
+  id: string;
+  status: string;
+  paymentMethod: string;
+  paymentReference: string;
+  totalAmountEgp: string;
+  currency: string;
+  expiresAt: string;
+  createdAt: string;
+  items: UserOrderItem[];
+}
+
+/**
+ * Fetches user orders from commerce-service via API Gateway.
+ */
+export async function fetchUserOrders(status?: string): Promise<UserOrder[]> {
+  try {
+    const token = apiClient.getAccessToken();
+    const queryParams = status ? `?status=${encodeURIComponent(status)}` : '';
+    const response = await fetch(`${apiBaseUrl}/txn/orders${queryParams}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!response.ok) return [];
+    const json = await response.json();
+    return json?.data || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * React Query hook for fetching user orders.
+ */
+export function useUserOrders(statusFilter?: string) {
+  const auth = useAuth();
+  const isAuthenticated = auth?.isAuthenticated ?? false;
+
+  return useQuery({
+    queryKey: ['user-orders', statusFilter],
+    queryFn: () => fetchUserOrders(statusFilter),
+    enabled: isAuthenticated,
+    initialData: [],
+  });
+}
+
+/**
+ * Simulates payment for an initialized order per OpenAPI spec operation simulatePayment.
+ */
+export async function simulatePayment(orderId: string, outcome: 'paid' | 'failed' = 'paid') {
+  const token = apiClient.getAccessToken();
+  const response = await fetch(`${apiBaseUrl}/txn/${orderId}/simulate-payment`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ outcome }),
+  });
+
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(errorJson?.error?.message || `Payment simulation failed (HTTP ${response.status})`);
+  }
+
+  return response.ok;
+}
+
+/**
+ * React Query mutation hook for simulating payment completion.
+ */
+export function useSimulatePayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, outcome }: { orderId: string; outcome?: 'paid' | 'failed' }) =>
+      simulatePayment(orderId, outcome),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+  });
+}
+

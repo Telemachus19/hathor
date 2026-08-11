@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Clock, ShieldCheck, Library, ShoppingCart, Zap, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { OrderResponse } from '../../../services/api';
-import { apiBaseUrl } from '../../../services/api';
-import { apiClient } from '../../../services/api';
+import { OrderResponse, useSimulatePayment } from '../../../services/api';
 import styles from '../styles/CheckoutPage.module.css';
 
 interface CheckoutPendingViewProps {
@@ -13,42 +11,25 @@ interface CheckoutPendingViewProps {
 
 export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order, timeLeft }) => {
   const navigate = useNavigate();
-  const [isSimulating, setIsSimulating] = useState(false);
+  const simulatePaymentMutation = useSimulatePayment();
   const [isFulfilled, setIsFulfilled] = useState(false);
-  const [simError, setSimError] = useState<string | null>(null);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-  const handleSimulatePayment = async () => {
-    setIsSimulating(true);
-    setSimError(null);
-    try {
-      const token = apiClient.getAccessToken();
-      const response = await fetch(`${apiBaseUrl}/txn/sim-pay`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  const handleSimulatePayment = () => {
+    simulatePaymentMutation.mutate(
+      { orderId: order.id, outcome: 'paid' },
+      {
+        onSuccess: () => {
+          setIsFulfilled(true);
+          setTimeout(() => {
+            void navigate({ to: '/library' });
+          }, 1500);
         },
-        body: JSON.stringify({ paymentReference: order.paymentReference }),
-      });
-
-      if (!response.ok) {
-        const errorJson = await response.json().catch(() => ({}));
-        throw new Error(errorJson?.error?.message || `Payment simulation failed (HTTP ${response.status})`);
       }
-
-      setIsFulfilled(true);
-      setTimeout(() => {
-        void navigate({ to: '/library' });
-      }, 1500);
-    } catch (err: any) {
-      setSimError(err.message || 'Simulation error');
-    } finally {
-      setIsSimulating(false);
-    }
+    );
   };
 
   return (
@@ -137,17 +118,21 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
         )}
       </div>
 
-      {simError && <div className={styles.errorBanner} style={{ marginBottom: '1rem' }}>{simError}</div>}
+      {simulatePaymentMutation.isError && (
+        <div className={styles.errorBanner} style={{ marginBottom: '1rem' }}>
+          {(simulatePaymentMutation.error as any)?.message || 'Failed to process payment'}
+        </div>
+      )}
 
       {/* Simulator Trigger CTA */}
       {!isFulfilled && (
         <button
           type="button"
           onClick={handleSimulatePayment}
-          disabled={isSimulating}
+          disabled={simulatePaymentMutation.isPending}
           className={styles.simulatePayBtn}
         >
-          <Zap size={16} /> {isSimulating ? 'Processing Payment...' : 'Simulate Payment Success'}
+          <Zap size={16} /> {simulatePaymentMutation.isPending ? 'Processing Payment...' : 'Simulate Payment Success'}
         </button>
       )}
 
