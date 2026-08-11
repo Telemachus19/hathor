@@ -2,7 +2,8 @@ import amqp from 'amqplib';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { commerceDb } from './db/client.js';
-import { orders, orderStateTransitions } from './db/schema.js';
+import { orders } from './db/schema.js';
+import { transitionOrderStatus } from '../services/order-state.js';
 
 // 1. Zod runtime schema matching the AsyncAPI contract for library.entitlement.granted.v1
 export const LibraryEntitlementGrantedEventSchema = z.object({
@@ -73,16 +74,8 @@ async function processEntitlementGrantedEvent(event: LibraryEntitlementGrantedEv
       return;
     }
 
-    // Update order status to fulfilled
-    await tx.update(orders).set({ status: 'fulfilled' }).where(eq(orders.id, orderId));
-
-    // Append state transition record
-    await tx.insert(orderStateTransitions).values({
-      orderId,
-      fromStatus: order.status,
-      toStatus: 'fulfilled',
-      correlationId: event.correlationId,
-    });
+    // Use centralized state machine to update status and audit transition
+    await transitionOrderStatus(tx, orderId, order.status, 'fulfilled', event.correlationId);
   });
 }
 
