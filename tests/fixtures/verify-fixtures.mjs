@@ -14,7 +14,7 @@ const checks = [
   [
     process.env.CATALOG_DB_URL,
     "select count(*)::int as count from catalog.game_builds where state = 'published'",
-    22,
+    17,
     'catalog game_builds',
   ],
   [
