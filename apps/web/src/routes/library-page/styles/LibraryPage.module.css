@@ -147,7 +147,12 @@
 .heroGradientOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(34, 40, 49, 0.95), rgba(34, 40, 49, 0.65), transparent);
+  background: linear-gradient(
+    to right,
+    rgba(34, 40, 49, 0.95),
+    rgba(34, 40, 49, 0.65),
+    transparent
+  );
 }
 
 .heroTopBorder {
@@ -155,7 +160,12 @@
   inset-x: 0;
   top: 0;
   height: 1px;
-  background: linear-gradient(to right, rgba(253, 112, 20, 0.6), rgba(253, 112, 20, 0.3), transparent);
+  background: linear-gradient(
+    to right,
+    rgba(253, 112, 20, 0.6),
+    rgba(253, 112, 20, 0.3),
+    transparent
+  );
 }
 
 .heroContent {
@@ -342,7 +352,12 @@
 
 .sidebarBorderLine {
   width: 1px;
-  background: linear-gradient(to bottom, rgba(253, 112, 20, 0.4), rgba(253, 112, 20, 0.1), transparent);
+  background: linear-gradient(
+    to bottom,
+    rgba(253, 112, 20, 0.4),
+    rgba(253, 112, 20, 0.1),
+    transparent
+  );
 }
 
 .sidebarContent {
@@ -641,13 +656,17 @@
   border: 1px solid var(--border-color);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   border-radius: 4px;
 }
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 32px rgba(253, 112, 20, 0.12), 0 0 0 1px rgba(253, 112, 20, 0.2);
+  box-shadow:
+    0 10px 32px rgba(253, 112, 20, 0.12),
+    0 0 0 1px rgba(253, 112, 20, 0.2);
 }
 
 .cardUpdateRibbon {

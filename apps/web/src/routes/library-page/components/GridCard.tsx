@@ -21,7 +21,10 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
     <div className={styles.card}>
       {/* Pending status ribbon */}
       {game.isPending && (
-        <div className={styles.cardUpdateRibbon} style={{ background: 'linear-gradient(90deg, #f26b21, #e55c10)' }}>
+        <div
+          className={styles.cardUpdateRibbon}
+          style={{ background: 'linear-gradient(90deg, #f26b21, #e55c10)' }}
+        >
           <span className={styles.ribbonBadge}>
             <Clock size={8} />
             Pending Payment
@@ -54,8 +57,17 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
         </div>
 
         {game.isPending ? (
-          <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            <div style={{ fontSize: '0.6rem', color: 'var(--primary-color, #f26b21)', fontFamily: 'monospace', fontWeight: 800 }}>
+          <div
+            style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}
+          >
+            <div
+              style={{
+                fontSize: '0.6rem',
+                color: 'var(--primary-color, #f26b21)',
+                fontFamily: 'monospace',
+                fontWeight: 800,
+              }}
+            >
               REF: {game.paymentReference || 'PENDING'}
             </div>
             <button
@@ -79,11 +91,19 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
                 letterSpacing: '0.1em',
               }}
             >
-              <Zap size={10} /> {simulatePaymentMutation.isPending ? 'Processing...' : 'Simulate Payment'}
+              <Zap size={10} />{' '}
+              {simulatePaymentMutation.isPending ? 'Processing...' : 'Simulate Payment'}
             </button>
           </div>
         ) : (
-          <div style={{ marginTop: '0.35rem', fontSize: '0.6rem', color: '#38d39f', fontFamily: 'monospace' }}>
+          <div
+            style={{
+              marginTop: '0.35rem',
+              fontSize: '0.6rem',
+              color: '#38d39f',
+              fontFamily: 'monospace',
+            }}
+          >
             ✓ OWNED · {game.purchaseDate}
           </div>
         )}

@@ -76,21 +76,29 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
 
         <div className={styles.pendingDetailBox}>
           <div className={styles.pendingDetailLabel}>Total Amount</div>
-          <div className={styles.pendingDetailValue} style={{ color: 'var(--primary-color, #f26b21)' }}>
+          <div
+            className={styles.pendingDetailValue}
+            style={{ color: 'var(--primary-color, #f26b21)' }}
+          >
             EGP {parseFloat(order.totalAmountEgp).toLocaleString()}
           </div>
         </div>
 
         <div className={styles.pendingDetailBox}>
           <div className={styles.pendingDetailLabel}>Status</div>
-          <div className={styles.pendingDetailValue} style={{ color: isFulfilled ? '#38d39f' : '#f26b21' }}>
+          <div
+            className={styles.pendingDetailValue}
+            style={{ color: isFulfilled ? '#38d39f' : '#f26b21' }}
+          >
             {isFulfilled ? 'FULFILLED' : order.status.toUpperCase().replace('_', ' ')}
           </div>
         </div>
 
         <div className={styles.pendingDetailBox}>
           <div className={styles.pendingDetailLabel}>Time Remaining</div>
-          <div className={`${styles.pendingDetailValue} ${styles.timerText}`}>⏱ {formattedTime}</div>
+          <div className={`${styles.pendingDetailValue} ${styles.timerText}`}>
+            ⏱ {formattedTime}
+          </div>
         </div>
       </div>
 
@@ -100,14 +108,14 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
         <br />
         {order.paymentMethod === 'sim_fawry' && (
           <span>
-            Visit any Fawry POS machine or Fawry app, select &quot;Hathor Store&quot;, and enter reference code{' '}
-            <strong>{order.paymentReference}</strong>.
+            Visit any Fawry POS machine or Fawry app, select &quot;Hathor Store&quot;, and enter
+            reference code <strong>{order.paymentReference}</strong>.
           </span>
         )}
         {order.paymentMethod === 'sim_vodafone_cash' && (
           <span>
-            Open Vodafone Cash menu (*9#), select &quot;Online Payment&quot;, and enter reference code{' '}
-            <strong>{order.paymentReference}</strong>.
+            Open Vodafone Cash menu (*9#), select &quot;Online Payment&quot;, and enter reference
+            code <strong>{order.paymentReference}</strong>.
           </span>
         )}
         {order.paymentMethod === 'sim_instapay' && (
@@ -132,7 +140,8 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
           disabled={simulatePaymentMutation.isPending}
           className={styles.simulatePayBtn}
         >
-          <Zap size={16} /> {simulatePaymentMutation.isPending ? 'Processing Payment...' : 'Simulate Payment Success'}
+          <Zap size={16} />{' '}
+          {simulatePaymentMutation.isPending ? 'Processing Payment...' : 'Simulate Payment Success'}
         </button>
       )}
 
@@ -146,8 +155,20 @@ export const CheckoutPendingView: React.FC<CheckoutPendingViewProps> = ({ order,
         </Link>
       </div>
 
-      <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'monospace' }}>
-        <ShieldCheck size={12} style={{ color: '#38d39f' }} /> Encrypted 256-bit transaction protection
+      <div
+        style={{
+          marginTop: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.4rem',
+          fontSize: '0.6rem',
+          color: '#94a3b8',
+          fontFamily: 'monospace',
+        }}
+      >
+        <ShieldCheck size={12} style={{ color: '#38d39f' }} /> Encrypted 256-bit transaction
+        protection
       </div>
     </div>
   );

@@ -37,7 +37,10 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
     <div className={styles.summaryColumn}>
       <div className={styles.summaryCard}>
         <div className={styles.summaryHeader}>
-          <GlyphAccent char="𓂀" style={{ position: 'absolute', top: 8, right: 16, fontSize: '1.5rem' }} />
+          <GlyphAccent
+            char="𓂀"
+            style={{ position: 'absolute', top: 8, right: 16, fontSize: '1.5rem' }}
+          />
           <h2 className={styles.summaryTitle}>Summary</h2>
         </div>
 
@@ -59,7 +62,9 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
                     </span>
                   )}
                 </div>
-                <div className={styles.cartItemPrice}>EGP {parseFloat(item.priceEgp).toLocaleString()}</div>
+                <div className={styles.cartItemPrice}>
+                  EGP {parseFloat(item.priceEgp).toLocaleString()}
+                </div>
               </div>
             ))}
           </div>
@@ -96,14 +101,18 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
             {discountPercent > 0 && (
               <div className={styles.priceRow} style={{ color: '#38d39f' }}>
                 <span>Discount ({discountPercent}%)</span>
-                <span>−EGP {((parseFloat(subtotalFormatted) * discountPercent) / 100).toLocaleString()}</span>
+                <span>
+                  −EGP {((parseFloat(subtotalFormatted) * discountPercent) / 100).toLocaleString()}
+                </span>
               </div>
             )}
           </div>
 
           <div className={styles.totalRow}>
             <span className={styles.totalLabel}>Total</span>
-            <span className={styles.totalAmount}>EGP {parseFloat(totalFormatted).toLocaleString()}</span>
+            <span className={styles.totalAmount}>
+              EGP {parseFloat(totalFormatted).toLocaleString()}
+            </span>
           </div>
 
           {errorMessage && <div className={styles.errorBanner}>{errorMessage}</div>}

@@ -135,7 +135,9 @@ export const CartPage: React.FC = () => {
                     <Tag size={13} />
                     <span>Sale discounts applied</span>
                   </div>
-                  <span className={styles.savingsAmount}>−EGP {savings.toLocaleString()} saved</span>
+                  <span className={styles.savingsAmount}>
+                    −EGP {savings.toLocaleString()} saved
+                  </span>
                 </div>
               )}
             </div>

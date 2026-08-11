@@ -156,7 +156,9 @@
 
 .cartItemCard:hover {
   border-color: rgba(242, 107, 33, 0.4);
-  box-shadow: 0 0 0 1px rgba(242, 107, 33, 0.25), 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 0 1px rgba(242, 107, 33, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hoverAccentBar {
@@ -680,7 +682,9 @@
 .suggestedCard:hover {
   transform: translateY(-4px);
   border-color: rgba(242, 107, 33, 0.4);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 12px rgba(242, 107, 33, 0.2);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(242, 107, 33, 0.2);
 }
 
 .suggestedCover {

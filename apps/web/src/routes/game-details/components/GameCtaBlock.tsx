@@ -28,7 +28,7 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({
 }) => {
   const navigate = useNavigate();
   const addCartMutation = useAddCartItem();
-  const isOwned = isOwnedProp ?? (s.isOwned === true);
+  const isOwned = isOwnedProp ?? s.isOwned === true;
 
   const handleClick = () => {
     if (isDesignerPreview) return;
@@ -48,7 +48,9 @@ export const GameCtaBlock: React.FC<GameCtaBlockProps> = ({
   const titleFont = s.font || s.titleFont || pageSettings?.titleFont || "'Cinzel', serif";
   const textFont = s.textFont || pageSettings?.textFont || "'Raleway', sans-serif";
 
-  const title = isOwned ? s.ownedTitle || 'IN YOUR LIBRARY' : s.ctaTitle || s.title || 'PRE-ORDER NOW';
+  const title = isOwned
+    ? s.ownedTitle || 'IN YOUR LIBRARY'
+    : s.ctaTitle || s.title || 'PRE-ORDER NOW';
   const subtitle = isOwned
     ? s.ownedSubtitle || 'You already own this game. Access it from your library.'
     : s.ctaSubtitle || s.subtitle || 'Get exclusive pre-order bonuses and early access.';

@@ -212,7 +212,10 @@ export const LibraryPage: React.FC = () => {
           )}
 
           {/* Main Content Area */}
-          <div className={styles.mainGridArea} style={viewMode === 'pending' ? { gridColumn: '1 / -1' } : {}}>
+          <div
+            className={styles.mainGridArea}
+            style={viewMode === 'pending' ? { gridColumn: '1 / -1' } : {}}
+          >
             {/* Toolbar with Owned vs Pending selector */}
             <LibraryToolbar
               viewMode={viewMode}

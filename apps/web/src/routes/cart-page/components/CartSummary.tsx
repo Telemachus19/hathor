@@ -12,11 +12,7 @@ interface CartSummaryProps {
   total: number;
 }
 
-export const CartSummary: React.FC<CartSummaryProps> = ({
-  cartItems,
-  subtotal,
-  total,
-}) => {
+export const CartSummary: React.FC<CartSummaryProps> = ({ cartItems, subtotal, total }) => {
   return (
     <div className={styles.summaryColumn}>
       <div className={styles.summaryCard}>

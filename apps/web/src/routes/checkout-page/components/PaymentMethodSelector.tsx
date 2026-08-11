@@ -121,8 +121,19 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 
       {/* PayPal Tab */}
       {paymentTab === 'paypal' && (
-        <div style={{ textAlign: 'center', padding: '1.5rem 1rem', color: '#94a3b8', fontSize: '0.75rem', fontFamily: 'monospace' }}>
-          <Wallet size={24} style={{ color: 'var(--primary-color, #f26b21)', marginBottom: '0.5rem' }} />
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '1.5rem 1rem',
+            color: '#94a3b8',
+            fontSize: '0.75rem',
+            fontFamily: 'monospace',
+          }}
+        >
+          <Wallet
+            size={24}
+            style={{ color: 'var(--primary-color, #f26b21)', marginBottom: '0.5rem' }}
+          />
           <p>You will be redirected to PayPal to complete your purchase securely.</p>
         </div>
       )}
@@ -130,7 +141,14 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       {/* Simulated Local Channels Tab */}
       {paymentTab === 'simulated' && (
         <div>
-          <p style={{ fontSize: '0.65rem', color: '#94a3b8', fontFamily: 'monospace', marginBottom: '1rem' }}>
+          <p
+            style={{
+              fontSize: '0.65rem',
+              color: '#94a3b8',
+              fontFamily: 'monospace',
+              marginBottom: '1rem',
+            }}
+          >
             Select a local payment channel simulator to process your order reference:
           </p>
 
@@ -144,7 +162,9 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                 <span className={styles.simTitle}>FAWRY</span>
                 <span className={styles.simBadge}>Simulator</span>
               </div>
-              <span className={styles.simSubtext}>Pay via any Fawry outlet or app using reference code</span>
+              <span className={styles.simSubtext}>
+                Pay via any Fawry outlet or app using reference code
+              </span>
             </div>
 
             {/* Vodafone Cash Simulator */}
@@ -156,7 +176,9 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                 <span className={styles.simTitle}>VODAFONE CASH</span>
                 <span className={styles.simBadge}>Simulator</span>
               </div>
-              <span className={styles.simSubtext}>Online wallet payment via Vodafone Cash menu</span>
+              <span className={styles.simSubtext}>
+                Online wallet payment via Vodafone Cash menu
+              </span>
             </div>
 
             {/* InstaPay Simulator */}
@@ -168,14 +190,27 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                 <span className={styles.simTitle}>INSTAPAY</span>
                 <span className={styles.simBadge}>Simulator</span>
               </div>
-              <span className={styles.simSubtext}>Instant bank transfer using payment reference</span>
+              <span className={styles.simSubtext}>
+                Instant bank transfer using payment reference
+              </span>
             </div>
           </div>
         </div>
       )}
 
-      <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.6rem', color: '#94a3b8', fontFamily: 'monospace' }}>
-        <ShieldCheck size={12} style={{ color: '#38d39f' }} /> Encrypted 256-bit SSL transaction security
+      <div
+        style={{
+          marginTop: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          fontSize: '0.6rem',
+          color: '#94a3b8',
+          fontFamily: 'monospace',
+        }}
+      >
+        <ShieldCheck size={12} style={{ color: '#38d39f' }} /> Encrypted 256-bit SSL transaction
+        security
       </div>
     </div>
   );

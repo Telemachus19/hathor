@@ -3,7 +3,13 @@ import { ShoppingBag, Mail, User as UserIcon } from 'lucide-react';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuth } from '../../context/AuthContext';
 import { useCart, useInitializeOrder, useCatalogGames, OrderResponse } from '../../services/api';
-import { PaymentTab, SimulatedPaymentMethod, CheckoutMappedItem, CardDetails, ContactDetails } from './types';
+import {
+  PaymentTab,
+  SimulatedPaymentMethod,
+  CheckoutMappedItem,
+  CardDetails,
+  ContactDetails,
+} from './types';
 import { PaymentMethodSelector } from './components/PaymentMethodSelector';
 import { CheckoutOrderSummary } from './components/CheckoutOrderSummary';
 import { CheckoutPendingView } from './components/CheckoutPendingView';
@@ -178,7 +184,11 @@ export const CheckoutPage: React.FC = () => {
           <p style={{ color: '#94a3b8', fontFamily: 'monospace', marginBottom: '1.5rem' }}>
             Add some games to your cart to proceed with checkout.
           </p>
-          <Link to="/" className={styles.placeOrderBtn} style={{ maxWidth: 220, margin: '0 auto', textDecoration: 'none' }}>
+          <Link
+            to="/"
+            className={styles.placeOrderBtn}
+            style={{ maxWidth: 220, margin: '0 auto', textDecoration: 'none' }}
+          >
             Browse Store
           </Link>
         </div>

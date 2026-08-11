@@ -35,13 +35,23 @@ export const LibraryToolbar: React.FC<LibraryToolbarProps> = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
       {/* View Mode Tab Selector: OWNED vs PENDING */}
-      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid #2e3544', paddingBottom: '0.75rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.5rem',
+          borderBottom: '1px solid #2e3544',
+          paddingBottom: '0.75rem',
+        }}
+      >
         <button
           type="button"
           onClick={() => onViewModeChange('owned')}
           style={{
             background: viewMode === 'owned' ? 'rgba(242, 107, 33, 0.15)' : 'transparent',
-            border: viewMode === 'owned' ? '1px solid var(--primary-color, #f26b21)' : '1px solid #2e3544',
+            border:
+              viewMode === 'owned'
+                ? '1px solid var(--primary-color, #f26b21)'
+                : '1px solid #2e3544',
             color: viewMode === 'owned' ? '#ffffff' : '#94a3b8',
             padding: '0.5rem 1rem',
             borderRadius: '3px',
@@ -64,7 +74,10 @@ export const LibraryToolbar: React.FC<LibraryToolbarProps> = ({
           onClick={() => onViewModeChange('pending')}
           style={{
             background: viewMode === 'pending' ? 'rgba(242, 107, 33, 0.15)' : 'transparent',
-            border: viewMode === 'pending' ? '1px solid var(--primary-color, #f26b21)' : '1px solid #2e3544',
+            border:
+              viewMode === 'pending'
+                ? '1px solid var(--primary-color, #f26b21)'
+                : '1px solid #2e3544',
             color: viewMode === 'pending' ? '#ffffff' : '#94a3b8',
             padding: '0.5rem 1rem',
             borderRadius: '3px',

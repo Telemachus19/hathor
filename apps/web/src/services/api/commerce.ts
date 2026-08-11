@@ -20,14 +20,14 @@ export interface InitializeTransactionRequest {
 export interface OrderResponse {
   id: string;
   status:
-  | 'payment_pending'
-  | 'payment_confirmed'
-  | 'fulfillment_pending'
-  | 'fulfilled'
-  | 'expired'
-  | 'payment_failed'
-  | 'cancelled'
-  | 'revoked';
+    | 'payment_pending'
+    | 'payment_confirmed'
+    | 'fulfillment_pending'
+    | 'fulfilled'
+    | 'expired'
+    | 'payment_failed'
+    | 'cancelled'
+    | 'revoked';
   paymentMethod: 'sim_fawry' | 'sim_vodafone_cash' | 'sim_instapay';
   paymentReference?: string;
   totalAmountEgp: string;
@@ -283,7 +283,9 @@ export async function simulatePayment(orderId: string, outcome: 'paid' | 'failed
 
   if (!response.ok) {
     const errorJson = await response.json().catch(() => ({}));
-    throw new Error(errorJson?.error?.message || `Payment simulation failed (HTTP ${response.status})`);
+    throw new Error(
+      errorJson?.error?.message || `Payment simulation failed (HTTP ${response.status})`
+    );
   }
 
   return response.ok;
@@ -303,4 +305,3 @@ export function useSimulatePayment() {
     },
   });
 }
-

@@ -61,11 +61,15 @@ export const CartItemComponent: React.FC<CartItemProps> = ({ game, onRemove, onW
             <div className={styles.priceContainer}>
               {game.salePrice ? (
                 <div className={styles.salePriceRow}>
-                  <span className={styles.originalPrice}>EGP {game.originalPrice.toLocaleString()}</span>
+                  <span className={styles.originalPrice}>
+                    EGP {game.originalPrice.toLocaleString()}
+                  </span>
                   <span className={styles.finalPrice}>EGP {game.salePrice.toLocaleString()}</span>
                 </div>
               ) : (
-                <span className={styles.normalPrice}>EGP {game.originalPrice.toLocaleString()}</span>
+                <span className={styles.normalPrice}>
+                  EGP {game.originalPrice.toLocaleString()}
+                </span>
               )}
             </div>
           </div>
