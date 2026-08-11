@@ -8,10 +8,19 @@ vi.mock('../../../apps/library-service/src/infrastructure/outbox-worker.js', () 
 }));
 
 // Setup database mocks inside the factory function to avoid hoisting issues
+// Setup database mocks inside the factory function to avoid hoisting issues
 vi.mock('../../../apps/library-service/src/infrastructure/db/client.js', () => {
+  const createChainableQuery = () => {
+    const query: any = {
+      onConflictDoNothing: vi.fn(() => Promise.resolve()),
+      then: (resolve: any, reject: any) => Promise.resolve().then(resolve, reject),
+    };
+    return query;
+  };
+
   const mockTx = {
     insert: vi.fn(() => ({
-      values: vi.fn(() => Promise.resolve()),
+      values: vi.fn(() => createChainableQuery()),
     })),
   };
 
@@ -105,8 +114,10 @@ describe('Library Queue Consumer & Idempotency Ledger', () => {
     const dbError: any = new Error('Unique constraint violation');
     dbError.code = '23505';
 
-    // Make database transaction throw unique constraint violation (duplicate eventId)
-    getMockDb().transaction.mockRejectedValueOnce(dbError);
+    // Make database insert throw unique constraint violation (duplicate eventId)
+    getMockTx().insert.mockImplementationOnce(() => ({
+      values: vi.fn(() => Promise.reject(dbError)),
+    }));
 
     const msg = {
       content: Buffer.from(JSON.stringify(validEvent)),
