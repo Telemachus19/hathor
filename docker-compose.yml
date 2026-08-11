@@ -110,6 +110,27 @@ services:
       retries: 10
       start_period: 10s
 
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    networks:
+      - backend
+      - edge
+    ports:
+      - '127.0.0.1:9000:9000'
+      - '127.0.0.1:9001:9001'
+    environment:
+      MINIO_ROOT_USER: ${R2_ACCESS_KEY_ID:-hathor_r2_admin}
+      MINIO_ROOT_PASSWORD: ${R2_SECRET_ACCESS_KEY:-hathor_r2_secret_key_2026}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   auth-service:
     <<: *service-defaults
     build:
@@ -160,10 +181,17 @@ services:
       CATALOG_DB_URL: postgresql://catalog_app:${CATALOG_DB_PASSWORD}@catalog-postgres:5432/catalog
       MEMCACHED_URL: memcached:11211
       AUTH_SERVICE_URL: http://auth-service:5001
+      R2_ENDPOINT: http://minio:9000
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME:-hathor-builds}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-hathor_r2_admin}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-hathor_r2_secret_key_2026}
+      R2_REGION: ${R2_REGION:-auto}
     depends_on:
       catalog-postgres:
         condition: service_healthy
       memcached:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     healthcheck:
       test:
@@ -313,3 +341,4 @@ volumes:
   commerce_postgres_data:
   library_postgres_data:
   rabbitmq_data:
+  minio_data:

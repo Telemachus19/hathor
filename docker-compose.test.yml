@@ -98,6 +98,21 @@ services:
       timeout: 3s
       retries: 20
 
+  minio:
+    image: minio/minio:latest
+    restart: 'no'
+    networks:
+      - test-backend
+    environment:
+      MINIO_ROOT_USER: hathor_r2_admin
+      MINIO_ROOT_PASSWORD: hathor_r2_secret_key_2026
+    command: server /data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
   test-fixtures:
     profiles: [fixtures]
     build:
@@ -111,6 +126,11 @@ services:
       CATALOG_DB_URL: postgresql://catalog_app:catalog_runtime_test@catalog-postgres:5432/catalog
       COMMERCE_DB_URL: postgresql://commerce_app:commerce_runtime_test@commerce-postgres:5432/commerce
       LIBRARY_DB_URL: postgresql://library_app:library_runtime_test@library-postgres:5432/library
+      R2_ENDPOINT: http://minio:9000
+      R2_BUCKET_NAME: hathor-builds
+      R2_ACCESS_KEY_ID: hathor_r2_admin
+      R2_SECRET_ACCESS_KEY: hathor_r2_secret_key_2026
+      R2_REGION: auto
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -125,6 +145,8 @@ services:
       redis:
         condition: service_healthy
       memcached:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     command:
       - /bin/sh
