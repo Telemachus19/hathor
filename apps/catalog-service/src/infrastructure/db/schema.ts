@@ -1,4 +1,5 @@
 import {
+  bigint,
   decimal,
   index,
   integer,
@@ -77,5 +78,26 @@ export const gameStatusTransitions = catalogSchema.table(
   },
   (table) => ({
     gameIdx: index('idx_game_status_transitions_game').on(table.gameId),
+  })
+);
+
+export const gameBuilds = catalogSchema.table(
+  'game_builds',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    version: varchar('version', { length: 50 }).notNull(),
+    objectKey: varchar('object_key', { length: 512 }).notNull(),
+    checksumSha256: varchar('checksum_sha256', { length: 64 }).notNull(),
+    sizeBytes: bigint('size_bytes', { mode: 'number' }).notNull(),
+    state: varchar('state', { length: 20 }).notNull().default('published'),
+    publishedAt: timestamp('published_at', { withTimezone: true }).defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    gameVersionIdx: index('idx_game_builds_game_version').on(table.gameId, table.version),
+    objectKeyIdx: index('idx_game_builds_object_key').on(table.objectKey),
   })
 );
