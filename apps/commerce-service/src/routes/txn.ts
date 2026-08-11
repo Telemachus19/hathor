@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { eq, and, sql } from 'drizzle-orm';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomUUID, createHmac, timingSafeEqual } from 'node:crypto';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { commerceDb } from '../infrastructure/db/client.js';
 import {
@@ -9,8 +9,9 @@ import {
   orders,
   orderItems,
   idempotencyRecords,
-  orderStateTransitions,
 } from '../infrastructure/db/schema.js';
+import { transitionOrderStatus } from '../services/order-state.js';
+import { processPaymentCallbackTx, SimulatorWebhook } from '../services/payment-processor.js';
 import {
   checkLibraryOwnership,
   DependencyUnavailableError,
@@ -334,12 +335,7 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
       });
 
       // Record order state transition audit
-      await tx.insert(orderStateTransitions).values({
-        orderId,
-        fromStatus: null,
-        toStatus: 'payment_pending',
-        correlationId,
-      });
+      await transitionOrderStatus(tx, orderId, null, 'payment_pending', correlationId);
 
       // Clear caller's cart items and bump cart version
       await tx.delete(cartItems).where(eq(cartItems.userId, userId));
@@ -473,5 +469,184 @@ router.get('/:orderId', requireAuth, async (req: AuthenticatedRequest, res: Resp
     });
   }
 });
+
+// 3. POST /webhooks/simulator (Simulator Webhook Ingestion)
+router.post('/webhooks/simulator', async (req: Request, res: Response) => {
+  const secret = process.env.SIMULATOR_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('SIMULATOR_WEBHOOK_SECRET is not configured');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  const rawBody = (req as any).rawBody;
+  if (!rawBody) {
+    return res.status(401).json({ error: 'Invalid signature (no body)' });
+  }
+
+  const providedSignature = req.headers['x-hathor-signature'];
+  if (typeof providedSignature !== 'string') {
+    return res.status(401).json({ error: 'Invalid signature (missing header)' });
+  }
+
+  const expectedSignature = createHmac('sha256', secret).update(rawBody).digest('hex');
+
+  if (
+    providedSignature.length !== expectedSignature.length ||
+    !timingSafeEqual(Buffer.from(providedSignature), Buffer.from(expectedSignature))
+  ) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  let payload: SimulatorWebhook;
+  try {
+    payload = JSON.parse(rawBody.toString('utf8'));
+  } catch {
+    return res.status(422).json({ error: 'Invalid payload JSON' });
+  }
+
+  // Check timestamp freshness
+  if (!payload.occurredAt) {
+    return res.status(422).json({ error: 'Missing occurredAt' });
+  }
+
+  const occurredAtMs = new Date(payload.occurredAt).getTime();
+  const nowMs = Date.now();
+  if (isNaN(occurredAtMs) || occurredAtMs > nowMs || nowMs - occurredAtMs > 300_000) {
+    return res.status(422).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_FAILED',
+        message: 'Timestamp is stale or invalid',
+      },
+    });
+  }
+
+  const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
+
+  try {
+    const result = await processPaymentCallbackTx(payload, correlationId);
+    if (result.success) {
+      return res.status(result.status).send();
+    } else {
+      return res.status(result.errorStatus).json({
+        success: false,
+        error: {
+          code: result.code,
+          message: result.message,
+          correlationId,
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error in webhook ingestion:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 4. POST /:orderId/simulate-payment (Simulate payment outcome)
+router.post(
+  '/:orderId/simulate-payment',
+  requireAuth,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user!.id;
+    const { orderId } = req.params;
+    const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
+    const { outcome } = req.body || {};
+
+    if (outcome !== 'paid' && outcome !== 'failed') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Invalid outcome (must be "paid" or "failed")',
+          correlationId,
+        },
+      });
+    }
+
+    try {
+      const [order] = await commerceDb.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: 'NOT_FOUND',
+            message: 'Order not found',
+            correlationId,
+          },
+        });
+      }
+
+      if (order.userId !== userId) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: 'You do not have access to this order',
+            correlationId,
+          },
+        });
+      }
+
+      if (order.status !== 'payment_pending' || order.expiresAt < new Date()) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'CONFLICT',
+            message: 'Order is not pending payment or has expired',
+            correlationId,
+          },
+        });
+      }
+
+      const ALLOWED_PAYMENT_METHODS = ['sim_fawry', 'sim_vodafone_cash', 'sim_instapay'];
+      if (!ALLOWED_PAYMENT_METHODS.includes(order.paymentMethod)) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'CONFLICT',
+            message: 'Order payment method does not support simulation',
+            correlationId,
+          },
+        });
+      }
+
+      // Construct the SimulatorWebhook payload
+      const payload: SimulatorWebhook = {
+        eventId: randomUUID(),
+        paymentReference: order.paymentReference,
+        amountEgp: order.totalAmountEgp,
+        currency: order.currency || 'EGP',
+        outcome: outcome as 'paid' | 'failed',
+        occurredAt: new Date().toISOString(),
+      };
+
+      const result = await processPaymentCallbackTx(payload, correlationId);
+      if (result.success) {
+        return res.status(202).send();
+      } else {
+        return res.status(result.errorStatus).json({
+          success: false,
+          error: {
+            code: result.code,
+            message: result.message,
+            correlationId,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error simulating payment:', error);
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to simulate payment',
+          correlationId,
+        },
+      });
+    }
+  }
+);
 
 export default router;

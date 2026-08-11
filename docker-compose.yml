@@ -104,7 +104,7 @@ services:
       - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
       - ./docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
-      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'check_running']
       interval: 10s
       timeout: 5s
       retries: 10
