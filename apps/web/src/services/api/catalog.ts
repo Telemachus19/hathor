@@ -5,6 +5,7 @@ import { apiBaseUrl } from './index';
  * Catalog item representation matching the public OpenAPI specification.
  */
 export interface CatalogGameItem {
+  id?: string;
   slug: string;
   title: string;
   shortDescription: string;

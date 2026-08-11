@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireAuth } from '../utils/authGuard';
+import LibraryPage from './library-page';
 
 export const Route = createFileRoute('/library')({
   beforeLoad: ({ context, location }) => {
@@ -7,12 +8,3 @@ export const Route = createFileRoute('/library')({
   },
   component: LibraryPage,
 });
-
-function LibraryPage() {
-  return (
-    <main style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Your Library</h1>
-      <p>Welcome to your Library.</p>
-    </main>
-  );
-}

@@ -10,5 +10,12 @@ function GameDetailsRouteComponent() {
   const { slug } = Route.useParams();
   const { data: fetchedGame } = useGameBySlug(slug);
 
-  return <GameDetailsPage slug={slug} themeConfig={fetchedGame?.pageTheme} />;
+  return (
+    <GameDetailsPage
+      slug={slug}
+      gameId={fetchedGame?.id}
+      gameData={fetchedGame || undefined}
+      themeConfig={fetchedGame?.pageTheme}
+    />
+  );
 }

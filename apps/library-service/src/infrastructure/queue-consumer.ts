@@ -65,22 +65,36 @@ async function processOrderPaidEvent(event: OrderPaidEvent) {
   try {
     await libraryDb.transaction(async (tx) => {
       // Step A: Insert eventId into processed_events to guarantee exact idempotency
-      await tx.insert(processedEvents).values({
-        eventId: event.eventId,
-        eventType: event.eventType,
-        correlationId: event.correlationId,
-      });
-
-      // Step B: Insert all licenses and audit logs
-      for (const item of event.payload.items) {
-        await tx.insert(userLicenses).values({
-          userId: event.payload.userId,
-          gameId: item.gameId,
-          sourceOrderId: event.payload.orderId,
-          fulfillmentEventId: event.eventId,
-          pricePaidEgp: item.pricePaidEgp,
-          currency: item.currency,
+      // Handle duplicate eventId uniqueness separately from license conflicts
+      try {
+        await tx.insert(processedEvents).values({
+          eventId: event.eventId,
+          eventType: event.eventType,
+          correlationId: event.correlationId,
         });
+      } catch (err: any) {
+        if (err.code === '23505') {
+          console.warn(
+            `Idempotent Ignore: Event ${event.eventId} already processed. Ignored duplicate delivery.`
+          );
+          return;
+        }
+        throw err;
+      }
+
+      // Step B: Insert all licenses and audit logs idempotently
+      for (const item of event.payload.items) {
+        await tx
+          .insert(userLicenses)
+          .values({
+            userId: event.payload.userId,
+            gameId: item.gameId,
+            sourceOrderId: event.payload.orderId,
+            fulfillmentEventId: event.eventId,
+            pricePaidEgp: item.pricePaidEgp,
+            currency: item.currency,
+          })
+          .onConflictDoNothing();
 
         await tx.insert(entitlementAudit).values({
           userId: event.payload.userId,
@@ -114,13 +128,6 @@ async function processOrderPaidEvent(event: OrderPaidEvent) {
     });
     console.log(`Successfully processed event ${event.eventId} and granted licenses.`);
   } catch (error: any) {
-    // Catch PostgreSQL unique violation error for the primary key (event_id)
-    if (error.code === '23505') {
-      console.warn(
-        `Idempotent Ignore: Event ${event.eventId} already processed. Ignored duplicate delivery.`
-      );
-      return;
-    }
     // Rethrow database errors or other issues so they trigger RabbitMQ nack/retry logic
     throw error;
   }

@@ -1,0 +1,774 @@
+.pageContainer {
+  min-height: 100vh;
+  background-color: var(--bg-main, #212631);
+  color: var(--text-primary, #ffffff);
+  font-family: 'Raleway', sans-serif;
+  padding-bottom: 5rem;
+}
+
+.contentWrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+/* Breadcrumbs / Steps Header */
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  font-size: 0.65rem;
+  font-family: monospace;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.stepCompleted {
+  color: var(--primary-color, #f26b21);
+  font-weight: 800;
+}
+
+.stepSeparator {
+  color: #94a3b8;
+}
+
+.stepActive {
+  color: #ffffff;
+  font-weight: 900;
+  border-bottom: 2px solid var(--primary-color, #f26b21);
+  padding-bottom: 2px;
+}
+
+.stepPending {
+  color: #94a3b8;
+}
+
+/* Header Section */
+.headerSection {
+  margin-bottom: 2rem;
+}
+
+.headerSubtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6rem;
+  color: rgba(242, 107, 33, 0.8);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-family: monospace;
+  margin-bottom: 0.25rem;
+}
+
+.pageTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 2.75rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.highlightText {
+  color: var(--primary-color, #f26b21);
+}
+
+/* Hieroglyphic Divider */
+.hieroDivider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 2rem 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(242, 107, 33, 0.3), transparent);
+}
+
+.hieroSymbol {
+  color: rgba(242, 107, 33, 0.5);
+  font-size: 0.75rem;
+  letter-spacing: 0.5em;
+}
+
+/* Layout Grid */
+.checkoutLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .checkoutLayout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.formColumn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Section Box */
+.sectionBox {
+  background-color: var(--card-bg, #181c24);
+  border: 1px solid var(--border-color, #2e3544);
+  border-radius: 4px;
+  padding: 1.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.sectionTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--primary-color, #f26b21);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.inputGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .inputGrid2Col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.inputLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 0.75rem;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.textInput {
+  width: 100%;
+  background-color: #12161f;
+  border: 1px solid #2e3544;
+  border-radius: 3px;
+  color: #ffffff;
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.textInputWithIcon {
+  padding-left: 2.25rem;
+}
+
+.textInput:hover {
+  border-color: rgba(242, 107, 33, 0.4);
+}
+
+.textInput:focus {
+  border-color: var(--primary-color, #f26b21);
+  box-shadow: 0 0 0 1px rgba(242, 107, 33, 0.3);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.checkboxInput {
+  accent-color: var(--primary-color, #f26b21);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.checkboxText {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+/* Payment Method Tabs & Selector */
+.paymentTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #2e3544;
+  padding-bottom: 0.75rem;
+}
+
+.tabBtn {
+  background: transparent;
+  border: 1px solid #2e3544;
+  color: #94a3b8;
+  padding: 0.6rem 1rem;
+  border-radius: 3px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.tabBtnActive {
+  background-color: rgba(242, 107, 33, 0.15);
+  border-color: var(--primary-color, #f26b21);
+  color: #ffffff;
+}
+
+/* Simulated Channels Options Grid */
+.simulatedGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .simulatedGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.simOptionCard {
+  background-color: #12161f;
+  border: 1px solid #2e3544;
+  border-radius: 4px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.simOptionCard:hover {
+  border-color: rgba(242, 107, 33, 0.4);
+}
+
+.simOptionActive {
+  border-color: var(--primary-color, #f26b21);
+  background-color: rgba(242, 107, 33, 0.1);
+  box-shadow: 0 0 12px rgba(242, 107, 33, 0.2);
+}
+
+.simHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.simTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.simBadge {
+  font-size: 0.55rem;
+  font-weight: 800;
+  font-family: monospace;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background-color: rgba(242, 107, 33, 0.2);
+  color: var(--primary-color, #f26b21);
+}
+
+.simSubtext {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+/* Order Summary Column */
+.summaryColumn {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .summaryColumn {
+    width: 380px;
+    flex-shrink: 0;
+  }
+}
+
+.summaryCard {
+  background-color: var(--card-bg, #181c24);
+  border: 1px solid var(--border-color, #2e3544);
+  border-radius: 4px;
+  position: sticky;
+  top: 6rem;
+}
+
+.summaryHeader {
+  padding: 1.25rem;
+  border-bottom: 1px solid #2e3544;
+  position: relative;
+}
+
+.summaryTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.summaryContent {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cartItemList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cartItemRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cartItemThumb {
+  width: 48px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 2px;
+  background-color: #2e3544;
+  flex-shrink: 0;
+}
+
+.cartItemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cartItemTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cartItemPrice {
+  font-size: 0.7rem;
+  color: var(--primary-color, #f26b21);
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+}
+
+.ownedWarning {
+  font-size: 0.55rem;
+  color: #ef4444;
+  font-family: monospace;
+}
+
+/* Promo Code Box */
+.promoContainer {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.promoInput {
+  flex: 1;
+  background-color: #12161f;
+  border: 1px solid #2e3544;
+  border-radius: 3px;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  font-family: monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.promoBtn {
+  background-color: #2e3544;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 3px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.promoBtn:hover {
+  background-color: var(--primary-color, #f26b21);
+  color: #0e1116;
+}
+
+.promoMessage {
+  font-size: 0.6rem;
+  font-family: monospace;
+  margin-top: 0.25rem;
+}
+
+.promoSuccess {
+  color: #38d39f;
+}
+
+.promoError {
+  color: #ef4444;
+}
+
+/* Price Totals Breakdown */
+.priceBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #2e3544;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  font-family: monospace;
+  color: #94a3b8;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #2e3544;
+}
+
+.totalLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.15em;
+}
+
+.totalAmount {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--primary-color, #f26b21);
+}
+
+.errorBanner {
+  padding: 0.75rem;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 4px;
+  color: #ef4444;
+  font-size: 0.65rem;
+  font-family: monospace;
+}
+
+.placeOrderBtn {
+  width: 100%;
+  background-color: var(--primary-color, #f26b21);
+  color: #0e1116;
+  border: none;
+  padding: 0.85rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(242, 107, 33, 0.35);
+}
+
+.placeOrderBtn:hover {
+  background-color: #e55c10;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(242, 107, 33, 0.45);
+}
+
+.placeOrderBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Pending Confirmation View */
+.pendingWrapper {
+  max-width: 680px;
+  margin: 3rem auto;
+  background-color: var(--card-bg, #181c24);
+  border: 1px solid var(--border-color, #2e3544);
+  border-radius: 6px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.pendingAccentBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color, #f26b21), #38d39f);
+}
+
+.statusIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.pendingTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.05em;
+}
+
+.pendingSubtitle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-family: monospace;
+  margin: 0 0 1.5rem 0;
+}
+
+.refCard {
+  background-color: #12161f;
+  border: 1px border-dashed rgba(242, 107, 33, 0.4);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.refLabel {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  font-family: monospace;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.refCode {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--primary-color, #f26b21);
+  letter-spacing: 0.1em;
+}
+
+.pendingDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.pendingDetailBox {
+  background-color: #12161f;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #2e3544;
+}
+
+.pendingDetailLabel {
+  font-size: 0.55rem;
+  color: #94a3b8;
+  font-family: monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.pendingDetailValue {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 0.2rem;
+}
+
+.timerText {
+  color: var(--primary-color, #f26b21);
+  font-family: monospace;
+}
+
+.instructionsBox {
+  background-color: rgba(242, 107, 33, 0.08);
+  border: 1px solid rgba(242, 107, 33, 0.25);
+  border-radius: 4px;
+  padding: 1rem;
+  font-size: 0.7rem;
+  color: #ffffff;
+  font-family: monospace;
+  text-align: left;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.simulatePayBtn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary-color, #f26b21) 0%, #e55c10 100%);
+  color: #0e1116;
+  border: none;
+  padding: 0.9rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(242, 107, 33, 0.4);
+  margin-bottom: 1rem;
+}
+
+.simulatePayBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(242, 107, 33, 0.55);
+}
+
+.grantingBanner {
+  width: 100%;
+  background: rgba(56, 211, 159, 0.12);
+  border: 1px solid rgba(56, 211, 159, 0.4);
+  color: #38d39f;
+  padding: 0.9rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.navBtnGroup {
+  display: flex;
+  gap: 1rem;
+}
+
+.navBtn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.secondaryNavBtn {
+  background-color: transparent;
+  border: 1px solid #2e3544;
+  color: #94a3b8;
+}
+
+.secondaryNavBtn:hover {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.primaryNavBtn {
+  background-color: var(--primary-color, #f26b21);
+  color: #0e1116;
+}
+
+.primaryNavBtn:hover {
+  background-color: #e55c10;
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

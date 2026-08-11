@@ -6,6 +6,10 @@ import type { AuthContextValue } from '../context/AuthContext';
  * If status is anything except 'authenticated', redirects to /login.
  */
 export function requireAuth(auth: AuthContextValue, locationHref?: string) {
+  if (auth.status === 'loading' || auth.status === 'idle') {
+    return;
+  }
+
   if (auth.status !== 'authenticated' || !auth.isAuthenticated) {
     throw redirect({
       to: '/login',

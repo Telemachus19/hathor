@@ -1,9 +1,16 @@
 import React from 'react';
-import { ShoppingCart, Download, Library } from 'lucide-react';
+import { ShoppingCart, Download, Library, Loader2, AlertTriangle } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { useAddCartItem } from '../../../services/api/commerce';
 
 export interface GameDetailsSidebarProps {
   s?: any;
+  gameId?: string;
+  isDesignerPreview?: boolean;
   isAuthenticated?: boolean;
+  isOwned?: boolean;
+  isOwnershipCheckPending?: boolean;
+  isOwnershipCheckError?: boolean;
   priceEgp?: string;
   discountPercent?: number;
   developer?: string;
@@ -25,8 +32,39 @@ const TEXT_PRIMARY = '#ffffff';
 const TEXT_MUTED = '#94a3b8';
 
 export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
+  const navigate = useNavigate();
+  const addCartMutation = useAddCartItem();
   const s = props.s || {};
-  const isOwned = s.sidebarOwned ?? props.isAuthenticated ?? true;
+  const isOwned = props.isOwned ?? (s.sidebarOwned === true ? true : false);
+  const isOwnershipCheckPending =
+    props.isOwnershipCheckPending ?? props.pageSettings?.isOwnershipCheckPending === true;
+  const isOwnershipCheckError =
+    props.isOwnershipCheckError ?? props.pageSettings?.isOwnershipCheckError === true;
+
+  const handlePrimaryClick = async () => {
+    if (props.isDesignerPreview || isOwnershipCheckPending || isOwnershipCheckError) return;
+    if (isOwned) {
+      await navigate({ to: '/library' });
+      return;
+    }
+    if (!props.isAuthenticated) {
+      await navigate({ to: '/login' });
+      return;
+    }
+    if (props.gameId) {
+      try {
+        await addCartMutation.mutateAsync(props.gameId);
+        await navigate({ to: '/cart' });
+      } catch (err: any) {
+        const msg = err.message?.toLowerCase() || '';
+        if (msg.includes('pending') || msg.includes('library') || msg.includes('already own')) {
+          await navigate({ to: '/library' });
+        } else if (msg.includes('already in') || msg.includes('cart')) {
+          await navigate({ to: '/cart' });
+        }
+      }
+    }
+  };
 
   const cardBg = s.sideCardBg || SURFACE;
   const cardBorder = s.sideCardBorder || BORDER;
@@ -245,16 +283,27 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
             </div>
           </div>
           <button
+            type="button"
+            onClick={handlePrimaryClick}
+            disabled={isOwnershipCheckPending || isOwnershipCheckError || addCartMutation.isPending}
             style={{
               width: '100%',
-              background: primaryBtnBg,
+              background:
+                isOwnershipCheckError || isOwnershipCheckPending ? '#334155' : primaryBtnBg,
               border: 'none',
               color: primaryBtnTextColor,
               padding: '12px 16px',
               borderRadius: primaryBtnRadius,
               fontWeight: 900,
               fontSize: 12,
-              cursor: 'pointer',
+              cursor:
+                isOwnershipCheckPending || isOwnershipCheckError || addCartMutation.isPending
+                  ? 'not-allowed'
+                  : 'pointer',
+              opacity:
+                isOwnershipCheckPending || isOwnershipCheckError || addCartMutation.isPending
+                  ? 0.7
+                  : 1,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -262,7 +311,20 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
               letterSpacing: '0.08em',
             }}
           >
-            <ShoppingCart size={14} /> {primaryBtnText}
+            {isOwnershipCheckPending ? (
+              <>
+                <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> CHECKING
+                OWNERSHIP...
+              </>
+            ) : isOwnershipCheckError ? (
+              <>
+                <AlertTriangle size={14} style={{ color: '#ef4444' }} /> UNABLE TO VERIFY OWNERSHIP
+              </>
+            ) : (
+              <>
+                <ShoppingCart size={14} /> {primaryBtnText}
+              </>
+            )}
           </button>
         </>
       )}

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray, gt } from 'drizzle-orm';
 import { createHash, randomUUID, createHmac, timingSafeEqual } from 'node:crypto';
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { commerceDb } from '../infrastructure/db/client.js';
@@ -9,6 +9,7 @@ import {
   orders,
   orderItems,
   idempotencyRecords,
+  paymentEvents,
 } from '../infrastructure/db/schema.js';
 import { transitionOrderStatus } from '../services/order-state.js';
 import { processPaymentCallbackTx, SimulatorWebhook } from '../services/payment-processor.js';
@@ -413,7 +414,80 @@ router.post('/init', requireAuth, async (req: AuthenticatedRequest, res: Respons
   }
 });
 
-// 2. GET /txn/:orderId (Fetch single order details)
+// 2. GET /txn/orders (List caller's orders and items)
+router.get('/orders', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user!.id;
+  const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
+  const statusFilter = req.query.status as string | undefined;
+
+  try {
+    const now = new Date();
+    const whereConditions = [eq(orders.userId, userId), gt(orders.expiresAt, now)];
+    if (statusFilter) {
+      whereConditions.push(eq(orders.status, statusFilter));
+    }
+
+    const userOrders = await commerceDb
+      .select()
+      .from(orders)
+      .where(and(...whereConditions));
+
+    if (userOrders.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+      });
+    }
+
+    const orderIds = userOrders.map((o) => o.id);
+    const items = await commerceDb
+      .select()
+      .from(orderItems)
+      .where(inArray(orderItems.orderId, orderIds));
+
+    const itemsByOrderId: Record<string, typeof items> = {};
+    for (const item of items) {
+      if (!itemsByOrderId[item.orderId]) {
+        itemsByOrderId[item.orderId] = [];
+      }
+      itemsByOrderId[item.orderId].push(item);
+    }
+
+    const responseData = userOrders.map((order) => ({
+      id: order.id,
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      paymentReference: order.paymentReference,
+      totalAmountEgp: order.totalAmountEgp,
+      currency: order.currency || 'EGP',
+      expiresAt: order.expiresAt.toISOString(),
+      createdAt: order.createdAt ? order.createdAt.toISOString() : new Date().toISOString(),
+      items: (itemsByOrderId[order.id] || []).map((item) => ({
+        gameId: item.gameId,
+        titleSnapshot: item.titleSnapshot,
+        pricePaidEgp: item.pricePaidEgp,
+        currency: item.currency,
+      })),
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: responseData,
+    });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch user orders',
+        correlationId,
+      },
+    });
+  }
+});
+
+// 3. GET /txn/:orderId (Fetch single order details)
 router.get('/:orderId', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
   const { orderId } = req.params;
@@ -543,6 +617,11 @@ router.post('/webhooks/simulator', async (req: Request, res: Response) => {
   }
 });
 
+function generateDeterministicUuid(seed: string): string {
+  const hash = createHash('sha256').update(seed).digest('hex');
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
+
 // 4. POST /:orderId/simulate-payment (Simulate payment outcome)
 router.post(
   '/:orderId/simulate-payment',
@@ -589,17 +668,6 @@ router.post(
         });
       }
 
-      if (order.status !== 'payment_pending' || order.expiresAt < new Date()) {
-        return res.status(409).json({
-          success: false,
-          error: {
-            code: 'CONFLICT',
-            message: 'Order is not pending payment or has expired',
-            correlationId,
-          },
-        });
-      }
-
       const ALLOWED_PAYMENT_METHODS = ['sim_fawry', 'sim_vodafone_cash', 'sim_instapay'];
       if (!ALLOWED_PAYMENT_METHODS.includes(order.paymentMethod)) {
         return res.status(409).json({
@@ -612,9 +680,44 @@ router.post(
         });
       }
 
-      // Construct the SimulatorWebhook payload
+      // Read optional Idempotency-Key header from client if provided
+      const idempotencyKey =
+        (req.headers['idempotency-key'] as string) || (req.headers['x-idempotency-key'] as string);
+
+      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+      // Stable event identity for this simulator attempt
+      const eventId = idempotencyKey
+        ? UUID_REGEX.test(idempotencyKey)
+          ? idempotencyKey
+          : generateDeterministicUuid(`sim-pay:${order.id}:${idempotencyKey}`)
+        : generateDeterministicUuid(`sim-pay:${order.id}:${outcome}`);
+
+      // Check if an event with this stable eventId was already processed for this order
+      const [existingPaymentEvent] = await commerceDb
+        .select()
+        .from(paymentEvents)
+        .where(eq(paymentEvents.providerEventId, eventId))
+        .limit(1);
+
+      // If no existing payment event and order is not pending or is expired, reject with 409
+      if (
+        !existingPaymentEvent &&
+        (order.status !== 'payment_pending' || order.expiresAt < new Date())
+      ) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'CONFLICT',
+            message: 'Order is not pending payment or has expired',
+            correlationId,
+          },
+        });
+      }
+
+      // Construct the SimulatorWebhook payload with the stable eventId
       const payload: SimulatorWebhook = {
-        eventId: randomUUID(),
+        eventId,
         paymentReference: order.paymentReference,
         amountEgp: order.totalAmountEgp,
         currency: order.currency || 'EGP',

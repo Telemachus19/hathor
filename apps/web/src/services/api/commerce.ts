@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiBaseUrl, apiClient } from './index';
+import { useAuth } from '../../context/AuthContext';
+import { fetchUserLibrary } from './library';
 
 export interface CartItem {
   gameId: string;
@@ -55,10 +57,55 @@ export async function fetchCart(): Promise<CartResponse> {
 }
 
 /**
- * Adds an item to the caller's cart.
+ * Adds an item to the caller's cart after verifying no active unexpired pending order exists for that game.
  */
 export async function addCartItem(gameId: string): Promise<CartResponse> {
   const token = apiClient.getAccessToken();
+
+  if (token) {
+    // 1. Verify caller does NOT already own this game in their library
+    try {
+      const libraryLicenses = await fetchUserLibrary();
+      const isAlreadyOwned = libraryLicenses.some(
+        (lic) => lic.gameId === gameId || (lic as any).id === gameId
+      );
+      if (isAlreadyOwned) {
+        throw new Error('You already own this game in your library.');
+      }
+    } catch (err: any) {
+      if (err.message?.includes('already own this game')) {
+        throw err;
+      }
+    }
+
+    // 2. Verify caller does NOT already have an active unexpired pending payment order for this game
+    try {
+      const pendingOrders = await fetchUserOrders('payment_pending');
+      const now = Date.now();
+      const hasActivePendingOrder = pendingOrders.some((order) => {
+        if (order.status !== 'payment_pending') return false;
+        if (order.expiresAt) {
+          const expiryMs = new Date(order.expiresAt).getTime();
+          if (!isNaN(expiryMs) && expiryMs <= now) return false;
+        }
+        return Array.isArray(order.items) && order.items.some((item) => item.gameId === gameId);
+      });
+
+      if (hasActivePendingOrder) {
+        throw new Error(
+          'You already have an active pending payment order for this game. Please complete or wait for your pending payment in your Library before adding it again.'
+        );
+      }
+    } catch (err: any) {
+      if (
+        err.message?.includes('active pending payment order') ||
+        err.message?.includes('already own this game')
+      ) {
+        throw err;
+      }
+    }
+  }
+
   const response = await fetch(`${apiBaseUrl}/cart/${gameId}`, {
     method: 'POST',
     headers: {
@@ -165,7 +212,8 @@ export function useAddCartItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addCartItem,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(['user-cart'], data);
       queryClient.invalidateQueries({ queryKey: ['user-cart'] });
     },
   });
@@ -178,7 +226,8 @@ export function useRemoveCartItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: removeCartItem,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(['user-cart'], data);
       queryClient.invalidateQueries({ queryKey: ['user-cart'] });
     },
   });
@@ -205,5 +254,100 @@ export function useOrder(orderId?: string) {
     queryKey: ['order-detail', orderId],
     queryFn: () => (orderId ? fetchOrder(orderId) : Promise.reject('No orderId')),
     enabled: !!orderId,
+  });
+}
+
+export interface UserOrderItem {
+  gameId: string;
+  titleSnapshot: string;
+  pricePaidEgp: string;
+  currency: string;
+}
+
+export interface UserOrder {
+  id: string;
+  status: string;
+  paymentMethod: string;
+  paymentReference: string;
+  totalAmountEgp: string;
+  currency: string;
+  expiresAt: string;
+  createdAt: string;
+  items: UserOrderItem[];
+}
+
+/**
+ * Fetches user orders from commerce-service via API Gateway.
+ */
+export async function fetchUserOrders(status?: string): Promise<UserOrder[]> {
+  try {
+    const token = apiClient.getAccessToken();
+    const queryParams = status ? `?status=${encodeURIComponent(status)}` : '';
+    const response = await fetch(`${apiBaseUrl}/txn/orders${queryParams}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!response.ok) return [];
+    const json = await response.json();
+    return json?.data || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * React Query hook for fetching user orders.
+ */
+export function useUserOrders(statusFilter?: string) {
+  const auth = useAuth();
+  const isAuthenticated = auth?.isAuthenticated ?? false;
+
+  return useQuery({
+    queryKey: ['user-orders', statusFilter],
+    queryFn: () => fetchUserOrders(statusFilter),
+    enabled: isAuthenticated,
+    initialData: [],
+  });
+}
+
+/**
+ * Simulates payment for an initialized order per OpenAPI spec operation simulatePayment.
+ */
+export async function simulatePayment(orderId: string, outcome: 'paid' | 'failed' = 'paid') {
+  const token = apiClient.getAccessToken();
+  const response = await fetch(`${apiBaseUrl}/txn/${orderId}/simulate-payment`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ outcome }),
+  });
+
+  if (!response.ok) {
+    const errorJson = await response.json().catch(() => ({}));
+    throw new Error(
+      errorJson?.error?.message || `Payment simulation failed (HTTP ${response.status})`
+    );
+  }
+
+  return response.ok;
+}
+
+/**
+ * React Query mutation hook for simulating payment completion.
+ */
+export function useSimulatePayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, outcome }: { orderId: string; outcome?: 'paid' | 'failed' }) =>
+      simulatePayment(orderId, outcome),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
   });
 }

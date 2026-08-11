@@ -144,7 +144,12 @@ export function SectionWrapper({
           <GameReviews s={s} device={device} pageSettings={pageSettings} />
         )}
         {s.type === 'sidebar-cta' && (
-          <GameSidebarCta s={s} device={device} pageSettings={pageSettings} />
+          <GameSidebarCta
+            s={s}
+            device={device}
+            pageSettings={pageSettings}
+            isDesignerPreview={true}
+          />
         )}
         {s.type === 'sidebar-info' && (
           <GameSidebarInfo s={s} device={device} pageSettings={pageSettings} />
@@ -180,7 +185,14 @@ export function SectionWrapper({
         )}
         {s.type === 'divider' && <DividerRenderer s={s} />}
         {s.type === 'spacer' && <SpacerRenderer s={s} />}
-        {s.type === 'cta' && <GameCtaBlock s={s} device={device} pageSettings={pageSettings} />}
+        {s.type === 'cta' && (
+          <GameCtaBlock
+            s={s}
+            device={device}
+            pageSettings={pageSettings}
+            isDesignerPreview={true}
+          />
+        )}
       </div>
 
       {/* Controls toolbar */}

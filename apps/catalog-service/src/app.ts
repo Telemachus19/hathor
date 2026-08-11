@@ -133,6 +133,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       }
 
       const itemsWithTags = gameRecords.map(({ id, priceEgp, ...g }) => ({
+        id,
         ...g,
         priceEgp: formatPriceEgp(priceEgp),
         tags: tagsByGameId[id] || [],
@@ -193,6 +194,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       res.status(200).json({
         success: true,
         data: {
+          id,
           ...publicGameDetail,
           priceEgp: formatPriceEgp(priceEgp),
           tags: gameTagRecords,

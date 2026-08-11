@@ -1,16 +1,24 @@
+import process from 'node:process';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { commerceDb, commercePool } from './client.js';
+import { commerceDb } from './client.js';
 
-async function migrateDatabase() {
+export async function runMigrations() {
   try {
     await migrate(commerceDb, { migrationsFolder: './drizzle' });
-    console.log('Commerce database migrations completed successfully!');
+    console.log('[CommerceService] Database migrations completed successfully!');
   } catch (error) {
-    console.error('Error during commerce database migration:', error);
-    process.exitCode = 1;
-  } finally {
-    await commercePool.end();
+    console.error('[CommerceService] Error during database migration:', error);
+    throw error;
   }
 }
 
-void migrateDatabase();
+const isDirectRun =
+  Boolean(process.argv[1]) &&
+  (process.argv[1].includes('migrate.ts') || process.argv[1].includes('migrate.js'));
+
+if (isDirectRun) {
+  runMigrations().catch((err) => {
+    console.error('[CommerceService] Direct migration execution failed:', err);
+    process.exit(1);
+  });
+}

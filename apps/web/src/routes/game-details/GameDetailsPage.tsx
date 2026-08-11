@@ -10,6 +10,7 @@ import { GameDetailsSidebar } from './components/GameDetailsSidebar';
 import { MoreLikeThis } from './components/MoreLikeThis';
 import { parseAndRenderPureJson } from '../../utils/pureJsonRenderer';
 import { useAuth } from '../../context/AuthContext';
+import { useGameOwnership, type CatalogGameItem } from '../../services/api';
 
 import cyberpunkTheme from './config/themes/cyberpunkTheme.json';
 import fantasyTheme from './config/themes/fantasyTheme.json';
@@ -132,7 +133,10 @@ export function getGameDataForSlug(slug?: string) {
 
 export interface GameDetailsPageProps {
   slug?: string;
+  gameId?: string;
+  gameData?: CatalogGameItem;
   device?: 'desktop' | 'tablet' | 'mobile';
+  isDesignerPreview?: boolean;
   themeConfig?:
     | {
         theme?: 'default' | 'custom';
@@ -147,11 +151,48 @@ type ThemeMode = 'default' | 'cyberpunk' | 'fantasy' | 'retro' | 'minimal' | 'sc
 /**
  * GameDetailsPage orchestrator located inside src/routes/game-details/.
  */
-export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeConfig, device }) => {
+export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
+  slug,
+  gameId,
+  gameData,
+  themeConfig,
+  device,
+  isDesignerPreview,
+}) => {
   const auth = useAuth();
   const isAuthenticated = auth?.isAuthenticated ?? false;
+  const effectiveGameId = gameId || (gameData as any)?.id;
+  const {
+    data: isOwned,
+    isLoading: isOwnershipLoading,
+    isFetching: isOwnershipFetching,
+    isError: isOwnershipError,
+  } = useGameOwnership(effectiveGameId);
+  const isOwnershipCheckPending =
+    isAuthenticated &&
+    Boolean(effectiveGameId) &&
+    (isOwnershipLoading || (isOwnershipFetching && isOwned === undefined));
+  const isOwnershipCheckError =
+    isAuthenticated && Boolean(effectiveGameId) && Boolean(isOwnershipError);
   const [activeThemeMode] = useState<ThemeMode>('default');
-  const currentGameData = getGameDataForSlug(slug);
+  const baseData = getGameDataForSlug(slug);
+
+  const currentGameData = {
+    ...baseData,
+    ...(gameData
+      ? {
+          title: gameData.title || baseData.title,
+          priceEgp: gameData.priceEgp || baseData.priceEgp,
+          discountPercent:
+            gameData.discountPercent !== undefined
+              ? gameData.discountPercent
+              : baseData.discountPercent,
+          shortDescription: gameData.shortDescription || baseData.shortDescription,
+          bannerUrl: gameData.bannerUrl || baseData.bannerUrl,
+          tags: gameData.tags?.length ? gameData.tags : baseData.tags,
+        }
+      : {}),
+  };
 
   const getThemeInfo = (): {
     theme: string;
@@ -298,8 +339,12 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
                   device={activeDevice}
                   pageSettings={themeInfo.pageBody}
                 />
-                {isAuthenticated && (
-                  <GameOwnershipBanner device={activeDevice} pageSettings={themeInfo.pageBody} />
+                {isAuthenticated && Boolean(isOwned) && (
+                  <GameOwnershipBanner
+                    device={activeDevice}
+                    pageSettings={themeInfo.pageBody}
+                    isOwned={Boolean(isOwned)}
+                  />
                 )}
                 <GameAbout
                   sections={activeAboutSections}
@@ -322,7 +367,12 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
               </div>
               <div className={styles.sidebarColumn}>
                 <GameDetailsSidebar
+                  gameId={effectiveGameId}
+                  isDesignerPreview={isDesignerPreview}
                   isAuthenticated={isAuthenticated}
+                  isOwned={Boolean(isOwned)}
+                  isOwnershipCheckPending={Boolean(isOwnershipCheckPending)}
+                  isOwnershipCheckError={Boolean(isOwnershipCheckError)}
                   priceEgp={currentGameData.priceEgp}
                   discountPercent={currentGameData.discountPercent}
                   developer={currentGameData.developer}
@@ -351,7 +401,14 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({ slug, themeCon
             padding: isMobileLayout ? '1rem 0.75rem 2rem' : undefined,
           }}
         >
-          {parseAndRenderPureJson(themeInfo.layout, activeDevice)}
+          {parseAndRenderPureJson(themeInfo.layout, activeDevice, {
+            gameId: effectiveGameId,
+            isDesignerPreview,
+            isAuthenticated,
+            isOwned: Boolean(isOwned),
+            isOwnershipCheckPending: Boolean(isOwnershipCheckPending),
+            isOwnershipCheckError: Boolean(isOwnershipCheckError),
+          })}
         </div>
       )}
     </div>

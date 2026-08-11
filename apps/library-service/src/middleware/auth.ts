@@ -115,3 +115,64 @@ export async function requireServiceAuth(req: Request, res: Response, next: Next
     });
   }
 }
+
+export interface AuthenticatedUserRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
+
+export async function requireUserAuth(req: Request, res: Response, next: NextFunction) {
+  const correlationId =
+    (req.headers['x-correlation-id'] as string) || req.headers['correlation-id'] || '';
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      success: false,
+      error: {
+        code: 'UNAUTHENTICATED',
+        message: 'Missing or invalid Authorization header',
+        correlationId,
+      },
+    });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const publicKeyPem = await getPublicKey();
+
+    const claims = jwt.verify(token, publicKeyPem, {
+      algorithms: ['RS256'],
+      issuer: 'hathor-auth-service',
+      audience: 'hathor-services',
+    }) as any;
+
+    if (!claims || !claims.sub) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'Invalid token claims',
+          correlationId,
+        },
+      });
+    }
+
+    (req as AuthenticatedUserRequest).user = {
+      id: claims.sub,
+    };
+
+    return next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      error: {
+        code: 'UNAUTHENTICATED',
+        message: 'Invalid or expired token',
+        correlationId,
+      },
+    });
+  }
+}

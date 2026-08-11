@@ -75,9 +75,11 @@ export const Navbar: React.FC = () => {
             <button className={styles.iconBtn} aria-label="Language">
               <GlobeIcon />
             </button>
-            <button className={styles.iconBtn} aria-label="Cart">
-              <CartIcon />
-            </button>
+            {isAuthenticated && (
+              <Link to="/cart" className={styles.iconBtn} aria-label="Cart">
+                <CartIcon />
+              </Link>
+            )}
 
             {isAuthenticated ? (
               <button className={styles.loginBtn} onClick={handleLogout}>
@@ -117,9 +119,11 @@ export const Navbar: React.FC = () => {
             <input type="text" className={styles.searchInput} placeholder="Search games..." />
           </div>
 
-          <Link to="/" className={styles.wishlistLink}>
-            <HeartIcon /> WISHLIST
-          </Link>
+          {isAuthenticated && (
+            <Link to="/" className={styles.wishlistLink}>
+              <HeartIcon /> WISHLIST
+            </Link>
+          )}
         </div>
       </div>
     </nav>
