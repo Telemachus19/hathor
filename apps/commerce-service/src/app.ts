@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
+import { metricsRegistry } from './infrastructure/metrics.js';
 import cartRouter from './routes/cart.js';
 import txnRouter from './routes/txn.js';
 
@@ -23,7 +24,24 @@ export function createCommerceApp(checkDependencies: ReadinessCheck): Express {
       exposedHeaders: ['X-Correlation-ID'],
     })
   );
-  app.use(express.json());
+  app.use(
+    express.json({
+      verify: (req: any, res, buf) => {
+        if (buf && buf.length) {
+          req.rawBody = buf;
+        }
+      },
+    })
+  );
+
+  app.get('/metrics', async (_req: Request, res: Response) => {
+    try {
+      res.set('Content-Type', metricsRegistry.contentType);
+      res.end(await metricsRegistry.metrics());
+    } catch (err) {
+      res.status(500).end(err instanceof Error ? err.message : String(err));
+    }
+  });
 
   app.use('/cart', cartRouter);
   app.use('/txn', txnRouter);
