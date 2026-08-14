@@ -1,8 +1,39 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { catalogDb, catalogPool } from './client.js';
-import { games, tags, gameTags } from './schema.js';
+import { games, tags, gameTags, gameBuilds } from './schema.js';
+import { uploadGameBuildPackage } from '../storage/r2Client.js';
 import { eq, sql } from 'drizzle-orm';
 
 const DEMO_CREATOR_ID = '00000000-0000-0000-0000-000000000001';
+
+function getSeededZipBuffer(): Buffer {
+  const candidatePaths = [
+    path.resolve(process.cwd(), 'Desktop Goose v0.31.zip'),
+    path.resolve(process.cwd(), '../../Desktop Goose v0.31.zip'),
+    path.resolve(process.cwd(), '../Desktop Goose v0.31.zip'),
+    'd:\\computer-science\\iti\\hathor\\Desktop Goose v0.31.zip',
+    '/app/Desktop Goose v0.31.zip',
+  ];
+
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      console.log(`Found seeded ZIP package at: ${p}`);
+      return fs.readFileSync(p);
+    }
+  }
+
+  console.log('Using default mock ZIP buffer for build package seeding...');
+  return Buffer.from([
+    0x50, 0x4b, 0x03, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x67, 0x61,
+    0x6d, 0x65, 0x2e, 0x62, 0x69, 0x6e, 0x50, 0x4b, 0x01, 0x02, 0x1e, 0x03, 0x0a, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb8, 0x81, 0x00, 0x00, 0x00, 0x00,
+    0x67, 0x61, 0x6d, 0x65, 0x2e, 0x62, 0x69, 0x6e, 0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
+    0x01, 0x00, 0x01, 0x00, 0x36, 0x00, 0x00, 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x00,
+  ]);
+}
 
 async function seed() {
   try {
@@ -654,6 +685,8 @@ async function seed() {
       },
     ];
 
+    const zipBuffer = getSeededZipBuffer();
+
     for (const gameData of demoGames) {
       const { tagSlugs, ...gameValues } = gameData;
 
@@ -693,11 +726,35 @@ async function seed() {
               .onConflictDoNothing();
           }
         }
+
+        if (gameValues.status === 'published') {
+          const objectKey = `builds/${targetGameId}/v1.0.0/game.zip`;
+          try {
+            const { checksumSha256, sizeBytes } = await uploadGameBuildPackage({
+              objectKey,
+              buffer: zipBuffer,
+            });
+
+            await catalogDb
+              .insert(gameBuilds)
+              .values({
+                gameId: targetGameId,
+                version: 'v1.0.0',
+                objectKey,
+                checksumSha256,
+                sizeBytes,
+                state: 'published',
+              })
+              .onConflictDoNothing();
+          } catch (storageErr) {
+            console.warn(`Storage upload warning for game ${targetGameId}:`, storageErr);
+          }
+        }
       }
     }
 
     console.log(
-      'Catalog database seeding completed successfully with 22 demo games and custom pageThemes!'
+      'Catalog database seeding completed successfully with demo games, builds, and custom pageThemes!'
     );
   } catch (error) {
     console.error('Error during catalog database seeding:', error);

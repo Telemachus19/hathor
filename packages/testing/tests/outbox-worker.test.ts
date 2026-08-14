@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import express from 'express';
+// import express from 'express';
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
 import { createCommerceApp } from '../../../apps/commerce-service/src/app.js';
