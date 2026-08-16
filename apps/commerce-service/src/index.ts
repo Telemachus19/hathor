@@ -25,7 +25,6 @@ const outboxWorker = new OutboxWorker(outboxPublisher, {
 
 const app = createCommerceApp(async () => {
   await Promise.all([commercePool.query('SELECT 1'), checkRabbitMq(RABBITMQ_URL)]);
-  await runMigrations();
 });
 
 app.listen(PORT, () => {
