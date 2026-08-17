@@ -15,6 +15,12 @@ import {
 
 export const catalogSchema = pgSchema('catalog');
 
+export const genres = catalogSchema.table('genres', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 50 }).unique().notNull(),
+  slug: varchar('slug', { length: 50 }).unique().notNull(),
+});
+
 export const games = catalogSchema.table(
   'games',
   {
@@ -32,6 +38,7 @@ export const games = catalogSchema.table(
     systemRequirements: jsonb('system_requirements').default({}),
     pageTheme: jsonb('page_theme').default({}),
     status: varchar('status', { length: 20 }).default('draft'),
+    genreId: integer('genre_id').references(() => genres.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
   },
@@ -99,5 +106,22 @@ export const gameBuilds = catalogSchema.table(
   (table) => ({
     gameVersionIdx: index('idx_game_builds_game_version').on(table.gameId, table.version),
     objectKeyIdx: index('idx_game_builds_object_key').on(table.objectKey),
+  })
+);
+
+export const auditLogs = catalogSchema.table(
+  'audit_logs',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    actorId: uuid('actor_id'),
+    targetType: varchar('target_type', { length: 50 }).notNull(),
+    targetId: varchar('target_id', { length: 255 }).notNull(),
+    action: varchar('action', { length: 100 }).notNull(),
+    details: jsonb('details').default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    targetIdx: index('idx_catalog_audit_target').on(table.targetType, table.targetId),
+    actorIdx: index('idx_catalog_audit_actor').on(table.actorId),
   })
 );

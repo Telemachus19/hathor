@@ -36,6 +36,20 @@
       "when": 1785177463711,
       "tag": "0004_silent_guardsmen",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1786907972578,
+      "tag": "0005_glorious_madame_hydra",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1786907995472,
+      "tag": "0006_smooth_dark_phoenix",
+      "breakpoints": true
     }
   ]
 }

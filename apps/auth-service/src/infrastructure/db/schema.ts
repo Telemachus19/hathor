@@ -13,7 +13,8 @@ export const users = authSchema.table('users', {
     .notNull()
     .default(sql`ARRAY['gamer']::text[]`),
   authorizationVersion: integer('authorization_version').notNull().default(1),
-  disabled: boolean('disabled').notNull().default(false),
+  status: varchar('status', { length: 50 }).notNull().default('active'),
+  lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
