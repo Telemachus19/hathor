@@ -5,6 +5,7 @@ import { createPublicKey } from 'node:crypto';
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
+    roles: string[];
   };
 }
 
@@ -90,6 +91,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     // Attach user identity to request
     (req as AuthenticatedRequest).user = {
       id: claims.sub,
+      roles: claims.roles || claims.role?.split(' ') || [],
     };
 
     return next();
@@ -103,4 +105,110 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       },
     });
   }
+}
+
+export function requireRole(requiredRole: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) || req.headers['correlation-id'] || '';
+
+    const authReq = req as AuthenticatedRequest;
+    if (!authReq.user || !authReq.user.roles.includes(requiredRole)) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: `User lacks required role: ${requiredRole}`,
+          correlationId,
+        },
+      });
+    }
+
+    return next();
+  };
+}
+
+export interface AuthenticatedServiceRequest extends Request {
+  service?: {
+    id: string;
+  };
+}
+
+export function requireServiceScope(requiredScope: string = 'commerce.analytics.read') {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) || req.headers['correlation-id'] || '';
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'Missing or invalid Authorization header',
+          correlationId,
+        },
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+      const publicKeyPem = await getPublicKey();
+
+      const claims = jwt.verify(token, publicKeyPem, {
+        algorithms: ['RS256'],
+        audience: 'commerce-service',
+        issuer: 'hathor-auth-service',
+      }) as any;
+
+      if (!claims || !claims.sub) {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'UNAUTHENTICATED',
+            message: 'Invalid token claims',
+            correlationId,
+          },
+        });
+      }
+
+      const scopes: string[] = claims.scopes || claims.scope?.split(' ') || [];
+      if (!scopes.includes(requiredScope)) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: `Service token lacks required scope: ${requiredScope}`,
+            correlationId,
+          },
+        });
+      }
+
+      (req as AuthenticatedServiceRequest).service = {
+        id: claims.sub,
+      };
+
+      return next();
+    } catch (error: any) {
+      if (error?.name === 'JsonWebTokenError' && error?.message?.includes('audience')) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Invalid audience in service token',
+            correlationId,
+          },
+        });
+      }
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'Invalid or expired service token',
+          correlationId,
+        },
+      });
+    }
+  };
 }

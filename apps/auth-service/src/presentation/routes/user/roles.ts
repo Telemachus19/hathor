@@ -8,7 +8,7 @@ import { AuthenticatedRequest } from '../../middlewares/auth.js';
 export async function changeRolesHandler(req: AuthenticatedRequest, res: Response) {
   const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
   const { userId } = req.params;
-  const { roles } = req.body;
+  const { role, action } = req.body;
 
   // 1. Authorization: Only admins can change roles
   if (!req.user || !req.user.roles.includes('admin')) {
@@ -35,36 +35,20 @@ export async function changeRolesHandler(req: AuthenticatedRequest, res: Respons
     });
   }
 
-  // 3. Validate roles input structure
-  if (!roles || !Array.isArray(roles) || roles.length === 0) {
+  // 3. Validate input
+  if (!role || !action || !['creator', 'admin'].includes(role) || !['grant', 'revoke'].includes(action)) {
     return res.status(422).json({
       success: false,
       error: {
         code: 'VALIDATION_FAILED',
-        message: 'Roles must be a non-empty array of strings',
-        correlationId,
-      },
-    });
-  }
-
-  // Validate allowed roles enum values
-  const allowedRoles = ['gamer', 'creator', 'admin'];
-  const isValidRoles = roles.every(
-    (role) => typeof role === 'string' && allowedRoles.includes(role)
-  );
-  if (!isValidRoles) {
-    return res.status(422).json({
-      success: false,
-      error: {
-        code: 'VALIDATION_FAILED',
-        message: 'Invalid roles provided. Allowed roles: gamer, creator, admin',
+        message: 'Invalid request body. Expected role (creator|admin) and action (grant|revoke).',
         correlationId,
       },
     });
   }
 
   try {
-    const updatedUser = await authDb.transaction(async (tx) => {
+    await authDb.transaction(async (tx) => {
       // 4. Fetch target user
       const [targetUser] = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
 
@@ -72,20 +56,29 @@ export async function changeRolesHandler(req: AuthenticatedRequest, res: Respons
         throw new Error('USER_NOT_FOUND');
       }
 
+      let newRoles = [...targetUser.roles];
+      if (action === 'grant' && !newRoles.includes(role)) {
+        newRoles.push(role);
+      } else if (action === 'revoke' && newRoles.includes(role)) {
+        newRoles = newRoles.filter(r => r !== role);
+      } else {
+        // No change needed
+        return res.status(204).send();
+      }
+
       const nextAuthVersion = targetUser.authorizationVersion + 1;
 
       // 5. Update user's roles and increment authorization_version
-      const [updated] = await tx
+      await tx
         .update(users)
         .set({
-          roles,
+          roles: newRoles,
           authorizationVersion: nextAuthVersion,
         })
-        .where(eq(users.id, userId))
-        .returning();
+        .where(eq(users.id, userId));
 
       // 6. Write immutable record to role_change_audit
-      const changeDesc = `Roles updated from [${targetUser.roles.join(', ')}] to [${roles.join(', ')}]`;
+      const changeDesc = `Role ${role} ${action}ed`;
       await tx.insert(roleChangeAudit).values({
         actorId: req.user!.id,
         targetId: userId,
@@ -93,16 +86,9 @@ export async function changeRolesHandler(req: AuthenticatedRequest, res: Respons
         authorizationVersion: nextAuthVersion,
         correlationId,
       });
-
-      return updated;
     });
 
-    return res.status(200).json({
-      id: updatedUser.id,
-      email: updatedUser.email,
-      displayName: updatedUser.displayName,
-      roles: updatedUser.roles,
-    });
+    return res.status(204).send();
   } catch (error: any) {
     if (error.message === 'USER_NOT_FOUND') {
       return res.status(404).json({
