@@ -19,6 +19,7 @@ const PROXY_TIMEOUT_MS = 30_000; // 30 seconds
  * Read correlationId from req (set by correlationId middleware upstream).
  */
 function handleProxyError(err: any, req: any, res: any) {
+  console.error('PROXY ERROR to target:', err.message, err);
   if (res.headersSent) return;
   const correlationId = req.correlationId || req.headers?.['x-correlation-id'] || 'unknown';
   res.status(503).json({
@@ -71,7 +72,7 @@ export const proxyRouter: Router = Router();
 proxyRouter.use(createServiceProxy(AUTH_SERVICE_URL, ['/user', '/admin/users']));
 
 // Catalog Service proxy
-proxyRouter.use(createServiceProxy(CATALOG_SERVICE_URL, ['/store', '/creator', '/admin/games']));
+proxyRouter.use(createServiceProxy(CATALOG_SERVICE_URL, ['/store', '/creator', '/admin/games', '/admin/genres', '/admin/tags', '/admin/submissions', '/admin/audit-logs']));
 
 // Commerce Service proxy
 proxyRouter.use(createServiceProxy(COMMERCE_SERVICE_URL, ['/cart', '/txn', '/admin/transactions']));
