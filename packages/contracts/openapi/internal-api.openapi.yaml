@@ -174,6 +174,84 @@ paths:
                     items: { type: string, format: uuid }
         '401': { description: Invalid service credential }
         '403': { description: Missing audience or scope }
+  /commerce/analytics/{gameId}:
+    get:
+      operationId: getInternalGameAnalytics
+      summary: Catalog fetches analytics data from commerce.
+      servers:
+        - url: http://commerce-service:5003/internal/v1
+      security: [{ serviceBearer: [commerce.analytics.read] }]
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [totalOwners, totalRevenueEgp, averageScore, lifetimePurchases, monthlyPurchases]
+                properties:
+                  totalOwners: { type: integer }
+                  totalRevenueEgp: { type: string }
+                  averageScore: { type: number }
+                  lifetimePurchases: { type: integer }
+                  monthlyPurchases:
+                    type: array
+                    items:
+                      type: object
+                      required: [month, year, amount]
+                      properties:
+                        month: { type: integer }
+                        year: { type: integer }
+                        amount: { type: integer }
+  /auth/audit-logs:
+    get:
+      operationId: getInternalAuthLogs
+      servers:
+        - url: http://auth-service:5001/internal/v1
+      security: [{ serviceBearer: [auth.audit.read] }]
+      responses:
+        '200':
+          description: Auth logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, format: uuid }
+                    actorId: { type: string, format: uuid }
+                    targetType: { type: string }
+                    targetId: { type: string }
+                    action: { type: string }
+                    details: { type: object }
+                    timestamp: { type: string, format: date-time }
+  /catalog/audit-logs:
+    get:
+      operationId: getInternalCatalogLogs
+      security: [{ serviceBearer: [catalog.audit.read] }]
+      responses:
+        '200':
+          description: Catalog logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, format: uuid }
+                    actorId: { type: string, format: uuid }
+                    targetType: { type: string }
+                    targetId: { type: string }
+                    action: { type: string }
+                    details: { type: object }
+                    timestamp: { type: string, format: date-time }
 components:
   securitySchemes:
     serviceBearer:

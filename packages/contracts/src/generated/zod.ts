@@ -16,6 +16,9 @@ const User = z
     email: z.string().email(),
     displayName: z.string(),
     roles: z.array(z.enum(['gamer', 'creator', 'admin'])),
+    status: z.enum(['active', 'suspended', 'banned']),
+    lastLoginAt: z.union([z.string(), z.null()]).optional(),
+    createdAt: z.string().datetime({ offset: true }).optional(),
   })
   .passthrough();
 const Error = z
@@ -52,6 +55,9 @@ const ThemeDocument = z.object({
     .array(z.enum(['hero', 'description', 'screenshots', 'systemRequirements']))
     .max(4),
 });
+const Genre = z
+  .object({ id: z.number().int(), name: z.string().max(50), slug: z.string().max(50) })
+  .passthrough();
 const Game = z
   .object({
     id: Uuid.uuid(),
@@ -62,6 +68,8 @@ const Game = z
     currency: z.string(),
     status: z.enum(['draft', 'pending_review', 'published', 'rejected', 'suspended']),
     theme: ThemeDocument,
+    genreId: z.union([z.number(), z.null()]).optional(),
+    genre: z.union([Genre, z.null()]).optional(),
   })
   .passthrough();
 const GamePage = z
@@ -171,12 +179,67 @@ const AiThemeProposal = z.object({
     )
     .max(20),
 });
+const UserPage = z
+  .object({ items: z.array(User), nextCursor: z.union([z.string(), z.null()]).optional() })
+  .passthrough();
+const UserStatusChangeRequest = z
+  .object({ status: z.enum(['active', 'suspended', 'banned']) })
+  .passthrough();
 const RoleChangeRequest = z
   .object({ role: z.enum(['creator', 'admin']), action: z.enum(['grant', 'revoke']) })
   .passthrough();
 const OrderPage = z
   .object({ items: z.array(Order), nextCursor: z.union([z.string(), z.null()]).optional() })
   .passthrough();
+const GenrePage = z.object({ items: z.array(Genre) }).passthrough();
+const createGenre_Body = z.object({ name: z.string(), slug: z.string() }).passthrough();
+const updateGenre_Body = z.object({ name: z.string(), slug: z.string() }).partial().passthrough();
+const Tag = z
+  .object({ id: z.number().int(), name: z.string().max(50), slug: z.string().max(50) })
+  .passthrough();
+const TagPage = z.object({ items: z.array(Tag) }).passthrough();
+const CatalogAuditLog = z
+  .object({
+    id: Uuid.uuid(),
+    actorId: z.union([z.string(), z.null()]).optional(),
+    targetType: z.string(),
+    targetId: z.string(),
+    action: z.string(),
+    details: z.object({}).partial().passthrough().optional(),
+    timestamp: z.string().datetime({ offset: true }),
+  })
+  .passthrough();
+const AuditLogPage = z
+  .object({
+    items: z.array(CatalogAuditLog),
+    nextCursor: z.union([z.string(), z.null()]).optional(),
+  })
+  .passthrough();
+const AnalyticsData = z
+  .object({
+    totalOwners: z.number().int(),
+    totalRevenueEgp: z.string(),
+    averageScore: z.number(),
+    lifetimePurchases: z.number().int(),
+    monthlyPurchases: z.array(
+      z
+        .object({ month: z.number().int(), year: z.number().int(), amount: z.number().int() })
+        .passthrough()
+    ),
+  })
+  .passthrough();
+const AuditLog = z
+  .object({
+    id: z.string().uuid(),
+    timestamp: z.string().datetime({ offset: true }),
+    actorId: z.string().uuid(),
+    targetId: z.string().optional(),
+    action: z.string(),
+    details: z.object({}).partial().passthrough().optional(),
+    service: z.string(),
+  })
+  .passthrough();
+const AuditLogList = z.object({ items: z.array(AuditLog) }).passthrough();
 
 export const schemas = {
   RegisterRequest,
@@ -186,6 +249,7 @@ export const schemas = {
   LoginRequest,
   AuthSession,
   ThemeDocument,
+  Genre,
   Game,
   GamePage,
   Cart,
@@ -200,11 +264,75 @@ export const schemas = {
   GameStatusChangeRequest,
   AiThemeProposalRequest,
   AiThemeProposal,
+  UserPage,
+  UserStatusChangeRequest,
   RoleChangeRequest,
   OrderPage,
+  GenrePage,
+  createGenre_Body,
+  updateGenre_Body,
+  Tag,
+  TagPage,
+  CatalogAuditLog,
+  AuditLogPage,
+  AnalyticsData,
+  AuditLog,
+  AuditLogList,
 };
 
 const endpoints = makeApi([
+  {
+    method: 'get',
+    path: '/admin/audit-logs',
+    alias: 'listAuditLogs',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'cursor',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.number().int().gte(1).lte(100).optional().default(25),
+      },
+    ],
+    response: AuditLogPage,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/games',
+    alias: 'listAllGames',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'cursor',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.number().int().gte(1).lte(100).optional().default(25),
+      },
+    ],
+    response: GamePage,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
   {
     method: 'patch',
     path: '/admin/games/:gameId/status',
@@ -238,6 +366,184 @@ const endpoints = makeApi([
   },
   {
     method: 'get',
+    path: '/admin/genres',
+    alias: 'listGenres',
+    requestFormat: 'json',
+    response: GenrePage,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/genres',
+    alias: 'createGenre',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: createGenre_Body,
+      },
+    ],
+    response: Genre,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'put',
+    path: '/admin/genres/:genreId',
+    alias: 'updateGenre',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: updateGenre_Body,
+      },
+      {
+        name: 'genreId',
+        type: 'Path',
+        schema: z.number().int(),
+      },
+    ],
+    response: Genre,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/admin/genres/:genreId',
+    alias: 'deleteGenre',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'genreId',
+        type: 'Path',
+        schema: z.number().int(),
+      },
+    ],
+    response: z.void(),
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/submissions',
+    alias: 'listSubmissions',
+    requestFormat: 'json',
+    response: GamePage,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/admin/tags',
+    alias: 'listTags',
+    requestFormat: 'json',
+    response: TagPage,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'post',
+    path: '/admin/tags',
+    alias: 'createTag',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: createGenre_Body,
+      },
+    ],
+    response: Tag,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'put',
+    path: '/admin/tags/:tagId',
+    alias: 'updateTag',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: updateGenre_Body,
+      },
+      {
+        name: 'tagId',
+        type: 'Path',
+        schema: z.number().int(),
+      },
+    ],
+    response: Tag,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'delete',
+    path: '/admin/tags/:tagId',
+    alias: 'deleteTag',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'tagId',
+        type: 'Path',
+        schema: z.number().int(),
+      },
+    ],
+    response: z.void(),
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'get',
     path: '/admin/transactions',
     alias: 'listTransactions',
     requestFormat: 'json',
@@ -263,6 +569,32 @@ const endpoints = makeApi([
     ],
   },
   {
+    method: 'get',
+    path: '/admin/users',
+    alias: 'listUsers',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'cursor',
+        type: 'Query',
+        schema: z.string().optional(),
+      },
+      {
+        name: 'limit',
+        type: 'Query',
+        schema: z.number().int().gte(1).lte(100).optional().default(25),
+      },
+    ],
+    response: UserPage,
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
     method: 'post',
     path: '/admin/users/:userId/roles',
     alias: 'grantRole',
@@ -272,6 +604,32 @@ const endpoints = makeApi([
         name: 'body',
         type: 'Body',
         schema: RoleChangeRequest,
+      },
+      {
+        name: 'userId',
+        type: 'Path',
+        schema: z.string().uuid(),
+      },
+    ],
+    response: z.void(),
+    errors: [
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/admin/users/:userId/status',
+    alias: 'updateUserStatus',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'body',
+        type: 'Body',
+        schema: UserStatusChangeRequest,
       },
       {
         name: 'userId',
@@ -411,6 +769,32 @@ const endpoints = makeApi([
       {
         status: 503,
         description: `Required internal service unavailable`,
+        schema: Error,
+      },
+    ],
+  },
+  {
+    method: 'get',
+    path: '/creator/games/:gameId/analytics',
+    alias: 'getGameAnalytics',
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'gameId',
+        type: 'Path',
+        schema: z.string().uuid(),
+      },
+    ],
+    response: AnalyticsData,
+    errors: [
+      {
+        status: 401,
+        description: `Missing, invalid, expired, or revoked credentials`,
+        schema: Error,
+      },
+      {
+        status: 403,
+        description: `Authenticated caller lacks required role or object ownership`,
         schema: Error,
       },
     ],

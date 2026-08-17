@@ -327,6 +327,38 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/admin/users': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['listUsers'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/users/{userId}/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations['updateUserStatus'];
+    trace?: never;
+  };
   '/admin/users/{userId}/roles': {
     parameters: {
       query?: never;
@@ -337,6 +369,22 @@ export interface paths {
     get?: never;
     put?: never;
     post: operations['grantRole'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/games': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['listAllGames'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -367,6 +415,118 @@ export interface paths {
       cookie?: never;
     };
     get: operations['listTransactions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/genres': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['listGenres'];
+    put?: never;
+    post: operations['createGenre'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/genres/{genreId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations['updateGenre'];
+    post?: never;
+    delete: operations['deleteGenre'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/tags': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['listTags'];
+    put?: never;
+    post: operations['createTag'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/tags/{tagId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations['updateTag'];
+    post?: never;
+    delete: operations['deleteTag'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/submissions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['listSubmissions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/audit-logs': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['listAuditLogs'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/creator/games/{gameId}/analytics': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['getGameAnalytics'];
     put?: never;
     post?: never;
     delete?: never;
@@ -407,6 +567,16 @@ export interface components {
       email: string;
       displayName: string;
       roles: ('gamer' | 'creator' | 'admin')[];
+      /** @enum {string} */
+      status: 'active' | 'suspended' | 'banned';
+      /** Format: date-time */
+      lastLoginAt?: string | null;
+      /** Format: date-time */
+      createdAt?: string;
+    };
+    UserPage: {
+      items: components['schemas']['User'][];
+      nextCursor?: string | null;
     };
     AuthSession: {
       /** @description Store only in browser memory */
@@ -424,6 +594,8 @@ export interface components {
       /** @enum {string} */
       status: 'draft' | 'pending_review' | 'published' | 'rejected' | 'suspended';
       theme: components['schemas']['ThemeDocument'];
+      genreId?: number | null;
+      genre?: components['schemas']['Genre'] | null;
     };
     GamePage: {
       items: components['schemas']['Game'][];
@@ -561,6 +733,10 @@ export interface components {
       /** @enum {string} */
       action: 'grant' | 'revoke';
     };
+    UserStatusChangeRequest: {
+      /** @enum {string} */
+      status: 'active' | 'suspended' | 'banned';
+    };
     GameStatusChangeRequest: {
       /** @enum {string} */
       status: 'published' | 'rejected' | 'suspended';
@@ -569,6 +745,63 @@ export interface components {
     OrderPage: {
       items: components['schemas']['Order'][];
       nextCursor?: string | null;
+    };
+    AuditLog: {
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      timestamp: string;
+      /** Format: uuid */
+      actorId: string;
+      targetId?: string;
+      action: string;
+      details?: Record<string, never>;
+      service: string;
+    };
+    AuditLogList: {
+      items: components['schemas']['AuditLog'][];
+    };
+    Genre: {
+      id: number;
+      name: string;
+      slug: string;
+    };
+    Tag: {
+      id: number;
+      name: string;
+      slug: string;
+    };
+    GenrePage: {
+      items: components['schemas']['Genre'][];
+    };
+    TagPage: {
+      items: components['schemas']['Tag'][];
+    };
+    CatalogAuditLog: {
+      id: components['schemas']['Uuid'];
+      /** Format: uuid */
+      actorId?: string | null;
+      targetType: string;
+      targetId: string;
+      action: string;
+      details?: Record<string, never>;
+      /** Format: date-time */
+      timestamp: string;
+    };
+    AuditLogPage: {
+      items: components['schemas']['CatalogAuditLog'][];
+      nextCursor?: string | null;
+    };
+    AnalyticsData: {
+      totalOwners: number;
+      totalRevenueEgp: string;
+      averageScore: number;
+      lifetimePurchases: number;
+      monthlyPurchases: {
+        month: number;
+        year: number;
+        amount: number;
+      }[];
     };
   };
   responses: {
@@ -1183,6 +1416,55 @@ export interface operations {
       503: components['responses']['DependencyUnavailable'];
     };
   };
+  listUsers: {
+    parameters: {
+      query?: {
+        cursor?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated users */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserPage'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  updateUserStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userId: components['parameters']['UserId'];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UserStatusChangeRequest'];
+      };
+    };
+    responses: {
+      /** @description User status updated */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
   grantRole: {
     parameters: {
       query?: never;
@@ -1204,6 +1486,30 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  listAllGames: {
+    parameters: {
+      query?: {
+        cursor?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated games */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GamePage'];
+        };
       };
       403: components['responses']['Forbidden'];
     };
@@ -1255,6 +1561,275 @@ export interface operations {
           'application/json': components['schemas']['OrderPage'];
         };
       };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  listGenres: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of genres */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GenrePage'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  createGenre: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          name: string;
+          slug: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Created genre */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Genre'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  updateGenre: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        genreId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          name?: string;
+          slug?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Updated genre */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Genre'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  deleteGenre: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        genreId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  listTags: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of tags */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TagPage'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  createTag: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          name: string;
+          slug: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Created tag */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Tag'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  updateTag: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        tagId: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': {
+          name?: string;
+          slug?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Updated tag */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Tag'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  deleteTag: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        tagId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  listSubmissions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Pending review games */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GamePage'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  listAuditLogs: {
+    parameters: {
+      query?: {
+        cursor?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Unified audit logs */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AuditLogPage'];
+        };
+      };
+      403: components['responses']['Forbidden'];
+    };
+  };
+  getGameAnalytics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Game analytics */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AnalyticsData'];
+        };
+      };
+      401: components['responses']['Unauthenticated'];
       403: components['responses']['Forbidden'];
     };
   };

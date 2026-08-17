@@ -24,6 +24,14 @@ export type AiThemeProposalRequest = components['schemas']['AiThemeProposalReque
 export type AiThemeProposal = components['schemas']['AiThemeProposal'];
 export type RoleChangeRequest = components['schemas']['RoleChangeRequest'];
 export type GameStatusChangeRequest = components['schemas']['GameStatusChangeRequest'];
+export type OrderPage = components['schemas']['OrderPage'];
+export type Genre = components['schemas']['Genre'];
+export type Tag = components['schemas']['Tag'];
+export type GenrePage = components['schemas']['GenrePage'];
+export type TagPage = components['schemas']['TagPage'];
+export type CatalogAuditLog = components['schemas']['CatalogAuditLog'];
+export type AuditLogPage = components['schemas']['AuditLogPage'];
+export type AnalyticsData = components['schemas']['AnalyticsData'];
 export type ApiErrorResponse = components['schemas']['Error'];
 
 export { schemas as ZodSchemas } from './generated/zod.js';
