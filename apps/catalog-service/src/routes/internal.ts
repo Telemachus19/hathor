@@ -256,4 +256,36 @@ router.get(
   handleGetPublishedBuild
 );
 
+import { auditLogs } from '../infrastructure/db/schema.js';
+
+router.get(
+  '/audit-logs',
+  async (req, res: Response) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
+      
+      const logs = await catalogDb
+        .select()
+        .from(auditLogs)
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(limit);
+
+      const formattedLogs = logs.map(log => ({
+        id: log.id,
+        timestamp: log.createdAt ? log.createdAt.toISOString() : new Date().toISOString(),
+        actorId: log.actorId,
+        targetId: log.targetId,
+        action: log.action,
+        details: log.details,
+        service: 'catalog-service'
+      }));
+
+      res.json({ items: formattedLogs });
+    } catch (error) {
+      console.error('Fetch catalog audit logs error:', error);
+      res.status(500).json({ error: 'Failed to fetch audit logs' });
+    }
+  }
+);
+
 export default router;
