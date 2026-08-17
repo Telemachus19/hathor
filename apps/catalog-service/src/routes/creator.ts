@@ -28,13 +28,13 @@ function slugifyTitle(title: string): string {
 }
 
 /**
- * PUT /creator/games/:slug/theme
+ * PUT /creator/games/:gameId/theme
  * Creator Authorization & Ownership Verification (creator_id == caller_id).
- * Strictly looks up game by slug parameter.
+ * Strictly looks up game by gameId parameter.
  * Rejects unauthorized access attempts with HTTP 403 Forbidden to prevent cross-creator IDOR.
  */
 router.put(
-  '/games/:slug/theme',
+  '/games/:gameId/theme',
   requireAuth,
   requireRole('creator'),
   async (req: AuthenticatedRequest, res: Response) => {
@@ -45,16 +45,27 @@ router.put(
 
     try {
       const callerId = req.user!.id;
-      const { slug } = req.params;
+      const { gameId } = req.params;
 
-      const [game] = await catalogDb.select().from(games).where(eq(games.slug, slug)).limit(1);
+      if (!gameId || !UUID_REGEX.test(gameId)) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Invalid gameId format',
+            correlationId,
+          },
+        });
+      }
+
+      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
 
       if (!game) {
         return res.status(404).json({
           success: false,
           error: {
             code: 'GAME_NOT_FOUND',
-            message: `Game not found for slug: ${slug}`,
+            message: `Game not found for id: ${gameId}`,
             correlationId,
           },
         });
@@ -206,6 +217,58 @@ router.post(
   }
 );
 
+/**
+ * GET /creator/games
+ * List all games belonging to the authenticated creator.
+ */
+router.get(
+  '/games',
+  requireAuth,
+  requireRole('creator'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId = req.headers['x-correlation-id'] as string || randomUUID();
+
+    try {
+      const callerId = req.user!.id;
+      
+      const creatorGames = await catalogDb
+        .select()
+        .from(games)
+        .where(eq(games.creatorId, callerId));
+
+      return res.status(200).json(
+        creatorGames.map(game => ({
+          id: game.id,
+          title: game.title,
+          slug: game.slug,
+          shortDescription: game.shortDescription,
+          fullDescription: game.fullDescription,
+          priceEgp: game.priceEgp,
+          discountPercent: game.discountPercent,
+          status: game.status,
+          systemRequirements: game.systemRequirements,
+          pageTheme: game.pageTheme,
+          bannerUrl: game.bannerUrl,
+          screenshots: game.screenshots,
+          trailerUrl: game.trailerUrl,
+          createdAt: game.createdAt?.toISOString(),
+          updatedAt: game.updatedAt?.toISOString()
+        }))
+      );
+    } catch (error) {
+      console.error('Error fetching creator games:', error);
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch creator games',
+          correlationId,
+        },
+      });
+    }
+  }
+);
+
 // PATCH /creator/games/:gameId/status — Creator status transition (e.g. submitting for review)
 router.patch(
   '/games/:gameId/status',
@@ -344,6 +407,287 @@ router.patch(
           correlationId,
         },
       });
+    }
+  }
+);
+
+/**
+ * POST /creator/games/:gameId/ai/theme-proposals
+ * Returns a Mock AI theme proposal for HITL flow demonstration.
+ */
+router.post(
+  '/games/:gameId/ai/theme-proposals',
+  requireAuth,
+  requireRole('creator'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
+
+    try {
+      const { gameId } = req.params;
+      const { prompt, currentTheme } = req.body || {};
+
+      if (!gameId || !UUID_REGEX.test(gameId)) {
+        return res.status(400).json({
+          error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format', correlationId },
+        });
+      }
+
+      if (!prompt || typeof prompt !== 'string') {
+        return res.status(400).json({
+          error: { code: 'VALIDATION_FAILED', message: 'prompt is required', correlationId },
+        });
+      }
+
+      // Verify game exists and is owned by caller
+      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+
+      if (!game) {
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: 'Game not found', correlationId },
+        });
+      }
+
+      if (game.creatorId !== req.user!.id) {
+        return res.status(403).json({
+          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+        });
+      }
+
+      // Return a Mock AI proposal
+      const mockProposal = {
+        summary: `I've updated your theme to be more engaging and darker based on your request: "${prompt}". I adjusted the main colors and added a new hero section.`,
+        patch: [
+          {
+            op: "replace",
+            path: "/colorPalette/primary",
+            value: "#ff6b00"
+          },
+          {
+            op: "replace",
+            path: "/colorPalette/background",
+            value: "#121212"
+          },
+          {
+            op: "replace",
+            path: "/typography/headingFont",
+            value: "Inter, sans-serif"
+          }
+        ]
+      };
+
+      return res.status(200).json(mockProposal);
+    } catch (error) {
+      console.error('Error generating AI theme proposal:', error);
+      return res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to generate AI theme proposal',
+          correlationId,
+        },
+      });
+    }
+  }
+);
+
+/**
+ * GET /creator/games/:gameId/analytics
+ * Fetches cross-service analytics data from commerce-service for a game owned by the caller.
+ */
+router.get(
+  '/games/:gameId/analytics',
+  requireAuth,
+  requireRole('creator'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
+
+    try {
+      const { gameId } = req.params;
+
+      if (!gameId || !UUID_REGEX.test(gameId)) {
+        return res.status(400).json({
+          error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format', correlationId },
+        });
+      }
+
+      // Verify game exists and is owned by caller
+      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+
+      if (!game) {
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: 'Game not found', correlationId },
+        });
+      }
+
+      if (game.creatorId !== req.user!.id) {
+        return res.status(403).json({
+          error: { code: 'FORBIDDEN', message: 'Not authorized to view analytics for this game', correlationId },
+        });
+      }
+
+      // We need to fetch an internal token to call commerce-service
+      let internalToken = '';
+      try {
+        const tokenRes = await fetch('http://auth-service:5001/internal/v1/service-tokens', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Hathor-Service-Credential': process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
+          },
+          body: JSON.stringify({ audience: 'commerce-service' }),
+        });
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          internalToken = tokenData.accessToken;
+        } else {
+          console.warn('Failed to obtain internal token for commerce-service. Status:', tokenRes.status);
+        }
+      } catch (err) {
+        console.warn('Error fetching service token:', err);
+      }
+
+      // Fetch analytics from commerce-service
+      try {
+        const analyticsRes = await fetch(`http://commerce-service:5003/internal/v1/analytics/${gameId}`, {
+          headers: {
+            'Authorization': `Bearer ${internalToken}`,
+            'X-Correlation-ID': correlationId,
+          },
+        });
+
+        if (analyticsRes.ok) {
+          const analyticsData = await analyticsRes.json();
+          return res.status(200).json(analyticsData);
+        } else {
+          console.warn('Commerce service analytics fetch failed with status:', analyticsRes.status);
+          // Return empty structure if commerce fails
+          return res.status(200).json({
+            totalOwners: 0,
+            totalRevenueEgp: '0.00',
+            averageScore: 0,
+            lifetimePurchases: 0,
+            monthlyPurchases: [],
+          });
+        }
+      } catch (err) {
+        console.warn('Error calling commerce-service analytics:', err);
+        return res.status(200).json({
+          totalOwners: 0,
+          totalRevenueEgp: '0.00',
+          averageScore: 0,
+          lifetimePurchases: 0,
+          monthlyPurchases: [],
+        });
+      }
+    } catch (error) {
+      console.error('Error in GET /creator/games/:gameId/analytics:', error);
+      return res.status(500).json({
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch analytics', correlationId },
+      });
+    }
+  }
+);
+
+/**
+ * GET /creator/analytics
+ * Aggregates cross-service analytics for all games owned by the creator.
+ */
+router.get(
+  '/analytics',
+  requireAuth,
+  requireRole('creator'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
+
+    try {
+      const callerId = req.user!.id;
+      const creatorGames = await catalogDb
+        .select({ id: games.id })
+        .from(games)
+        .where(eq(games.creatorId, callerId));
+
+      const gameIds = creatorGames.map((g) => g.id);
+
+      if (gameIds.length === 0) {
+        return res.status(200).json({
+          totalOwners: 0,
+          totalRevenueEgp: '0.00',
+          averageScore: 0,
+          lifetimePurchases: 0,
+          monthlyPurchases: [],
+        });
+      }
+
+      // Fetch internal token
+      let internalToken = '';
+      try {
+        const tokenRes = await fetch('http://auth-service:5001/internal/v1/service-tokens', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Hathor-Service-Credential': process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
+          },
+          body: JSON.stringify({ audience: 'commerce-service' }),
+        });
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          internalToken = tokenData.accessToken;
+        }
+      } catch (err) {}
+
+      // For simplicity in this demo, fetch analytics sequentially for each game
+      // In production, an internal batch endpoint /internal/v1/analytics?gameIds=... is preferred
+      let totalOwners = 0;
+      let totalRevenue = 0;
+      let lifetimePurchases = 0;
+      const monthlyMap = new Map<string, number>();
+
+      for (const gameId of gameIds) {
+        try {
+          const analyticsRes = await fetch(`http://commerce-service:5003/internal/v1/analytics/${gameId}`, {
+            headers: { Authorization: `Bearer ${internalToken}` },
+          });
+          if (analyticsRes.ok) {
+            const data = await analyticsRes.json();
+            totalOwners += data.totalOwners;
+            totalRevenue += parseFloat(data.totalRevenueEgp);
+            lifetimePurchases += data.lifetimePurchases;
+            for (const mp of data.monthlyPurchases) {
+              const k = `${mp.year}-${mp.month}`;
+              monthlyMap.set(k, (monthlyMap.get(k) || 0) + mp.amount);
+            }
+          }
+        } catch (err) {}
+      }
+
+      const monthlyPurchases = Array.from(monthlyMap.entries()).map(([key, amount]) => {
+        const [year, month] = key.split('-');
+        return {
+          year: parseInt(year, 10),
+          month: parseInt(month, 10),
+          amount,
+        };
+      }).sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
+
+      return res.status(200).json({
+        totalOwners,
+        totalRevenueEgp: totalRevenue.toFixed(2),
+        averageScore: 4.5, // Mocked overall
+        lifetimePurchases,
+        monthlyPurchases,
+      });
+
+    } catch (error) {
+      console.error('Error fetching creator analytics:', error);
+      return res.status(500).json({ error: { message: 'Internal server error' } });
     }
   }
 );
