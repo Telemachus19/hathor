@@ -86,9 +86,22 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
 
     try {
       if (activeTab === 'login') {
-        await login(email, password);
+        const params = new URLSearchParams(window.location.search);
+        let redirectPath = params.get('redirect');
+        const user = await login(email, password);
         showToast('success', 'Logged in successfully! Welcome back.');
-        navigate({ to: '/' });
+        
+        if (!redirectPath || redirectPath === '/') {
+          if (user.roles.includes('admin')) {
+            redirectPath = '/admin';
+          } else if (user.roles.includes('creator')) {
+            redirectPath = '/creator';
+          } else {
+            redirectPath = '/';
+          }
+        }
+        
+        navigate({ to: redirectPath });
       } else if (activeTab === 'register') {
         await register(displayName, email, password);
         showToast('success', 'Account registered successfully! Please sign in.');

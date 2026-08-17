@@ -26,7 +26,7 @@ export type AuthContextValue = {
   status: AuthStatus;
   isAuthenticated: boolean;
 
-  login: (identifier: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<AuthUser>;
 
   register: (displayName: string, email: string, password: string) => Promise<void>;
 
@@ -95,6 +95,8 @@ export function AuthContextProvider({ children, authService }: AuthProviderProps
         setUser(result.user);
 
         setStatus('authenticated');
+        
+        return result.user;
       } catch (error) {
         setAccessToken(null);
         setUser(null);

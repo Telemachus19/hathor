@@ -28,6 +28,15 @@ const queryClient = new QueryClient();
 
 function AppWithRouter() {
   const auth = useAuth();
+
+  if (auth.status === 'loading' || auth.status === 'idle') {
+    return (
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <p>Loading application...</p>
+      </div>
+    );
+  }
+
   return <RouterProvider router={router} context={{ auth }} />;
 }
 
