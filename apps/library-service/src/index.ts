@@ -18,7 +18,7 @@ const app = createLibraryApp(async () => {
   await Promise.all([libraryPool.query('SELECT 1'), checkRabbitMq(RABBITMQ_URL)]);
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Hathor Library Service running on port ${PORT}`);
 
   startQueueConsumer(RABBITMQ_URL).catch((err) => {

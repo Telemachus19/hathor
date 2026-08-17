@@ -5,7 +5,6 @@ import { checkRabbitMq } from './infrastructure/rabbitmq-health.js';
 import { OutboxPublisher } from './infrastructure/outbox/outbox-publisher.js';
 import { OutboxWorker } from './infrastructure/outbox/outbox-worker.js';
 import { startQueueConsumer } from './infrastructure/queue-consumer.js';
-import { runMigrations } from './infrastructure/db/migrate.js';
 
 dotenv.config();
 
@@ -25,10 +24,9 @@ const outboxWorker = new OutboxWorker(outboxPublisher, {
 
 const app = createCommerceApp(async () => {
   await Promise.all([commercePool.query('SELECT 1'), checkRabbitMq(RABBITMQ_URL)]);
-  await runMigrations();
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Hathor Commerce Service running on port ${PORT}`);
   outboxWorker.start();
   startQueueConsumer(RABBITMQ_URL).catch((err) => {

@@ -17,7 +17,7 @@ const app = createAuthApp(async () => {
   await authPool.query('SELECT 1');
 }, turnstileVerifier);
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Hathor Auth Service running on port ${PORT}`);
 });
 
