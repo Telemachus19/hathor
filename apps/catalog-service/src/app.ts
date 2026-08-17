@@ -13,7 +13,20 @@ export type ReadinessCheck = () => Promise<void>;
 export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
   const app = express();
 
-  app.use(cors());
+  const corsOrigin = process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000';
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || origin === corsOrigin || origin.startsWith('http://localhost:')) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
+      credentials: true,
+      exposedHeaders: ['X-Correlation-ID'],
+    })
+  );
   app.use(express.json());
 
   app.use('/admin', adminRouter);

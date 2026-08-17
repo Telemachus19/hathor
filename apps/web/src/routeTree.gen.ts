@@ -10,19 +10,39 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as CreatorRouteImport } from './routes/creator'
 import { Route as DesignerPageRouteImport } from './routes/designer-page'
 import { Route as GameInfoFormRouteImport } from './routes/game-info-form'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAuditLogRouteImport } from './routes/admin/audit-log'
+import { Route as AdminGamesRouteImport } from './routes/admin/games'
+import { Route as AdminGenresRouteImport } from './routes/admin/genres'
+import { Route as AdminSubmissionsRouteImport } from './routes/admin/submissions'
+import { Route as AdminTransactionsRouteImport } from './routes/admin/transactions'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as CreatorIndexRouteImport } from './routes/creator/index'
+import { Route as CreatorAnalyticsRouteImport } from './routes/creator/analytics'
+import { Route as CreatorMyGamesRouteImport } from './routes/creator/my-games'
+import { Route as CreatorOverviewRouteImport } from './routes/creator/overview'
+import { Route as AdminSubmissionsSubmissionIdRouteImport } from './routes/admin/submissions.$submissionId'
 import { Route as StoreGamesSlugRouteImport } from './routes/store.games.$slug'
+import { Route as CreatorGamesGameIdEditRouteImport } from './routes/creator/games.$gameId.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartRoute = CartRouteImport.update({
@@ -33,6 +53,11 @@ const CartRoute = CartRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreatorRoute = CreatorRouteImport.update({
+  id: '/creator',
+  path: '/creator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignerPageRoute = DesignerPageRouteImport.update({
@@ -65,23 +90,104 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditLogRoute = AdminAuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGamesRoute = AdminGamesRouteImport.update({
+  id: '/games',
+  path: '/games',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGenresRoute = AdminGenresRouteImport.update({
+  id: '/genres',
+  path: '/genres',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSubmissionsRoute = AdminSubmissionsRouteImport.update({
+  id: '/submissions',
+  path: '/submissions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const CreatorIndexRoute = CreatorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CreatorRoute,
+} as any)
+const CreatorAnalyticsRoute = CreatorAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => CreatorRoute,
+} as any)
+const CreatorMyGamesRoute = CreatorMyGamesRouteImport.update({
+  id: '/my-games',
+  path: '/my-games',
+  getParentRoute: () => CreatorRoute,
+} as any)
+const CreatorOverviewRoute = CreatorOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => CreatorRoute,
+} as any)
+const AdminSubmissionsSubmissionIdRoute =
+  AdminSubmissionsSubmissionIdRouteImport.update({
+    id: '/$submissionId',
+    path: '/$submissionId',
+    getParentRoute: () => AdminSubmissionsRoute,
+  } as any)
 const StoreGamesSlugRoute = StoreGamesSlugRouteImport.update({
   id: '/store/games/$slug',
   path: '/store/games/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreatorGamesGameIdEditRoute = CreatorGamesGameIdEditRouteImport.update({
+  id: '/games/$gameId/edit',
+  path: '/games/$gameId/edit',
+  getParentRoute: () => CreatorRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/creator': typeof CreatorRouteWithChildren
   '/designer-page': typeof DesignerPageRoute
   '/game-info-form': typeof GameInfoFormRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/games': typeof AdminGamesRoute
+  '/admin/genres': typeof AdminGenresRoute
+  '/admin/submissions': typeof AdminSubmissionsRouteWithChildren
+  '/admin/transactions': typeof AdminTransactionsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/creator/analytics': typeof CreatorAnalyticsRoute
+  '/creator/my-games': typeof CreatorMyGamesRoute
+  '/creator/overview': typeof CreatorOverviewRoute
+  '/admin/': typeof AdminIndexRoute
+  '/creator/': typeof CreatorIndexRoute
+  '/admin/submissions/$submissionId': typeof AdminSubmissionsSubmissionIdRoute
   '/store/games/$slug': typeof StoreGamesSlugRoute
+  '/creator/games/$gameId/edit': typeof CreatorGamesGameIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,34 +199,77 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/games': typeof AdminGamesRoute
+  '/admin/genres': typeof AdminGenresRoute
+  '/admin/submissions': typeof AdminSubmissionsRouteWithChildren
+  '/admin/transactions': typeof AdminTransactionsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/creator/analytics': typeof CreatorAnalyticsRoute
+  '/creator/my-games': typeof CreatorMyGamesRoute
+  '/creator/overview': typeof CreatorOverviewRoute
+  '/admin': typeof AdminIndexRoute
+  '/creator': typeof CreatorIndexRoute
+  '/admin/submissions/$submissionId': typeof AdminSubmissionsSubmissionIdRoute
   '/store/games/$slug': typeof StoreGamesSlugRoute
+  '/creator/games/$gameId/edit': typeof CreatorGamesGameIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/creator': typeof CreatorRouteWithChildren
   '/designer-page': typeof DesignerPageRoute
   '/game-info-form': typeof GameInfoFormRoute
   '/library': typeof LibraryRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/games': typeof AdminGamesRoute
+  '/admin/genres': typeof AdminGenresRoute
+  '/admin/submissions': typeof AdminSubmissionsRouteWithChildren
+  '/admin/transactions': typeof AdminTransactionsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/creator/analytics': typeof CreatorAnalyticsRoute
+  '/creator/my-games': typeof CreatorMyGamesRoute
+  '/creator/overview': typeof CreatorOverviewRoute
+  '/admin/': typeof AdminIndexRoute
+  '/creator/': typeof CreatorIndexRoute
+  '/admin/submissions/$submissionId': typeof AdminSubmissionsSubmissionIdRoute
   '/store/games/$slug': typeof StoreGamesSlugRoute
+  '/creator/games/$gameId/edit': typeof CreatorGamesGameIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/cart'
     | '/checkout'
+    | '/creator'
     | '/designer-page'
     | '/game-info-form'
     | '/library'
     | '/login'
     | '/profile'
     | '/register'
+    | '/admin/audit-log'
+    | '/admin/games'
+    | '/admin/genres'
+    | '/admin/submissions'
+    | '/admin/transactions'
+    | '/admin/users'
+    | '/creator/analytics'
+    | '/creator/my-games'
+    | '/creator/overview'
+    | '/admin/'
+    | '/creator/'
+    | '/admin/submissions/$submissionId'
     | '/store/games/$slug'
+    | '/creator/games/$gameId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -132,25 +281,55 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/admin/audit-log'
+    | '/admin/games'
+    | '/admin/genres'
+    | '/admin/submissions'
+    | '/admin/transactions'
+    | '/admin/users'
+    | '/creator/analytics'
+    | '/creator/my-games'
+    | '/creator/overview'
+    | '/admin'
+    | '/creator'
+    | '/admin/submissions/$submissionId'
     | '/store/games/$slug'
+    | '/creator/games/$gameId/edit'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/cart'
     | '/checkout'
+    | '/creator'
     | '/designer-page'
     | '/game-info-form'
     | '/library'
     | '/login'
     | '/profile'
     | '/register'
+    | '/admin/audit-log'
+    | '/admin/games'
+    | '/admin/genres'
+    | '/admin/submissions'
+    | '/admin/transactions'
+    | '/admin/users'
+    | '/creator/analytics'
+    | '/creator/my-games'
+    | '/creator/overview'
+    | '/admin/'
+    | '/creator/'
+    | '/admin/submissions/$submissionId'
     | '/store/games/$slug'
+    | '/creator/games/$gameId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
+  CreatorRoute: typeof CreatorRouteWithChildren
   DesignerPageRoute: typeof DesignerPageRoute
   GameInfoFormRoute: typeof GameInfoFormRoute
   LibraryRoute: typeof LibraryRoute
@@ -169,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cart': {
       id: '/cart'
       path: '/cart'
@@ -181,6 +367,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creator': {
+      id: '/creator'
+      path: '/creator'
+      fullPath: '/creator'
+      preLoaderRoute: typeof CreatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/designer-page': {
@@ -225,6 +418,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit-log': {
+      id: '/admin/audit-log'
+      path: '/audit-log'
+      fullPath: '/admin/audit-log'
+      preLoaderRoute: typeof AdminAuditLogRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/games': {
+      id: '/admin/games'
+      path: '/games'
+      fullPath: '/admin/games'
+      preLoaderRoute: typeof AdminGamesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/genres': {
+      id: '/admin/genres'
+      path: '/genres'
+      fullPath: '/admin/genres'
+      preLoaderRoute: typeof AdminGenresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/submissions': {
+      id: '/admin/submissions'
+      path: '/submissions'
+      fullPath: '/admin/submissions'
+      preLoaderRoute: typeof AdminSubmissionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/transactions': {
+      id: '/admin/transactions'
+      path: '/transactions'
+      fullPath: '/admin/transactions'
+      preLoaderRoute: typeof AdminTransactionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/creator/': {
+      id: '/creator/'
+      path: '/'
+      fullPath: '/creator/'
+      preLoaderRoute: typeof CreatorIndexRouteImport
+      parentRoute: typeof CreatorRoute
+    }
+    '/creator/analytics': {
+      id: '/creator/analytics'
+      path: '/analytics'
+      fullPath: '/creator/analytics'
+      preLoaderRoute: typeof CreatorAnalyticsRouteImport
+      parentRoute: typeof CreatorRoute
+    }
+    '/creator/my-games': {
+      id: '/creator/my-games'
+      path: '/my-games'
+      fullPath: '/creator/my-games'
+      preLoaderRoute: typeof CreatorMyGamesRouteImport
+      parentRoute: typeof CreatorRoute
+    }
+    '/creator/overview': {
+      id: '/creator/overview'
+      path: '/overview'
+      fullPath: '/creator/overview'
+      preLoaderRoute: typeof CreatorOverviewRouteImport
+      parentRoute: typeof CreatorRoute
+    }
+    '/admin/submissions/$submissionId': {
+      id: '/admin/submissions/$submissionId'
+      path: '/$submissionId'
+      fullPath: '/admin/submissions/$submissionId'
+      preLoaderRoute: typeof AdminSubmissionsSubmissionIdRouteImport
+      parentRoute: typeof AdminSubmissionsRoute
+    }
     '/store/games/$slug': {
       id: '/store/games/$slug'
       path: '/store/games/$slug'
@@ -232,13 +509,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoreGamesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/creator/games/$gameId/edit': {
+      id: '/creator/games/$gameId/edit'
+      path: '/games/$gameId/edit'
+      fullPath: '/creator/games/$gameId/edit'
+      preLoaderRoute: typeof CreatorGamesGameIdEditRouteImport
+      parentRoute: typeof CreatorRoute
+    }
   }
 }
 
+interface AdminSubmissionsRouteChildren {
+  AdminSubmissionsSubmissionIdRoute: typeof AdminSubmissionsSubmissionIdRoute
+}
+
+const AdminSubmissionsRouteChildren: AdminSubmissionsRouteChildren = {
+  AdminSubmissionsSubmissionIdRoute: AdminSubmissionsSubmissionIdRoute,
+}
+
+const AdminSubmissionsRouteWithChildren =
+  AdminSubmissionsRoute._addFileChildren(AdminSubmissionsRouteChildren)
+
+interface AdminRouteChildren {
+  AdminAuditLogRoute: typeof AdminAuditLogRoute
+  AdminGamesRoute: typeof AdminGamesRoute
+  AdminGenresRoute: typeof AdminGenresRoute
+  AdminSubmissionsRoute: typeof AdminSubmissionsRouteWithChildren
+  AdminTransactionsRoute: typeof AdminTransactionsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditLogRoute: AdminAuditLogRoute,
+  AdminGamesRoute: AdminGamesRoute,
+  AdminGenresRoute: AdminGenresRoute,
+  AdminSubmissionsRoute: AdminSubmissionsRouteWithChildren,
+  AdminTransactionsRoute: AdminTransactionsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface CreatorRouteChildren {
+  CreatorAnalyticsRoute: typeof CreatorAnalyticsRoute
+  CreatorMyGamesRoute: typeof CreatorMyGamesRoute
+  CreatorOverviewRoute: typeof CreatorOverviewRoute
+  CreatorIndexRoute: typeof CreatorIndexRoute
+  CreatorGamesGameIdEditRoute: typeof CreatorGamesGameIdEditRoute
+}
+
+const CreatorRouteChildren: CreatorRouteChildren = {
+  CreatorAnalyticsRoute: CreatorAnalyticsRoute,
+  CreatorMyGamesRoute: CreatorMyGamesRoute,
+  CreatorOverviewRoute: CreatorOverviewRoute,
+  CreatorIndexRoute: CreatorIndexRoute,
+  CreatorGamesGameIdEditRoute: CreatorGamesGameIdEditRoute,
+}
+
+const CreatorRouteWithChildren =
+  CreatorRoute._addFileChildren(CreatorRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
+  CreatorRoute: CreatorRouteWithChildren,
   DesignerPageRoute: DesignerPageRoute,
   GameInfoFormRoute: GameInfoFormRoute,
   LibraryRoute: LibraryRoute,

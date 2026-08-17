@@ -3,6 +3,8 @@ import express, { Request, Response, type Express } from 'express';
 import { metricsRegistry } from './infrastructure/metrics.js';
 import cartRouter from './routes/cart.js';
 import txnRouter from './routes/txn.js';
+import adminRouter from './routes/admin.js';
+import internalRouter from './routes/internal.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -45,6 +47,8 @@ export function createCommerceApp(checkDependencies: ReadinessCheck): Express {
 
   app.use('/cart', cartRouter);
   app.use('/txn', txnRouter);
+  app.use('/admin', adminRouter);
+  app.use('/internal/v1', internalRouter);
 
   app.get('/health/live', (_req: Request, res: Response) => {
     res.status(200).json({

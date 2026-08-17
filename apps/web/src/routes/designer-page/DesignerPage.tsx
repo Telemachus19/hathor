@@ -23,10 +23,11 @@ import { TemplateModal } from './components/modals/TemplateModal';
 import { PublishModal } from './components/modals/PublishModal';
 import { ImportModal } from './components/modals/ImportModal';
 import { PreviewModal } from './components/modals/PreviewModal';
+import { AiThemeModal } from './components/modals/AiThemeModal';
 import { validateThemeAgainstDocument } from '../../utils/themeValidator';
 import styles from './DesignerPage.module.css';
 
-export default function DesignerPage() {
+export default function DesignerPage({ initialGame }: { initialGame?: any }) {
   const [state, setState] = useState(() => {
     const synced = syncSectionsWithDraft(INITIAL);
     return { sections: synced, history: [synced], historyIdx: 0 };
@@ -53,6 +54,7 @@ export default function DesignerPage() {
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  const [showAiModal, setShowAiModal] = useState<boolean>(false);
   const [importJsonText, setImportJsonText] = useState<string>('');
   const [importError, setImportError] = useState<string | null>(null);
   const [previewDevice, setPreviewDevice] = useState<Device>('desktop');
@@ -60,6 +62,12 @@ export default function DesignerPage() {
   const [device, setDevice] = useState<Device>('desktop');
   const [gameTitle, setGameTitle] = useState(() => getGameInfoDraft().title || 'YOUR GAME TITLE');
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleOpenAiModal = () => setShowAiModal(true);
+    document.addEventListener('openAiThemeModal', handleOpenAiModal);
+    return () => document.removeEventListener('openAiThemeModal', handleOpenAiModal);
+  }, []);
 
   useEffect(() => {
     const draft = getGameInfoDraft();
@@ -425,6 +433,19 @@ export default function DesignerPage() {
 
       {/* Main Workspace Body */}
       <div className={styles.editorBody}>
+        {showAiModal && (
+          <AiThemeModal
+            gameId={initialGame?.id || 'draft'}
+            currentTheme={{ sections, settings: pageSettings }}
+            onClose={() => setShowAiModal(false)}
+            onAccept={(newTheme) => {
+              if (newTheme?.sections) mutateSections(newTheme.sections);
+              if (newTheme?.settings) setPageSettings(newTheme.settings);
+              setShowAiModal(false);
+              showToast('AI Theme Applied successfully!');
+            }}
+          />
+        )}
         {/* Left Sidebar — Block Palette */}
         <BlockPalette onAdd={addSection} onAddGridWithCols={addGridSection} />
 

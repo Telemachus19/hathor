@@ -11,6 +11,7 @@ import {
   FileUp,
   FileJson,
   Eye,
+  Wand2,
 } from 'lucide-react';
 import { HathorLogo } from '../../../../assets';
 import { Device, HATHOR_ORANGE, GREEN_ACCENT, BORDER, TEXT_MUTED } from '../../types/designerTypes';
@@ -211,6 +212,21 @@ export function DesignerHeader({
         }}
       >
         <FileUp size={12} /> Import JSON
+      </button>
+      <button
+        onClick={() => {
+          // This will be passed down from props later, but for now we dispatch an event
+          document.dispatchEvent(new CustomEvent('openAiThemeModal'));
+        }}
+        className={styles.saveDraftBtn}
+        style={{
+          background: 'linear-gradient(90deg, rgba(138,43,226,0.1) 0%, rgba(242,107,33,0.1) 100%)',
+          border: '1px solid rgba(138,43,226,0.5)',
+          color: '#e2b3ff',
+          fontWeight: 800,
+        }}
+      >
+        <Wand2 size={12} /> AI Magic
       </button>
       <button onClick={onSaveDraft} className={styles.saveDraftBtn}>
         <Save size={11} /> Save Draft

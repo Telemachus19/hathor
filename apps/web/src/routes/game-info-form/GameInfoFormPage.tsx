@@ -15,9 +15,9 @@ import { MediaAssetsCard } from './-components/MediaAssetsCard';
 import { SystemReqsCard } from './-components/SystemReqsCard';
 import styles from './-styles/GameInfoFormPage.module.css';
 
-export default function GameInfoFormPage() {
+export default function GameInfoFormPage({ initialGame }: { initialGame?: any }) {
   const navigate = useNavigate();
-  const [draft, setDraft] = useState<GameInfoDraft>(() => getGameInfoDraft() || EMPTY_GAME_DRAFT);
+  const [draft, setDraft] = useState<GameInfoDraft>(() => initialGame || getGameInfoDraft() || EMPTY_GAME_DRAFT);
   const [savedToast, setSavedToast] = useState(false);
 
   useEffect(() => {
