@@ -1,0 +1,396 @@
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  position: relative;
+  background-color: #1c2028;
+  border: 1px solid #393e46;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.statTopStripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+.statHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.statLabel {
+  font-size: 0.55rem;
+  color: #8c9aaa;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.statIconBox {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin: 0 0 0.35rem 0;
+  font-family: 'Cinzel', serif;
+}
+
+.statDelta {
+  font-size: 0.55rem;
+  color: #8c9aaa;
+  font-family: monospace;
+  margin: 0;
+}
+
+/* Two Column Layout */
+.twoColGrid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .twoColGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panel Card */
+.panelCard {
+  background-color: #1c2028;
+  border: 1px solid #393e46;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #393e46;
+  background-color: #222831;
+}
+
+.panelHeaderTitle {
+  font-size: 0.55rem;
+  font-family: monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #8c9aaa;
+  margin: 0;
+}
+
+.panelHeaderMeta {
+  font-size: 0.55rem;
+  font-family: monospace;
+  color: #fd7014;
+}
+
+/* Portfolio List */
+.portfolioItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(57, 62, 70, 0.4);
+  background-color: #1c2028;
+  transition: background-color 0.15s ease;
+}
+
+.portfolioItem:nth-child(even) {
+  background-color: rgba(28, 32, 40, 0.8);
+}
+
+.portfolioItem:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.portfolioIconBox {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(57, 62, 70, 0.5);
+  flex-shrink: 0;
+}
+
+.portfolioInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.portfolioTitle {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #eeeeee;
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.portfolioSubtitle {
+  font-size: 0.55rem;
+  color: #8c9aaa;
+  font-family: monospace;
+  margin: 0.15rem 0 0 0;
+}
+
+.portfolioStats {
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+.portfolioStatsVal {
+  font-size: 0.75rem;
+  font-weight: 900;
+  font-family: monospace;
+  margin: 0;
+}
+
+.portfolioStatsLabel {
+  font-size: 0.5rem;
+  color: #8c9aaa;
+  font-family: monospace;
+  margin: 0;
+}
+
+.statsBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.55rem;
+  font-family: monospace;
+  border: 1px solid #393e46;
+  background: transparent;
+  color: #8c9aaa;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.statsBtn:hover {
+  color: #eeeeee;
+  border-color: #fd7014;
+}
+
+/* Top Performer Card */
+.topPerformerCard {
+  border: 1px solid rgba(253, 112, 20, 0.25);
+  background-color: #1c2028;
+  overflow: hidden;
+}
+
+.topPerformerStripe {
+  height: 2px;
+  width: 100%;
+  background-color: #fd7014;
+}
+
+.topPerformerHeader {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(57, 62, 70, 0.4);
+  background: linear-gradient(to right, rgba(253, 112, 20, 0.08), transparent);
+}
+
+.topPerformerOverline {
+  font-size: 0.5rem;
+  font-family: monospace;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(253, 112, 20, 0.7);
+  margin: 0 0 0.15rem 0;
+}
+
+.topPerformerTitle {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #eeeeee;
+  font-family: 'Cinzel', serif;
+  margin: 0;
+}
+
+.metricRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(57, 62, 70, 0.3);
+}
+
+.metricRow:last-child {
+  border-bottom: none;
+}
+
+.metricLabel {
+  font-size: 0.55rem;
+  font-family: monospace;
+  color: #8c9aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metricVal {
+  font-size: 0.75rem;
+  font-weight: 900;
+  font-family: monospace;
+}
+
+.viewAnalyticsBtn {
+  margin-top: 0.75rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 1px solid rgba(253, 112, 20, 0.3);
+  color: #fd7014;
+  background: rgba(253, 112, 20, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viewAnalyticsBtn:hover {
+  background: rgba(253, 112, 20, 0.18);
+  border-color: #fd7014;
+}
+
+/* Quick Actions */
+.quickActionBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(253, 112, 20, 0.3);
+  background: rgba(253, 112, 20, 0.05);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quickActionBtn:hover {
+  background: rgba(253, 112, 20, 0.12);
+  border-color: #fd7014;
+}
+
+.quickActionIcon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(253, 112, 20, 0.3);
+  background: rgba(253, 112, 20, 0.1);
+  color: #fd7014;
+  flex-shrink: 0;
+}
+
+.quickActionTitle {
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: 'Cinzel', serif;
+  color: #fd7014;
+  margin: 0;
+}
+
+.quickActionDesc {
+  font-size: 0.5rem;
+  font-family: monospace;
+  color: #8c9aaa;
+  margin: 0.15rem 0 0 0;
+}
+
+/* Filter Bar */
+.filterTabs {
+  display: flex;
+  border: 1px solid #393e46;
+  overflow: hidden;
+  background-color: #1c2028;
+}
+
+.filterTabBtn {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.55rem;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  border-right: 1px solid #393e46;
+  background: transparent;
+  color: #8c9aaa;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filterTabBtn:last-child {
+  border-right: none;
+}
+
+.filterTabBtn:hover {
+  color: #eeeeee;
+}
+
+.filterTabBtnActive {
+  background: rgba(253, 112, 20, 0.1) !important;
+  color: #fd7014 !important;
+}
+
+/* Toast */
+.toastContainer {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid rgba(253, 112, 20, 0.3);
+  background-color: #1c2028;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  font-size: 0.65rem;
+  font-family: monospace;
+  color: #eeeeee;
+}

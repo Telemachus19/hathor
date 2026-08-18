@@ -9,11 +9,12 @@ export type UserModalAction = 'view' | 'temp_ban' | 'perma_ban' | 'activate';
 interface UserActionModalProps {
   user: User;
   action: UserModalAction;
+  spent?: number;
   onClose: () => void;
   onConfirmStatus: (userId: string, status: 'active' | 'suspended' | 'banned', reason?: string, days?: number) => void;
 }
 
-export function UserActionModal({ user, action, onClose, onConfirmStatus }: UserActionModalProps) {
+export function UserActionModal({ user, action, spent = 0, onClose, onConfirmStatus }: UserActionModalProps) {
   const [reason, setReason] = useState('');
   const [days, setDays] = useState(7);
 
@@ -73,6 +74,12 @@ export function UserActionModal({ user, action, onClose, onConfirmStatus }: User
                 <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace', wordBreak: 'break-all' }}>{user.id}</p>
               </div>
               <div className={styles.infoItem}>
+                <p className={styles.fieldLabel}>Total Spent</p>
+                <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace', color: spent > 0 ? '#4caf80' : 'var(--text-white)', fontWeight: 700 }}>
+                  EGP {spent.toFixed(2)}
+                </p>
+              </div>
+              <div className={styles.infoItem}>
                 <p className={styles.fieldLabel}>Joined Date</p>
                 <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace' }}>
                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
@@ -84,7 +91,7 @@ export function UserActionModal({ user, action, onClose, onConfirmStatus }: User
                   {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
                 </p>
               </div>
-              <div className={styles.infoItem}>
+              <div className={styles.infoItem} style={{ gridColumn: 'span 2' }}>
                 <p className={styles.fieldLabel}>Roles Assigned</p>
                 <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace' }}>
                   {user.roles.join(', ') || 'user'}

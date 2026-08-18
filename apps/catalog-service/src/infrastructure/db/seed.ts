@@ -35,6 +35,1494 @@ function getSeededZipBuffer(): Buffer {
   ]);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Preset Theme Generators adhering strictly to ThemeDocument.json
+// ─────────────────────────────────────────────────────────────────────────────
+
+function createDefaultTheme(title: string, desc: string, aboutImg?: string) {
+  return {
+    theme: 'default',
+    pageSettings: {
+      bg: 'transparent',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#fd7014',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    pageBody: {
+      bg: 'transparent',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#fd7014',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    sections: [],
+    layout: {
+      gameAbout: {
+        sections: [
+          {
+            title: title.toUpperCase(),
+            description: desc,
+            ...(aboutImg ? { imageUrl: aboutImg } : {}),
+          },
+        ],
+      },
+    },
+  };
+}
+
+function createCyberpunkTheme() {
+  return {
+    theme: 'custom',
+    pageSettings: {
+      bg: '#090d16',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Space Grotesk', sans-serif",
+      textFont: "'Inter', sans-serif",
+      accentColor: '#00f0ff',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    pageBody: {
+      bg: '#090d16',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Space Grotesk', sans-serif",
+      textFont: "'Inter', sans-serif",
+      accentColor: '#00f0ff',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    sections: [
+      {
+        id: 'sec_cyber_hero',
+        type: 'media-carousel',
+        heroImages: [
+          'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselImages: [
+          'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselHeight: 500,
+        showThumbnails: true,
+        heroShadowColor: '#090d16',
+        heroShadowEnabled: true,
+      },
+      {
+        id: 'sec_cyber_grid',
+        type: 'grid',
+        gridGap: 32,
+        gridTemplate: '2:1',
+        pt: 24,
+        pb: 32,
+        gridCols: [
+          {
+            id: 'col_main_cyber',
+            elements: [
+              {
+                id: 'el_cyber_header',
+                type: 'game-header',
+                headerBg: 'linear-gradient(180deg, #101726 0%, #0d121f 100%)',
+                headerBorder: 'rgba(0, 240, 255, 0.3)',
+                headerRadius: 8,
+                titleColor: '#00f0ff',
+                titleFont: "'Space Grotesk', sans-serif",
+                subtitleColor: '#ec4899',
+                descColor: '#94a3b8',
+                tagBg: 'rgba(0, 240, 255, 0.12)',
+                tagBorder: 'rgba(0, 240, 255, 0.4)',
+                tagColor: '#00f0ff',
+                starColor: '#00f0ff',
+              },
+              {
+                id: 'el_cyber_about',
+                type: 'about-game',
+                aboutBg: '#101726',
+                aboutBorder: 'rgba(0, 240, 255, 0.25)',
+                aboutRadius: 8,
+                aboutTitle: 'NEO-CAIRO SYNDICATE WARFARE',
+                titleColor: '#00f0ff',
+                titleFont: "'Space Grotesk', sans-serif",
+                subTitleColor: '#ec4899',
+                textColor: '#94a3b8',
+                aboutSections: [
+                  {
+                    title: 'NEURAL AUGMENTATIONS & COMBAT RIGS',
+                    text: 'Overclock your synaptic reflexes and splice military combat subroutines to master high-velocity blade parries and smart projectile targeting.',
+                    img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop',
+                  },
+                  {
+                    title: 'SUBTERRANEAN SYNDICATE HEISTS',
+                    text: 'Infiltrate corporate mega-towers, bypass biometric sensor grids, and extract forbidden AI cores before strike teams breach the facility.',
+                    img: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=800&auto=format&fit=crop',
+                  },
+                ],
+              },
+              {
+                id: 'el_cyber_reqs',
+                type: 'system-reqs',
+                reqsCardBg: '#101726',
+                reqsCardBorder: 'rgba(0, 240, 255, 0.25)',
+                titleColor: '#00f0ff',
+                reqsTitle: 'CYBERDECK HARDWARE SPECS',
+                titleFont: "'Space Grotesk', sans-serif",
+                accentColor: '#00f0ff',
+                labelColor: '#64748b',
+                valueColor: '#f8fafc',
+              },
+              {
+                id: 'el_cyber_reviews',
+                type: 'user-reviews',
+                reviewCardBg: '#101726',
+                reviewCardBorder: 'rgba(0, 240, 255, 0.25)',
+                reviewCardRadius: 8,
+                reviewHeader: 'STREET OPERATIVE LOGS',
+                reviewNameFont: "'Space Grotesk', sans-serif",
+                reviewNameColor: '#00f0ff',
+                reviewBodyColor: '#94a3b8',
+                reviewStarColor: '#00f0ff',
+              },
+            ],
+          },
+          {
+            id: 'col_side_cyber',
+            elements: [
+              {
+                id: 'el_cyber_cta',
+                type: 'sidebar-cta',
+                sideCardBg: '#101726',
+                sideCardBorder: 'rgba(0, 240, 255, 0.35)',
+                unownedPrimaryBtnBg: 'linear-gradient(135deg, #00f0ff 0%, #0284c7 100%)',
+                unownedPrimaryBtnText: 'JACK IN NOW',
+                ownedPrimaryBtnBg: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+                ownedPrimaryBtnText: 'RESUME LINK',
+              },
+              {
+                id: 'el_cyber_info',
+                type: 'sidebar-info',
+                infoCardBg: '#101726',
+                infoCardBorder: 'rgba(0, 240, 255, 0.25)',
+                infoTitle: 'SYNDICATE INTEL',
+                infoTitleColor: '#00f0ff',
+                infoLabelColor: '#64748b',
+                infoValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_cyber_ratings',
+                type: 'sidebar-ratings',
+                ratingsCardBg: '#101726',
+                ratingsCardBorder: 'rgba(0, 240, 255, 0.25)',
+                ratingsTitle: 'NETWORK VERDICTS',
+                ratingsTitleColor: '#00f0ff',
+                ratingsFillColor: '#00f0ff',
+                ratingsLabelColor: '#64748b',
+                ratingsValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_cyber_comm',
+                type: 'sidebar-community',
+                communityCardBg: '#101726',
+                communityCardBorder: 'rgba(0, 240, 255, 0.25)',
+                communityTitle: 'ACTIVE NETRUNNERS',
+                communityTitleColor: '#00f0ff',
+                communityLabelColor: '#64748b',
+                communityValueColor: '#f8fafc',
+                communityRatingColor: '#00f0ff',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'sec_cyber_features',
+        type: 'features',
+        featuresTitle: 'AUGMENTATION MODULES',
+        featuresTitleColor: '#00f0ff',
+        featuresCardBg: '#101726',
+        featuresCardBorder: 'rgba(0, 240, 255, 0.3)',
+        featuresCols: 4,
+        featuresItems: [
+          {
+            icon: '⚡',
+            title: 'Neural Overclock',
+            desc: 'Boost tactical processing speed by 300% during critical gunfights.',
+            color: '#00f0ff',
+          },
+          {
+            icon: '👁️',
+            title: 'Optical Threat Radar',
+            desc: 'Detect enemy movement through reinforced titanium walls.',
+            color: '#ec4899',
+          },
+          {
+            icon: '🛡️',
+            title: 'Subdermal Plating',
+            desc: 'Deflect high-caliber ballistic rounds with kinetic dispersion.',
+            color: '#38bdf8',
+          },
+          {
+            icon: '💾',
+            title: 'ICE Breaker Protocol',
+            desc: 'Hijack enemy robotic drones and weapon turrets remotely.',
+            color: '#a855f7',
+          },
+        ],
+      },
+      {
+        id: 'sec_cyber_cta_bottom',
+        type: 'cta',
+        ctaTitle: 'JOIN THE METROPOLITAN REBELLION',
+        ctaSubtitle: 'Equip your cyberdeck and reclaim the neon underworld.',
+        ctaBg: 'linear-gradient(135deg, #101726 0%, #172033 50%, #0d121f 100%)',
+        ctaBorder: 'rgba(0, 240, 255, 0.35)',
+        ctaTitleColor: '#00f0ff',
+        ctaSubtitleColor: '#94a3b8',
+        ctaBtnColor: '#00f0ff',
+        ctaBtnTextColor: '#090d16',
+        ctaBtnText: 'DEPLOY OPERATIVE',
+        ctaPrice: 'ELITE ACCESS',
+      },
+      {
+        id: 'sec_cyber_recs',
+        type: 'recommendations',
+        recsTitle: 'MORE CYBERNETIC TITLES',
+        recsCardBg: '#101726',
+        recsCardBorder: 'rgba(0, 240, 255, 0.25)',
+      },
+    ],
+    layout: {},
+  };
+}
+
+function createEgyptianTheme() {
+  return {
+    theme: 'custom',
+    pageSettings: {
+      bg: '#18120b',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#d4af37',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    pageBody: {
+      bg: '#18120b',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#d4af37',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    sections: [
+      {
+        id: 'sec_egypt_hero',
+        type: 'media-carousel',
+        heroImages: [
+          'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1547234935-80c7145ec969?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselImages: [
+          'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1547234935-80c7145ec969?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselHeight: 520,
+        showThumbnails: true,
+        heroShadowColor: '#18120b',
+        heroShadowEnabled: true,
+      },
+      {
+        id: 'sec_egypt_grid',
+        type: 'grid',
+        gridGap: 32,
+        gridTemplate: '2:1',
+        pt: 24,
+        pb: 32,
+        gridCols: [
+          {
+            id: 'col_main_egypt',
+            elements: [
+              {
+                id: 'el_egypt_header',
+                type: 'game-header',
+                headerBg: 'linear-gradient(180deg, #241a10 0%, #1d150d 100%)',
+                headerBorder: 'rgba(212, 175, 55, 0.3)',
+                headerRadius: 6,
+                titleColor: '#d4af37',
+                titleFont: "'Cinzel', serif",
+                subtitleColor: '#f59e0b',
+                descColor: '#d1bda5',
+                tagBg: 'rgba(212, 175, 55, 0.12)',
+                tagBorder: 'rgba(212, 175, 55, 0.4)',
+                tagColor: '#d4af37',
+                starColor: '#d4af37',
+              },
+              {
+                id: 'el_egypt_about',
+                type: 'about-game',
+                aboutBg: '#241a10',
+                aboutBorder: 'rgba(212, 175, 55, 0.25)',
+                aboutRadius: 6,
+                aboutTitle: 'DYNASTIES OF THE NILE VALLEY',
+                titleColor: '#d4af37',
+                titleFont: "'Cinzel', serif",
+                subTitleColor: '#f59e0b',
+                textColor: '#d1bda5',
+                aboutSections: [
+                  {
+                    title: 'STRATEGIC DESERT EXPEDITIONS',
+                    text: 'Deploy royal chariots, seasoned Nubian archers, and sacred obelisk siege engines to conquer rival provinces along the sacred waters.',
+                    img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop',
+                  },
+                  {
+                    title: 'DIVINE FAVOR OF RA & OSIRIS',
+                    text: 'Consecrate majestic golden temples to receive miraculous weather boons, bountiful Nile harvests, and divine tactical interventions.',
+                    img: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800&auto=format&fit=crop',
+                  },
+                ],
+              },
+              {
+                id: 'el_egypt_reqs',
+                type: 'system-reqs',
+                reqsCardBg: '#241a10',
+                reqsCardBorder: 'rgba(212, 175, 55, 0.25)',
+                titleColor: '#d4af37',
+                reqsTitle: 'TABLETS OF SYSTEM SPECIFICATIONS',
+                titleFont: "'Cinzel', serif",
+                accentColor: '#d4af37',
+                labelColor: '#a8947f',
+                valueColor: '#fffbeb',
+              },
+              {
+                id: 'el_egypt_reviews',
+                type: 'user-reviews',
+                reviewCardBg: '#241a10',
+                reviewCardBorder: 'rgba(212, 175, 55, 0.25)',
+                reviewCardRadius: 6,
+                reviewHeader: 'TESTIMONIALS OF THE SCRIBES',
+                reviewNameFont: "'Cinzel', serif",
+                reviewNameColor: '#d4af37',
+                reviewBodyColor: '#d1bda5',
+                reviewStarColor: '#d4af37',
+              },
+            ],
+          },
+          {
+            id: 'col_side_egypt',
+            elements: [
+              {
+                id: 'el_egypt_cta',
+                type: 'sidebar-cta',
+                sideCardBg: '#241a10',
+                sideCardBorder: 'rgba(212, 175, 55, 0.35)',
+                unownedPrimaryBtnBg: 'linear-gradient(135deg, #d4af37 0%, #b45309 100%)',
+                unownedPrimaryBtnText: 'CLAIM THE CROWN',
+                ownedPrimaryBtnBg: 'linear-gradient(135deg, #a16207 0%, #78350f 100%)',
+                ownedPrimaryBtnText: 'ENTER THE TEMPLE',
+              },
+              {
+                id: 'el_egypt_info',
+                type: 'sidebar-info',
+                infoCardBg: '#241a10',
+                infoCardBorder: 'rgba(212, 175, 55, 0.25)',
+                infoTitle: 'ROYAL ARCHIVES',
+                infoTitleColor: '#d4af37',
+                infoLabelColor: '#a8947f',
+                infoValueColor: '#fffbeb',
+              },
+              {
+                id: 'el_egypt_ratings',
+                type: 'sidebar-ratings',
+                ratingsCardBg: '#241a10',
+                ratingsCardBorder: 'rgba(212, 175, 55, 0.25)',
+                ratingsTitle: 'ORACLE VERDICTS',
+                ratingsTitleColor: '#d4af37',
+                ratingsFillColor: '#d4af37',
+                ratingsLabelColor: '#a8947f',
+                ratingsValueColor: '#fffbeb',
+              },
+              {
+                id: 'el_egypt_comm',
+                type: 'sidebar-community',
+                communityCardBg: '#241a10',
+                communityCardBorder: 'rgba(212, 175, 55, 0.25)',
+                communityTitle: 'PHARAONIC GUILDS',
+                communityTitleColor: '#d4af37',
+                communityLabelColor: '#a8947f',
+                communityValueColor: '#fffbeb',
+                communityRatingColor: '#d4af37',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'sec_egypt_features',
+        type: 'features',
+        featuresTitle: 'PILLARS OF EMPIRE',
+        featuresTitleColor: '#d4af37',
+        featuresCardBg: '#241a10',
+        featuresCardBorder: 'rgba(212, 175, 55, 0.3)',
+        featuresCols: 4,
+        featuresItems: [
+          {
+            icon: '🏛️',
+            title: 'Monument Construction',
+            desc: 'Erect pyramids and sphinxes to magnify cultural dominance.',
+            color: '#d4af37',
+          },
+          {
+            icon: '🏺',
+            title: 'Papyrus Diplomacy',
+            desc: 'Forge trade treaties and pacts across Mediterranean city-states.',
+            color: '#f59e0b',
+          },
+          {
+            icon: '⚔️',
+            title: 'Hex-Grid Tactics',
+            desc: 'Outflank rival pharaohs with tactical terrain elevation mechanics.',
+            color: '#d97706',
+          },
+          {
+            icon: '🌾',
+            title: 'Nile Inundation',
+            desc: 'Manage seasonal flood cycles for unprecedented empire wealth.',
+            color: '#ca8a04',
+          },
+        ],
+      },
+      {
+        id: 'sec_egypt_cta_bottom',
+        type: 'cta',
+        ctaTitle: 'FORGE AN ETERNAL DYNASTY',
+        ctaSubtitle: 'Ascend the throne and lead your empire across thousands of years.',
+        ctaBg: 'linear-gradient(135deg, #241a10 0%, #2e2114 50%, #1d150d 100%)',
+        ctaBorder: 'rgba(212, 175, 55, 0.35)',
+        ctaTitleColor: '#d4af37',
+        ctaSubtitleColor: '#d1bda5',
+        ctaBtnColor: '#d4af37',
+        ctaBtnTextColor: '#18120b',
+        ctaBtnText: 'COMMAND THE LEGIONS',
+        ctaPrice: 'ROYAL EDITION',
+      },
+      {
+        id: 'sec_egypt_recs',
+        type: 'recommendations',
+        recsTitle: 'MORE ANCIENT STRATEGY SAGA',
+        recsCardBg: '#241a10',
+        recsCardBorder: 'rgba(212, 175, 55, 0.25)',
+      },
+    ],
+    layout: {},
+  };
+}
+
+function createDarkFantasyTheme() {
+  return {
+    theme: 'custom',
+    pageSettings: {
+      bg: '#0c0a10',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#e11d48',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    pageBody: {
+      bg: '#0c0a10',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#e11d48',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    sections: [
+      {
+        id: 'sec_gothic_hero',
+        type: 'media-carousel',
+        heroImages: [
+          'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselImages: [
+          'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselHeight: 500,
+        showThumbnails: true,
+        heroShadowColor: '#0c0a10',
+        heroShadowEnabled: true,
+      },
+      {
+        id: 'sec_gothic_grid',
+        type: 'grid',
+        gridGap: 32,
+        gridTemplate: '2:1',
+        pt: 24,
+        pb: 32,
+        gridCols: [
+          {
+            id: 'col_main_gothic',
+            elements: [
+              {
+                id: 'el_gothic_header',
+                type: 'game-header',
+                headerBg: 'linear-gradient(180deg, #16121d 0%, #110d18 100%)',
+                headerBorder: 'rgba(225, 29, 72, 0.3)',
+                headerRadius: 4,
+                titleColor: '#f43f5e',
+                titleFont: "'Cinzel', serif",
+                subtitleColor: '#fb7185',
+                descColor: '#cbd5e1',
+                tagBg: 'rgba(225, 29, 72, 0.12)',
+                tagBorder: 'rgba(225, 29, 72, 0.4)',
+                tagColor: '#fb7185',
+                starColor: '#f43f5e',
+              },
+              {
+                id: 'el_gothic_about',
+                type: 'about-game',
+                aboutBg: '#16121d',
+                aboutBorder: 'rgba(225, 29, 72, 0.25)',
+                aboutRadius: 4,
+                aboutTitle: 'TALES FROM THE SHADOW CITADEL',
+                titleColor: '#f43f5e',
+                titleFont: "'Cinzel', serif",
+                subTitleColor: '#fb7185',
+                textColor: '#cbd5e1',
+                aboutSections: [
+                  {
+                    title: 'PUNISHING DARK COMBAT',
+                    text: 'Master visceral melee parries, high-risk blood magic spells, and relentless counter-attacks against corrupted gothic horrors.',
+                    img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop',
+                  },
+                ],
+              },
+              {
+                id: 'el_gothic_reqs',
+                type: 'system-reqs',
+                reqsCardBg: '#16121d',
+                reqsCardBorder: 'rgba(225, 29, 72, 0.25)',
+                titleColor: '#f43f5e',
+                reqsTitle: 'TRIAL OF SYSTEM HARDWARE',
+                titleFont: "'Cinzel', serif",
+                accentColor: '#e11d48',
+                labelColor: '#94a3b8',
+                valueColor: '#f8fafc',
+              },
+              {
+                id: 'el_gothic_reviews',
+                type: 'user-reviews',
+                reviewCardBg: '#16121d',
+                reviewCardBorder: 'rgba(225, 29, 72, 0.25)',
+                reviewCardRadius: 4,
+                reviewHeader: 'WHISPERS OF FALLEN WARRIORS',
+                reviewNameFont: "'Cinzel', serif",
+                reviewNameColor: '#f43f5e',
+                reviewBodyColor: '#cbd5e1',
+                reviewStarColor: '#f43f5e',
+              },
+            ],
+          },
+          {
+            id: 'col_side_gothic',
+            elements: [
+              {
+                id: 'el_gothic_cta',
+                type: 'sidebar-cta',
+                sideCardBg: '#16121d',
+                sideCardBorder: 'rgba(225, 29, 72, 0.35)',
+                unownedPrimaryBtnBg: 'linear-gradient(135deg, #e11d48 0%, #9f1239 100%)',
+                unownedPrimaryBtnText: 'EMBRACE THE DARKNESS',
+                ownedPrimaryBtnBg: 'linear-gradient(135deg, #881337 0%, #4c0519 100%)',
+                ownedPrimaryBtnText: 'RETURN TO CITADEL',
+              },
+              {
+                id: 'el_gothic_info',
+                type: 'sidebar-info',
+                infoCardBg: '#16121d',
+                infoCardBorder: 'rgba(225, 29, 72, 0.25)',
+                infoTitle: 'CITADEL CHRONICLES',
+                infoTitleColor: '#f43f5e',
+                infoLabelColor: '#94a3b8',
+                infoValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_gothic_ratings',
+                type: 'sidebar-ratings',
+                ratingsCardBg: '#16121d',
+                ratingsCardBorder: 'rgba(225, 29, 72, 0.25)',
+                ratingsTitle: 'SANITY METRICS',
+                ratingsTitleColor: '#f43f5e',
+                ratingsFillColor: '#e11d48',
+                ratingsLabelColor: '#94a3b8',
+                ratingsValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_gothic_comm',
+                type: 'sidebar-community',
+                communityCardBg: '#16121d',
+                communityCardBorder: 'rgba(225, 29, 72, 0.25)',
+                communityTitle: 'COVEN SANCTUM',
+                communityTitleColor: '#f43f5e',
+                communityLabelColor: '#94a3b8',
+                communityValueColor: '#f8fafc',
+                communityRatingColor: '#e11d48',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'sec_gothic_features',
+        type: 'features',
+        featuresTitle: 'FORBIDDEN DISCIPLINES',
+        featuresTitleColor: '#f43f5e',
+        featuresCardBg: '#16121d',
+        featuresCardBorder: 'rgba(225, 29, 72, 0.3)',
+        featuresCols: 4,
+        featuresItems: [
+          {
+            icon: '🩸',
+            title: 'Blood Siphon',
+            desc: 'Convert inflicted damage into vitality to sustain intense combat flow.',
+            color: '#e11d48',
+          },
+          {
+            icon: '🗡️',
+            title: 'Cursed Blades',
+            desc: 'Forge weapons tempered in the abyss that shatter beast armor.',
+            color: '#f43f5e',
+          },
+          {
+            icon: '🕯️',
+            title: 'Sanctuary Runes',
+            desc: 'Establish consecrated bonfires to replenish holy flask charges.',
+            color: '#fb7185',
+          },
+          {
+            icon: '💀',
+            title: 'Soul Severance',
+            desc: 'Extract demonic essences to unlock forgotten dark arts.',
+            color: '#be123c',
+          },
+        ],
+      },
+      {
+        id: 'sec_gothic_cta_bottom',
+        type: 'cta',
+        ctaTitle: 'CONQUER THE CORRUPTED ABYSS',
+        ctaSubtitle: 'Take up your blade and challenge towering nightmare leviathans.',
+        ctaBg: 'linear-gradient(135deg, #16121d 0%, #20182b 50%, #110d18 100%)',
+        ctaBorder: 'rgba(225, 29, 72, 0.35)',
+        ctaTitleColor: '#f43f5e',
+        ctaSubtitleColor: '#cbd5e1',
+        ctaBtnColor: '#e11d48',
+        ctaBtnTextColor: '#ffffff',
+        ctaBtnText: 'ENTER THE ABYSS',
+        ctaPrice: 'DARK DELUXE',
+      },
+      {
+        id: 'sec_gothic_recs',
+        type: 'recommendations',
+        recsTitle: 'MORE DARK FANTASY CRUCIBLES',
+        recsCardBg: '#16121d',
+        recsCardBorder: 'rgba(225, 29, 72, 0.25)',
+      },
+    ],
+    layout: {},
+  };
+}
+
+function createSciFiTheme() {
+  return {
+    theme: 'custom',
+    pageSettings: {
+      bg: '#070b19',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Space Grotesk', sans-serif",
+      textFont: "'Inter', sans-serif",
+      accentColor: '#06b6d4',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    pageBody: {
+      bg: '#070b19',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Space Grotesk', sans-serif",
+      textFont: "'Inter', sans-serif",
+      accentColor: '#06b6d4',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    sections: [
+      {
+        id: 'sec_scifi_hero',
+        type: 'media-carousel',
+        heroImages: [
+          'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselImages: [
+          'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselHeight: 480,
+        showThumbnails: true,
+        heroShadowColor: '#070b19',
+        heroShadowEnabled: true,
+      },
+      {
+        id: 'sec_scifi_grid',
+        type: 'grid',
+        gridGap: 32,
+        gridTemplate: '2:1',
+        pt: 24,
+        pb: 32,
+        gridCols: [
+          {
+            id: 'col_main_scifi',
+            elements: [
+              {
+                id: 'el_scifi_header',
+                type: 'game-header',
+                headerBg: 'linear-gradient(180deg, #0e1630 0%, #0a1024 100%)',
+                headerBorder: 'rgba(6, 182, 212, 0.3)',
+                headerRadius: 8,
+                titleColor: '#06b6d4',
+                titleFont: "'Space Grotesk', sans-serif",
+                subtitleColor: '#38bdf8',
+                descColor: '#94a3b8',
+                tagBg: 'rgba(6, 182, 212, 0.12)',
+                tagBorder: 'rgba(6, 182, 212, 0.4)',
+                tagColor: '#06b6d4',
+                starColor: '#06b6d4',
+              },
+              {
+                id: 'el_scifi_about',
+                type: 'about-game',
+                aboutBg: '#0e1630',
+                aboutBorder: 'rgba(6, 182, 212, 0.25)',
+                aboutRadius: 8,
+                aboutTitle: 'INTERSTELLAR COLONIZATION MISSION',
+                titleColor: '#06b6d4',
+                titleFont: "'Space Grotesk', sans-serif",
+                subTitleColor: '#38bdf8',
+                textColor: '#94a3b8',
+                aboutSections: [
+                  {
+                    title: 'ORBITAL SPACE STATION LOGISTICS',
+                    text: 'Construct massive ring habitats, optimize plasma reactor fuel cycles, and establish interstellar trade hyperlanes across solar systems.',
+                    img: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
+                  },
+                ],
+              },
+              {
+                id: 'el_scifi_reqs',
+                type: 'system-reqs',
+                reqsCardBg: '#0e1630',
+                reqsCardBorder: 'rgba(6, 182, 212, 0.25)',
+                titleColor: '#06b6d4',
+                reqsTitle: 'ORBITAL SIMULATION HARDWARE',
+                titleFont: "'Space Grotesk', sans-serif",
+                accentColor: '#06b6d4',
+                labelColor: '#64748b',
+                valueColor: '#f8fafc',
+              },
+              {
+                id: 'el_scifi_reviews',
+                type: 'user-reviews',
+                reviewCardBg: '#0e1630',
+                reviewCardBorder: 'rgba(6, 182, 212, 0.25)',
+                reviewCardRadius: 8,
+                reviewHeader: 'STATION COMMANDER TRANSMISSIONS',
+                reviewNameFont: "'Space Grotesk', sans-serif",
+                reviewNameColor: '#06b6d4',
+                reviewBodyColor: '#94a3b8',
+                reviewStarColor: '#06b6d4',
+              },
+            ],
+          },
+          {
+            id: 'col_side_scifi',
+            elements: [
+              {
+                id: 'el_scifi_cta',
+                type: 'sidebar-cta',
+                sideCardBg: '#0e1630',
+                sideCardBorder: 'rgba(6, 182, 212, 0.35)',
+                unownedPrimaryBtnBg: 'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)',
+                unownedPrimaryBtnText: 'INITIALIZE ORBIT',
+                ownedPrimaryBtnBg: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                ownedPrimaryBtnText: 'CONNECT TELEMETRY',
+              },
+              {
+                id: 'el_scifi_info',
+                type: 'sidebar-info',
+                infoCardBg: '#0e1630',
+                infoCardBorder: 'rgba(6, 182, 212, 0.25)',
+                infoTitle: 'FLIGHT TELEMETRY',
+                infoTitleColor: '#06b6d4',
+                infoLabelColor: '#64748b',
+                infoValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_scifi_ratings',
+                type: 'sidebar-ratings',
+                ratingsCardBg: '#0e1630',
+                ratingsCardBorder: 'rgba(6, 182, 212, 0.25)',
+                ratingsTitle: 'COLONY SURVEYS',
+                ratingsTitleColor: '#06b6d4',
+                ratingsFillColor: '#06b6d4',
+                ratingsLabelColor: '#64748b',
+                ratingsValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_scifi_comm',
+                type: 'sidebar-community',
+                communityCardBg: '#0e1630',
+                communityCardBorder: 'rgba(6, 182, 212, 0.25)',
+                communityTitle: 'DEEP SPACE NETWORK',
+                communityTitleColor: '#06b6d4',
+                communityLabelColor: '#64748b',
+                communityValueColor: '#f8fafc',
+                communityRatingColor: '#06b6d4',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'sec_scifi_features',
+        type: 'features',
+        featuresTitle: 'ORBITAL INFRASTRUCTURE',
+        featuresTitleColor: '#06b6d4',
+        featuresCardBg: '#0e1630',
+        featuresCardBorder: 'rgba(6, 182, 212, 0.3)',
+        featuresCols: 4,
+        featuresItems: [
+          {
+            icon: '🚀',
+            title: 'Warp Gate Relay',
+            desc: 'Connect distant star systems for seamless intergalactic transit.',
+            color: '#06b6d4',
+          },
+          {
+            icon: '🛰️',
+            title: 'Orbital Mining Arrays',
+            desc: 'Extract rare isotope fuels from high-density asteroid belts.',
+            color: '#38bdf8',
+          },
+          {
+            icon: '🧬',
+            title: 'Bio-Dome Habitats',
+            desc: 'Cultivate oxygen-rich atmospheres on frozen sub-surface moons.',
+            color: '#22d3ee',
+          },
+          {
+            icon: '⚡',
+            title: 'Fusion Power Grids',
+            desc: 'Generate gigawatts of clean energy using planetary magnetospheres.',
+            color: '#60a5fa',
+          },
+        ],
+      },
+      {
+        id: 'sec_scifi_cta_bottom',
+        type: 'cta',
+        ctaTitle: 'COMMENCE YOUR DEEP SPACE VOYAGE',
+        ctaSubtitle: 'Command the greatest interstellar expedition in human history.',
+        ctaBg: 'linear-gradient(135deg, #0e1630 0%, #16234d 50%, #0a1024 100%)',
+        ctaBorder: 'rgba(6, 182, 212, 0.35)',
+        ctaTitleColor: '#06b6d4',
+        ctaSubtitleColor: '#94a3b8',
+        ctaBtnColor: '#06b6d4',
+        ctaBtnTextColor: '#070b19',
+        ctaBtnText: 'LAUNCH EXPEDITION',
+        ctaPrice: 'COMMAND ACCESS',
+      },
+      {
+        id: 'sec_scifi_recs',
+        type: 'recommendations',
+        recsTitle: 'MORE INTERSTELLAR EXPEDITIONS',
+        recsCardBg: '#0e1630',
+        recsCardBorder: 'rgba(6, 182, 212, 0.25)',
+      },
+    ],
+    layout: {},
+  };
+}
+
+function createRetroPixelTheme() {
+  return {
+    theme: 'custom',
+    pageSettings: {
+      bg: '#140b24',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: 'monospace',
+      textFont: 'monospace',
+      accentColor: '#22c55e',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    pageBody: {
+      bg: '#140b24',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: 'monospace',
+      textFont: 'monospace',
+      accentColor: '#22c55e',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    sections: [
+      {
+        id: 'sec_retro_hero',
+        type: 'media-carousel',
+        heroImages: [
+          'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselImages: [
+          'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselHeight: 460,
+        showThumbnails: true,
+        heroShadowColor: '#140b24',
+        heroShadowEnabled: true,
+      },
+      {
+        id: 'sec_retro_grid',
+        type: 'grid',
+        gridGap: 32,
+        gridTemplate: '2:1',
+        pt: 24,
+        pb: 32,
+        gridCols: [
+          {
+            id: 'col_main_retro',
+            elements: [
+              {
+                id: 'el_retro_header',
+                type: 'game-header',
+                headerBg: 'linear-gradient(180deg, #1f1138 0%, #180d2c 100%)',
+                headerBorder: 'rgba(34, 197, 94, 0.35)',
+                headerRadius: 0,
+                titleColor: '#22c55e',
+                titleFont: 'monospace',
+                subtitleColor: '#4ade80',
+                descColor: '#cbd5e1',
+                tagBg: 'rgba(34, 197, 94, 0.12)',
+                tagBorder: 'rgba(34, 197, 94, 0.4)',
+                tagColor: '#22c55e',
+                starColor: '#22c55e',
+              },
+              {
+                id: 'el_retro_about',
+                type: 'about-game',
+                aboutBg: '#1f1138',
+                aboutBorder: 'rgba(34, 197, 94, 0.25)',
+                aboutRadius: 0,
+                aboutTitle: '>> PROCEDURAL 8-BIT DUNGEON GUIDE',
+                titleColor: '#22c55e',
+                titleFont: 'monospace',
+                subTitleColor: '#4ade80',
+                textColor: '#cbd5e1',
+                aboutSections: [
+                  {
+                    title: 'CLASSIC ROGUELIKE ACTION',
+                    text: 'Explore procedurally generated dungeon chambers filled with traps, cursed mimic chests, and rare 16-bit weapons.',
+                    img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
+                  },
+                ],
+              },
+              {
+                id: 'el_retro_reqs',
+                type: 'system-reqs',
+                reqsCardBg: '#1f1138',
+                reqsCardBorder: 'rgba(34, 197, 94, 0.25)',
+                titleColor: '#22c55e',
+                reqsTitle: '>> ARCADE HARDWARE REQUIREMENTS',
+                titleFont: 'monospace',
+                accentColor: '#22c55e',
+                labelColor: '#94a3b8',
+                valueColor: '#f8fafc',
+              },
+              {
+                id: 'el_retro_reviews',
+                type: 'user-reviews',
+                reviewCardBg: '#1f1138',
+                reviewCardBorder: 'rgba(34, 197, 94, 0.25)',
+                reviewCardRadius: 0,
+                reviewHeader: '>> PLAYER HIGHSCORES & LOGS',
+                reviewNameFont: 'monospace',
+                reviewNameColor: '#22c55e',
+                reviewBodyColor: '#cbd5e1',
+                reviewStarColor: '#22c55e',
+              },
+            ],
+          },
+          {
+            id: 'col_side_retro',
+            elements: [
+              {
+                id: 'el_retro_cta',
+                type: 'sidebar-cta',
+                sideCardBg: '#1f1138',
+                sideCardBorder: 'rgba(34, 197, 94, 0.35)',
+                unownedPrimaryBtnBg: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
+                unownedPrimaryBtnText: 'INSERT COIN / PLAY',
+                ownedPrimaryBtnBg: 'linear-gradient(135deg, #16a34a 0%, #14532d 100%)',
+                ownedPrimaryBtnText: 'CONTINUE RUN',
+              },
+              {
+                id: 'el_retro_info',
+                type: 'sidebar-info',
+                infoCardBg: '#1f1138',
+                infoCardBorder: 'rgba(34, 197, 94, 0.25)',
+                infoTitle: 'CARTRIDGE INTEL',
+                infoTitleColor: '#22c55e',
+                infoLabelColor: '#94a3b8',
+                infoValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_retro_ratings',
+                type: 'sidebar-ratings',
+                ratingsCardBg: '#1f1138',
+                ratingsCardBorder: 'rgba(34, 197, 94, 0.25)',
+                ratingsTitle: 'CRIT SCORE',
+                ratingsTitleColor: '#22c55e',
+                ratingsFillColor: '#22c55e',
+                ratingsLabelColor: '#94a3b8',
+                ratingsValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_retro_comm',
+                type: 'sidebar-community',
+                communityCardBg: '#1f1138',
+                communityCardBorder: 'rgba(34, 197, 94, 0.25)',
+                communityTitle: 'SPEEDRUN LOBBY',
+                communityTitleColor: '#22c55e',
+                communityLabelColor: '#94a3b8',
+                communityValueColor: '#f8fafc',
+                communityRatingColor: '#22c55e',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'sec_retro_features',
+        type: 'features',
+        featuresTitle: '>> RETRO MECHANICS',
+        featuresTitleColor: '#22c55e',
+        featuresCardBg: '#1f1138',
+        featuresCardBorder: 'rgba(34, 197, 94, 0.3)',
+        featuresCols: 4,
+        featuresItems: [
+          {
+            icon: '👾',
+            title: 'Over 100 Monsters',
+            desc: 'Encounter unique retro enemies and handcrafted pixel bosses.',
+            color: '#22c55e',
+          },
+          {
+            icon: '🗝️',
+            title: 'Secret Vaults',
+            desc: 'Solve block-pushing puzzles to unearth hidden legendary loot.',
+            color: '#4ade80',
+          },
+          {
+            icon: '🧪',
+            title: 'Alchemical Brewing',
+            desc: 'Mix mystery potions with unpredictable wild magic effects.',
+            color: '#86efac',
+          },
+          {
+            icon: '🏆',
+            title: 'Permadeath Mode',
+            desc: 'Risk everything on unforgiving high-stakes dungeon runs.',
+            color: '#16a34a',
+          },
+        ],
+      },
+      {
+        id: 'sec_retro_cta_bottom',
+        type: 'cta',
+        ctaTitle: 'START YOUR 8-BIT QUEST TODAY',
+        ctaSubtitle: 'Grab your sword, prepare your potions, and descend into the dungeon.',
+        ctaBg: 'linear-gradient(135deg, #1f1138 0%, #2a184c 50%, #180d2c 100%)',
+        ctaBorder: 'rgba(34, 197, 94, 0.35)',
+        ctaTitleColor: '#22c55e',
+        ctaSubtitleColor: '#cbd5e1',
+        ctaBtnColor: '#22c55e',
+        ctaBtnTextColor: '#140b24',
+        ctaBtnText: 'PRESS START',
+        ctaPrice: '1-CREDIT',
+      },
+      {
+        id: 'sec_retro_recs',
+        type: 'recommendations',
+        recsTitle: '>> MORE PIXEL-ART ADVENTURES',
+        recsCardBg: '#1f1138',
+        recsCardBorder: 'rgba(34, 197, 94, 0.25)',
+      },
+    ],
+    layout: {},
+  };
+}
+
+function createDragonTheme() {
+  return {
+    theme: 'custom',
+    pageSettings: {
+      bg: '#140b0b',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#ef4444',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    pageBody: {
+      bg: '#140b0b',
+      bgImage: '',
+      bgSize: 'cover',
+      bgPosition: 'center center',
+      bgRepeat: 'no-repeat',
+      bgAttachment: 'scroll',
+      bgOverlay: 'transparent',
+      bgOverlayOpacity: 0,
+      titleFont: "'Cinzel', serif",
+      textFont: "'Raleway', sans-serif",
+      accentColor: '#ef4444',
+      padTop: 0,
+      padBottom: 48,
+      padLeft: 0,
+      padRight: 0,
+      containerWidth: 1280,
+    },
+    sections: [
+      {
+        id: 'sec_dragon_hero',
+        type: 'media-carousel',
+        heroImages: [
+          'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselImages: [
+          'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1600&auto=format&fit=crop',
+        ],
+        carouselHeight: 520,
+        showThumbnails: true,
+        heroShadowColor: '#140b0b',
+        heroShadowEnabled: true,
+      },
+      {
+        id: 'sec_dragon_grid',
+        type: 'grid',
+        gridGap: 32,
+        gridTemplate: '2:1',
+        pt: 24,
+        pb: 32,
+        gridCols: [
+          {
+            id: 'col_main_dragon',
+            elements: [
+              {
+                id: 'el_dragon_header',
+                type: 'game-header',
+                headerBg: 'linear-gradient(180deg, #201010 0%, #180c0c 100%)',
+                headerBorder: 'rgba(239, 68, 68, 0.3)',
+                headerRadius: 6,
+                titleColor: '#ef4444',
+                titleFont: "'Cinzel', serif",
+                subtitleColor: '#f87171',
+                descColor: '#e2e8f0',
+                tagBg: 'rgba(239, 68, 68, 0.12)',
+                tagBorder: 'rgba(239, 68, 68, 0.4)',
+                tagColor: '#ef4444',
+                starColor: '#ef4444',
+              },
+              {
+                id: 'el_dragon_about',
+                type: 'about-game',
+                aboutBg: '#201010',
+                aboutBorder: 'rgba(239, 68, 68, 0.25)',
+                aboutRadius: 6,
+                aboutTitle: 'CHRONICLES OF THE ELDER WYRMS',
+                titleColor: '#ef4444',
+                titleFont: "'Cinzel', serif",
+                subTitleColor: '#f87171',
+                textColor: '#e2e8f0',
+                aboutSections: [
+                  {
+                    title: 'COLOSSAL BEAST HUNTING',
+                    text: 'Track elder fire drakes across volcanic calderas, sever elemental horns, and harvest reinforced dragonscales to forge invincible armaments.',
+                    img: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=800&auto=format&fit=crop',
+                  },
+                ],
+              },
+              {
+                id: 'el_dragon_reqs',
+                type: 'system-reqs',
+                reqsCardBg: '#201010',
+                reqsCardBorder: 'rgba(239, 68, 68, 0.25)',
+                titleColor: '#ef4444',
+                reqsTitle: 'FORGE SYSTEM REQUIREMENTS',
+                titleFont: "'Cinzel', serif",
+                accentColor: '#ef4444',
+                labelColor: '#94a3b8',
+                valueColor: '#f8fafc',
+              },
+              {
+                id: 'el_dragon_reviews',
+                type: 'user-reviews',
+                reviewCardBg: '#201010',
+                reviewCardBorder: 'rgba(239, 68, 68, 0.25)',
+                reviewCardRadius: 6,
+                reviewHeader: 'HONOR OF THE HUNTERS GUILD',
+                reviewNameFont: "'Cinzel', serif",
+                reviewNameColor: '#ef4444',
+                reviewBodyColor: '#e2e8f0',
+                reviewStarColor: '#ef4444',
+              },
+            ],
+          },
+          {
+            id: 'col_side_dragon',
+            elements: [
+              {
+                id: 'el_dragon_cta',
+                type: 'sidebar-cta',
+                sideCardBg: '#201010',
+                sideCardBorder: 'rgba(239, 68, 68, 0.35)',
+                unownedPrimaryBtnBg: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                unownedPrimaryBtnText: 'JOIN THE HUNT',
+                ownedPrimaryBtnBg: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)',
+                ownedPrimaryBtnText: 'ENTER THE ARENA',
+              },
+              {
+                id: 'el_dragon_info',
+                type: 'sidebar-info',
+                infoCardBg: '#201010',
+                infoCardBorder: 'rgba(239, 68, 68, 0.25)',
+                infoTitle: 'HUNTER INTEL',
+                infoTitleColor: '#ef4444',
+                infoLabelColor: '#94a3b8',
+                infoValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_dragon_ratings',
+                type: 'sidebar-ratings',
+                ratingsCardBg: '#201010',
+                ratingsCardBorder: 'rgba(239, 68, 68, 0.25)',
+                ratingsTitle: 'HUNTER RATING',
+                ratingsTitleColor: '#ef4444',
+                ratingsFillColor: '#ef4444',
+                ratingsLabelColor: '#94a3b8',
+                ratingsValueColor: '#f8fafc',
+              },
+              {
+                id: 'el_dragon_comm',
+                type: 'sidebar-community',
+                communityCardBg: '#201010',
+                communityCardBorder: 'rgba(239, 68, 68, 0.25)',
+                communityTitle: 'HUNTING SQUAD TELEMETRY',
+                communityTitleColor: '#ef4444',
+                communityLabelColor: '#94a3b8',
+                communityValueColor: '#f8fafc',
+                communityRatingColor: '#ef4444',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'sec_dragon_features',
+        type: 'features',
+        featuresTitle: 'LEGENDARY HUNTING ARSENAL',
+        featuresTitleColor: '#ef4444',
+        featuresCardBg: '#201010',
+        featuresCardBorder: 'rgba(239, 68, 68, 0.3)',
+        featuresCols: 4,
+        featuresItems: [
+          {
+            icon: '🔥',
+            title: 'Dragon-Forged Steel',
+            desc: 'Forge colossal greatswords tempered in volcanic elder fire.',
+            color: '#ef4444',
+          },
+          {
+            icon: '🛡️',
+            title: 'Elemental Resistance',
+            desc: 'Weave wyrmscales into battle armor to nullify magma breath.',
+            color: '#f87171',
+          },
+          {
+            icon: '🏹',
+            title: 'Heavy Ballistas',
+            desc: 'Ground airborne dragons with high-tension tethered harpoons.',
+            color: '#dc2626',
+          },
+          {
+            icon: '🐾',
+            title: 'Tracking Instincts',
+            desc: 'Follow scorched claw footprints across changing dynamic biomes.',
+            color: '#b91c1c',
+          },
+        ],
+      },
+      {
+        id: 'sec_dragon_cta_bottom',
+        type: 'cta',
+        ctaTitle: 'SLAY THE PRIMORDIAL WYRMS',
+        ctaSubtitle: 'Embark on the ultimate monster hunting campaign.',
+        ctaBg: 'linear-gradient(135deg, #201010 0%, #2e1414 50%, #180c0c 100%)',
+        ctaBorder: 'rgba(239, 68, 68, 0.35)',
+        ctaTitleColor: '#ef4444',
+        ctaSubtitleColor: '#e2e8f0',
+        ctaBtnColor: '#ef4444',
+        ctaBtnTextColor: '#ffffff',
+        ctaBtnText: 'COMMENCE HUNT',
+        ctaPrice: 'ELITE HUNTER EDITION',
+      },
+      {
+        id: 'sec_dragon_recs',
+        type: 'recommendations',
+        recsTitle: 'MORE COLOSSAL MONSTER SAGAS',
+        recsCardBg: '#201010',
+        recsCardBorder: 'rgba(239, 68, 68, 0.25)',
+      },
+    ],
+    layout: {},
+  };
+}
+
 async function seed() {
   try {
     const defaultGenres = [
@@ -122,27 +1610,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'action',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'CYBERNETIC AUGMENTATION SYSTEM',
-                  description:
-                    'Upgrade your hero with over 50 combat augmentations, optical targeting rigs, and overclocked neural boosters in Neo-Cairo.',
-                },
-                {
-                  title: 'NEON NIGHTS & HIGH STAKES',
-                  imageUrl:
-                    'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
-                  description:
-                    'Navigate subterranean syndicate hideouts, execute high-speed vehicle hacks, and challenge megacorp bosses in fast-paced encounters.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createCyberpunkTheme(),
         tagSlugs: ['cyberpunk', 'singleplayer', 'open-world'],
       },
       {
@@ -158,27 +1626,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'strategy',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'TACTICAL WARFARE ALONG THE NILE',
-                  description:
-                    'Lead ancient pharaonic legions across hex-grid desert battlefields. Position spear throwers, war chariots, and royal guards to conquer rival dynasties.',
-                },
-                {
-                  title: 'DIVINE BLESSINGS OF THE ANCIENT GODS',
-                  imageUrl:
-                    'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
-                  description:
-                    'Invoke the solar fury of Ra or the sandstorms of Seth to turn the tide of battle in critical siege encounters.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createEgyptianTheme(),
         tagSlugs: ['turn-based', 'historical', 'singleplayer'],
       },
       {
@@ -194,20 +1642,11 @@ async function seed() {
           'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'adventure',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'MYTHICAL JOURNEY ACROSS ANCIENT TEMPLE RUINS',
-                  description:
-                    'Explore sunken tombs along the sacred river banks, deciphero hieroglyphic vaults, and unlock legendary artifacts.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'MYTHICAL JOURNEY ACROSS ANCIENT TEMPLE RUINS',
+          'Explore sunken tombs along the sacred river banks, decipher hieroglyphic vaults, and unlock legendary artifacts.',
+          'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop'
+        ),
         tagSlugs: ['historical', 'singleplayer', 'open-world'],
       },
       {
@@ -223,20 +1662,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'rpg',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'PUNISHING DARK FANTASY COMBAT',
-                  description:
-                    'Face terrifying shadow leviathans and master precise parry mechanics in a grim, decaying realm.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDarkFantasyTheme(),
         tagSlugs: ['dark-fantasy', 'singleplayer'],
       },
       {
@@ -252,20 +1678,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'simulation',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'GALACTIC TRADE & COLONY EXPANSION',
-                  description:
-                    'Construct orbital space stations, mine asteroid belts for rare minerals, and expand interstellar civilization.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createSciFiTheme(),
         tagSlugs: ['sci-fi', 'sandbox', 'singleplayer'],
       },
       {
@@ -281,20 +1694,11 @@ async function seed() {
           'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'racing',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'TREACHEROUS SAND DUNE RALLIES',
-                  description:
-                    'Custom-tune dune buggies and conquer shifting desert sands in high-octane multiplayer rally tournaments.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'TREACHEROUS SAND DUNE RALLIES',
+          'Custom-tune dune buggies and conquer shifting desert sands in high-octane multiplayer rally tournaments.',
+          'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop'
+        ),
         tagSlugs: ['multiplayer', 'sandbox'],
       },
       {
@@ -310,20 +1714,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'rpg',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'PROCEDURAL DUNGEON EXPLORATION',
-                  description:
-                    'Delve into infinite retro dungeons filled with deadly traps, magical relics, and epic boss loot.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createRetroPixelTheme(),
         tagSlugs: ['pixel-art', 'roguelike', 'indie'],
       },
       {
@@ -339,20 +1730,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'action',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'CORPORATE DETECTIVE INVESTIGATIONS',
-                  description:
-                    'Uncover dark secrets in a dystopian megacity where cybernetic augmentation holds the key to power.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createCyberpunkTheme(),
         tagSlugs: ['cyberpunk', 'open-world', 'stealth'],
       },
       {
@@ -368,20 +1746,10 @@ async function seed() {
           'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'strategy',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'GRAND EMPIRE DIPLOMACY & CONQUEST',
-                  description:
-                    'Form royal alliances, forge trade pacts, and deploy mythical heroes across sprawling strategic maps.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'GRAND EMPIRE DIPLOMACY & CONQUEST',
+          'Form royal alliances, forge trade pacts, and deploy mythical heroes across sprawling strategic maps.'
+        ),
         tagSlugs: ['dark-fantasy', 'multiplayer', 'turn-based'],
       },
       {
@@ -397,20 +1765,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'adventure',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'MEDITATIVE UNCHARTED PLANET EXPLORATION',
-                  description:
-                    'Soar through peaceful celestial biomes, record alien species, and craft atmospheric starship upgrades.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createSciFiTheme(),
         tagSlugs: ['sci-fi', 'sandbox', 'indie'],
       },
       {
@@ -426,20 +1781,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'adventure',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'DIVINE WEAPONS & MYSTICAL PUZZLES',
-                  description:
-                    'Unlock celestial combat techniques, solve temple trials, and conquer mythological titans.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createEgyptianTheme(),
         tagSlugs: ['historical', 'dark-fantasy', 'singleplayer'],
       },
       {
@@ -455,20 +1797,10 @@ async function seed() {
           'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'racing',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'PRECISION DRIFTING & NIGHT CIRCUITS',
-                  description:
-                    'Fine-tune engine torque, master hair-pin turns, and dominate underground night street racing tournaments.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'PRECISION DRIFTING & NIGHT CIRCUITS',
+          'Fine-tune engine torque, master hair-pin turns, and dominate underground night street racing tournaments.'
+        ),
         tagSlugs: ['multiplayer', 'singleplayer'],
       },
       {
@@ -484,20 +1816,10 @@ async function seed() {
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'puzzle',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'PHYSICS PUZZLES & LEVEL CREATION',
-                  description:
-                    'Engineered for puzzle enthusiasts—create complex mechanical contraptions and share custom challenges worldwide.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'PHYSICS PUZZLES & LEVEL CREATION',
+          'Engineered for puzzle enthusiasts—create complex mechanical contraptions and share custom challenges worldwide.'
+        ),
         tagSlugs: ['indie', 'singleplayer'],
       },
       {
@@ -513,20 +1835,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'action',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'TACTICAL INFILTRATION & SHADOW STEALTH',
-                  description:
-                    'Execute ghost-level stealth missions with custom silent gadgetry and complete strategic player choice.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createCyberpunkTheme(),
         tagSlugs: ['stealth', 'singleplayer'],
       },
       {
@@ -542,20 +1851,10 @@ async function seed() {
           'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'simulation',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'MODULAR HABITATS & LIFE SUPPORT MANAGEMENT',
-                  description:
-                    'Engineer atmospheric domes, regulate power grids, and safeguard colonists against alien solar flares.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'MODULAR HABITATS & LIFE SUPPORT MANAGEMENT',
+          'Engineer atmospheric domes, regulate power grids, and safeguard colonists against alien solar flares.'
+        ),
         tagSlugs: ['sci-fi', 'crafting', 'sandbox'],
       },
       {
@@ -571,20 +1870,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'rpg',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'ELDER DRAGON HUNTING',
-                  description:
-                    'Track winged leviathans through fiery volcanic peaks and frozen tundra, target vulnerable elemental scales, and craft legendary weapons.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDragonTheme(),
         tagSlugs: ['dark-fantasy', 'crafting', 'open-world'],
       },
       {
@@ -600,20 +1886,10 @@ async function seed() {
           'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
         genreSlug: 'action',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'HIGH-ALTITUDE URBAN PARKOUR',
-                  description:
-                    'Leap across vertigo-inducing rooftops, wall-run past laser barriers, and master momentum fluid movement.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'HIGH-ALTITUDE URBAN PARKOUR',
+          'Leap across vertigo-inducing rooftops, wall-run past laser barriers, and master momentum fluid movement.'
+        ),
         tagSlugs: ['platformer', 'indie'],
       },
       {
@@ -628,19 +1904,10 @@ async function seed() {
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'draft',
         genreSlug: 'puzzle',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'QUANTUM MECHANICS',
-                  description: 'Manipulate temporal particles in subatomic puzzle environments.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'QUANTUM MECHANICS',
+          'Manipulate temporal particles in subatomic puzzle environments.'
+        ),
         tagSlugs: ['sci-fi', 'indie'],
       },
       {
@@ -655,19 +1922,10 @@ async function seed() {
           'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
         status: 'draft',
         genreSlug: 'action',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                {
-                  title: 'EXPERIMENTAL COMBAT',
-                  description: 'Sandbox arena for testing next-generation weapon physics.',
-                },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme(
+          'EXPERIMENTAL COMBAT',
+          'Sandbox arena for testing next-generation weapon physics.'
+        ),
         tagSlugs: ['multiplayer', 'sandbox'],
       },
       {
@@ -682,16 +1940,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop',
         status: 'suspended',
         genreSlug: 'action',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                { title: 'RESTRICTED CONTENT', description: 'Under active moderation review.' },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme('RESTRICTED CONTENT', 'Under active moderation review.'),
         tagSlugs: ['cyberpunk', 'multiplayer'],
       },
       {
@@ -706,16 +1955,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
         status: 'draft',
         genreSlug: 'rpg',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                { title: 'CLASSIFIED PROJECT', description: 'Secret RPG development build.' },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme('CLASSIFIED PROJECT', 'Secret RPG development build.'),
         tagSlugs: ['dark-fantasy', 'singleplayer'],
       },
       {
@@ -730,16 +1970,7 @@ async function seed() {
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'suspended',
         genreSlug: 'adventure',
-        pageTheme: {
-          theme: 'default',
-          layout: {
-            gameAbout: {
-              sections: [
-                { title: 'LEGACY ARCHIVE', description: 'Archived early tech demo build.' },
-              ],
-            },
-          },
-        },
+        pageTheme: createDefaultTheme('LEGACY ARCHIVE', 'Archived early tech demo build.'),
         tagSlugs: ['indie'],
       },
     ];

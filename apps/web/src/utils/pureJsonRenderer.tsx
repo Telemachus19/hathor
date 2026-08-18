@@ -196,21 +196,91 @@ function ComponentNodeContent({
 }) {
   const type = s.type;
   const device = s.device || pageSettings?.device;
+  const gd = pageSettings?.gameData || {};
 
   if (type === 'media-carousel' || type === 'carousel' || type === 'game-hero') {
-    return <GameCarousel key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+    return (
+      <GameCarousel
+        key={nodeKey}
+        s={s}
+        images={
+          s.heroImages ||
+          s.carouselImages ||
+          gd.heroImages ||
+          (gd.bannerUrl ? [gd.bannerUrl] : undefined)
+        }
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
   }
-  if (type === 'game-header')
-    return <GameDetailsHeader key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'ownership-banner')
-    return <GameOwnershipBanner key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'about-game')
-    return <GameAbout key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'system-reqs')
-    return <GameSystemReqs key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'user-reviews')
-    return <GameReviews key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'sidebar-cta')
+  if (type === 'game-header') {
+    return (
+      <GameDetailsHeader
+        key={nodeKey}
+        s={s}
+        category={s.category || gd.category}
+        title={s.title || gd.title}
+        subtitle={s.subtitle || gd.subtitle}
+        ratingScore={s.ratingScore ?? gd.ratingScore}
+        reviewCount={s.reviewCount || gd.reviewCount}
+        developer={s.dev || s.developer || gd.developer}
+        releaseDate={s.releaseDate || gd.releaseDate}
+        tags={s.tags || gd.tags}
+        description={s.desc || s.description || gd.shortDescription}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
+  if (type === 'ownership-banner') {
+    return (
+      <GameOwnershipBanner
+        key={nodeKey}
+        s={s}
+        device={device}
+        pageSettings={pageSettings}
+        isOwned={pageSettings?.isOwned}
+      />
+    );
+  }
+  if (type === 'about-game') {
+    return (
+      <GameAbout
+        key={nodeKey}
+        s={s}
+        sections={s.aboutSections || s.sections || gd.aboutSections}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
+  if (type === 'system-reqs') {
+    return (
+      <GameSystemReqs
+        key={nodeKey}
+        s={s}
+        minimum={gd.systemReqs?.minimum}
+        recommended={gd.systemReqs?.recommended}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
+  if (type === 'user-reviews') {
+    return (
+      <GameReviews
+        key={nodeKey}
+        s={s}
+        score={gd.ratingScore}
+        totalReviews={gd.totalReviews}
+        reviews={gd.userReviews}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
+  if (type === 'sidebar-cta') {
     return (
       <GameSidebarCta
         key={nodeKey}
@@ -218,6 +288,8 @@ function ComponentNodeContent({
         device={device}
         pageSettings={pageSettings}
         gameId={pageSettings?.gameId}
+        priceEgp={gd.priceEgp}
+        discountPercent={gd.discountPercent}
         isDesignerPreview={pageSettings?.isDesignerPreview}
         isAuthenticated={pageSettings?.isAuthenticated}
         isOwned={pageSettings?.isOwned}
@@ -225,14 +297,55 @@ function ComponentNodeContent({
         isOwnershipCheckError={pageSettings?.isOwnershipCheckError}
       />
     );
-  if (type === 'sidebar-info')
-    return <GameSidebarInfo key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'sidebar-ratings')
-    return <GameSidebarRatings key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'sidebar-community')
-    return <GameSidebarCommunity key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
-  if (type === 'recommendations')
-    return <MoreLikeThis key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
+  }
+  if (type === 'sidebar-info') {
+    return (
+      <GameSidebarInfo
+        key={nodeKey}
+        s={s}
+        developer={s.sideDev || s.dev || s.developer || gd.developer}
+        publisher={s.sidePub || s.pub || s.publisher || gd.publisher}
+        releaseDate={s.sideDate || s.date || s.releaseDate || gd.releaseDate}
+        genre={s.sideGenre || s.genre || gd.category}
+        platforms={s.sidePlatforms || s.platforms || gd.platforms}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
+  if (type === 'sidebar-ratings') {
+    return (
+      <GameSidebarRatings
+        key={nodeKey}
+        s={s}
+        ratingsBreakdown={gd.ratingsBreakdown}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
+  if (type === 'sidebar-community') {
+    return (
+      <GameSidebarCommunity
+        key={nodeKey}
+        s={s}
+        communityStats={gd.communityStats}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
+  if (type === 'recommendations') {
+    return (
+      <MoreLikeThis
+        key={nodeKey}
+        s={s}
+        games={gd.moreLikeThisGames}
+        device={device}
+        pageSettings={pageSettings}
+      />
+    );
+  }
   if (type === 'features')
     return <GameFeatures key={nodeKey} s={s} device={device} pageSettings={pageSettings} />;
   if (type === 'two-col')

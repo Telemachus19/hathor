@@ -93,15 +93,21 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
         
         const roles = (user as any)?.roles || [];
         const isAdmin = Array.isArray(roles) && roles.includes('admin');
+        const isCreator = Array.isArray(roles) && roles.includes('creator');
 
         if (isAdmin) {
           // Admins go to /admin by default, or to their target /admin subpage
           if (!redirectPath || !redirectPath.startsWith('/admin')) {
             redirectPath = '/admin';
           }
+        } else if (isCreator) {
+          // Creators go to /creator by default, or to their target /creator subpage
+          if (!redirectPath || redirectPath.startsWith('/admin') || !redirectPath.startsWith('/creator')) {
+            redirectPath = '/creator';
+          }
         } else {
-          // Non-admins (gamers/creators): if trying to access /admin or no redirect, send to landing page '/'
-          if (!redirectPath || redirectPath.startsWith('/admin') || redirectPath === '/') {
+          // Non-admins, non-creators (gamers): if trying to access /admin or /creator or no redirect, send to landing page '/'
+          if (!redirectPath || redirectPath.startsWith('/admin') || redirectPath.startsWith('/creator') || redirectPath === '/') {
             redirectPath = '/';
           }
         }

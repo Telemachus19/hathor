@@ -37,7 +37,13 @@ export const Navbar: React.FC = () => {
             </Link>
             {isAuthenticated ? (
               <Link
-                to={Array.isArray(auth?.user?.roles) && auth?.user?.roles.includes('admin') ? '/admin' : '/profile'}
+                to={
+                  Array.isArray(auth?.user?.roles) && auth?.user?.roles.includes('admin')
+                    ? '/admin'
+                    : Array.isArray(auth?.user?.roles) && auth?.user?.roles.includes('creator')
+                    ? '/creator'
+                    : '/profile'
+                }
                 className={styles.navLink}
               >
                 {auth?.user?.displayName ? auth.user.displayName.toUpperCase() : 'PROFILE'}

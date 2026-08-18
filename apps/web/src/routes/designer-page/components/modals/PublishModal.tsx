@@ -1,4 +1,5 @@
-import { FileJson, X, Layers, Check, Copy, Download, Upload } from 'lucide-react';
+import { useState } from 'react';
+import { FileJson, X, Layers, Check, Copy, Download, Upload, Loader2 } from 'lucide-react';
 import {
   Section,
   PageSettings,
@@ -9,22 +10,85 @@ import {
   TEXT_PRIMARY,
 } from '../../types/designerTypes';
 import { generatePageJSON, isCustomTheme } from '../../utils/schemaUtils';
+import { apiClient } from '../../../../services/api/index';
 import styles from '../../DesignerPage.module.css';
 
 export function PublishModal({
+  gameId,
   sections,
   pageSettings,
   gameTitle,
   onClose,
   onShowToast,
+  onPublishSuccess,
 }: {
+  gameId?: string;
   sections: Section[];
   pageSettings: PageSettings;
   gameTitle: string;
   onClose: () => void;
   onShowToast: (msg: string) => void;
+  onPublishSuccess?: () => void;
 }) {
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
   const isCustom = isCustomTheme(sections);
+
+  const handlePublishToCatalog = async () => {
+    if (!gameId || gameId === 'draft_new_game') {
+      setPublishError('Cannot publish without an active game ID. Please complete game info first.');
+      return;
+    }
+
+    setIsPublishing(true);
+    setPublishError(null);
+    try {
+      const pageThemeJson = generatePageJSON(sections, pageSettings);
+
+      // 1. Save theme to database
+      const themeRes = (await apiClient.PUT('/creator/games/{gameId}/theme' as any, {
+        params: { path: { gameId } },
+        body: pageThemeJson as any,
+      })) as any;
+
+      if (themeRes.error) {
+        const errorDetail =
+          themeRes.error?.error?.message ||
+          themeRes.error?.message ||
+          (themeRes.error?.error?.details && JSON.stringify(themeRes.error.error.details)) ||
+          'Failed to validate theme JSON with server.';
+        setPublishError(errorDetail);
+        return;
+      }
+
+      // 2. Submit status transition to pending_review
+      const statusRes = (await apiClient.PATCH('/creator/games/{gameId}/status' as any, {
+        params: { path: { gameId } },
+        body: { status: 'pending_review' as any },
+      })) as any;
+
+      if (statusRes.error) {
+        const statusDetail =
+          statusRes.error?.error?.message ||
+          statusRes.error?.message ||
+          'Failed to update game status to pending_review.';
+        setPublishError(statusDetail);
+        return;
+      }
+
+      onShowToast(`Game submitted for review (${isCustom ? 'theme: custom' : 'theme: default'})!`);
+      onClose();
+
+      if (onPublishSuccess) {
+        onPublishSuccess();
+      }
+    } catch (err: any) {
+      console.error('Failed to publish game to catalog:', err);
+      setPublishError(err?.message || 'Failed to submit game for review. Please check your page inputs.');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -69,6 +133,32 @@ export function PublishModal({
           <code style={{ color: HATHOR_ORANGE, fontFamily: 'monospace' }}>pageTheme</code> in the
           database to render the published store page.
         </p>
+
+        {/* Error Alert Box */}
+        {publishError && (
+          <div
+            style={{
+              background: 'rgba(231, 76, 60, 0.15)',
+              border: '1px solid #e74c3c',
+              borderRadius: 6,
+              padding: '12px 14px',
+              marginBottom: 16,
+              color: '#e74c3c',
+              fontSize: 12,
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 8,
+            }}
+          >
+            <X size={16} style={{ flexShrink: 0, marginTop: 2 }} />
+            <div>
+              <p style={{ margin: 0, fontWeight: 900 }}>Submission Failed:</p>
+              <p style={{ margin: '4px 0 0', fontWeight: 500, color: '#fca5a5' }}>{publishError}</p>
+            </div>
+          </div>
+        )}
 
         {/* Automatic Theme Mode Badge */}
         {isCustom ? (
@@ -201,12 +291,9 @@ export function PublishModal({
           </button>
 
           <button
-            onClick={() => {
-              onClose();
-              onShowToast(
-                `Page Published to Database (${isCustom ? 'theme: custom' : 'theme: default'})!`
-              );
-            }}
+            type="button"
+            disabled={isPublishing}
+            onClick={handlePublishToCatalog}
             style={{
               background: HATHOR_ORANGE,
               border: 'none',
@@ -216,13 +303,22 @@ export function PublishModal({
               fontSize: 11,
               fontWeight: 900,
               fontFamily: 'monospace',
-              cursor: 'pointer',
+              cursor: isPublishing ? 'not-allowed' : 'pointer',
+              opacity: isPublishing ? 0.7 : 1,
               display: 'flex',
               alignItems: 'center',
               gap: 6,
             }}
           >
-            <Upload size={13} /> PUBLISH TO CATALOG
+            {isPublishing ? (
+              <>
+                <Loader2 size={13} className="animate-spin" /> SUBMITTING...
+              </>
+            ) : (
+              <>
+                <Upload size={13} /> PUBLISH TO CATALOG
+              </>
+            )}
           </button>
         </div>
       </div>

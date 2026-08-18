@@ -4,22 +4,21 @@ import {
   ArrowLeft,
   CheckCircle,
   XCircle,
-  ExternalLink,
   Gamepad2,
   Monitor,
   Cpu,
   HardDrive,
   MemoryStick,
   Film,
+  Eye,
 } from 'lucide-react';
-import { GameStatusBadge } from './components/common/AdminBadges';
-import { StorePreviewModal } from './components/StorePreviewModal';
-import { PreviewModal } from '../designer-page/components/modals/PreviewModal';
-import { Device } from '../designer-page/types/designerTypes';
-import { apiClient } from '../../services/api/index';
+import { GameStatusBadge } from '../components/common/AdminBadges';
+import { PreviewModal } from '../../designer-page/components/modals/PreviewModal';
+import { Device, DEFAULT_PAGE_SETTINGS } from '../../designer-page/types/designerTypes';
+import { apiClient } from '../../../services/api/index';
 import type { Game } from '@hathor/contracts';
-import styles from './styles/adminSubmissions.module.css';
-import modalStyles from './styles/adminModals.module.css';
+import styles from '../styles/adminSubmissions.module.css';
+import modalStyles from '../styles/adminModals.module.css';
 
 export const Route = createFileRoute('/admin/submissions/$submissionId')({
   component: AdminSubmissionDetail,
@@ -31,19 +30,37 @@ function AdminSubmissionDetail() {
   const [submission, setSubmission] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [specTab, setSpecTab] = useState<'min' | 'rec'>('min');
-  const [showStorePreview, setShowStorePreview] = useState(false);
   const [previewDevice, setPreviewDevice] = useState<Device | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const loadSubmission = async () => {
+    setLoading(true);
     try {
+      // First try single game endpoint
+      const gameRes = (await apiClient.GET('/admin/games/{gameId}' as any, {
+        params: { path: { gameId: submissionId } },
+      })) as any;
+
+      if (gameRes.data) {
+        setSubmission(gameRes.data);
+        return;
+      }
+
+      // Fallback to submissions list
       const { data } = await apiClient.GET('/admin/submissions');
       if (data?.items) {
         const found = data.items.find((s: Game) => s.id === submissionId);
         if (found) setSubmission(found);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load submission:', err);
     } finally {
       setLoading(false);
     }
@@ -54,24 +71,35 @@ function AdminSubmissionDetail() {
   }, [submissionId]);
 
   const handleStatusChange = async (status: 'published' | 'rejected') => {
-    if (status === 'rejected' && !rejectReason) {
-      alert('Please provide a rejection reason');
+    if (status === 'rejected' && !rejectReason.trim()) {
+      alert('Please provide a reason for rejecting this submission.');
       return;
     }
+
+    setActionLoading(true);
     try {
       await apiClient.PATCH('/admin/games/{gameId}/status', {
         params: { path: { gameId: submissionId } },
-        body: { status, reason: status === 'rejected' ? rejectReason : 'Admin review completed' },
+        body: {
+          status,
+          reason: status === 'rejected' ? rejectReason.trim() : 'Admin review approved',
+        },
       });
-      navigate({ to: '/admin/submissions' });
+      showToast(status === 'published' ? 'Game approved and published to catalog!' : 'Submission rejected.');
+      setTimeout(() => {
+        navigate({ to: '/admin/submissions' });
+      }, 800);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to update submission status:', err);
+      alert('Failed to update submission status. Please try again.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <div style={{ padding: '3rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+      <div style={{ padding: '3rem', color: 'var(--text-muted)', fontFamily: 'monospace', textAlign: 'center' }}>
         Loading submission details...
       </div>
     );
@@ -79,73 +107,107 @@ function AdminSubmissionDetail() {
 
   if (!submission) {
     return (
-      <div style={{ padding: '3rem', color: '#e74c3c', fontFamily: 'monospace' }}>
-        Submission not found.
+      <div style={{ padding: '3rem', color: '#e74c3c', fontFamily: 'monospace', textAlign: 'center' }}>
+        <p>Submission not found: {submissionId}</p>
+        <Link to="/admin/submissions" className={styles.backBtn} style={{ marginTop: '1rem', display: 'inline-flex' }}>
+          <ArrowLeft size={13} /> Back to Submissions
+        </Link>
       </div>
     );
   }
 
-  const tags: string[] = (submission as any).tags || [];
+  const tags: string[] = (submission as any).tags
+    ? (submission as any).tags.map((t: any) => (typeof t === 'string' ? t : t.name || t.slug || ''))
+    : [];
+
+  const themeObj = (submission as any).pageTheme || (submission as any).theme || {};
+  const sections = themeObj.sections || (Array.isArray(themeObj) ? themeObj : []);
+  const pageSettings = themeObj.pageSettings || DEFAULT_PAGE_SETTINGS;
+
+  const sysReqs = (submission as any).systemRequirements || {};
+  const minReq = sysReqs.minReq || {};
+  const recReq = sysReqs.recReq || {};
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
-      {showStorePreview && (
-        <StorePreviewModal game={submission} onClose={() => setShowStorePreview(false)} />
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          top: 24,
+          right: 24,
+          zIndex: 999999,
+          background: '#141820',
+          border: '1px solid #4caf80',
+          color: '#4caf80',
+          padding: '12px 20px',
+          borderRadius: 6,
+          fontFamily: 'monospace',
+          fontSize: 13,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        }}>
+          {toast}
+        </div>
       )}
 
+      {/* Live Responsive Theme Preview Modal */}
       {previewDevice && (
         <PreviewModal
-          sections={(submission.theme as any)?.sections || []}
-          pageSettings={
-            (submission.theme as any)?.pageSettings || {
-              baseTheme: 'dark',
-              primaryColor: '#FD7014',
-              secondaryColor: '#3B82F6',
-              fontFamily: 'Inter',
-              buttonStyle: 'rounded',
-            }
-          }
+          sections={sections}
+          pageSettings={pageSettings}
           previewDevice={previewDevice}
           setPreviewDevice={setPreviewDevice}
           onClose={() => setPreviewDevice(null)}
         />
       )}
 
-      {/* Back Bar */}
+      {/* Back Bar & Quick Actions */}
       <div className={styles.backBar}>
         <Link to="/admin/submissions" className={styles.backBtn}>
           <ArrowLeft size={13} /> Back to Submissions
         </Link>
 
         <div className={styles.actionButtonGroup}>
+          <button
+            type="button"
+            className={modalStyles.btnSecondary}
+            onClick={() => setPreviewDevice('desktop')}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-orange)' }}
+          >
+            <Eye size={13} /> Preview Live Page
+          </button>
+
           {submission.status !== 'published' && (
             <>
               <button
                 type="button"
-                className={modalStyles.btnDanger}
-                onClick={() => handleStatusChange('rejected')}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                className={modalStyles.btnSuccess}
+                onClick={() => handleStatusChange('published')}
+                disabled={actionLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
               >
-                <XCircle size={13} /> Reject
+                <CheckCircle size={13} /> Approve &amp; Publish
               </button>
               <button
                 type="button"
-                className={modalStyles.btnSuccess}
-                onClick={() => handleStatusChange('published')}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                className={modalStyles.btnDanger}
+                onClick={() => {
+                  if (!rejectReason.trim()) {
+                    const reasonInput = prompt('Enter rejection reason for the creator:');
+                    if (reasonInput) {
+                      setRejectReason(reasonInput);
+                      setTimeout(() => handleStatusChange('rejected'), 100);
+                    }
+                  } else {
+                    handleStatusChange('rejected');
+                  }
+                }}
+                disabled={actionLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
               >
-                <CheckCircle size={13} /> Approve &amp; List
+                <XCircle size={13} /> Reject
               </button>
             </>
           )}
-          <button
-            type="button"
-            className={modalStyles.btnSecondary}
-            onClick={() => setShowStorePreview(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--accent-orange)' }}
-          >
-            <ExternalLink size={13} /> Preview Store Page
-          </button>
         </div>
       </div>
 
@@ -177,14 +239,14 @@ function AdminSubmissionDetail() {
         </div>
       </div>
 
-      {/* 3-Column Layout */}
+      {/* 3-Column Review Layout */}
       <div className={styles.detailGrid}>
-        {/* Col 1: Basic Details & Tags */}
+        {/* Col 1: Basic Details & Classification */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div className={styles.detailCard}>
             <div className={styles.detailCardHeader}>
               <div className={styles.headerAccent} />
-              <h3 className={styles.cardHeaderTitle}>Basic Details</h3>
+              <h3 className={styles.cardHeaderTitle}>Game Information</h3>
             </div>
             <div className={styles.detailCardBody}>
               <div>
@@ -202,6 +264,17 @@ function AdminSubmissionDetail() {
                   {submission.shortDescription || 'No description provided.'}
                 </div>
               </div>
+
+              {(submission as any).bannerUrl && (
+                <div>
+                  <p className={modalStyles.fieldLabel}>Banner Image</p>
+                  <img
+                    src={(submission as any).bannerUrl}
+                    alt="Banner"
+                    style={{ width: '100%', height: 110, objectFit: 'cover', borderRadius: 4, border: '1px solid var(--border-color)' }}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -249,7 +322,7 @@ function AdminSubmissionDetail() {
           </div>
         </div>
 
-        {/* Col 2: System Specs */}
+        {/* Col 2: System Specifications */}
         <div>
           <div className={styles.detailCard} style={{ height: '100%' }}>
             <div className={styles.detailCardHeader}>
@@ -280,12 +353,8 @@ function AdminSubmissionDetail() {
                   <Monitor size={12} style={{ color: 'var(--text-muted)' }} />
                   <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Supported OS</p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                  {['Windows 10', 'Windows 11', 'Ubuntu 22.04'].map((os) => (
-                    <span key={os} className={modalStyles.tagPill} style={{ color: 'var(--text-white)' }}>
-                      {os}
-                    </span>
-                  ))}
+                <div className={styles.hardwareBox}>
+                  {specTab === 'min' ? minReq.os || 'Windows 10 (64-bit)' : recReq.os || 'Windows 11 (64-bit)'}
                 </div>
               </div>
 
@@ -295,7 +364,7 @@ function AdminSubmissionDetail() {
                   <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Processor (CPU)</p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? 'Intel Core i5-8400 / AMD Ryzen 5 2600' : 'Intel Core i7-10700K / AMD Ryzen 7 3700X'}
+                  {specTab === 'min' ? minReq.cpu || 'Intel Core i5 / AMD Ryzen 5' : recReq.cpu || 'Intel Core i7 / AMD Ryzen 7'}
                 </div>
               </div>
 
@@ -305,7 +374,7 @@ function AdminSubmissionDetail() {
                   <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Graphics Card (GPU)</p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? 'NVIDIA GTX 1060 (6GB) / AMD Radeon RX 580' : 'NVIDIA RTX 3070 (8GB) / AMD Radeon RX 6700 XT'}
+                  {specTab === 'min' ? minReq.gpu || 'NVIDIA GTX 1060 / AMD RX 580' : recReq.gpu || 'NVIDIA RTX 3070 / AMD RX 6700 XT'}
                 </div>
               </div>
 
@@ -316,8 +385,9 @@ function AdminSubmissionDetail() {
                     <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>RAM</p>
                   </div>
                   <div className={styles.specItemRow}>
-                    <span className={styles.specItemValue}>{specTab === 'min' ? '8' : '16'}</span>
-                    <span className={styles.specItemUnit}>GB</span>
+                    <span className={styles.specItemValue}>
+                      {specTab === 'min' ? minReq.ram || '8 GB' : recReq.ram || '16 GB'}
+                    </span>
                   </div>
                 </div>
 
@@ -327,8 +397,9 @@ function AdminSubmissionDetail() {
                     <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Storage</p>
                   </div>
                   <div className={styles.specItemRow}>
-                    <span className={styles.specItemValue}>{specTab === 'min' ? '40' : '60'}</span>
-                    <span className={styles.specItemUnit}>GB</span>
+                    <span className={styles.specItemValue}>
+                      {specTab === 'min' ? minReq.storage || '50 GB' : recReq.storage || '50 GB'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -336,19 +407,23 @@ function AdminSubmissionDetail() {
           </div>
         </div>
 
-        {/* Col 3: Media & Decision */}
+        {/* Col 3: Interactive Theme Preview & Decision */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div className={styles.detailCard}>
             <div className={styles.detailCardHeader}>
               <div className={styles.headerAccent} />
-              <h3 className={styles.cardHeaderTitle}>Store Assets &amp; Media</h3>
+              <h3 className={styles.cardHeaderTitle}>Storefront Theme</h3>
             </div>
             <div className={styles.detailCardBody}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
+                This game has a customized designer page layout with {sections.length} active sections.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
                 <button
                   type="button"
                   className={modalStyles.btnSecondary}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--accent-orange)' }}
                   onClick={() => setPreviewDevice('desktop')}
                 >
                   <Monitor size={14} /> Interactive Desktop Theme
@@ -372,34 +447,52 @@ function AdminSubmissionDetail() {
               <h3 className={styles.cardHeaderTitle}>Review Decision</h3>
             </div>
             <div className={styles.detailCardBody}>
-              <div>
-                <label className={modalStyles.fieldLabel}>Rejection Reason (if rejecting)</label>
-                <textarea
-                  className={modalStyles.textareaField}
-                  placeholder="Explain what needs to be resolved before listing..."
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                />
-              </div>
+              {submission.status !== 'published' ? (
+                <>
+                  <div>
+                    <label className={modalStyles.fieldLabel}>Rejection Reason (if rejecting)</label>
+                    <textarea
+                      className={modalStyles.textareaField}
+                      placeholder="Explain what needs to be resolved before listing..."
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                    />
+                  </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <button
-                  type="button"
-                  className={modalStyles.btnSuccess}
-                  style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                  onClick={() => handleStatusChange('published')}
-                >
-                  <CheckCircle size={16} /> Approve &amp; Publish
-                </button>
-                <button
-                  type="button"
-                  className={modalStyles.btnDanger}
-                  style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                  onClick={() => handleStatusChange('rejected')}
-                >
-                  <XCircle size={16} /> Reject Submission
-                </button>
-              </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <button
+                      type="button"
+                      className={modalStyles.btnSuccess}
+                      style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      onClick={() => handleStatusChange('published')}
+                      disabled={actionLoading}
+                    >
+                      <CheckCircle size={16} /> Approve &amp; Publish
+                    </button>
+                    <button
+                      type="button"
+                      className={modalStyles.btnDanger}
+                      style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      onClick={() => handleStatusChange('rejected')}
+                      disabled={actionLoading}
+                    >
+                      <XCircle size={16} /> Reject Submission
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div style={{
+                  padding: '1rem',
+                  background: 'rgba(76, 175, 128, 0.1)',
+                  border: '1px solid rgba(76, 175, 128, 0.3)',
+                  color: '#4caf80',
+                  fontSize: '0.8rem',
+                  textAlign: 'center',
+                  fontFamily: 'monospace',
+                }}>
+                  ✓ This game is currently Published and active in the catalog.
+                </div>
+              )}
             </div>
           </div>
         </div>

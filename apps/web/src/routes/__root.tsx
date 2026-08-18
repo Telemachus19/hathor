@@ -18,7 +18,8 @@ function RootComponent() {
   const isStandalonePage =
     location.pathname.startsWith('/designer') ||
     location.pathname.startsWith('/game-info-form') ||
-    location.pathname.startsWith('/admin');
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/creator');
 
   if (isStandalonePage) {
     return <Outlet />;

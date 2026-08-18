@@ -371,9 +371,12 @@ export function isCustomTheme(sections: Section[]): boolean {
 }
 
 export function generatePageJSON(sections: Section[], pageSettings?: PageSettings) {
+  const currentSettings = pageSettings || DEFAULT_PAGE_SETTINGS;
   return {
-    theme: 'custom',
-    pageBody: pageSettings || DEFAULT_PAGE_SETTINGS,
+    theme: isCustomTheme(sections) ? 'custom' : 'default',
+    pageSettings: currentSettings,
+    pageBody: currentSettings,
+    sections: sections,
     layout: generateCustomLayoutJSON(sections),
   };
 }

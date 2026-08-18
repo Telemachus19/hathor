@@ -185,9 +185,34 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
     try {
       const { slug } = req.params;
 
-      const game = await catalogDb.query.games.findFirst({
-        where: and(eq(games.status, 'published'), eq(games.slug, slug)),
-      });
+      const [game] = await catalogDb
+        .select({
+          id: games.id,
+          title: games.title,
+          slug: games.slug,
+          shortDescription: games.shortDescription,
+          fullDescription: games.fullDescription,
+          priceEgp: games.priceEgp,
+          discountPercent: games.discountPercent,
+          bannerUrl: games.bannerUrl,
+          screenshots: games.screenshots,
+          trailerUrl: games.trailerUrl,
+          systemRequirements: games.systemRequirements,
+          pageTheme: games.pageTheme,
+          status: games.status,
+          genreId: games.genreId,
+          genre: {
+            id: genres.id,
+            name: genres.name,
+            slug: genres.slug,
+          },
+          createdAt: games.createdAt,
+          updatedAt: games.updatedAt,
+        })
+        .from(games)
+        .leftJoin(genres, eq(games.genreId, genres.id))
+        .where(and(eq(games.status, 'published'), eq(games.slug, slug)))
+        .limit(1);
 
       if (!game) {
         return res.status(404).json({
@@ -197,17 +222,16 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       }
 
       const gameTagRecords = await catalogDb
-        .select({ name: tags.name, slug: tags.slug })
+        .select({ id: tags.id, name: tags.name, slug: tags.slug })
         .from(gameTags)
         .innerJoin(tags, eq(gameTags.tagId, tags.id))
         .where(eq(gameTags.gameId, game.id));
 
-      const { id, creatorId, priceEgp, ...publicGameDetail } = game;
+      const { priceEgp, ...publicGameDetail } = game;
 
       res.status(200).json({
         success: true,
         data: {
-          id,
           ...publicGameDetail,
           priceEgp: formatPriceEgp(priceEgp),
           tags: gameTagRecords,

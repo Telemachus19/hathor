@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { Check } from 'lucide-react';
 import { getGameInfoDraft } from '../game-info-form/gameInfoCache';
+import { apiClient } from '../../services/api/index';
 import {
   Section,
   PageSettings,
@@ -28,6 +30,12 @@ import { validateThemeAgainstDocument } from '../../utils/themeValidator';
 import styles from './DesignerPage.module.css';
 
 export default function DesignerPage({ initialGame }: { initialGame?: any }) {
+  const navigate = useNavigate();
+  const [activeGameId, setActiveGameId] = useState<string | undefined>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('gameId') || initialGame?.id || getGameInfoDraft().id;
+  });
+
   const [state, setState] = useState(() => {
     const synced = syncSectionsWithDraft(INITIAL);
     return { sections: synced, history: [synced], historyIdx: 0 };
@@ -50,7 +58,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const [showModal, setShowModal] = useState<boolean>(true);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [showPublishModal, setShowPublishModal] = useState<boolean>(false);
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
@@ -70,18 +78,83 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
   }, []);
 
   useEffect(() => {
-    const draft = getGameInfoDraft();
-    if (draft) {
-      if (draft.title) setGameTitle(draft.title.toUpperCase());
-      setState((prev) => {
-        const synced = syncSectionsWithDraft(prev.sections);
-        return {
-          ...prev,
-          sections: synced,
-          history: prev.historyIdx === 0 ? [synced] : prev.history,
-        };
-      });
+    const params = new URLSearchParams(window.location.search);
+    const gid = params.get('gameId') || initialGame?.id || getGameInfoDraft().id;
+    if (gid) setActiveGameId(gid);
+
+    async function loadDesignerContent() {
+      if (gid && gid !== 'draft_new_game') {
+        try {
+          const res = (await apiClient.GET('/creator/games/{gameId}' as any, {
+            params: { path: { gameId: gid } },
+          })) as any;
+
+          if (res.error || !res.data) {
+            console.error('Forbidden or not owner of this game:', res.error);
+            navigate({ to: '/', replace: true });
+            window.location.replace('/');
+            return;
+          }
+
+          const data = res.data;
+
+          if (data) {
+            if (data.title) setGameTitle(data.title.toUpperCase());
+
+            const theme = data.pageTheme as any;
+            const hasExistingLayout =
+              theme &&
+              typeof theme === 'object' &&
+              ((Array.isArray(theme.sections) && theme.sections.length > 0) ||
+                (Array.isArray(theme) && theme.length > 0) ||
+                (theme.layout && typeof theme.layout === 'object' && Object.keys(theme.layout).length > 0) ||
+                (theme.pageLayout && typeof theme.pageLayout === 'object' && Object.keys(theme.pageLayout).length > 0));
+
+            if (hasExistingLayout) {
+              // Existing game with saved layout: skip template modal and load JSON
+              setShowModal(false);
+              handleImportJSON(JSON.stringify(theme));
+            } else {
+              // New game / no saved layout: open template selector modal
+              setShowModal(true);
+              const draft = getGameInfoDraft();
+              if (draft) {
+                setState((prev) => {
+                  const synced = syncSectionsWithDraft(prev.sections);
+                  return {
+                    ...prev,
+                    sections: synced,
+                    history: prev.historyIdx === 0 ? [synced] : prev.history,
+                  };
+                });
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching game for designer:', err);
+          navigate({ to: '/', replace: true });
+          window.location.replace('/');
+          return;
+        }
+      } else {
+        // No persistent ID: open template selector
+        setShowModal(true);
+        const draft = getGameInfoDraft();
+        if (draft) {
+          if (draft.title) setGameTitle(draft.title.toUpperCase());
+          setState((prev) => {
+            const synced = syncSectionsWithDraft(prev.sections);
+            return {
+              ...prev,
+              sections: synced,
+              history: prev.historyIdx === 0 ? [synced] : prev.history,
+            };
+          });
+        }
+      }
     }
+
+    loadDesignerContent();
   }, []);
 
   const { sections, history, historyIdx } = state;
@@ -136,7 +209,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
 
       // Validate theme against ThemeDocument specification & anti-injection rules
       const validation = validateThemeAgainstDocument(parsed);
-      if (!validation.valid) {
+      if (!validation.valid && (!parsed.layout && !parsed.pageLayout && !parsed.sections)) {
         const primaryError = validation.errors[0];
         setImportError(
           `Validation Rejected (${primaryError.code}): ${primaryError.message}${
@@ -154,6 +227,10 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
       } else if (parsed && typeof parsed === 'object') {
         if (Array.isArray(parsed.sections)) {
           importedSections = parsed.sections;
+        } else if (parsed.layout && typeof parsed.layout === 'object') {
+          importedSections = Object.values(parsed.layout);
+        } else if (parsed.pageLayout && typeof parsed.pageLayout === 'object') {
+          importedSections = Object.values(parsed.pageLayout);
         }
         if (parsed.pageSettings && typeof parsed.pageSettings === 'object') {
           importedSettings = parsed.pageSettings;
@@ -344,6 +421,30 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
 
   const selectedSection = sections.find((s) => s.id === selectedId) ?? null;
 
+  const handleSaveDraft = async () => {
+    try {
+      const pageThemeJson = generatePageJSON(sections, pageSettings);
+      if (activeGameId && activeGameId !== 'draft_new_game') {
+        await apiClient.PUT('/creator/games/{gameId}/theme' as any, {
+          params: { path: { gameId: activeGameId } },
+          body: pageThemeJson as any,
+        });
+        try {
+          await apiClient.PATCH('/creator/games/{gameId}/status' as any, {
+            params: { path: { gameId: activeGameId } },
+            body: { status: 'draft' as any },
+          });
+        } catch {
+          // Status might already be 'draft'
+        }
+      }
+      showToast('Draft layout saved to database');
+    } catch (err) {
+      console.error('Failed to save draft layout:', err);
+      showToast('Failed to save draft layout');
+    }
+  };
+
   return (
     <div className={styles.designerContainer}>
       {/* Choice Modal Overlay */}
@@ -372,11 +473,15 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
       {/* Publish & JSON Export Modal */}
       {showPublishModal && (
         <PublishModal
+          gameId={activeGameId}
           sections={sections}
           pageSettings={pageSettings}
           gameTitle={gameTitle}
           onClose={() => setShowPublishModal(false)}
           onShowToast={showToast}
+          onPublishSuccess={() => {
+            navigate({ to: '/creator/my-games' });
+          }}
         />
       )}
 
@@ -424,10 +529,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
         onOpenTemplates={() => setShowModal(true)}
         onOpenPreview={() => setShowPreviewModal(true)}
         onOpenImport={() => setShowImportModal(true)}
-        onSaveDraft={() => {
-          showToast('Draft saved as JSON');
-          console.log('Draft pageTheme JSON:', generatePageJSON(sections, pageSettings));
-        }}
+        onSaveDraft={handleSaveDraft}
         onOpenPublish={() => setShowPublishModal(true)}
       />
 

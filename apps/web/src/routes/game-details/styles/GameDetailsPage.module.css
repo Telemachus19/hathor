@@ -8,10 +8,17 @@
 
 .mainContainer {
   width: 100%;
-  max-width: var(--container-max-width);
+  max-width: var(--container-max-width, 1280px);
   margin: 0 auto;
   padding: 2rem 1.5rem 4rem;
   box-sizing: border-box;
+}
+
+.carouselWrapper {
+  width: 100%;
+  margin-bottom: 2.5rem;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .layoutGrid {
@@ -21,8 +28,27 @@
   align-items: start;
 }
 
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  min-width: 0;
+}
+
+.sidebarColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.moreLikeThisWrapper {
+  margin-top: 3.5rem;
+}
+
 @media (max-width: 1024px) {
   .layoutGrid {
     grid-template-columns: 1fr;
+    gap: 2rem;
   }
 }

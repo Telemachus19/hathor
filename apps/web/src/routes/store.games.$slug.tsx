@@ -8,7 +8,51 @@ export const Route = createFileRoute('/store/games/$slug')({
 
 function GameDetailsRouteComponent() {
   const { slug } = Route.useParams();
-  const { data: fetchedGame } = useGameBySlug(slug);
+  const { data: fetchedGame, isLoading } = useGameBySlug(slug);
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#0a0c10',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1.25rem',
+        }}
+      >
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            border: '3px solid rgba(253, 112, 20, 0.2)',
+            borderTopColor: '#fd7014',
+            borderRadius: '50%',
+            animation: 'hathorSpin 0.8s linear infinite',
+          }}
+        />
+        <style>{`
+          @keyframes hathorSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <span
+          style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            color: '#94a3b8',
+            fontSize: '0.9rem',
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Loading Game Storefront...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <GameDetailsPage
@@ -19,3 +63,4 @@ function GameDetailsRouteComponent() {
     />
   );
 }
+

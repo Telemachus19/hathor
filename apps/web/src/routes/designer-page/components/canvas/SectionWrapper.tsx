@@ -78,7 +78,7 @@ export function SectionWrapper({
     <div
       className={`${styles.sectionWrapper} ${selected ? styles.sectionSelected : ''}`}
       style={{
-        backgroundColor: s.bg || 'transparent',
+        background: s.bg || 'transparent',
         backgroundImage: s.bgImage ? `url("${s.bgImage}")` : undefined,
         backgroundSize: s.bgSize || 'cover',
         backgroundPosition: s.bgPosition || 'center center',

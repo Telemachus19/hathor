@@ -24,19 +24,19 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
   const s = props.s || {};
   const device = props.device || 'desktop';
 
-  const category = s.category || s.gameCategory || props.category || 'GENRE';
-  const title = s.title || s.gameTitle || props.title || 'YOUR GAME TITLE';
-  const subtitle = s.subtitle || s.gameSubtitle || props.subtitle || '';
-  const ratingScore = s.ratingScore ?? s.gameRatingScore ?? props.ratingScore ?? 9.4;
-  const reviewCount = s.reviewCount || s.gameReviewCount || props.reviewCount || '0 Reviews';
-  const developer = s.dev || s.gameDev || props.developer || 'Developer Name';
-  const releaseDate = s.releaseDate || s.gameReleaseDate || props.releaseDate || 'Coming Soon';
+  const category = props.category || s.category || s.gameCategory || 'Action';
+  const title = props.title || s.title || s.gameTitle || 'YOUR GAME TITLE';
+  const subtitle = props.subtitle !== undefined ? props.subtitle : s.subtitle || s.gameSubtitle || '';
+  const ratingScore = props.ratingScore ?? s.ratingScore ?? s.gameRatingScore ?? 4.8;
+  const reviewCount = props.reviewCount || s.reviewCount || s.gameReviewCount || '128 Reviews';
+  const developer = props.developer || s.dev || s.gameDev || 'Hathor Studios';
+  const releaseDate = props.releaseDate || s.releaseDate || s.gameReleaseDate || 'Aug 2026';
 
-  const rawTags = s.tags || s.gameTags || props.tags || ['TAG 1', 'TAG 2'];
+  const rawTags = props.tags || s.tags || s.gameTags || ['Indie', 'Adventure'];
   const formattedTags: string[] = rawTags.map((t: any) => (typeof t === 'string' ? t : t.name));
 
   const description =
-    s.desc || s.gameDesc || props.description || 'Your game description will appear here.';
+    props.description || s.desc || s.gameDesc || 'Experience an epic adventure on Hathor.';
 
   const titleSize = device === 'mobile' ? 24 : device === 'tablet' ? 32 : s.titleSize || 40;
   const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";

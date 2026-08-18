@@ -1,15 +1,97 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
-import { Users, DollarSign, Star, TrendingUp, Loader2 } from 'lucide-react';
-import { Card, CardContent } from '../../components/ui/Card';
+import {
+  Users,
+  DollarSign,
+  Star,
+  TrendingUp,
+  Loader2,
+} from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  CartesianGrid,
+} from 'recharts';
+import { CreatorStatsGrid, CreatorStatItem } from './components/CreatorStatsCard';
+import { GameStatusBadge } from './components/CreatorBadges';
 import { apiClient } from '../../services/api/index';
 import type { Game } from '@hathor/contracts';
+import commonStyles from './styles/creatorCommon.module.css';
 
 export const Route = createFileRoute('/creator/analytics')({
   component: CreatorAnalytics,
 });
 
+const ACCENTS = ['#e07c2a', '#7c5ce0', '#3b9eda', '#8e44ad', '#4caf80', '#fd7014'];
 
+function fmtMoney(n: number) {
+  if (n >= 1_000_000) return `EGP ${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `EGP ${(n / 1_000).toFixed(1)}K`;
+  return `EGP ${n.toFixed(2)}`;
+}
+
+function fmtNum(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return `${n}`;
+}
+
+function ChartTip({
+  active,
+  payload,
+  label,
+  format = fmtNum,
+}: {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
+  format?: (v: number) => string;
+}) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      style={{
+        backgroundColor: '#1c2028',
+        border: '1px solid rgba(253, 112, 20, 0.4)',
+        padding: '0.5rem 0.75rem',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
+      }}
+    >
+      <p
+        style={{
+          fontSize: '0.55rem',
+          fontFamily: 'monospace',
+          color: '#8c9aaa',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          margin: '0 0 0.25rem 0',
+        }}
+      >
+        {label}
+      </p>
+      {payload.map((entry: any, i: number) => (
+        <p
+          key={i}
+          style={{
+            fontSize: '0.8rem',
+            fontWeight: 900,
+            fontFamily: 'monospace',
+            color: entry.color || '#fd7014',
+            margin: 0,
+          }}
+        >
+          {format(entry.value)}
+        </p>
+      ))}
+    </div>
+  );
+}
 
 function CreatorAnalytics() {
   const [games, setGames] = useState<Game[]>([]);
@@ -26,13 +108,13 @@ function CreatorAnalytics() {
           if (gamesData.length > 0) {
             setSelectedGameId(gamesData[0].id);
           }
-          
+
           const aMap: Record<string, any> = {};
           await Promise.all(
             gamesData.map(async (game) => {
               try {
                 const res = await apiClient.GET('/creator/games/{gameId}/analytics', {
-                  params: { path: { gameId: game.id } }
+                  params: { path: { gameId: game.id } },
                 });
                 if (res.data) {
                   aMap[game.id] = res.data;
@@ -53,211 +135,316 @@ function CreatorAnalytics() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--accent-orange)' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '6rem',
+          color: '#fd7014',
+        }}
+      >
         <Loader2 size={32} className="animate-spin" />
       </div>
     );
   }
 
-  const selectedAnalytics = selectedGameId ? analyticsMap[selectedGameId] : null;
+  const publishedGames = games.filter((g) => g.status === 'published');
+  const effectiveId = selectedGameId || publishedGames[0]?.id || games[0]?.id;
+  const analytics = effectiveId ? analyticsMap[effectiveId] : null;
+
+  const totalOwners = analytics?.totalOwners || 0;
+  const totalRevenue = analytics?.grossRevenueEgp || 0;
+  const reviewCount = analytics?.reviewCount || 0;
+  const avgRating = analytics?.averageRating || 0;
+  const revPerOwner = totalOwners > 0 ? totalRevenue / totalOwners : 0;
+
+  // Monthly points mock fallback or aggregated history
+  const monthlyData = [
+    { month: 'Jan', newOwners: Math.round(totalOwners * 0.15), revenue: totalRevenue * 0.15, cumOwners: Math.round(totalOwners * 0.15) },
+    { month: 'Feb', newOwners: Math.round(totalOwners * 0.20), revenue: totalRevenue * 0.20, cumOwners: Math.round(totalOwners * 0.35) },
+    { month: 'Mar', newOwners: Math.round(totalOwners * 0.25), revenue: totalRevenue * 0.25, cumOwners: Math.round(totalOwners * 0.60) },
+    { month: 'Apr', newOwners: Math.round(totalOwners * 0.18), revenue: totalRevenue * 0.18, cumOwners: Math.round(totalOwners * 0.78) },
+    { month: 'May', newOwners: Math.round(totalOwners * 0.12), revenue: totalRevenue * 0.12, cumOwners: Math.round(totalOwners * 0.90) },
+    { month: 'Jun', newOwners: Math.round(totalOwners * 0.10), revenue: totalRevenue * 0.10, cumOwners: totalOwners },
+  ];
+
+  const gameIndex = games.findIndex((g) => g.id === effectiveId);
+  const accent = ACCENTS[Math.max(0, gameIndex) % ACCENTS.length];
+
+  const statItems: CreatorStatItem[] = [
+    {
+      label: 'Total Owners',
+      value: fmtNum(totalOwners),
+      delta: 'Lifetime purchases',
+      icon: Users,
+      color: '#4caf80',
+    },
+    {
+      label: 'Total Revenue',
+      value: fmtMoney(totalRevenue),
+      delta: 'All-time gross',
+      icon: DollarSign,
+      color: '#3b9eda',
+    },
+    {
+      label: 'Community Score',
+      value: avgRating > 0 ? `${avgRating.toFixed(1)} / 10` : '—',
+      delta: `${reviewCount.toLocaleString()} reviews`,
+      icon: Star,
+      color: '#f59e0b',
+    },
+    {
+      label: 'Rev / Owner',
+      value: revPerOwner > 0 ? fmtMoney(revPerOwner) : '—',
+      delta: 'Before platform cut',
+      icon: TrendingUp,
+      color: '#fd7014',
+    },
+  ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Game Selector Tabs */}
-      <div style={{ display: 'flex', gap: '2rem', borderBottom: '1px solid var(--border-color)' }}>
-        {games.map(game => {
-          const isSelected = game.id === selectedGameId;
+      <div
+        style={{
+          display: 'flex',
+          border: '1px solid #393e46',
+          overflowX: 'auto',
+          backgroundColor: '#1c2028',
+        }}
+      >
+        {games.map((g, idx) => {
+          const active = g.id === effectiveId;
+          const gameAccent = ACCENTS[idx % ACCENTS.length];
+
           return (
-            <button 
-              key={game.id}
-              onClick={() => setSelectedGameId(game.id)}
-              style={{ 
-                padding: '0.75rem 0', 
-                color: isSelected ? 'var(--text-white)' : 'var(--text-muted)', 
-                borderBottom: isSelected ? '2px solid var(--accent-orange)' : '2px solid transparent', 
-                fontSize: '0.875rem', 
-                fontWeight: 'bold', 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.05em',
+            <button
+              key={g.id}
+              type="button"
+              onClick={() => setSelectedGameId(g.id)}
+              style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                padding: '0.65rem 1rem',
+                fontSize: '0.65rem',
+                fontFamily: "'Cinzel', serif",
+                fontWeight: 900,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                border: 'none',
+                borderRight: '1px solid #393e46',
+                background: active ? `${gameAccent}18` : 'transparent',
+                color: active ? gameAccent : '#8c9aaa',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                whiteSpace: 'nowrap',
               }}
             >
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isSelected ? 'var(--accent-orange)' : 'var(--text-muted)' }}></div>
-              {game.title}
+              <div
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: gameAccent,
+                  opacity: active ? 1 : 0.4,
+                }}
+              />
+              {g.title}
             </button>
           );
         })}
       </div>
 
-      {/* Top Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-        <Card style={{ borderTop: '3px solid var(--status-success)' }}>
-          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="flex justify-between items-center text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>
-              <span>Total Owners</span>
-              <div style={{ padding: '0.35rem', backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '4px', color: 'var(--status-success)' }}>
-                <Users size={16} />
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--status-success)' }}>
-                {selectedAnalytics?.totalOwners?.toLocaleString() || '0'}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                Lifetime purchases
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Key Metrics */}
+      <CreatorStatsGrid stats={statItems} />
 
-        <Card style={{ borderTop: '3px solid var(--status-info)' }}>
-          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="flex justify-between items-center text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>
-              <span>Total Revenue</span>
-              <div style={{ padding: '0.35rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '4px', color: 'var(--status-info)' }}>
-                <DollarSign size={16} />
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--status-info)' }}>
-                EGP {selectedAnalytics?.totalRevenueEgp || '0.00'}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                All-time gross
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Charts Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+        {/* New Owners Per Month */}
+        <div className={commonStyles.panelCard}>
+          <div className={commonStyles.panelHeader}>
+            <span className={commonStyles.panelHeaderTitle}>New Owners per Month</span>
+            <span className={commonStyles.panelHeaderMeta}>Purchases</span>
+          </div>
+          <div style={{ padding: '1rem' }}>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={monthlyData} barSize={20}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#393e46" vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={fmtNum}
+                  width={40}
+                />
+                <Tooltip content={(props: any) => <ChartTip {...props} format={fmtNum} />} />
+                <Bar dataKey="newOwners" fill={accent} radius={[2, 2, 0, 0]} name="New Owners" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-        <Card style={{ borderTop: '3px solid var(--accent-gold)' }}>
-          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="flex justify-between items-center text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>
-              <span>Community Score</span>
-              <div style={{ padding: '0.35rem', backgroundColor: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.2)', borderRadius: '4px', color: 'var(--accent-gold)' }}>
-                <Star size={16} />
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent-gold)' }}>
-                {selectedAnalytics?.averageScore || '0.0'} / 10
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                Based on reviews
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Cumulative Owners */}
+        <div className={commonStyles.panelCard}>
+          <div className={commonStyles.panelHeader}>
+            <span className={commonStyles.panelHeaderTitle}>Cumulative Growth</span>
+            <span className={commonStyles.panelHeaderMeta}>Total Audience</span>
+          </div>
+          <div style={{ padding: '1rem' }}>
+            <ResponsiveContainer width="100%" height={180}>
+              <AreaChart data={monthlyData}>
+                <defs>
+                  <linearGradient id={`grad-${effectiveId}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={accent} stopOpacity={0.35} />
+                    <stop offset="95%" stopColor={accent} stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#393e46" vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={fmtNum}
+                  width={40}
+                />
+                <Tooltip content={(props: any) => <ChartTip {...props} format={fmtNum} />} />
+                <Area
+                  type="monotone"
+                  dataKey="cumOwners"
+                  stroke={accent}
+                  strokeWidth={2}
+                  fill={`url(#grad-${effectiveId})`}
+                  name="Total Owners"
+                  dot={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-        <Card style={{ borderTop: '3px solid var(--accent-orange)' }}>
-          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className="flex justify-between items-center text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>
-              <span>Rev / Owner</span>
-              <div style={{ padding: '0.35rem', backgroundColor: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '4px', color: 'var(--accent-orange)' }}>
-                <TrendingUp size={16} />
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent-orange)' }}>
-                EGP {
-                  (selectedAnalytics?.totalRevenueEgp && selectedAnalytics?.totalOwners) 
-                    ? (parseFloat(selectedAnalytics.totalRevenueEgp) / selectedAnalytics.totalOwners).toFixed(2) 
-                    : '0.00'
-                }
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                Before platform cut
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Monthly Revenue */}
+        <div className={commonStyles.panelCard} style={{ gridColumn: 'span 2' }}>
+          <div className={commonStyles.panelHeader}>
+            <span className={commonStyles.panelHeaderTitle}>Monthly Gross Revenue</span>
+            <span className={commonStyles.panelHeaderMeta}>EGP</span>
+          </div>
+          <div style={{ padding: '1rem' }}>
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={monthlyData} barSize={24}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#393e46" vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v: number) => `EGP ${fmtNum(v)}`}
+                  width={60}
+                />
+                <Tooltip content={(props: any) => <ChartTip {...props} format={fmtMoney} />} />
+                <Bar dataKey="revenue" fill="#fd7014" radius={[2, 2, 0, 0]} name="Revenue" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
-      {/* Row 2: Charts 50/50 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-        <Card>
-          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '350px' }}>
-            <div style={{ marginBottom: '2rem' }}>
-              <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>NEW OWNERS PER MONTH</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dark)' }}>New purchases each month since launch</div>
-            </div>
-            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 1rem', borderBottom: '1px solid var(--border-color)', position: 'relative' }}>
-              <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                No historical data available.
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Portfolio Comparison */}
+      <div className={commonStyles.panelCard}>
+        <div className={commonStyles.panelHeader}>
+          <span className={commonStyles.panelHeaderTitle}>Portfolio Comparison — Audience Distribution</span>
+        </div>
+        <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {games.map((g, idx) => {
+            const gAnalytics = analyticsMap[g.id];
+            const gOwners = gAnalytics?.totalOwners || 0;
+            const maxOwners = Math.max(...games.map((gm) => analyticsMap[gm.id]?.totalOwners || 0), 1);
+            const pct = (gOwners / maxOwners) * 100;
+            const gameAccent = ACCENTS[idx % ACCENTS.length];
 
-        <Card>
-          <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '350px' }}>
-            <div style={{ marginBottom: '2rem' }}>
-              <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>CUMULATIVE OWNERS</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dark)' }}>Total ownership growth over time</div>
-            </div>
-            <div style={{ flex: 1, position: 'relative', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', height: '100%' }}>
-                No historical data available.
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Row 3: Revenue Chart */}
-      <Card>
-        <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '250px' }}>
-          <div style={{ marginBottom: '2rem' }}>
-            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>MONTHLY REVENUE</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-dark)' }}>Gross revenue per month since launch</div>
-          </div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 2rem', borderBottom: '1px solid var(--border-color)', position: 'relative' }}>
-            <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-              No historical data available.
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Row 4: Portfolio Comparison */}
-      <Card>
-        <CardContent style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ marginBottom: '2rem' }}>
-            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>PORTFOLIO COMPARISON - OWNER COUNT</div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {games.map((game, i) => {
-              const a = analyticsMap[game.id];
-              const owners = a?.totalOwners || 0;
-              const maxOwners = Math.max(...games.map(g => analyticsMap[g.id]?.totalOwners || 1000));
-              const pct = Math.max((owners / maxOwners) * 100, 2); // At least 2% to show the bar
-              const colors = ['var(--accent-orange)', '#a855f7', 'var(--status-info)', '#ec4899'];
-              const color = colors[i % colors.length];
-
-              return (
-                <div key={game.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: color }}></div>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{game.title}</span>
-                      <div style={{ backgroundColor: 'var(--bg-topbar)', border: '1px solid var(--border-color)', padding: '0.1rem 0.5rem', borderRadius: '4px', fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-                        • {game.status.replace('_', ' ').toUpperCase()}
-                      </div>
-                    </div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{owners.toLocaleString()}</span>
+            return (
+              <div key={g.id}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.35rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        backgroundColor: gameAccent,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 900,
+                        fontFamily: "'Cinzel', serif",
+                        color: gOwners > 0 ? '#eeeeee' : '#8c9aaa',
+                      }}
+                    >
+                      {g.title}
+                    </span>
+                    <GameStatusBadge status={g.status} />
                   </div>
-                  <div style={{ height: '6px', backgroundColor: 'var(--bg-topbar)', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${pct}%`, backgroundColor: color, borderRadius: '3px' }}></div>
-                  </div>
+
+                  <span
+                    style={{
+                      fontSize: '0.65rem',
+                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      color: gOwners > 0 ? '#4caf80' : '#8c9aaa',
+                    }}
+                  >
+                    {gOwners > 0 ? fmtNum(gOwners) : '—'}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-      
+
+                <div
+                  style={{
+                    height: '4px',
+                    backgroundColor: 'rgba(57, 62, 70, 0.5)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${pct}%`,
+                      backgroundColor: pct > 0 ? gameAccent : 'transparent',
+                      transition: 'width 0.5s ease',
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

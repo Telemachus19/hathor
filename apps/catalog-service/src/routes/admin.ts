@@ -3,7 +3,7 @@ import { eq, sql, desc, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
-import { games, gameStatusTransitions, genres, tags, auditLogs } from '../infrastructure/db/schema.js';
+import { games, gameStatusTransitions, genres, tags, gameTags, auditLogs } from '../infrastructure/db/schema.js';
 import { isValidTransition, VALID_GAME_STATUSES } from '../domain/stateMachine.js';
 
 const router: Router = Router();
@@ -65,8 +65,9 @@ router.get('/games', requireAuth, requireRole('admin'), async (req: Authenticate
 
 // GET /admin/submissions
 router.get('/submissions', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const limit = Math.min(parseInt(req.query.limit as string) || 25, 100);
+  const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
   const cursor = parseInt(req.query.cursor as string) || 0;
+  const statusFilter = req.query.status as string;
 
   try {
     const fetchedGames = await catalogDb
@@ -114,6 +115,64 @@ router.get('/submissions', requireAuth, requireRole('admin'), async (req: Authen
   } catch (error) {
     console.error('List submissions error:', error);
     res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list submissions' } });
+  }
+});
+
+// GET /admin/games/:gameId
+router.get('/games/:gameId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
+  const { gameId } = req.params;
+  if (!gameId || !UUID_REGEX.test(gameId)) {
+    return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format' } });
+  }
+
+  try {
+    const [game] = await catalogDb
+      .select({
+        id: games.id,
+        creatorId: games.creatorId,
+        title: games.title,
+        slug: games.slug,
+        shortDescription: games.shortDescription,
+        fullDescription: games.fullDescription,
+        priceEgp: games.priceEgp,
+        discountPercent: games.discountPercent,
+        bannerUrl: games.bannerUrl,
+        screenshots: games.screenshots,
+        trailerUrl: games.trailerUrl,
+        systemRequirements: games.systemRequirements,
+        pageTheme: games.pageTheme,
+        status: games.status,
+        genreId: games.genreId,
+        genre: {
+          id: genres.id,
+          name: genres.name,
+          slug: genres.slug,
+        },
+        createdAt: games.createdAt,
+        updatedAt: games.updatedAt,
+      })
+      .from(games)
+      .leftJoin(genres, eq(games.genreId, genres.id))
+      .where(eq(games.id, gameId))
+      .limit(1);
+
+    if (!game) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Game not found' } });
+    }
+
+    const gameTagRows = await catalogDb
+      .select({ id: tags.id, name: tags.name, slug: tags.slug })
+      .from(gameTags)
+      .innerJoin(tags, eq(gameTags.tagId, tags.id))
+      .where(eq(gameTags.gameId, game.id));
+
+    res.status(200).json({
+      ...game,
+      tags: gameTagRows,
+    });
+  } catch (error) {
+    console.error('Get admin game error:', error);
+    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to get game' } });
   }
 });
 

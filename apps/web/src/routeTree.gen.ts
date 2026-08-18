@@ -24,14 +24,14 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAuditLogRouteImport } from './routes/admin/audit-log'
 import { Route as AdminGamesRouteImport } from './routes/admin/games'
 import { Route as AdminGenresRouteImport } from './routes/admin/genres'
-import { Route as AdminSubmissionsRouteImport } from './routes/admin/submissions'
 import { Route as AdminTransactionsRouteImport } from './routes/admin/transactions'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as CreatorIndexRouteImport } from './routes/creator/index'
 import { Route as CreatorAnalyticsRouteImport } from './routes/creator/analytics'
 import { Route as CreatorMyGamesRouteImport } from './routes/creator/my-games'
 import { Route as CreatorOverviewRouteImport } from './routes/creator/overview'
-import { Route as AdminSubmissionsSubmissionIdRouteImport } from './routes/admin/submissions.$submissionId'
+import { Route as AdminSubmissionsIndexRouteImport } from './routes/admin/submissions/index'
+import { Route as AdminSubmissionsSubmissionIdRouteImport } from './routes/admin/submissions/$submissionId'
 import { Route as StoreGamesSlugRouteImport } from './routes/store.games.$slug'
 import { Route as CreatorGamesGameIdEditRouteImport } from './routes/creator/games.$gameId.edit'
 
@@ -110,11 +110,6 @@ const AdminGenresRoute = AdminGenresRouteImport.update({
   path: '/genres',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminSubmissionsRoute = AdminSubmissionsRouteImport.update({
-  id: '/submissions',
-  path: '/submissions',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminTransactionsRoute = AdminTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
@@ -145,11 +140,16 @@ const CreatorOverviewRoute = CreatorOverviewRouteImport.update({
   path: '/overview',
   getParentRoute: () => CreatorRoute,
 } as any)
+const AdminSubmissionsIndexRoute = AdminSubmissionsIndexRouteImport.update({
+  id: '/submissions/',
+  path: '/submissions/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSubmissionsSubmissionIdRoute =
   AdminSubmissionsSubmissionIdRouteImport.update({
-    id: '/$submissionId',
-    path: '/$submissionId',
-    getParentRoute: () => AdminSubmissionsRoute,
+    id: '/submissions/$submissionId',
+    path: '/submissions/$submissionId',
+    getParentRoute: () => AdminRoute,
   } as any)
 const StoreGamesSlugRoute = StoreGamesSlugRouteImport.update({
   id: '/store/games/$slug',
@@ -177,7 +177,6 @@ export interface FileRoutesByFullPath {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/games': typeof AdminGamesRoute
   '/admin/genres': typeof AdminGenresRoute
-  '/admin/submissions': typeof AdminSubmissionsRouteWithChildren
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/creator/analytics': typeof CreatorAnalyticsRoute
@@ -187,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/creator/': typeof CreatorIndexRoute
   '/admin/submissions/$submissionId': typeof AdminSubmissionsSubmissionIdRoute
   '/store/games/$slug': typeof StoreGamesSlugRoute
+  '/admin/submissions/': typeof AdminSubmissionsIndexRoute
   '/creator/games/$gameId/edit': typeof CreatorGamesGameIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -202,7 +202,6 @@ export interface FileRoutesByTo {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/games': typeof AdminGamesRoute
   '/admin/genres': typeof AdminGenresRoute
-  '/admin/submissions': typeof AdminSubmissionsRouteWithChildren
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/creator/analytics': typeof CreatorAnalyticsRoute
@@ -212,6 +211,7 @@ export interface FileRoutesByTo {
   '/creator': typeof CreatorIndexRoute
   '/admin/submissions/$submissionId': typeof AdminSubmissionsSubmissionIdRoute
   '/store/games/$slug': typeof StoreGamesSlugRoute
+  '/admin/submissions': typeof AdminSubmissionsIndexRoute
   '/creator/games/$gameId/edit': typeof CreatorGamesGameIdEditRoute
 }
 export interface FileRoutesById {
@@ -230,7 +230,6 @@ export interface FileRoutesById {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/games': typeof AdminGamesRoute
   '/admin/genres': typeof AdminGenresRoute
-  '/admin/submissions': typeof AdminSubmissionsRouteWithChildren
   '/admin/transactions': typeof AdminTransactionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/creator/analytics': typeof CreatorAnalyticsRoute
@@ -240,6 +239,7 @@ export interface FileRoutesById {
   '/creator/': typeof CreatorIndexRoute
   '/admin/submissions/$submissionId': typeof AdminSubmissionsSubmissionIdRoute
   '/store/games/$slug': typeof StoreGamesSlugRoute
+  '/admin/submissions/': typeof AdminSubmissionsIndexRoute
   '/creator/games/$gameId/edit': typeof CreatorGamesGameIdEditRoute
 }
 export interface FileRouteTypes {
@@ -259,7 +259,6 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/admin/games'
     | '/admin/genres'
-    | '/admin/submissions'
     | '/admin/transactions'
     | '/admin/users'
     | '/creator/analytics'
@@ -269,6 +268,7 @@ export interface FileRouteTypes {
     | '/creator/'
     | '/admin/submissions/$submissionId'
     | '/store/games/$slug'
+    | '/admin/submissions/'
     | '/creator/games/$gameId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -284,7 +284,6 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/admin/games'
     | '/admin/genres'
-    | '/admin/submissions'
     | '/admin/transactions'
     | '/admin/users'
     | '/creator/analytics'
@@ -294,6 +293,7 @@ export interface FileRouteTypes {
     | '/creator'
     | '/admin/submissions/$submissionId'
     | '/store/games/$slug'
+    | '/admin/submissions'
     | '/creator/games/$gameId/edit'
   id:
     | '__root__'
@@ -311,7 +311,6 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/admin/games'
     | '/admin/genres'
-    | '/admin/submissions'
     | '/admin/transactions'
     | '/admin/users'
     | '/creator/analytics'
@@ -321,6 +320,7 @@ export interface FileRouteTypes {
     | '/creator/'
     | '/admin/submissions/$submissionId'
     | '/store/games/$slug'
+    | '/admin/submissions/'
     | '/creator/games/$gameId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -446,13 +446,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGenresRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/submissions': {
-      id: '/admin/submissions'
-      path: '/submissions'
-      fullPath: '/admin/submissions'
-      preLoaderRoute: typeof AdminSubmissionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/transactions': {
       id: '/admin/transactions'
       path: '/transactions'
@@ -495,12 +488,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatorOverviewRouteImport
       parentRoute: typeof CreatorRoute
     }
+    '/admin/submissions/': {
+      id: '/admin/submissions/'
+      path: '/submissions'
+      fullPath: '/admin/submissions/'
+      preLoaderRoute: typeof AdminSubmissionsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/submissions/$submissionId': {
       id: '/admin/submissions/$submissionId'
-      path: '/$submissionId'
+      path: '/submissions/$submissionId'
       fullPath: '/admin/submissions/$submissionId'
       preLoaderRoute: typeof AdminSubmissionsSubmissionIdRouteImport
-      parentRoute: typeof AdminSubmissionsRoute
+      parentRoute: typeof AdminRoute
     }
     '/store/games/$slug': {
       id: '/store/games/$slug'
@@ -519,35 +519,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AdminSubmissionsRouteChildren {
-  AdminSubmissionsSubmissionIdRoute: typeof AdminSubmissionsSubmissionIdRoute
-}
-
-const AdminSubmissionsRouteChildren: AdminSubmissionsRouteChildren = {
-  AdminSubmissionsSubmissionIdRoute: AdminSubmissionsSubmissionIdRoute,
-}
-
-const AdminSubmissionsRouteWithChildren =
-  AdminSubmissionsRoute._addFileChildren(AdminSubmissionsRouteChildren)
-
 interface AdminRouteChildren {
   AdminAuditLogRoute: typeof AdminAuditLogRoute
   AdminGamesRoute: typeof AdminGamesRoute
   AdminGenresRoute: typeof AdminGenresRoute
-  AdminSubmissionsRoute: typeof AdminSubmissionsRouteWithChildren
   AdminTransactionsRoute: typeof AdminTransactionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminSubmissionsSubmissionIdRoute: typeof AdminSubmissionsSubmissionIdRoute
+  AdminSubmissionsIndexRoute: typeof AdminSubmissionsIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditLogRoute: AdminAuditLogRoute,
   AdminGamesRoute: AdminGamesRoute,
   AdminGenresRoute: AdminGenresRoute,
-  AdminSubmissionsRoute: AdminSubmissionsRouteWithChildren,
   AdminTransactionsRoute: AdminTransactionsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminSubmissionsSubmissionIdRoute: AdminSubmissionsSubmissionIdRoute,
+  AdminSubmissionsIndexRoute: AdminSubmissionsIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

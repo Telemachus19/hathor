@@ -87,13 +87,8 @@
 
 .stepLabelInactive {
   color: #8c9aaa;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.stepLabelInactive:hover {
-  opacity: 1;
-  color: #eeeeee;
+  cursor: default;
+  user-select: none;
 }
 
 .contentArea {

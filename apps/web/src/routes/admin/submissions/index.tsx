@@ -12,23 +12,24 @@ import {
   ChevronRight,
   Check,
 } from 'lucide-react';
-import { AdminStatsGrid, AdminStatItem } from './components/common/AdminStatsCard';
-import { AdminFilterBar } from './components/common/AdminFilterBar';
-import { GameStatusBadge } from './components/common/AdminBadges';
-import { StorePreviewModal } from './components/StorePreviewModal';
-import { apiClient } from '../../services/api/index';
+import { AdminStatsGrid, AdminStatItem } from '../components/common/AdminStatsCard';
+import { AdminFilterBar } from '../components/common/AdminFilterBar';
+import { GameStatusBadge } from '../components/common/AdminBadges';
+import { PreviewModal } from '../../designer-page/components/modals/PreviewModal';
+import { Device, DEFAULT_PAGE_SETTINGS } from '../../designer-page/types/designerTypes';
+import { apiClient } from '../../../services/api/index';
 import type { Game } from '@hathor/contracts';
-import commonStyles from './styles/adminCommon.module.css';
+import commonStyles from '../styles/adminCommon.module.css';
 
-export const Route = createFileRoute('/admin/submissions')({
+export const Route = createFileRoute('/admin/submissions/')({
   component: AdminSubmissions,
 });
 
 function AdminSubmissions() {
   const [submissions, setSubmissions] = useState<Game[]>([]);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [previewGame, setPreviewGame] = useState<Game | null>(null);
+  const [previewDevice, setPreviewDevice] = useState<Device>('desktop');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -76,48 +77,24 @@ function AdminSubmissions() {
         s.id.toLowerCase().includes(q) ||
         (s.genre?.name && s.genre.name.toLowerCase().includes(q));
 
-      const matchStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'pending' && (s.status === 'pending_review' || s.status === 'draft')) ||
-        (statusFilter === 'approved' && s.status === 'published') ||
-        (statusFilter === 'rejected' && (s.status === 'rejected' || s.status === 'suspended'));
-
-      return matchSearch && matchStatus;
+      return matchSearch;
     });
-  }, [submissions, search, statusFilter]);
-
-  const pendingCount = submissions.filter((s) => s.status === 'pending_review' || s.status === 'draft').length;
-  const approvedCount = submissions.filter((s) => s.status === 'published').length;
-  const rejectedCount = submissions.filter((s) => s.status === 'rejected' || s.status === 'suspended').length;
+  }, [submissions, search]);
 
   const stats: AdminStatItem[] = [
     {
-      label: 'Total Submissions',
+      label: 'Pending Review',
       value: submissions.length,
-      delta: 'All-time creator entries',
+      delta: 'Awaiting moderation decision',
       icon: Inbox,
       color: '#fd7014',
     },
     {
-      label: 'Pending Review',
-      value: pendingCount,
-      delta: 'Awaiting moderation decision',
+      label: 'Requires Action',
+      value: submissions.length,
+      delta: 'Creator submissions pending approval',
       icon: Send,
       color: '#f59e0b',
-    },
-    {
-      label: 'Approved',
-      value: approvedCount,
-      delta: 'Listed on storefront',
-      icon: CheckCircle,
-      color: '#4caf80',
-    },
-    {
-      label: 'Rejected',
-      value: rejectedCount,
-      delta: 'Did not qualify / Need revision',
-      icon: XCircle,
-      color: '#e74c3c',
     },
   ];
 
@@ -132,7 +109,19 @@ function AdminSubmissions() {
 
       {openMenu && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpenMenu(null)} />}
 
-      {previewGame && <StorePreviewModal game={previewGame} onClose={() => setPreviewGame(null)} />}
+      {previewGame && (
+        <PreviewModal
+          sections={(previewGame as any)?.pageTheme?.sections || (previewGame as any)?.theme?.sections || []}
+          pageSettings={
+            (previewGame as any)?.pageTheme?.pageSettings ||
+            (previewGame as any)?.theme?.pageSettings ||
+            DEFAULT_PAGE_SETTINGS
+          }
+          previewDevice={previewDevice}
+          setPreviewDevice={setPreviewDevice}
+          onClose={() => setPreviewGame(null)}
+        />
+      )}
 
       {/* Top Stats */}
       <AdminStatsGrid stats={stats} />
@@ -142,14 +131,6 @@ function AdminSubmissions() {
         search={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search submissions by title, creator, or genre..."
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        statusOptions={[
-          { id: 'all', label: 'All', count: submissions.length },
-          { id: 'pending', label: 'Pending', count: pendingCount },
-          { id: 'approved', label: 'Approved', count: approvedCount },
-          { id: 'rejected', label: 'Rejected', count: rejectedCount },
-        ]}
       />
 
       {/* Results Header */}
@@ -191,7 +172,7 @@ function AdminSubmissions() {
                 key={sub.id}
                 className={`${commonStyles.tableRow} ${commonStyles.tableRowClickable} ${openMenu === sub.id ? commonStyles.tableRowActive : ''}`}
                 style={{ gridTemplateColumns: '2.5fr 1.5fr 1fr 1fr 1fr auto' }}
-                onClick={() => navigate({ to: `/admin/submissions/${sub.id}` })}
+                onClick={() => navigate({ to: '/admin/submissions/$submissionId', params: { submissionId: sub.id } })}
               >
                 {/* Game */}
                 <div className={commonStyles.userCell}>
@@ -250,7 +231,7 @@ function AdminSubmissions() {
                       <button
                         type="button"
                         className={commonStyles.dropdownMenuItem}
-                        onClick={() => navigate({ to: `/admin/submissions/${sub.id}` })}
+                        onClick={() => navigate({ to: '/admin/submissions/$submissionId', params: { submissionId: sub.id } })}
                       >
                         Review Submission
                       </button>

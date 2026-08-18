@@ -58,7 +58,13 @@ export const Navbar: React.FC = () => {
 
             {isAuthenticated ? (
               <Link
-                to={Array.isArray(user?.roles) && user?.roles.includes('admin') ? '/admin' : '/profile'}
+                to={
+                  Array.isArray(user?.roles) && user?.roles.includes('admin')
+                    ? '/admin'
+                    : Array.isArray(user?.roles) && user?.roles.includes('creator')
+                    ? '/creator'
+                    : '/profile'
+                }
                 className={styles.navLink}
                 activeProps={{ className: styles.navLinkActive }}
               >

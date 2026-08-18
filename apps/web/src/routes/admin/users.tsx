@@ -21,7 +21,7 @@ import { AdminFilterBar } from './components/common/AdminFilterBar';
 import { UserStatusBadge, RoleBadge } from './components/common/AdminBadges';
 import { UserActionModal, UserModalAction } from './components/UserActionModal';
 import { apiClient } from '../../services/api/index';
-import type { User } from '@hathor/contracts';
+import type { User, Order } from '@hathor/contracts';
 import commonStyles from './styles/adminCommon.module.css';
 
 export const Route = createFileRoute('/admin/users')({
@@ -30,6 +30,7 @@ export const Route = createFileRoute('/admin/users')({
 
 function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
+  const [transactions, setTransactions] = useState<Order[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'temp_banned' | 'perma_banned'>('all');
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'creator' | 'admin'>('all');
@@ -42,20 +43,39 @@ function AdminUsers() {
     setTimeout(() => setToast(null), 2500);
   };
 
-  const loadUsers = async () => {
+  const loadData = async () => {
     try {
-      const { data } = await apiClient.GET('/admin/users');
-      if (data?.items) {
-        setUsers(data.items);
+      const [{ data: usersData }, { data: trxData }] = await Promise.all([
+        apiClient.GET('/admin/users'),
+        apiClient.GET('/admin/transactions'),
+      ]);
+
+      if (usersData?.items) {
+        setUsers(usersData.items);
+      }
+      if (trxData?.items) {
+        setTransactions(trxData.items);
       }
     } catch (err) {
-      console.error('Failed to load users:', err);
+      console.error('Failed to load users or transactions:', err);
     }
   };
 
   useEffect(() => {
-    loadUsers();
+    loadData();
   }, []);
+
+  const userSpentMap = useMemo(() => {
+    const map = new Map<string, number>();
+    transactions.forEach((trx) => {
+      const userId = (trx as any).userId;
+      if (userId && trx.status === 'fulfilled') {
+        const current = map.get(userId) || 0;
+        map.set(userId, current + Number(trx.totalAmountEgp || 0));
+      }
+    });
+    return map;
+  }, [transactions]);
 
   const handleStatusChange = async (userId: string, status: 'active' | 'suspended' | 'banned') => {
     try {
@@ -64,7 +84,7 @@ function AdminUsers() {
         body: { status },
       });
       showToast(`User status updated to ${status}`);
-      loadUsers();
+      loadData();
     } catch (err) {
       console.error(err);
       showToast('Failed to update user status');
@@ -78,7 +98,7 @@ function AdminUsers() {
         body: { role, action },
       });
       showToast(`Role ${role} ${action === 'grant' ? 'granted' : 'revoked'}`);
-      loadUsers();
+      loadData();
     } catch (err) {
       console.error(err);
       showToast('Failed to change user role');
@@ -158,6 +178,7 @@ function AdminUsers() {
         <UserActionModal
           user={modal.user}
           action={modal.action}
+          spent={modal?.user ? userSpentMap.get(modal.user.id) || 0 : 0}
           onClose={() => setModal(null)}
           onConfirmStatus={(userId, status) => handleStatusChange(userId, status)}
         />
@@ -274,8 +295,8 @@ function AdminUsers() {
 
                 {/* Spent */}
                 <div>
-                  <span className={commonStyles.monoText} style={{ color: '#eeeeee', fontWeight: 700 }}>
-                    EGP 0.00
+                  <span className={commonStyles.monoText} style={{ color: (userSpentMap.get(user.id) || 0) > 0 ? '#4caf80' : '#eeeeee', fontWeight: 700 }}>
+                    EGP {(userSpentMap.get(user.id) || 0).toFixed(2)}
                   </span>
                 </div>
 

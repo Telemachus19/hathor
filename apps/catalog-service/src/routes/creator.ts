@@ -3,7 +3,7 @@ import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
-import { games, gameStatusTransitions } from '../infrastructure/db/schema.js';
+import { games, gameStatusTransitions, genres, tags, gameTags } from '../infrastructure/db/schema.js';
 import {
   isValidTransition,
   isCreatorAllowedTargetStatus,
@@ -132,7 +132,7 @@ router.put(
 /**
  * POST /creator/games
  * Creates a draft game associated with the authenticated creator (creator_id == caller_id).
- * Enforces pageTheme = {} and status = "draft".
+ * Enforces status = "draft".
  */
 router.post(
   '/games',
@@ -153,6 +153,9 @@ router.post(
         fullDescription,
         priceEgp,
         discountPercent,
+        genreId,
+        genre: genreName,
+        tags: tagList,
         bannerUrl,
         screenshots,
         trailerUrl,
@@ -180,6 +183,12 @@ router.post(
       const uniqueSuffix = Date.now().toString(36).slice(-4);
       const slug = `${baseSlug}-${uniqueSuffix}`;
 
+      let resolvedGenreId = genreId || null;
+      if (!resolvedGenreId && genreName && typeof genreName === 'string') {
+        const [foundGenre] = await catalogDb.select().from(genres).where(eq(genres.name, genreName.trim())).limit(1);
+        if (foundGenre) resolvedGenreId = foundGenre.id;
+      }
+
       const [newGame] = await catalogDb
         .insert(games)
         .values({
@@ -188,16 +197,29 @@ router.post(
           slug,
           shortDescription: (shortDescription || shortDesc || title).trim(),
           fullDescription: (fullDescription || shortDescription || shortDesc || title).trim(),
-          priceEgp: String(priceEgp !== undefined ? priceEgp : '0.00'),
+          priceEgp: String(priceEgp !== undefined && priceEgp !== '' ? priceEgp : '0.00'),
           discountPercent: Number(discountPercent || 0),
+          genreId: resolvedGenreId,
           bannerUrl: bannerUrl || null,
           screenshots: Array.isArray(screenshots) ? screenshots : [],
           trailerUrl: trailerUrl || null,
           systemRequirements: systemRequirements || systemReqs || {},
-          pageTheme: {}, // Mandatory empty JSON as per requirement
-          status: 'draft', // Mandatory draft status as per requirement
+          pageTheme: {}, // Empty theme initially
+          status: 'draft', // Mandatory draft status
         })
         .returning();
+
+      // Insert tags if provided
+      if (Array.isArray(tagList) && newGame) {
+        for (const tagNameOrSlug of tagList) {
+          const val = typeof tagNameOrSlug === 'string' ? tagNameOrSlug.trim() : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
+          if (!val) continue;
+          const [foundTag] = await catalogDb.select().from(tags).where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`).limit(1);
+          if (foundTag) {
+            await catalogDb.insert(gameTags).values({ gameId: newGame.id, tagId: foundTag.id }).onConflictDoNothing();
+          }
+        }
+      }
 
       return res.status(201).json({
         success: true,
@@ -236,6 +258,9 @@ router.get(
         .from(games)
         .where(eq(games.creatorId, callerId));
 
+      const genreList = await catalogDb.select().from(genres);
+      const genreMap = new Map(genreList.map((g) => [g.id, g]));
+
       return res.status(200).json(
         creatorGames.map(game => ({
           id: game.id,
@@ -246,6 +271,8 @@ router.get(
           priceEgp: game.priceEgp,
           discountPercent: game.discountPercent,
           status: game.status,
+          genreId: game.genreId,
+          genre: game.genreId ? genreMap.get(game.genreId) || null : null,
           systemRequirements: game.systemRequirements,
           pageTheme: game.pageTheme,
           bannerUrl: game.bannerUrl,
@@ -264,6 +291,190 @@ router.get(
           message: 'Failed to fetch creator games',
           correlationId,
         },
+      });
+    }
+  }
+);
+
+/**
+ * GET /creator/games/:gameId
+ * Fetches single game details with genre and tags for creator.
+ */
+router.get(
+  '/games/:gameId',
+  requireAuth,
+  requireRole('creator'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId = (req.headers['x-correlation-id'] as string) || (req.headers['correlation-id'] as string) || randomUUID();
+
+    try {
+      const callerId = req.user!.id;
+      const { gameId } = req.params;
+
+      if (!gameId || !UUID_REGEX.test(gameId)) {
+        return res.status(400).json({
+          error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format', correlationId },
+        });
+      }
+
+      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+
+      if (!game) {
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: `Game not found: ${gameId}`, correlationId },
+        });
+      }
+
+      if (game.creatorId !== callerId) {
+        return res.status(403).json({
+          error: { code: 'FORBIDDEN', message: 'Not authorized to view this game', correlationId },
+        });
+      }
+
+      let genreObj = null;
+      if (game.genreId) {
+        const [g] = await catalogDb.select().from(genres).where(eq(genres.id, game.genreId)).limit(1);
+        genreObj = g || null;
+      }
+
+      const gameTagRows = await catalogDb
+        .select({ id: tags.id, name: tags.name, slug: tags.slug })
+        .from(gameTags)
+        .innerJoin(tags, eq(gameTags.tagId, tags.id))
+        .where(eq(gameTags.gameId, game.id));
+
+      return res.status(200).json({
+        id: game.id,
+        title: game.title,
+        slug: game.slug,
+        shortDescription: game.shortDescription,
+        fullDescription: game.fullDescription,
+        priceEgp: game.priceEgp,
+        discountPercent: game.discountPercent,
+        status: game.status,
+        genreId: game.genreId,
+        genre: genreObj,
+        tags: gameTagRows,
+        systemRequirements: game.systemRequirements,
+        pageTheme: game.pageTheme,
+        bannerUrl: game.bannerUrl,
+        screenshots: game.screenshots,
+        trailerUrl: game.trailerUrl,
+        createdAt: game.createdAt?.toISOString(),
+        updatedAt: game.updatedAt?.toISOString(),
+      });
+    } catch (error) {
+      console.error('Error fetching creator game details:', error);
+      return res.status(500).json({
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch game details', correlationId },
+      });
+    }
+  }
+);
+
+/**
+ * PUT /creator/games/:gameId
+ * Updates game metadata for creator.
+ */
+router.put(
+  '/games/:gameId',
+  requireAuth,
+  requireRole('creator'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId = (req.headers['x-correlation-id'] as string) || (req.headers['correlation-id'] as string) || randomUUID();
+
+    try {
+      const callerId = req.user!.id;
+      const { gameId } = req.params;
+
+      if (!gameId || !UUID_REGEX.test(gameId)) {
+        return res.status(400).json({
+          error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format', correlationId },
+        });
+      }
+
+      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+
+      if (!game) {
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: `Game not found: ${gameId}`, correlationId },
+        });
+      }
+
+      if (game.creatorId !== callerId) {
+        return res.status(403).json({
+          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+        });
+      }
+
+      const {
+        title,
+        shortDescription,
+        shortDesc,
+        fullDescription,
+        priceEgp,
+        discountPercent,
+        genreId,
+        genre: genreName,
+        tags: tagList,
+        bannerUrl,
+        screenshots,
+        trailerUrl,
+        systemRequirements,
+        systemReqs,
+      } = req.body || {};
+
+      let resolvedGenreId = genreId !== undefined ? genreId : game.genreId;
+      if (genreName && typeof genreName === 'string') {
+        const [foundGenre] = await catalogDb.select().from(genres).where(eq(genres.name, genreName.trim())).limit(1);
+        if (foundGenre) resolvedGenreId = foundGenre.id;
+      }
+
+      const updatedFields: any = {
+        updatedAt: new Date(),
+      };
+
+      if (title && typeof title === 'string') updatedFields.title = title.trim();
+      if (shortDescription !== undefined || shortDesc !== undefined) {
+        updatedFields.shortDescription = (shortDescription || shortDesc || '').trim();
+      }
+      if (fullDescription !== undefined) updatedFields.fullDescription = fullDescription.trim();
+      if (priceEgp !== undefined && priceEgp !== '') updatedFields.priceEgp = String(priceEgp);
+      if (discountPercent !== undefined) updatedFields.discountPercent = Number(discountPercent);
+      if (resolvedGenreId !== undefined) updatedFields.genreId = resolvedGenreId;
+      if (bannerUrl !== undefined) updatedFields.bannerUrl = bannerUrl || null;
+      if (screenshots !== undefined) updatedFields.screenshots = Array.isArray(screenshots) ? screenshots : [];
+      if (trailerUrl !== undefined) updatedFields.trailerUrl = trailerUrl || null;
+      if (systemRequirements !== undefined || systemReqs !== undefined) {
+        updatedFields.systemRequirements = systemRequirements || systemReqs || {};
+      }
+
+      const [updatedGame] = await catalogDb
+        .update(games)
+        .set(updatedFields)
+        .where(eq(games.id, gameId))
+        .returning();
+
+      if (Array.isArray(tagList)) {
+        await catalogDb.delete(gameTags).where(eq(gameTags.gameId, gameId));
+        for (const tagNameOrSlug of tagList) {
+          const val = typeof tagNameOrSlug === 'string' ? tagNameOrSlug.trim() : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
+          if (!val) continue;
+          const [foundTag] = await catalogDb.select().from(tags).where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`).limit(1);
+          if (foundTag) {
+            await catalogDb.insert(gameTags).values({ gameId, tagId: foundTag.id }).onConflictDoNothing();
+          }
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: updatedGame,
+      });
+    } catch (error) {
+      console.error('Error updating creator game:', error);
+      return res.status(500).json({
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update game', correlationId },
       });
     }
   }

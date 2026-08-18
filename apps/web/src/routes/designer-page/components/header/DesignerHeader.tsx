@@ -66,7 +66,14 @@ export function DesignerHeader({
         }}
       >
         <button
-          onClick={() => navigate({ to: '/game-info-form' })}
+          onClick={() => {
+            const params = new URLSearchParams(window.location.search);
+            const gameId = params.get('gameId');
+            navigate({
+              to: '/game-info-form',
+              search: gameId ? { gameId } : undefined,
+            });
+          }}
           style={{
             background: 'transparent',
             border: '1px solid #353c4d',

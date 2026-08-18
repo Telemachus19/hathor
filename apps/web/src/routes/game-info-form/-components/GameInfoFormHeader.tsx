@@ -1,10 +1,8 @@
 import React from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { HathorLogo } from '../../../assets';
 import styles from '../-styles/GameInfoFormPage.module.css';
 
 export const GameInfoFormHeader: React.FC = () => {
-  const navigate = useNavigate();
 
   return (
     <div className={styles.topBar}>
@@ -28,8 +26,7 @@ export const GameInfoFormHeader: React.FC = () => {
           <span className={styles.stepLabelActive}>Step 1: Game Info</span>
         </div>
         <span style={{ color: 'rgba(140, 154, 170, 0.4)' }}>────────</span>
-        <button
-          onClick={() => navigate({ to: '/designer-page' })}
+        <div
           style={{
             background: 'transparent',
             border: '1px solid #393E46',
@@ -38,12 +35,16 @@ export const GameInfoFormHeader: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            cursor: 'pointer',
+            cursor: 'default',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            opacity: 0.6,
           }}
+          title="Complete Step 1 and click Save & Continue to proceed"
         >
           <div className={styles.stepBadgeInactive}>2</div>
           <span className={styles.stepLabelInactive}>Step 2: Store Designer</span>
-        </button>
+        </div>
       </div>
     </div>
   );

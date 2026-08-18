@@ -8,14 +8,26 @@ export interface CatalogGameItem {
   id?: string;
   slug: string;
   title: string;
+  subtitle?: string;
   shortDescription: string;
+  fullDescription?: string;
   priceEgp: string;
   discountPercent?: number;
   bannerUrl?: string;
+  screenshots?: string[];
+  trailerUrl?: string;
+  systemRequirements?: any;
+  genre?: { id?: number; name: string; slug: string };
+  category?: string;
+  developer?: string;
+  publisher?: string;
+  releaseDate?: string;
+  platforms?: string[];
   status: string;
-  tags?: Array<{ name: string; slug: string }>;
+  tags?: Array<{ id?: number; name: string; slug: string }>;
   pageTheme?: Record<string, any>;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 /**

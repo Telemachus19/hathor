@@ -1,133 +1,161 @@
-import { createFileRoute, Outlet, Link, redirect, useRouterState, useNavigate } from '@tanstack/react-router';
-import { Home, Gamepad2, BarChart2, FilePlus2 } from 'lucide-react';
-import '../components/ui/ui.css';
-import { apiClient } from '../services/api/index';
+import { useState } from 'react';
+import {
+  createFileRoute,
+  Outlet,
+  Link,
+  useRouterState,
+  useNavigate,
+} from '@tanstack/react-router';
+import {
+  Home,
+  Gamepad2,
+  BarChart2,
+  Plus,
+  ChevronDown,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { requireCreator } from '../utils/authGuard';
+import styles from './creator/styles/creatorLayout.module.css';
+import hathorLogo from '../assets/hathor-logo.svg';
 
 export const Route = createFileRoute('/creator')({
   beforeLoad: ({ context, location }) => {
-    if (!context.auth.isAuthenticated || !context.auth.user?.roles.includes('creator')) {
-      throw redirect({
-        to: '/login',
-        search: {
-          redirect: location.href,
-        },
-      });
-    }
+    requireCreator(context.auth, location.href);
   },
   component: CreatorLayout,
 });
 
+const NAV_ITEMS = [
+  { to: '/creator/overview', label: 'Overview', icon: Home },
+  { to: '/creator/my-games', label: 'My Games', icon: Gamepad2 },
+  { to: '/creator/analytics', label: 'Analytics', icon: BarChart2 },
+];
+
 function CreatorLayout() {
   const router = useRouterState();
   const currentPath = router.location.pathname;
-
-  let pageTitle = 'STUDIO OVERVIEW';
-  let breadcrumb = 'CREATOR / OVERVIEW';
-
-  if (currentPath.includes('my-games')) { pageTitle = 'MY GAMES'; breadcrumb = 'CREATOR / GAMES'; }
-  else if (currentPath.includes('analytics')) { pageTitle = 'ANALYTICS'; breadcrumb = 'CREATOR / ANALYTICS'; }
-
   const { user } = useAuth();
   const navigate = useNavigate();
-  const handleNewGame = async () => {
-    try {
-      const { data } = await apiClient.POST('/creator/games', { 
-        body: { 
-          title: 'New Game', 
-          slug: `draft-${Date.now()}`, 
-          shortDescription: '', 
-          priceEgp: '0.00' 
-        } 
-      });
-      if (data && data.id) {
-        navigate({ to: '/creator/games/$gameId/edit', params: { gameId: data.id } });
-      }
-    } catch (err) {
-      console.error(err);
-    }
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  let pageTitle = 'Studio Overview';
+  let breadcrumb = 'CREATOR / OVERVIEW';
+
+  if (currentPath.includes('my-games')) {
+    pageTitle = 'My Games';
+    breadcrumb = 'CREATOR / MY GAMES';
+  } else if (currentPath.includes('analytics')) {
+    pageTitle = 'Analytics';
+    breadcrumb = 'CREATOR / ANALYTICS';
+  }
+
+  const handleNewGame = () => {
+    localStorage.removeItem('hathor_game_info_draft_current');
+    navigate({ to: '/game-info-form' });
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-main)', color: 'var(--text-white)' }}>
+    <div className={styles.layoutContainer}>
       {/* Sidebar */}
-      <aside style={{ width: 'var(--sidebar-width)', backgroundColor: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ height: 'var(--header-height)', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0 1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-          <Gamepad2 color="var(--accent-orange)" size={24} />
-          <h2 style={{ fontFamily: 'var(--font-logo)', fontSize: '1.25rem', margin: 0, color: 'var(--accent-orange)' }}>HATHOR</h2>
-        </div>
-        
-        <div style={{ padding: '1.5rem 0', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '0 1.5rem', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-orange)', marginBottom: '1rem' }}>Creator Studio</div>
-          
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
-            <NavLink to="/creator/overview" icon={<Home size={18} />} label="OVERVIEW" />
-            <NavLink to="/creator/my-games" icon={<Gamepad2 size={18} />} label="MY GAMES" />
-            <NavLink to="/creator/analytics" icon={<BarChart2 size={18} />} label="ANALYTICS" />
-          </nav>
+      <aside
+        className={`${styles.sidebar} ${
+          sidebarOpen ? styles.sidebarExpanded : styles.sidebarCollapsed
+        }`}
+      >
+        {/* Logo */}
+        <Link
+          to="/"
+          className={styles.logoSection}
+          title="Back to Hathor Store"
+        >
+          <img src={hathorLogo} alt="Hathor" className={styles.logoImg} />
+          {sidebarOpen && <span className={styles.logoText}>HATHOR</span>}
+        </Link>
 
-          <div style={{ padding: '0 1.5rem', marginTop: 'auto' }}>
-            <button onClick={handleNewGame} className="hathor-btn hathor-btn-primary w-full flex items-center justify-center gap-2" style={{ padding: '0.75rem' }}>
-              <FilePlus2 size={18} />
-              NEW GAME
-            </button>
+        {/* Section Label */}
+        {sidebarOpen && (
+          <div className={styles.sectionLabel}>
+            <p className={styles.sectionLabelText}>Creator Studio</p>
           </div>
+        )}
+
+        {/* Navigation */}
+        <nav className={styles.navList}>
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive =
+              currentPath === item.to ||
+              (item.to === '/creator/overview' && currentPath === '/creator');
+
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`${styles.navItem} ${
+                  isActive ? styles.navItemActive : ''
+                }`}
+                title={!sidebarOpen ? item.label : undefined}
+              >
+                {isActive && <div className={styles.activeIndicator} />}
+                <Icon size={16} style={{ flexShrink: 0 }} />
+                {sidebarOpen && <span>{item.label}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* New Game Button CTA */}
+        <div className={styles.newGameWrapper}>
+          <button
+            type="button"
+            className={`${styles.newGameBtn} ${
+              !sidebarOpen ? styles.newGameBtnCollapsed : ''
+            }`}
+            onClick={handleNewGame}
+            title="Publish New Game"
+          >
+            <Plus size={14} style={{ flexShrink: 0 }} />
+            {sidebarOpen && <span>New Game</span>}
+          </button>
         </div>
+
+        {/* Collapse Sidebar Button */}
+        <button
+          type="button"
+          className={styles.collapseBtn}
+          onClick={() => setSidebarOpen((v) => !v)}
+          title={sidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
+        >
+          <ChevronDown
+            size={14}
+            style={{
+              transform: sidebarOpen ? 'rotate(90deg)' : 'rotate(-90deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          />
+        </button>
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
-        <header style={{ height: 'var(--header-height)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-topbar)' }}>
+      <div className={styles.mainWrapper}>
+        <header className={styles.header}>
           <div>
-            <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-orange)', marginBottom: '0.25rem' }}>{breadcrumb}</div>
-            <h1 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.05em' }}>{pageTitle}</h1>
+            <p className={styles.breadcrumb}>{breadcrumb}</p>
+            <h1 className={styles.pageTitle}>{pageTitle}</h1>
           </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'var(--bg-card)', padding: '0.35rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--status-success)' }}></div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user?.displayName || 'Creator'}</span>
+
+          <div className={styles.headerActions}>
+            <div className={styles.userBadge}>
+              <div className={styles.userDot} />
+              <span>{user?.displayName || 'Creator'}</span>
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
-        <div style={{ padding: '2rem', overflowY: 'auto', flex: 1 }}>
+        <main className={styles.contentArea}>
           <Outlet />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
-  );
-}
-
-function NavLink({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
-  return (
-    <Link 
-      to={to} 
-      style={{
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '1rem', 
-        padding: '0.75rem 1.5rem',
-        color: 'var(--text-muted)',
-        textDecoration: 'none',
-        fontSize: '0.875rem',
-        letterSpacing: '0.05em',
-        transition: 'all 0.2s',
-        borderLeft: '3px solid transparent'
-      }}
-      activeProps={{
-        style: {
-          color: 'var(--accent-orange)',
-          backgroundColor: 'var(--bg-card-hover)',
-          borderLeftColor: 'var(--accent-orange)',
-          fontWeight: 600
-        }
-      }}
-    >
-      {icon}
-      {label}
-    </Link>
   );
 }

@@ -334,11 +334,11 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
 
 export const GameSidebarInfo: React.FC<GameDetailsSidebarProps> = (props) => {
   const s = props.s || {};
-  const dev = s.sideDev || s.dev || props.developer || 'Developer Name';
-  const pub = s.sidePub || s.pub || props.publisher || 'Publisher Name';
-  const date = s.sideDate || s.date || props.releaseDate || 'Coming Soon';
-  const genre = s.sideGenre || s.genre || props.genre || 'Genre';
-  const platforms = s.sidePlatforms || props.platforms || ['Windows'];
+  const dev = props.developer || s.sideDev || s.dev || 'Hathor Studios';
+  const pub = props.publisher || s.sidePub || s.pub || 'Hathor Publishing';
+  const date = props.releaseDate || s.sideDate || s.date || 'Aug 2026';
+  const genre = props.genre || s.sideGenre || s.genre || 'Action';
+  const platforms = props.platforms || s.sidePlatforms || ['Windows'];
 
   const cardBg = s.infoCardBg || SURFACE;
   const cardBorder = s.infoCardBorder || BORDER;

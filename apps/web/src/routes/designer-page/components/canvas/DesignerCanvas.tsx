@@ -36,23 +36,36 @@ export function DesignerCanvas({
 }) {
   const deviceMax = device === 'mobile' ? 375 : device === 'tablet' ? 768 : undefined;
 
+  const effectiveBg =
+    (pageSettings as any)?.bg ||
+    (pageSettings as any)?.bgColor ||
+    (pageSettings as any)?.bgGradient ||
+    BG;
+
+  const bgImage = pageSettings?.bgImage || '';
+  const bgImageStyle = bgImage
+    ? {
+        backgroundImage: `url("${bgImage}")`,
+        backgroundSize: pageSettings.bgSize || 'cover',
+        backgroundPosition: pageSettings.bgPosition || 'center center',
+        backgroundRepeat: pageSettings.bgRepeat || 'no-repeat',
+        backgroundAttachment: pageSettings.bgAttachment || 'scroll',
+      }
+    : {};
+
   return (
     <div
       className={styles.canvasArea}
       style={{
-        backgroundColor:
-          pageSettings.bg && pageSettings.bg !== 'transparent' ? pageSettings.bg : BG,
-        backgroundImage: pageSettings.bgImage ? `url("${pageSettings.bgImage}")` : undefined,
-        backgroundSize: pageSettings.bgSize || 'cover',
-        backgroundPosition: pageSettings.bgPosition || 'center center',
-        backgroundRepeat: pageSettings.bgRepeat || 'no-repeat',
+        background: effectiveBg && effectiveBg !== 'transparent' ? effectiveBg : BG,
+        ...bgImageStyle,
         position: 'relative',
-        transition: 'all 0.2s ease',
+        transition: 'background 0.2s ease',
       }}
       onClick={onDeselectAll}
     >
       {/* Outer Canvas Background Overlay Tint */}
-      {pageSettings.bgImage &&
+      {bgImage &&
         (pageSettings.bgOverlay || pageSettings.bgOverlayOpacity !== undefined) && (
           <div
             style={{
