@@ -91,12 +91,17 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
         const user = await login(email, password);
         showToast('success', 'Logged in successfully! Welcome back.');
         
-        if (!redirectPath || redirectPath === '/') {
-          if (user.roles.includes('admin')) {
+        const roles = (user as any)?.roles || [];
+        const isAdmin = Array.isArray(roles) && roles.includes('admin');
+
+        if (isAdmin) {
+          // Admins go to /admin by default, or to their target /admin subpage
+          if (!redirectPath || !redirectPath.startsWith('/admin')) {
             redirectPath = '/admin';
-          } else if (user.roles.includes('creator')) {
-            redirectPath = '/creator';
-          } else {
+          }
+        } else {
+          // Non-admins (gamers/creators): if trying to access /admin or no redirect, send to landing page '/'
+          if (!redirectPath || redirectPath.startsWith('/admin') || redirectPath === '/') {
             redirectPath = '/';
           }
         }
@@ -111,11 +116,8 @@ export const AuthCard: React.FC<AuthCardProps> = ({ mode }) => {
       const parsed = parseApiError(error);
       setFieldErrors(parsed.fieldErrors);
 
-      const alertMessage = parsed.correlationId
-        ? `${parsed.userMessage} (Ref: ${parsed.correlationId})`
-        : parsed.userMessage;
-
-      console.error('[Auth Error]', alertMessage, error);
+      showToast('error', parsed.userMessage);
+      console.error('[Auth Error]', parsed.userMessage, parsed.correlationId, error);
     } finally {
       setIsSubmitting(false);
     }

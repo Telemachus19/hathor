@@ -1,9 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
-import { Trash2, Search, Plus, Edit2, Gamepad2, Tag as TagIcon } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Gamepad2,
+  Tag as TagIcon,
+  Search,
+  Plus,
+  Trash2,
+  X,
+  Check,
+} from 'lucide-react';
 import { apiClient } from '../../services/api/index';
 import type { Genre, Tag } from '@hathor/contracts';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import styles from './styles/adminGenres.module.css';
+import commonStyles from './styles/adminCommon.module.css';
+import modalStyles from './styles/adminModals.module.css';
 
 export const Route = createFileRoute('/admin/genres')({
   component: AdminGenres,
@@ -12,28 +22,40 @@ export const Route = createFileRoute('/admin/genres')({
 function AdminGenres() {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
-  
+
   const [showAddGenre, setShowAddGenre] = useState(false);
   const [newGenreName, setNewGenreName] = useState('');
-  const [newGenreSlug, setNewGenreSlug] = useState('');
-  
+
   const [showAddTag, setShowAddTag] = useState(false);
   const [newTagName, setNewTagName] = useState('');
-  const [newTagSlug, setNewTagSlug] = useState('');
 
   const [genreSearch, setGenreSearch] = useState('');
   const [tagSearch, setTagSearch] = useState('');
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  };
 
   const loadData = async () => {
     try {
-      const [{ data: genresData }, { data: tagsData }] = await Promise.all([
+      const [genresRes, tagsRes] = await Promise.all([
         apiClient.GET('/admin/genres'),
-        apiClient.GET('/admin/tags')
+        apiClient.GET('/admin/tags'),
       ]);
-      if (genresData?.items) setGenres(genresData.items);
-      if (tagsData?.items) setTags(tagsData.items);
+      if (genresRes.data?.items) {
+        setGenres(genresRes.data.items);
+      } else if (genresRes.error) {
+        console.error('Failed to fetch genres:', genresRes.error);
+      }
+      if (tagsRes.data?.items) {
+        setTags(tagsRes.data.items);
+      } else if (tagsRes.error) {
+        console.error('Failed to fetch tags:', tagsRes.error);
+      }
     } catch (e) {
-      console.error(e);
+      console.error('Failed to load genres/tags:', e);
     }
   };
 
@@ -43,180 +65,278 @@ function AdminGenres() {
 
   const createGenre = async (e: React.FormEvent) => {
     e.preventDefault();
-    await apiClient.POST('/admin/genres', { body: { name: newGenreName, slug: newGenreSlug } });
-    setNewGenreName('');
-    setNewGenreSlug('');
-    setShowAddGenre(false);
-    loadData();
+    if (!newGenreName.trim()) return;
+
+    const slug = newGenreName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    try {
+      await apiClient.POST('/admin/genres', { body: { name: newGenreName.trim(), slug } });
+      setNewGenreName('');
+      setShowAddGenre(false);
+      showToast('Genre created successfully');
+      loadData();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to create genre');
+    }
   };
 
   const createTag = async (e: React.FormEvent) => {
     e.preventDefault();
-    await apiClient.POST('/admin/tags', { body: { name: newTagName, slug: newTagSlug } });
-    setNewTagName('');
-    setNewTagSlug('');
-    setShowAddTag(false);
-    loadData();
+    if (!newTagName.trim()) return;
+
+    const slug = newTagName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    try {
+      await apiClient.POST('/admin/tags', { body: { name: newTagName.trim(), slug } });
+      setNewTagName('');
+      setShowAddTag(false);
+      showToast('Tag created successfully');
+      loadData();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to create tag');
+    }
   };
 
   const deleteGenre = async (id: number) => {
-    await apiClient.DELETE('/admin/genres/{genreId}', { params: { path: { genreId: id } } });
-    loadData();
+    if (!confirm('Are you sure you want to delete this genre?')) return;
+    try {
+      await apiClient.DELETE('/admin/genres/{genreId}', { params: { path: { genreId: id } } });
+      showToast('Genre deleted');
+      loadData();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to delete genre');
+    }
   };
 
   const deleteTag = async (id: number) => {
-    await apiClient.DELETE('/admin/tags/{tagId}', { params: { path: { tagId: id } } });
-    loadData();
+    if (!confirm('Are you sure you want to delete this tag?')) return;
+    try {
+      await apiClient.DELETE('/admin/tags/{tagId}', { params: { path: { tagId: id } } });
+      showToast('Tag deleted');
+      loadData();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to delete tag');
+    }
   };
 
-  const filteredGenres = genres.filter(g => g.name.toLowerCase().includes(genreSearch.toLowerCase()));
-  const filteredTags = tags.filter(t => t.name.toLowerCase().includes(tagSearch.toLowerCase()));
+  const filteredGenres = useMemo(
+    () => genres.filter((g) => g.name.toLowerCase().includes(genreSearch.toLowerCase())),
+    [genres, genreSearch]
+  );
+
+  const filteredTags = useMemo(
+    () => tags.filter((t) => t.name.toLowerCase().includes(tagSearch.toLowerCase())),
+    [tags, tagSearch]
+  );
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-      {/* Genres Column */}
-      <Card style={{ borderTop: '3px solid var(--accent-orange)' }}>
-        <CardHeader style={{ paddingBottom: '1rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.05em' }}>Global Genres</h3>
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Manage top-level store categories.</p>
-        </CardHeader>
-        <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingTop: 0 }}>
-          
-          <div className="flex justify-between items-center" style={{ gap: '1rem' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text" 
-                placeholder="Search genres..." 
-                className="hathor-input w-full"
-                style={{ paddingLeft: '2.5rem' }}
-                value={genreSearch}
-                onChange={e => setGenreSearch(e.target.value)}
-              />
-            </div>
-            <button onClick={() => setShowAddGenre(!showAddGenre)} className="hathor-btn hathor-btn-primary flex items-center gap-2" style={{ padding: '0.6rem 1.2rem', fontSize: '0.875rem' }}>
-              <Plus size={16} /> ADD GENRE
-            </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {toast && (
+        <div className={commonStyles.toast}>
+          <Check size={14} style={{ color: '#4caf80' }} />
+          <span>{toast}</span>
+        </div>
+      )}
+
+      <div className={styles.columnsContainer}>
+        {/* Genres Column */}
+        <div className={styles.columnCard}>
+          <div className={styles.columnTopAccent} style={{ backgroundColor: '#fd7014' }} />
+          <div className={styles.columnHeader}>
+            <h3 className={styles.columnTitle}>Global Genres</h3>
+            <p className={styles.columnSubtitle}>Manage top-level store categories and primary taxonomy.</p>
           </div>
 
-          {showAddGenre && (
-            <form onSubmit={createGenre} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end', backgroundColor: 'var(--bg-main)', padding: '1rem', borderRadius: '6px', border: '1px dashed var(--accent-orange)' }}>
-              <div className="flex-col gap-2">
-                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Name</label>
-                <input className="hathor-input" placeholder="e.g. Action" value={newGenreName} onChange={e => setNewGenreName(e.target.value)} required />
+          <div className={styles.columnBody}>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div className={commonStyles.searchInputWrapper} style={{ flex: 1 }}>
+                <Search size={14} className={commonStyles.searchIcon} />
+                <input
+                  type="text"
+                  className={commonStyles.searchInput}
+                  placeholder="Search genres..."
+                  value={genreSearch}
+                  onChange={(e) => setGenreSearch(e.target.value)}
+                />
+                {genreSearch && (
+                  <button type="button" className={commonStyles.searchClear} onClick={() => setGenreSearch('')}>
+                    <X size={12} />
+                  </button>
+                )}
               </div>
-              <div className="flex-col gap-2">
-                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Slug</label>
-                <input className="hathor-input" placeholder="e.g. action" value={newGenreSlug} onChange={e => setNewGenreSlug(e.target.value)} required />
-              </div>
-              <button type="submit" className="hathor-btn hathor-btn-primary" style={{ padding: '0.6rem 1.5rem' }}>Save</button>
-            </form>
-          )}
-
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {filteredGenres.map(g => (
-              <li key={g.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', backgroundColor: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-orange)' }}>
-                    <Gamepad2 size={20} />
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{g.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{g.slug}</div>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', padding: '0.25rem 0.75rem', backgroundColor: 'var(--bg-card)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                    <strong style={{ color: 'var(--text-white)' }}>0</strong> Games
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="hathor-btn" style={{ padding: '0.5rem', color: 'var(--text-muted)', border: 'none', backgroundColor: 'var(--bg-card)' }}>
-                      <Edit2 size={16} />
-                    </button>
-                    <button onClick={() => deleteGenre(g.id)} className="hathor-btn" style={{ padding: '0.5rem', color: 'var(--status-danger)', border: 'none', backgroundColor: 'var(--bg-card)' }}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-            {filteredGenres.length === 0 && <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No genres found.</div>}
-          </ul>
-        </CardContent>
-      </Card>
-
-      {/* Tags Column */}
-      <Card style={{ borderTop: '3px solid var(--status-info)' }}>
-        <CardHeader style={{ paddingBottom: '1rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.05em' }}>Store Tags</h3>
-          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Manage searchable game attributes.</p>
-        </CardHeader>
-        <CardContent style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingTop: 0 }}>
-          
-          <div className="flex justify-between items-center" style={{ gap: '1rem' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text" 
-                placeholder="Search tags..." 
-                className="hathor-input w-full"
-                style={{ paddingLeft: '2.5rem' }}
-                value={tagSearch}
-                onChange={e => setTagSearch(e.target.value)}
-              />
+              <button
+                type="button"
+                className={modalStyles.btnPrimary}
+                onClick={() => setShowAddGenre(!showAddGenre)}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+              >
+                <Plus size={13} /> Add Genre
+              </button>
             </div>
-            <button onClick={() => setShowAddTag(!showAddTag)} className="hathor-btn" style={{ padding: '0.6rem 1.2rem', fontSize: '0.875rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: 'var(--status-info)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-              <Plus size={16} /> ADD TAG
-            </button>
+
+            {showAddGenre && (
+              <form onSubmit={createGenre} className={styles.inlineForm}>
+                <div style={{ flex: 1 }}>
+                  <label className={modalStyles.fieldLabel}>Genre Name</label>
+                  <input
+                    className={modalStyles.inputField}
+                    placeholder="e.g. Action RPG"
+                    value={newGenreName}
+                    onChange={(e) => setNewGenreName(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                </div>
+                <button type="submit" className={modalStyles.btnPrimary} style={{ height: 32 }}>
+                  Save
+                </button>
+              </form>
+            )}
+
+            <ul className={styles.itemList}>
+              {filteredGenres.map((g) => (
+                <li key={g.id} className={styles.itemRow}>
+                  <div className={styles.itemInfo}>
+                    <div
+                      className={styles.itemIconBox}
+                      style={{ backgroundColor: 'rgba(253, 112, 20, 0.1)', color: '#fd7014' }}
+                    >
+                      <Gamepad2 size={18} />
+                    </div>
+                    <div>
+                      <p className={styles.itemName}>{g.name}</p>
+                      <p className={styles.itemSlug}>/{g.slug}</p>
+                    </div>
+                  </div>
+
+                  <div className={styles.itemActions}>
+                    <button
+                      type="button"
+                      className={`${styles.iconActionBtn} ${styles.iconActionBtnDanger}`}
+                      onClick={() => deleteGenre(g.id)}
+                      title="Delete Genre"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+              {filteredGenres.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#8c9aaa', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+                  No genres found.
+                </div>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        {/* Tags Column */}
+        <div className={styles.columnCard}>
+          <div className={styles.columnTopAccent} style={{ backgroundColor: '#3b9eda' }} />
+          <div className={styles.columnHeader}>
+            <h3 className={styles.columnTitle}>Store Tags</h3>
+            <p className={styles.columnSubtitle}>Manage searchable game attributes and keywords.</p>
           </div>
 
-          {showAddTag && (
-            <form onSubmit={createTag} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end', backgroundColor: 'var(--bg-main)', padding: '1rem', borderRadius: '6px', border: '1px dashed var(--status-info)' }}>
-              <div className="flex-col gap-2">
-                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Name</label>
-                <input className="hathor-input" placeholder="e.g. Multiplayer" value={newTagName} onChange={e => setNewTagName(e.target.value)} required />
+          <div className={styles.columnBody}>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div className={commonStyles.searchInputWrapper} style={{ flex: 1 }}>
+                <Search size={14} className={commonStyles.searchIcon} />
+                <input
+                  type="text"
+                  className={commonStyles.searchInput}
+                  placeholder="Search tags..."
+                  value={tagSearch}
+                  onChange={(e) => setTagSearch(e.target.value)}
+                />
+                {tagSearch && (
+                  <button type="button" className={commonStyles.searchClear} onClick={() => setTagSearch('')}>
+                    <X size={12} />
+                  </button>
+                )}
               </div>
-              <div className="flex-col gap-2">
-                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Slug</label>
-                <input className="hathor-input" placeholder="e.g. multiplayer" value={newTagSlug} onChange={e => setNewTagSlug(e.target.value)} required />
-              </div>
-              <button type="submit" className="hathor-btn" style={{ padding: '0.6rem 1.5rem', backgroundColor: 'var(--status-info)', color: '#fff', border: 'none' }}>Save</button>
-            </form>
-          )}
+              <button
+                type="button"
+                className={modalStyles.btnPrimary}
+                style={{ backgroundColor: '#3b9eda', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                onClick={() => setShowAddTag(!showAddTag)}
+              >
+                <Plus size={13} /> Add Tag
+              </button>
+            </div>
 
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {filteredTags.map(t => (
-              <li key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', backgroundColor: 'var(--bg-main)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--status-info)' }}>
-                    <TagIcon size={20} />
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{t.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t.slug}</div>
-                  </div>
+            {showAddTag && (
+              <form onSubmit={createTag} className={styles.inlineForm}>
+                <div style={{ flex: 1 }}>
+                  <label className={modalStyles.fieldLabel}>Tag Name</label>
+                  <input
+                    className={modalStyles.inputField}
+                    placeholder="e.g. Open World"
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    required
+                    autoFocus
+                  />
                 </div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', padding: '0.25rem 0.75rem', backgroundColor: 'var(--bg-card)', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                    <strong style={{ color: 'var(--text-white)' }}>0</strong> Games
+                <button
+                  type="submit"
+                  className={modalStyles.btnPrimary}
+                  style={{ backgroundColor: '#3b9eda', color: '#ffffff', height: 32 }}
+                >
+                  Save
+                </button>
+              </form>
+            )}
+
+            <ul className={styles.itemList}>
+              {filteredTags.map((t) => (
+                <li key={t.id} className={styles.itemRow}>
+                  <div className={styles.itemInfo}>
+                    <div
+                      className={styles.itemIconBox}
+                      style={{ backgroundColor: 'rgba(59, 158, 218, 0.1)', color: '#3b9eda' }}
+                    >
+                      <TagIcon size={18} />
+                    </div>
+                    <div>
+                      <p className={styles.itemName}>{t.name}</p>
+                      <p className={styles.itemSlug}>#{t.slug}</p>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="hathor-btn" style={{ padding: '0.5rem', color: 'var(--text-muted)', border: 'none', backgroundColor: 'var(--bg-card)' }}>
-                      <Edit2 size={16} />
-                    </button>
-                    <button onClick={() => deleteTag(t.id)} className="hathor-btn" style={{ padding: '0.5rem', color: 'var(--status-danger)', border: 'none', backgroundColor: 'var(--bg-card)' }}>
-                      <Trash2 size={16} />
+
+                  <div className={styles.itemActions}>
+                    <button
+                      type="button"
+                      className={`${styles.iconActionBtn} ${styles.iconActionBtnDanger}`}
+                      onClick={() => deleteTag(t.id)}
+                      title="Delete Tag"
+                    >
+                      <Trash2 size={13} />
                     </button>
                   </div>
+                </li>
+              ))}
+              {filteredTags.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '2rem', color: '#8c9aaa', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+                  No tags found.
                 </div>
-              </li>
-            ))}
-            {filteredTags.length === 0 && <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No tags found.</div>}
-          </ul>
-        </CardContent>
-      </Card>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

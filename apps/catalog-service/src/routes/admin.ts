@@ -17,8 +17,32 @@ router.get('/games', requireAuth, requireRole('admin'), async (req: Authenticate
 
   try {
     const fetchedGames = await catalogDb
-      .select()
+      .select({
+        id: games.id,
+        creatorId: games.creatorId,
+        title: games.title,
+        slug: games.slug,
+        shortDescription: games.shortDescription,
+        fullDescription: games.fullDescription,
+        priceEgp: games.priceEgp,
+        discountPercent: games.discountPercent,
+        bannerUrl: games.bannerUrl,
+        screenshots: games.screenshots,
+        trailerUrl: games.trailerUrl,
+        systemRequirements: games.systemRequirements,
+        pageTheme: games.pageTheme,
+        status: games.status,
+        genreId: games.genreId,
+        genre: {
+          id: genres.id,
+          name: genres.name,
+          slug: genres.slug,
+        },
+        createdAt: games.createdAt,
+        updatedAt: games.updatedAt,
+      })
       .from(games)
+      .leftJoin(genres, eq(games.genreId, genres.id))
       .orderBy(desc(games.createdAt))
       .limit(limit + 1)
       .offset(cursor);
@@ -46,8 +70,32 @@ router.get('/submissions', requireAuth, requireRole('admin'), async (req: Authen
 
   try {
     const fetchedGames = await catalogDb
-      .select()
+      .select({
+        id: games.id,
+        creatorId: games.creatorId,
+        title: games.title,
+        slug: games.slug,
+        shortDescription: games.shortDescription,
+        fullDescription: games.fullDescription,
+        priceEgp: games.priceEgp,
+        discountPercent: games.discountPercent,
+        bannerUrl: games.bannerUrl,
+        screenshots: games.screenshots,
+        trailerUrl: games.trailerUrl,
+        systemRequirements: games.systemRequirements,
+        pageTheme: games.pageTheme,
+        status: games.status,
+        genreId: games.genreId,
+        genre: {
+          id: genres.id,
+          name: genres.name,
+          slug: genres.slug,
+        },
+        createdAt: games.createdAt,
+        updatedAt: games.updatedAt,
+      })
       .from(games)
+      .leftJoin(genres, eq(games.genreId, genres.id))
       .where(inArray(games.status, ['pending_review']))
       .orderBy(desc(games.updatedAt))
       .limit(limit + 1)
@@ -262,11 +310,17 @@ router.get('/genres', requireAuth, requireRole('admin'), async (req: Authenticat
 // POST /admin/genres
 router.post('/genres', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
   const { name, slug } = req.body || {};
-  if (!name || !slug) return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'name and slug required', correlationId: randomUUID() } });
+  if (!name) return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'name required', correlationId: randomUUID() } });
   
+  const finalSlug = (slug || name)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
   try {
-    const [genre] = await catalogDb.insert(genres).values({ name, slug }).returning();
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'genre', targetId: genre.id.toString(), action: 'create_genre', details: { name, slug } });
+    const [genre] = await catalogDb.insert(genres).values({ name, slug: finalSlug }).returning();
+    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'genre', targetId: genre.id.toString(), action: 'create_genre', details: { name, slug: finalSlug } });
     res.status(201).json(genre);
   } catch (error) {
     res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create genre', correlationId: randomUUID() } });
@@ -276,10 +330,11 @@ router.post('/genres', requireAuth, requireRole('admin'), async (req: Authentica
 // PUT /admin/genres/:genreId
 router.put('/genres/:genreId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
   const { name, slug } = req.body || {};
+  const finalSlug = slug || (name ? name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : undefined);
   try {
-    const [genre] = await catalogDb.update(genres).set({ name, slug }).where(eq(genres.id, Number(req.params.genreId))).returning();
+    const [genre] = await catalogDb.update(genres).set({ name, ...(finalSlug ? { slug: finalSlug } : {}) }).where(eq(genres.id, Number(req.params.genreId))).returning();
     if (!genre) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Genre not found', correlationId: randomUUID() } });
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'genre', targetId: genre.id.toString(), action: 'update_genre', details: { name, slug } });
+    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'genre', targetId: genre.id.toString(), action: 'update_genre', details: { name, slug: finalSlug } });
     res.json(genre);
   } catch (error) {
     res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update genre', correlationId: randomUUID() } });
@@ -311,11 +366,17 @@ router.get('/tags', requireAuth, requireRole('admin'), async (req: Authenticated
 // POST /admin/tags
 router.post('/tags', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
   const { name, slug } = req.body || {};
-  if (!name || !slug) return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'name and slug required', correlationId: randomUUID() } });
+  if (!name) return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'name required', correlationId: randomUUID() } });
   
+  const finalSlug = (slug || name)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
   try {
-    const [tag] = await catalogDb.insert(tags).values({ name, slug }).returning();
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'tag', targetId: tag.id.toString(), action: 'create_tag', details: { name, slug } });
+    const [tag] = await catalogDb.insert(tags).values({ name, slug: finalSlug }).returning();
+    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'tag', targetId: tag.id.toString(), action: 'create_tag', details: { name, slug: finalSlug } });
     res.status(201).json(tag);
   } catch (error) {
     res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create tag', correlationId: randomUUID() } });
@@ -325,10 +386,11 @@ router.post('/tags', requireAuth, requireRole('admin'), async (req: Authenticate
 // PUT /admin/tags/:tagId
 router.put('/tags/:tagId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
   const { name, slug } = req.body || {};
+  const finalSlug = slug || (name ? name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : undefined);
   try {
-    const [tag] = await catalogDb.update(tags).set({ name, slug }).where(eq(tags.id, Number(req.params.tagId))).returning();
+    const [tag] = await catalogDb.update(tags).set({ name, ...(finalSlug ? { slug: finalSlug } : {}) }).where(eq(tags.id, Number(req.params.tagId))).returning();
     if (!tag) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Tag not found', correlationId: randomUUID() } });
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'tag', targetId: tag.id.toString(), action: 'update_tag', details: { name, slug } });
+    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'tag', targetId: tag.id.toString(), action: 'update_tag', details: { name, slug: finalSlug } });
     res.json(tag);
   } catch (error) {
     res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update tag', correlationId: randomUUID() } });

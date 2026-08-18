@@ -42,7 +42,7 @@ adminRouter.get('/audit-logs', async (req: Request, res: Response) => {
     const mappedCatalogLogs = (catalogData.items || []).map((log: any) => ({
       id: log.id,
       actorId: log.actorId,
-      targetType: log.targetType || 'game', // Ensure targetType is present
+      targetType: log.targetType || 'game',
       targetId: log.targetId,
       action: log.action,
       details: log.details,

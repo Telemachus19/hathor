@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { catalogDb, catalogPool } from './client.js';
-import { games, tags, gameTags, gameBuilds } from './schema.js';
+import { games, genres, tags, gameTags, gameBuilds } from './schema.js';
 import { uploadGameBuildPackage } from '../storage/r2Client.js';
 import { eq, sql } from 'drizzle-orm';
 
@@ -37,21 +37,58 @@ function getSeededZipBuffer(): Buffer {
 
 async function seed() {
   try {
-    const defaultTags = [
-      { name: 'Indie', slug: 'indie' },
+    const defaultGenres = [
       { name: 'Action', slug: 'action' },
       { name: 'RPG', slug: 'rpg' },
       { name: 'Strategy', slug: 'strategy' },
-      { name: 'Cyberpunk', slug: 'cyberpunk' },
       { name: 'Adventure', slug: 'adventure' },
       { name: 'Simulation', slug: 'simulation' },
+      { name: 'Racing', slug: 'racing' },
       { name: 'Puzzle', slug: 'puzzle' },
       { name: 'Sports', slug: 'sports' },
-      { name: 'Racing', slug: 'racing' },
+      { name: 'Horror', slug: 'horror' },
+      { name: 'City Builder', slug: 'city-builder' },
     ];
 
-    const seededTags: Record<string, number> = {};
+    const defaultTags = [
+      { name: 'Indie', slug: 'indie' },
+      { name: 'Cyberpunk', slug: 'cyberpunk' },
+      { name: 'Open World', slug: 'open-world' },
+      { name: 'Singleplayer', slug: 'singleplayer' },
+      { name: 'Multiplayer', slug: 'multiplayer' },
+      { name: 'Turn-Based', slug: 'turn-based' },
+      { name: 'Dark Fantasy', slug: 'dark-fantasy' },
+      { name: 'Sci-Fi', slug: 'sci-fi' },
+      { name: 'Historical', slug: 'historical' },
+      { name: 'Pixel Art', slug: 'pixel-art' },
+      { name: 'Sandbox', slug: 'sandbox' },
+      { name: 'Crafting', slug: 'crafting' },
+      { name: 'Roguelike', slug: 'roguelike' },
+      { name: 'Stealth', slug: 'stealth' },
+      { name: 'Platformer', slug: 'platformer' },
+    ];
 
+    const seededGenres: Record<string, number> = {};
+    for (const genre of defaultGenres) {
+      const [inserted] = await catalogDb
+        .insert(genres)
+        .values(genre)
+        .onConflictDoNothing({ target: genres.slug })
+        .returning();
+
+      if (inserted) {
+        seededGenres[genre.slug] = inserted.id;
+      } else {
+        const existing = await catalogDb.query.genres.findFirst({
+          where: eq(genres.slug, genre.slug),
+        });
+        if (existing) {
+          seededGenres[genre.slug] = existing.id;
+        }
+      }
+    }
+
+    const seededTags: Record<string, number> = {};
     for (const tag of defaultTags) {
       const [inserted] = await catalogDb
         .insert(tags)
@@ -84,6 +121,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'action',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -105,7 +143,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['action', 'rpg', 'cyberpunk'],
+        tagSlugs: ['cyberpunk', 'singleplayer', 'open-world'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -119,6 +157,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'strategy',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -140,7 +179,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['indie', 'strategy'],
+        tagSlugs: ['turn-based', 'historical', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -154,6 +193,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'adventure',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -168,7 +208,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['adventure', 'rpg'],
+        tagSlugs: ['historical', 'singleplayer', 'open-world'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -182,6 +222,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'rpg',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -196,7 +237,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['action', 'rpg'],
+        tagSlugs: ['dark-fantasy', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -210,6 +251,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'simulation',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -224,7 +266,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['simulation', 'strategy'],
+        tagSlugs: ['sci-fi', 'sandbox', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -238,6 +280,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'racing',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -252,7 +295,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['racing', 'sports'],
+        tagSlugs: ['multiplayer', 'sandbox'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -266,6 +309,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'rpg',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -280,7 +324,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['indie', 'rpg', 'puzzle'],
+        tagSlugs: ['pixel-art', 'roguelike', 'indie'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -294,6 +338,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'action',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -308,7 +353,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['action', 'cyberpunk'],
+        tagSlugs: ['cyberpunk', 'open-world', 'stealth'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -322,6 +367,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'strategy',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -336,7 +382,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['strategy', 'rpg'],
+        tagSlugs: ['dark-fantasy', 'multiplayer', 'turn-based'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -350,6 +396,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'adventure',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -364,7 +411,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['adventure', 'simulation'],
+        tagSlugs: ['sci-fi', 'sandbox', 'indie'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -378,6 +425,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'adventure',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -392,7 +440,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['rpg', 'action'],
+        tagSlugs: ['historical', 'dark-fantasy', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -406,6 +454,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'racing',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -420,7 +469,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['racing', 'sports'],
+        tagSlugs: ['multiplayer', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -434,6 +483,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'puzzle',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -448,7 +498,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['puzzle', 'indie'],
+        tagSlugs: ['indie', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -462,6 +512,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'action',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -476,7 +527,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['action', 'strategy'],
+        tagSlugs: ['stealth', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -490,6 +541,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'simulation',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -504,7 +556,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['simulation', 'strategy'],
+        tagSlugs: ['sci-fi', 'crafting', 'sandbox'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -518,6 +570,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'rpg',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -532,7 +585,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['rpg', 'action'],
+        tagSlugs: ['dark-fantasy', 'crafting', 'open-world'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -546,6 +599,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=1200&auto=format&fit=crop',
         status: 'published',
+        genreSlug: 'action',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -560,7 +614,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['indie', 'action'],
+        tagSlugs: ['platformer', 'indie'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -573,6 +627,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'draft',
+        genreSlug: 'puzzle',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -586,7 +641,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['indie', 'puzzle'],
+        tagSlugs: ['sci-fi', 'indie'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -599,6 +654,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
         status: 'draft',
+        genreSlug: 'action',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -612,7 +668,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['action', 'strategy'],
+        tagSlugs: ['multiplayer', 'sandbox'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -625,6 +681,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop',
         status: 'suspended',
+        genreSlug: 'action',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -635,7 +692,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['action', 'cyberpunk'],
+        tagSlugs: ['cyberpunk', 'multiplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -648,6 +705,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
         status: 'draft',
+        genreSlug: 'rpg',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -658,7 +716,7 @@ async function seed() {
             },
           },
         },
-        tagSlugs: ['rpg', 'strategy'],
+        tagSlugs: ['dark-fantasy', 'singleplayer'],
       },
       {
         creatorId: DEMO_CREATOR_ID,
@@ -671,6 +729,7 @@ async function seed() {
         bannerUrl:
           'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop',
         status: 'suspended',
+        genreSlug: 'adventure',
         pageTheme: {
           theme: 'default',
           layout: {
@@ -688,11 +747,12 @@ async function seed() {
     const zipBuffer = getSeededZipBuffer();
 
     for (const gameData of demoGames) {
-      const { tagSlugs, ...gameValues } = gameData;
+      const { tagSlugs, genreSlug, ...gameValues } = gameData;
+      const genreId = genreSlug ? seededGenres[genreSlug] || null : null;
 
       const [insertedGame] = await catalogDb
         .insert(games)
-        .values(gameValues)
+        .values({ ...gameValues, genreId })
         .onConflictDoUpdate({
           target: games.slug,
           set: {
@@ -704,6 +764,7 @@ async function seed() {
             bannerUrl: sql`EXCLUDED.banner_url`,
             pageTheme: sql`EXCLUDED.page_theme`,
             status: sql`EXCLUDED.status`,
+            genreId: sql`EXCLUDED.genre_id`,
           },
         })
         .returning();

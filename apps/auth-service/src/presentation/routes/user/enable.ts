@@ -49,12 +49,12 @@ export async function enableAccountHandler(req: AuthenticatedRequest, res: Respo
       });
     }
 
-    // 4. Update disabled status to false and increment authorizationVersion
+    // 4. Update status to active and increment authorizationVersion
     const nextAuthVersion = targetUser.authorizationVersion + 1;
     await authDb
       .update(users)
       .set({
-        disabled: false,
+        status: 'active',
         authorizationVersion: nextAuthVersion,
       })
       .where(eq(users.id, userId));

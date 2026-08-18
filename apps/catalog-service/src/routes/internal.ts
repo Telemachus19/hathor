@@ -275,6 +275,7 @@ router.get(
         timestamp: log.createdAt ? log.createdAt.toISOString() : new Date().toISOString(),
         actorId: log.actorId,
         targetId: log.targetId,
+        targetType: log.targetType,
         action: log.action,
         details: log.details,
         service: 'catalog-service'

@@ -98,12 +98,15 @@ export async function refreshHandler(req: Request, res: Response) {
       });
     }
 
-    if (user.disabled) {
+    if (user.status !== 'active' || (user as any).disabled) {
+      const isBanned = user.status === 'banned';
       return res.status(403).json({
         success: false,
         error: {
           code: 'FORBIDDEN',
-          message: 'This account has been disabled',
+          message: isBanned
+            ? 'This account has been permanently banned.'
+            : 'This account has been temporarily suspended.',
           correlationId,
         },
       });

@@ -9,16 +9,16 @@ export interface RouterContext {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
-  pendingComponent: LoadingScreen,
   errorComponent: ErrorScreen,
-  // pendingMs: 200,
-  pendingMinMs: 300,
 });
 
 function RootComponent() {
   const location = useLocation();
+
   const isStandalonePage =
-    location.pathname.startsWith('/designer') || location.pathname.startsWith('/game-info-form');
+    location.pathname.startsWith('/designer') ||
+    location.pathname.startsWith('/game-info-form') ||
+    location.pathname.startsWith('/admin');
 
   if (isStandalonePage) {
     return <Outlet />;
@@ -34,20 +34,6 @@ function RootComponent() {
 
       <Footer />
     </>
-  );
-}
-
-function LoadingScreen() {
-  return (
-    <main
-      style={{
-        padding: '2rem',
-        textAlign: 'center',
-      }}
-    >
-      <h1>Loading...</h1>
-      <p>Please wait.</p>
-    </main>
   );
 }
 

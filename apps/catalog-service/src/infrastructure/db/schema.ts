@@ -45,6 +45,7 @@ export const games = catalogSchema.table(
   (table) => ({
     slugIdx: index('idx_games_slug').on(table.slug),
     statusPriceIdx: index('idx_games_status_price').on(table.status, table.priceEgp),
+    genreIdx: index('idx_games_genre_id').on(table.genreId),
   })
 );
 

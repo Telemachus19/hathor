@@ -49,12 +49,12 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       });
     }
 
-    if (user.disabled) {
+    if (user.status !== 'active' || (user as any).disabled) {
       return res.status(401).json({
         success: false,
         error: {
           code: 'UNAUTHENTICATED',
-          message: 'User account is disabled',
+          message: user.status === 'banned' ? 'User account is permanently banned' : 'User account is suspended',
           correlationId,
         },
       });

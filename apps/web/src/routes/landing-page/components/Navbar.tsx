@@ -36,8 +36,11 @@ export const Navbar: React.FC = () => {
               LIBRARY
             </Link>
             {isAuthenticated ? (
-              <Link to="/profile" className={styles.navLink}>
-                PROFILE
+              <Link
+                to={Array.isArray(auth?.user?.roles) && auth?.user?.roles.includes('admin') ? '/admin' : '/profile'}
+                className={styles.navLink}
+              >
+                {auth?.user?.displayName ? auth.user.displayName.toUpperCase() : 'PROFILE'}
               </Link>
             ) : (
               <Link to="/login" className={styles.navLink}>

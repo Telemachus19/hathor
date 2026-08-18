@@ -1,0 +1,100 @@
+/* Audit Log Feed Styles */
+
+.auditFeed {
+  border: 1px solid #393e46;
+  background-color: #1c2028;
+  overflow: hidden;
+}
+
+.auditItem {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid rgba(57, 62, 70, 0.5);
+  transition: background-color 0.15s ease;
+}
+
+.auditItem:last-child {
+  border-bottom: none;
+}
+
+.auditItem:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.leftAccentStrip {
+  width: 3px;
+  flex-shrink: 0;
+}
+
+.auditContent {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  min-width: 0;
+}
+
+.actionBadgeCol {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.mainCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.targetRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.targetTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 900;
+  color: #eeeeee;
+}
+
+.actionLabel {
+  font-size: 9px;
+  font-family: monospace;
+  color: #8c9aaa;
+}
+
+.auditNote {
+  font-size: 9px;
+  color: #8c9aaa;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rightMetaCol {
+  flex-shrink: 0;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.adminActor {
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: 700;
+  color: #eeeeee;
+  margin: 0;
+}
+
+.timestampText {
+  font-size: 8px;
+  font-family: monospace;
+  color: rgba(140, 154, 170, 0.7);
+  margin: 0;
+}
