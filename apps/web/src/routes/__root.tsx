@@ -1,6 +1,7 @@
 import { createRootRouteWithContext, Outlet, useLocation } from '@tanstack/react-router';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
+import { DownloadDrawer } from '../components/DownloadDrawer';
 import type { AuthContextValue } from '../context/AuthContext';
 
 export interface RouterContext {
@@ -33,6 +34,7 @@ function RootComponent() {
       </main>
 
       <Footer />
+      <DownloadDrawer />
     </>
   );
 }

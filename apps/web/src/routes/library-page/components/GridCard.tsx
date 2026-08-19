@@ -1,7 +1,8 @@
 import React from 'react';
-import { Star, Clock, Zap } from 'lucide-react';
+import { Star, Clock, Zap, Download } from 'lucide-react';
 import { DisplayGame } from '../types';
 import { useSimulatePayment } from '../../../services/api';
+import { useDownload } from '../../../context/DownloadContext';
 import styles from '../styles/LibraryPage.module.css';
 
 interface GridCardProps {
@@ -10,6 +11,7 @@ interface GridCardProps {
 
 export const GridCard: React.FC<GridCardProps> = ({ game }) => {
   const simulatePaymentMutation = useSimulatePayment();
+  const { startDownload } = useDownload();
 
   const handleSimulatePayment = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -19,6 +21,11 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
     } catch (err: any) {
       // Error captured by mutation state
     }
+  };
+
+  const handleDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    startDownload(game.id, game.title);
   };
 
   return (
@@ -101,14 +108,41 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
           </div>
         ) : (
           <div
-            style={{
-              marginTop: '0.35rem',
-              fontSize: '0.6rem',
-              color: '#38d39f',
-              fontFamily: 'monospace',
-            }}
+            style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}
           >
-            ✓ OWNED · {game.purchaseDate}
+            <div
+              style={{
+                fontSize: '0.6rem',
+                color: '#38d39f',
+                fontFamily: 'monospace',
+              }}
+            >
+              ✓ OWNED · {game.purchaseDate}
+            </div>
+            <button
+              type="button"
+              onClick={handleDownload}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3rem',
+                backgroundColor: 'rgba(56, 211, 159, 0.15)',
+                border: '1px solid rgba(56, 211, 159, 0.35)',
+                color: '#38d39f',
+                padding: '0.35rem 0.6rem',
+                borderRadius: '3px',
+                fontSize: '0.6rem',
+                fontWeight: 900,
+                fontFamily: "'Cinzel', serif",
+                cursor: 'pointer',
+                letterSpacing: '0.1em',
+                width: '100%',
+                textTransform: 'uppercase',
+              }}
+            >
+              <Download size={10} /> Download Build
+            </button>
           </div>
         )}
       </div>
