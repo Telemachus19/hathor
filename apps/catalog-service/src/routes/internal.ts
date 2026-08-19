@@ -206,8 +206,10 @@ async function handleGetPublishedBuild(req: AuthenticatedServiceRequest, res: Re
         checksumSha256: gameBuilds.checksumSha256,
         sizeBytes: gameBuilds.sizeBytes,
         state: gameBuilds.state,
+        gameStatus: games.status,
       })
       .from(gameBuilds)
+      .innerJoin(games, eq(gameBuilds.gameId, games.id))
       .where(and(eq(gameBuilds.gameId, gameId), eq(gameBuilds.state, 'published')))
       .orderBy(desc(gameBuilds.publishedAt))
       .limit(1);
@@ -218,6 +220,18 @@ async function handleGetPublishedBuild(req: AuthenticatedServiceRequest, res: Re
         error: {
           code: 'NOT_FOUND',
           message: `No published build found for gameId: ${gameId}`,
+          correlationId,
+        },
+      });
+    }
+
+    const isGamePublished = buildRecord.gameStatus ? buildRecord.gameStatus === 'published' : true;
+    if (!isGamePublished) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: `Game status is suspended or not published`,
           correlationId,
         },
       });
