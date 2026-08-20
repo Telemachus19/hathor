@@ -1,8 +1,9 @@
 import React from 'react';
-import { Gamepad2, Star, Eye } from 'lucide-react';
+import { Gamepad2, Star, Eye, Download } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { DisplayGame } from '../types';
 import { GlyphAccent } from './GlyphAccent';
+import { useDownload } from '../../../context/DownloadContext';
 import styles from '../styles/LibraryPage.module.css';
 
 interface LibraryHeroProps {
@@ -10,6 +11,13 @@ interface LibraryHeroProps {
 }
 
 export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
+  const { startDownload } = useDownload();
+
+  const handleDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    startDownload(game.id, game.title);
+  };
+
   return (
     <div className={styles.heroContainer}>
       <img src={game.heroImage} alt={game.title} className={styles.heroImage} />
@@ -60,10 +68,26 @@ export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
           </div>
         </div>
 
-        <Link to="/" className={styles.heroButton} style={{ textDecoration: 'none' }}>
-          <Eye size={12} />
-          View Game
-        </Link>
+        <div style={{ display: 'flex', gap: '0.75rem', zIndex: 10 }}>
+          <button
+            type="button"
+            onClick={handleDownload}
+            className={styles.heroButton}
+            style={{
+              backgroundColor: '#fd7014',
+              color: '#222831',
+              borderColor: '#fd7014',
+            }}
+          >
+            <Download size={12} />
+            Download
+          </button>
+
+          <Link to="/" className={styles.heroButton} style={{ textDecoration: 'none' }}>
+            <Eye size={12} />
+            View Game
+          </Link>
+        </div>
       </div>
     </div>
   );

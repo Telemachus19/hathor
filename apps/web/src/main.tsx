@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthContextProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { DownloadProvider } from './context/DownloadContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { authService } from './services/auth/index';
 import { routeTree } from './routeTree.gen.js';
@@ -96,7 +97,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <AuthContextProvider authService={authService}>
-            <AppWithRouter />
+            <DownloadProvider>
+              <AppWithRouter />
+            </DownloadProvider>
           </AuthContextProvider>
         </ToastProvider>
       </QueryClientProvider>

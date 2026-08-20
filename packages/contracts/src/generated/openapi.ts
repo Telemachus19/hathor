@@ -245,7 +245,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/inventory/download-token': {
+  '/inventory/games/{gameId}/download': {
     parameters: {
       query?: never;
       header?: never;
@@ -684,9 +684,6 @@ export interface components {
         /** Format: date-time */
         acquiredAt: string;
       }[];
-    };
-    DownloadTokenRequest: {
-      gameId: components['schemas']['Uuid'];
     };
     DownloadToken: {
       /** Format: uri */
@@ -1270,14 +1267,12 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        gameId: components['parameters']['GameId'];
+      };
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DownloadTokenRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
       /** @description Exact-object temporary download access */
       200: {
@@ -1288,7 +1283,11 @@ export interface operations {
           'application/json': components['schemas']['DownloadToken'];
         };
       };
+      400: components['responses']['ValidationFailed'];
+      401: components['responses']['Unauthenticated'];
       403: components['responses']['Forbidden'];
+      404: components['responses']['NotFound'];
+      503: components['responses']['DependencyUnavailable'];
     };
   };
   listCreatorGames: {

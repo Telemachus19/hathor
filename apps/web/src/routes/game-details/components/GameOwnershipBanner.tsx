@@ -1,5 +1,7 @@
 import React from 'react';
 import { Check, Download, Library } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { useDownload } from '../../../context/DownloadContext';
 
 export interface GameOwnershipBannerProps {
   s?: any;
@@ -7,6 +9,8 @@ export interface GameOwnershipBannerProps {
   pageSettings?: any;
   isOwned?: boolean;
   isDesignerPreview?: boolean;
+  gameId?: string;
+  gameTitle?: string;
 }
 
 const GREEN_ACCENT = '#38d39f';
@@ -19,8 +23,12 @@ export const GameOwnershipBanner: React.FC<GameOwnershipBannerProps> = ({
   pageSettings,
   isOwned,
   isDesignerPreview: isDesignerPreviewProp,
+  gameId,
+  gameTitle,
 }) => {
   const isDesignerPreview = isDesignerPreviewProp ?? pageSettings?.isDesignerPreview === true;
+  const navigate = useNavigate();
+  const { startDownload } = useDownload();
 
   if (isOwned === false && !isDesignerPreview) {
     return null;
@@ -103,6 +111,7 @@ export const GameOwnershipBanner: React.FC<GameOwnershipBannerProps> = ({
       </div>
       <div style={{ display: 'flex', gap: 10, width: isMobile ? '100%' : 'auto' }}>
         <button
+          onClick={() => navigate({ to: '/library' })}
           style={{
             flex: isMobile ? 1 : undefined,
             background: btn2Bg,
@@ -124,6 +133,7 @@ export const GameOwnershipBanner: React.FC<GameOwnershipBannerProps> = ({
           <Library size={13} /> {btn2Text}
         </button>
         <button
+          onClick={() => gameId && startDownload(gameId, gameTitle || 'Game')}
           style={{
             flex: isMobile ? 1 : undefined,
             background: btn1Bg,

@@ -147,12 +147,12 @@ export interface GameDetailsPageProps {
   device?: 'desktop' | 'tablet' | 'mobile';
   isDesignerPreview?: boolean;
   themeConfig?:
-    | {
-        theme?: 'default' | 'custom';
-        layout?: Record<string, any>;
-      }
-    | Record<string, any>
-    | string;
+  | {
+    theme?: 'default' | 'custom';
+    layout?: Record<string, any>;
+  }
+  | Record<string, any>
+  | string;
 }
 
 /**
@@ -186,8 +186,8 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
   const formattedReleaseDate =
     gameData?.updatedAt || gameData?.createdAt
       ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(
-          new Date(gameData.updatedAt || gameData.createdAt!)
-        )
+        new Date(gameData.updatedAt || gameData.createdAt!)
+      )
       : baseData.releaseDate;
 
   const gameCategory =
@@ -229,20 +229,20 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
     platforms: gamePlatforms,
     ...(gameData
       ? {
-          title: gameData.title || baseData.title,
-          priceEgp: gameData.priceEgp || baseData.priceEgp,
-          discountPercent:
-            gameData.discountPercent !== undefined
-              ? gameData.discountPercent
-              : baseData.discountPercent,
-          shortDescription: gameData.shortDescription || baseData.shortDescription,
-          fullDescription: gameData.fullDescription || baseData.fullDescription,
-          bannerUrl: gameData.bannerUrl || baseData.bannerUrl,
-          tags: gameData.tags?.length ? gameData.tags : baseData.tags,
-          heroImages: gameData.bannerUrl
-            ? [gameData.bannerUrl, ...baseData.heroImages.filter((img: string) => img !== gameData.bannerUrl)]
-            : baseData.heroImages,
-        }
+        title: gameData.title || baseData.title,
+        priceEgp: gameData.priceEgp || baseData.priceEgp,
+        discountPercent:
+          gameData.discountPercent !== undefined
+            ? gameData.discountPercent
+            : baseData.discountPercent,
+        shortDescription: gameData.shortDescription || baseData.shortDescription,
+        fullDescription: gameData.fullDescription || baseData.fullDescription,
+        bannerUrl: gameData.bannerUrl || baseData.bannerUrl,
+        tags: gameData.tags?.length ? gameData.tags : baseData.tags,
+        heroImages: gameData.bannerUrl
+          ? [gameData.bannerUrl, ...baseData.heroImages.filter((img: string) => img !== gameData.bannerUrl)]
+          : baseData.heroImages,
+      }
       : {}),
   };
 
@@ -322,12 +322,12 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
 
   const bgImageStyle = themeInfo.pageBody?.bgImage
     ? {
-        backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
-        backgroundSize: themeInfo.pageBody.bgSize || 'cover',
-        backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
-        backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
-        backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
-      }
+      backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
+      backgroundSize: themeInfo.pageBody.bgSize || 'cover',
+      backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
+      backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
+      backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
+    }
     : {};
 
   return (

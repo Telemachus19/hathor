@@ -85,3 +85,32 @@ export function useUserLibrary() {
     refetchInterval: 5000,
   });
 }
+
+export interface DownloadTokenResponse {
+  url: string;
+  expiresAt: string;
+  sha256: string;
+}
+
+/**
+ * Requests a short-lived presigned download URL and SHA-256 checksum for a game build.
+ */
+export async function requestDownloadUrl(gameId: string): Promise<DownloadTokenResponse> {
+  const token = apiClient.getAccessToken();
+  const response = await fetch(`${apiBaseUrl}/inventory/games/${gameId}/download`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    throw new Error(
+      errorBody?.error?.message || `Download authorization failed (HTTP ${response.status})`
+    );
+  }
+
+  return response.json() as Promise<DownloadTokenResponse>;
+}

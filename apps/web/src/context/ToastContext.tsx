@@ -98,6 +98,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
           zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
           gap: '0.75rem',
           pointerEvents: 'none',
           maxWidth: '420px',

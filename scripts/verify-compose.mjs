@@ -11,6 +11,7 @@ const expectedServices = new Set([
   'library-postgres',
   'library-service',
   'memcached',
+  'minio',
   'rabbitmq',
   'redis',
   'web',
@@ -37,7 +38,7 @@ function assert(condition, message) {
 
 assert(
   actualServices.size === expectedServices.size,
-  'Compose must define exactly 13 M1.1 services'
+  `Compose must define exactly ${expectedServices.size} platform services`
 );
 for (const service of expectedServices) {
   assert(actualServices.has(service), `Missing Compose service: ${service}`);
@@ -46,7 +47,7 @@ for (const service of expectedServices) {
 for (const [name, service] of Object.entries(config.services)) {
   const hasPublishedPorts = Array.isArray(service.ports) && service.ports.length > 0;
   assert(
-    !hasPublishedPorts || name === 'api-gateway' || name === 'web',
+    !hasPublishedPorts || name === 'api-gateway' || name === 'web' || name === 'minio',
     `${name} must not publish host ports`
   );
   assert(service.healthcheck, `${name} must define a health check`);
@@ -77,4 +78,4 @@ for (const name of domainServices) {
 assert(databaseUrls.size === 4, 'Domain services must use distinct database credentials and hosts');
 assert(config.networks.backend.internal === true, 'The backend network must be internal');
 
-console.log('Compose topology satisfies the M1.1 static acceptance checks.');
+console.log('Compose topology satisfies the platform static acceptance checks.');

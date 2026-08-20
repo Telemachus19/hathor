@@ -34,6 +34,7 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
   const createMockSelectChain = () => {
     const chain: any = {
       from: vi.fn(() => chain),
+      innerJoin: vi.fn(() => chain),
       where: vi.fn(() => chain),
       orderBy: vi.fn(() => chain),
       limit: vi.fn(() => chain),

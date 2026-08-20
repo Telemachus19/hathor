@@ -266,16 +266,12 @@ paths:
                   gameId: { $ref: '#/components/schemas/Uuid' }
                   owned: { type: boolean }
         '401': { $ref: '#/components/responses/Unauthenticated' }
-  /inventory/download-token:
+  /inventory/games/{gameId}/download:
     post:
       tags: [Inventory]
       operationId: issueDownloadToken
       security: [{ bearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/DownloadTokenRequest' }
+      parameters: [{ $ref: '#/components/parameters/GameId' }]
       responses:
         '200':
           {
@@ -283,7 +279,11 @@ paths:
             content:
               { application/json: { schema: { $ref: '#/components/schemas/DownloadToken' } } },
           }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '503': { $ref: '#/components/responses/DependencyUnavailable' }
   /creator/games:
     get:
       tags: [Creator]
@@ -866,11 +866,6 @@ components:
                   },
               },
           }
-    DownloadTokenRequest:
-      type: object
-      required: [gameId]
-      properties:
-        gameId: { $ref: '#/components/schemas/Uuid' }
     DownloadToken:
       type: object
       required: [url, expiresAt, sha256]

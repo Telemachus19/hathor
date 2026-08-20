@@ -128,7 +128,6 @@ const Library = z
     ),
   })
   .passthrough();
-const DownloadTokenRequest = z.object({ gameId: Uuid.uuid() }).passthrough();
 const DownloadToken = z
   .object({
     url: z.string().url(),
@@ -258,7 +257,6 @@ export const schemas = {
   SimulatePaymentRequest,
   SimulatorWebhook,
   Library,
-  DownloadTokenRequest,
   DownloadToken,
   CreateGameRequest,
   GameStatusChangeRequest,
@@ -893,21 +891,41 @@ const endpoints = makeApi([
   },
   {
     method: 'post',
-    path: '/inventory/download-token',
+    path: '/inventory/games/:gameId/download',
     alias: 'issueDownloadToken',
     requestFormat: 'json',
     parameters: [
       {
-        name: 'body',
-        type: 'Body',
-        schema: DownloadTokenRequest,
+        name: 'gameId',
+        type: 'Path',
+        schema: z.string().uuid(),
       },
     ],
     response: DownloadToken,
     errors: [
       {
+        status: 400,
+        description: `Invalid request`,
+        schema: Error,
+      },
+      {
+        status: 401,
+        description: `Missing, invalid, expired, or revoked credentials`,
+        schema: Error,
+      },
+      {
         status: 403,
         description: `Authenticated caller lacks required role or object ownership`,
+        schema: Error,
+      },
+      {
+        status: 404,
+        description: `Resource not found`,
+        schema: Error,
+      },
+      {
+        status: 503,
+        description: `Required internal service unavailable`,
         schema: Error,
       },
     ],
