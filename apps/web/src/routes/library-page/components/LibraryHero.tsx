@@ -80,7 +80,7 @@ export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
             }}
           >
             <Download size={12} />
-            Download Now
+            Download
           </button>
 
           <Link to="/" className={styles.heroButton} style={{ textDecoration: 'none' }}>

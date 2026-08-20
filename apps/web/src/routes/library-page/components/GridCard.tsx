@@ -141,7 +141,7 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
                 textTransform: 'uppercase',
               }}
             >
-              <Download size={10} /> Download Build
+              <Download size={10} /> Download
             </button>
           </div>
         )}
