@@ -28,6 +28,42 @@ function slugifyTitle(title: string): string {
 }
 
 /**
+ * GET /creator/genres
+ * Returns all catalog genres for creators.
+ */
+router.get(
+  '/genres',
+  requireAuth,
+  requireRole('creator'),
+  async (_req: AuthenticatedRequest, res: Response) => {
+    try {
+      const items = await catalogDb.select().from(genres).orderBy(genres.name);
+      return res.status(200).json(items);
+    } catch (error) {
+      return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list genres' } });
+    }
+  }
+);
+
+/**
+ * GET /creator/tags
+ * Returns all catalog tags for creators.
+ */
+router.get(
+  '/tags',
+  requireAuth,
+  requireRole('creator'),
+  async (_req: AuthenticatedRequest, res: Response) => {
+    try {
+      const items = await catalogDb.select().from(tags).orderBy(tags.name);
+      return res.status(200).json(items);
+    } catch (error) {
+      return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list tags' } });
+    }
+  }
+);
+
+/**
  * PUT /creator/games/:gameId/theme
  * Creator Authorization & Ownership Verification (creator_id == caller_id).
  * Strictly looks up game by gameId parameter.

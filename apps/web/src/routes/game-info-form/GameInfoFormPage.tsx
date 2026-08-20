@@ -154,8 +154,9 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
           },
         })) as any;
 
-        if (res.data && res.data.id) {
-          targetGameId = res.data.id;
+        const createdGame = (res.data as any)?.data || res.data;
+        if (createdGame && createdGame.id) {
+          targetGameId = createdGame.id;
           const updated = { ...draft, id: targetGameId };
           setDraft(updated);
           saveGameInfoDraft(updated);

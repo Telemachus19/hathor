@@ -15,7 +15,7 @@ import styles from './styles/CartPage.module.css';
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: serverCartResponse, isLoading: isCartLoading } = useCart();
-  const { data: catalogResponse } = useCatalogGames();
+  const { data: catalogResponse } = useCatalogGames({ limit: 100 });
   const removeMutation = useRemoveCartItem();
   const addMutation = useAddCartItem();
 
@@ -35,15 +35,25 @@ export const CartPage: React.FC = () => {
     const hasDiscount = discount > 0;
     const salePrice = hasDiscount ? Math.round(origPrice * (1 - discount / 100)) : undefined;
 
+    const genreText =
+      (catalogGame as any)?.genre?.name ||
+      (catalogGame as any)?.genre ||
+      (catalogGame?.tags && catalogGame.tags.length > 0
+        ? typeof catalogGame.tags[0] === 'string'
+          ? catalogGame.tags[0]
+          : catalogGame.tags[0].name
+        : 'Action / Adventure');
+
     return {
       id: item.gameId,
-      title: catalogGame?.title || `Game ${item.gameId.slice(0, 8)}`,
-      genre: (catalogGame as any)?.genre || 'Action / Adventure',
+      title: catalogGame?.title || `Game ${item.gameId.slice(0, 8).toUpperCase()}`,
+      genre: genreText,
       developer: (catalogGame as any)?.developer || 'Hathor Studios',
       rating: (catalogGame as any)?.ratingScore || 4.8,
       originalPrice: origPrice,
       salePrice: salePrice,
       coverImage:
+        catalogGame?.bannerUrl ||
         (catalogGame as any)?.coverUrl ||
         (catalogGame as any)?.thumbnailUrl ||
         'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80',

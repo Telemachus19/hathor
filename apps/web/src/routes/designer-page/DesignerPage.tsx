@@ -33,7 +33,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
   const navigate = useNavigate();
   const [activeGameId, setActiveGameId] = useState<string | undefined>(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('gameId') || initialGame?.id || getGameInfoDraft().id;
+    return params.get('gameId') || initialGame?.id || undefined;
   });
 
   const [state, setState] = useState(() => {
@@ -79,7 +79,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const gid = params.get('gameId') || initialGame?.id || getGameInfoDraft().id;
+    const gid = params.get('gameId') || initialGame?.id || undefined;
     if (gid) setActiveGameId(gid);
 
     async function loadDesignerContent() {
@@ -209,7 +209,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
 
       // Validate theme against ThemeDocument specification & anti-injection rules
       const validation = validateThemeAgainstDocument(parsed);
-      if (!validation.valid && (!parsed.layout && !parsed.pageLayout && !parsed.sections)) {
+      if (!validation.valid) {
         const primaryError = validation.errors[0];
         setImportError(
           `Validation Rejected (${primaryError.code}): ${primaryError.message}${

@@ -71,7 +71,7 @@ export const CheckoutPage: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(15 * 60);
 
   const { data: cart, isLoading: isCartLoading } = useCart();
-  const { data: catalogData } = useCatalogGames({ limit: 50 });
+  const { data: catalogData } = useCatalogGames({ limit: 100 });
   const initOrderMutation = useInitializeOrder();
 
   // Auth Redirect Guard
@@ -141,12 +141,21 @@ export const CheckoutPage: React.FC = () => {
     const game = catalogGames.find(
       (g) => (g as any).id === cItem.gameId || g.slug === cItem.gameId
     );
+    const genreText =
+      (game as any)?.genre?.name ||
+      (game as any)?.genre ||
+      (game?.tags && game.tags.length > 0
+        ? typeof game.tags[0] === 'string'
+          ? game.tags[0]
+          : game.tags[0].name
+        : 'Action / Strategy');
+
     return {
       gameId: cItem.gameId,
       alreadyOwned: cItem.already_owned || false,
-      title: game?.title || `Game ${cItem.gameId.slice(0, 8)}`,
-      genre: (game as any)?.genre || 'Action / Strategy',
-      coverUrl: (game as any)?.coverUrl || (game as any)?.thumbnailUrl || null,
+      title: game?.title || `Game ${cItem.gameId.slice(0, 8).toUpperCase()}`,
+      genre: genreText,
+      coverUrl: game?.bannerUrl || (game as any)?.coverUrl || (game as any)?.thumbnailUrl || null,
       priceEgp: game?.priceEgp || '299.99',
     };
   });

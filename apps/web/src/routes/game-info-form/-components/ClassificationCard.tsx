@@ -1,138 +1,38 @@
 import React from 'react';
 import { Hash, Zap } from 'lucide-react';
+import { useCatalogGenres, useCatalogTags } from '../../../services/api/catalog';
 import styles from '../-styles/GameInfoFormPage.module.css';
 
-const GENRES = [
+const DEFAULT_GENRES = [
   'Action',
-  'Adventure',
   'RPG',
   'Strategy',
+  'Adventure',
   'Simulation',
-  'Sports',
   'Racing',
-  'Fighting',
   'Puzzle',
+  'Sports',
   'Horror',
-  'Platformer',
-  'Shooter',
-  'Stealth',
-  'Survival',
-  'Visual Novel',
+  'City Builder',
 ];
 
-const TAGS_BY_GENRE: Record<string, string[]> = {
-  Action: [
-    'Hack & Slash',
-    "Beat 'em Up",
-    'Brawler',
-    'Run & Gun',
-    'Bullet Hell',
-    'Side-Scrolling',
-    '3D Action',
-    'Co-op',
-  ],
-  Adventure: [
-    'Open World',
-    'Exploration',
-    'Narrative',
-    'Point & Click',
-    'Walking Simulator',
-    'Metroidvania',
-    'Puzzle-Adventure',
-  ],
-  RPG: [
-    'Open World',
-    'Turn-Based',
-    'Action RPG',
-    'JRPG',
-    'Dark Fantasy',
-    'Pixel Art',
-    'Party-Based',
-    'Roguelite',
-    'Souls-like',
-  ],
-  Strategy: [
-    'Real-Time',
-    'Turn-Based',
-    'Tower Defense',
-    '4X',
-    'Grand Strategy',
-    'City Builder',
-    'Auto-Chess',
-    'Base Building',
-  ],
-  Simulation: [
-    'Life Sim',
-    'City Building',
-    'Farming',
-    'Space',
-    'Management',
-    'Vehicle',
-    'Physics',
-    'Sandbox',
-  ],
-  Sports: [
-    'Football',
-    'Basketball',
-    'Baseball',
-    'Tennis',
-    'Golf',
-    'Extreme Sports',
-    'Esports',
-    'Multiplayer',
-  ],
-  Racing: [
-    'Arcade',
-    'Simulation',
-    'Kart',
-    'Off-Road',
-    'Futuristic',
-    'Street Racing',
-    'Split-Screen',
-  ],
-  Fighting: ['2D Fighter', '3D Fighter', 'Platform Fighter', 'Party Fighter', 'Versus', 'Tag-Team'],
-  Puzzle: ['Logic', 'Physics', 'Match-3', 'Escape Room', 'Sokoban', 'Word', 'Narrative Puzzle'],
-  Horror: [
-    'Survival Horror',
-    'Psychological',
-    'Jump Scare',
-    'Atmospheric',
-    'Co-op Horror',
-    'First-Person',
-  ],
-  Platformer: ['2D', '3D', 'Precision', 'Metroidvania', 'Pixel Art', 'Run & Gun', 'Parkour'],
-  Shooter: [
-    'First-Person',
-    'Third-Person',
-    'Top-Down',
-    'Battle Royale',
-    'Hero Shooter',
-    'Tactical',
-    'Cover-Based',
-  ],
-  Stealth: ['Tactical', 'Espionage', 'Narrative', 'Open World', 'First-Person'],
-  Survival: [
-    'Crafting',
-    'Open World',
-    'Post-Apocalyptic',
-    'Co-op',
-    'Battle Royale',
-    'Base Building',
-    'Roguelike',
-  ],
-  'Visual Novel': [
-    'Romance',
-    'Mystery',
-    'Sci-Fi',
-    'Horror',
-    'Slice of Life',
-    'Otome',
-    'Branching Narrative',
-  ],
-  '': [],
-};
-
-const ALL_TAGS = [...new Set(Object.values(TAGS_BY_GENRE).flat())].sort();
+const DEFAULT_TAGS = [
+  'Indie',
+  'Cyberpunk',
+  'Open World',
+  'Singleplayer',
+  'Multiplayer',
+  'Turn-Based',
+  'Dark Fantasy',
+  'Sci-Fi',
+  'Historical',
+  'Pixel Art',
+  'Sandbox',
+  'Crafting',
+  'Roguelike',
+  'Stealth',
+  'Platformer',
+];
 
 export interface ClassificationCardProps {
   genre: string;
@@ -147,9 +47,22 @@ export const ClassificationCard: React.FC<ClassificationCardProps> = ({
   onChangeGenre,
   onChangeTags,
 }) => {
+  const { data: serverGenres } = useCatalogGenres();
+  const { data: serverTags } = useCatalogTags();
+
+  const genreList =
+    serverGenres && serverGenres.length > 0
+      ? serverGenres.map((g) => g.name)
+      : DEFAULT_GENRES;
+
+  const tagList =
+    serverTags && serverTags.length > 0
+      ? serverTags.map((t) => t.name)
+      : DEFAULT_TAGS;
+
   function toggleTag(tag: string) {
-    if (tags.includes(tag)) {
-      onChangeTags(tags.filter((t) => t !== tag));
+    if (tags.some((selected) => selected.toLowerCase() === tag.toLowerCase())) {
+      onChangeTags(tags.filter((t) => t.toLowerCase() !== tag.toLowerCase()));
     } else {
       onChangeTags([...tags, tag]);
     }
@@ -168,8 +81,8 @@ export const ClassificationCard: React.FC<ClassificationCardProps> = ({
             <Hash size={11} /> Primary Genre <span style={{ color: '#FD7014' }}>*</span>
           </label>
           <div className={styles.pillsContainer}>
-            {GENRES.map((g) => {
-              const active = genre === g;
+            {genreList.map((g) => {
+              const active = genre.toLowerCase() === g.toLowerCase();
               return (
                 <button
                   key={g}
@@ -187,11 +100,11 @@ export const ClassificationCard: React.FC<ClassificationCardProps> = ({
         {/* Tags */}
         <div className={styles.fieldGroup} style={{ marginTop: 8 }}>
           <label className={styles.fieldLabelSub}>
-            <Zap size={11} /> Feature & Style Tags
+            <Zap size={11} /> Catalog Feature & Style Tags
           </label>
           <div className={styles.tagsBox}>
-            {ALL_TAGS.map((t) => {
-              const active = tags.includes(t);
+            {tagList.map((t) => {
+              const active = tags.some((selected) => selected.toLowerCase() === t.toLowerCase());
               return (
                 <button
                   key={t}

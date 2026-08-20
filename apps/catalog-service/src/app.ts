@@ -1,8 +1,8 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
-import { eq, and, inArray, count } from 'drizzle-orm';
+import { eq, and, or, inArray, count } from 'drizzle-orm';
 import { catalogDb } from './infrastructure/db/client.js';
-import { games, tags, gameTags } from './infrastructure/db/schema.js';
+import { games, tags, gameTags, genres } from './infrastructure/db/schema.js';
 import adminRouter from './routes/admin.js';
 import creatorRouter from './routes/creator.js';
 import internalRouter from './routes/internal.js';
@@ -184,6 +184,8 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
   app.get('/store/games/:slug', async (req: Request, res: Response) => {
     try {
       const { slug } = req.params;
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      const condition = isUuid ? eq(games.id, slug) : and(eq(games.status, 'published'), eq(games.slug, slug));
 
       const [game] = await catalogDb
         .select({
@@ -211,7 +213,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         })
         .from(games)
         .leftJoin(genres, eq(games.genreId, genres.id))
-        .where(and(eq(games.status, 'published'), eq(games.slug, slug)))
+        .where(condition)
         .limit(1);
 
       if (!game) {

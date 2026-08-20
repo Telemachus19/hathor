@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, Link } from '@tanstack/react-router';
 import {
   Monitor,
   Tablet,
@@ -50,9 +50,21 @@ export function DesignerHeader({
 
   return (
     <div className={styles.topToolbar}>
-      <HathorLogo height={32} width="auto" />
-      <div className={styles.toolbarDivider} />
-      <span className={styles.titleTag}>Developer Portal</span>
+      <Link
+        to="/creator/overview"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          textDecoration: 'none',
+          cursor: 'pointer',
+        }}
+        title="Return to Creator Dashboard"
+      >
+        <HathorLogo height={32} width="auto" />
+        <div className={styles.toolbarDivider} />
+        <span className={styles.titleTag}>Developer Portal</span>
+      </Link>
       <div className={styles.toolbarDivider} />
 
       {/* Step Flow Switcher */}

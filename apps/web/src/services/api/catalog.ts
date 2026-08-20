@@ -1,5 +1,5 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { apiBaseUrl } from './index';
+import { apiClient, apiBaseUrl } from './index';
 
 /**
  * Catalog item representation matching the public OpenAPI specification.
@@ -108,6 +108,42 @@ export function useInfiniteCatalogGames(params: Omit<FetchCatalogParams, 'page'>
       const { page, totalPages } = lastPage.data.pagination;
       return page < totalPages ? page + 1 : undefined;
     },
+  });
+}
+
+export function useCatalogGenres() {
+  return useQuery<{ id: number; name: string; slug: string }[]>({
+    queryKey: ['creator-genres'],
+    queryFn: async () => {
+      try {
+        const res = (await apiClient.GET('/creator/genres' as any, {} as any)) as any;
+        if (res.data) {
+          return Array.isArray(res.data) ? res.data : res.data.items || [];
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useCatalogTags() {
+  return useQuery<{ id: number; name: string; slug: string }[]>({
+    queryKey: ['creator-tags'],
+    queryFn: async () => {
+      try {
+        const res = (await apiClient.GET('/creator/tags' as any, {} as any)) as any;
+        if (res.data) {
+          return Array.isArray(res.data) ? res.data : res.data.items || [];
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
   });
 }
 

@@ -52,11 +52,17 @@ export function PublishModal({
       })) as any;
 
       if (themeRes.error) {
-        const errorDetail =
+        const details = themeRes.error?.error?.details || themeRes.error?.details;
+        let errorDetail =
           themeRes.error?.error?.message ||
           themeRes.error?.message ||
-          (themeRes.error?.error?.details && JSON.stringify(themeRes.error.error.details)) ||
           'Failed to validate theme JSON with server.';
+        if (Array.isArray(details) && details.length > 0) {
+          const firstErr = details[0];
+          errorDetail = `Validation Failed (${firstErr.code || 'ERROR'}): ${firstErr.message || 'Invalid value'}${
+            firstErr.path ? ` at [${firstErr.path}]` : ''
+          }`;
+        }
         setPublishError(errorDetail);
         return;
       }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@tanstack/react-router';
 import { HathorLogo } from '../../../assets';
 import styles from '../-styles/GameInfoFormPage.module.css';
 
@@ -6,9 +7,21 @@ export const GameInfoFormHeader: React.FC = () => {
 
   return (
     <div className={styles.topBar}>
-      <HathorLogo height={32} width="auto" />
-      <div className={styles.topBarDivider} />
-      <span className={styles.portalTag}>Developer Portal</span>
+      <Link
+        to="/creator/overview"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          textDecoration: 'none',
+          cursor: 'pointer',
+        }}
+        title="Return to Creator Dashboard"
+      >
+        <HathorLogo height={32} width="auto" />
+        <div className={styles.topBarDivider} />
+        <span className={styles.portalTag}>Developer Portal</span>
+      </Link>
       <div style={{ flex: 1 }} />
       <div className={styles.stepNavContainer}>
         <div
