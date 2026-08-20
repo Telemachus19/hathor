@@ -37,7 +37,9 @@ vi.mock('../../../apps/library-service/src/infrastructure/db/client.js', () => {
     const chain: any = {
       values: vi.fn(() => chain),
       then: vi.fn((onFulfilled, onRejected) => {
-        return Promise.resolve().then(() => ({})).then(onFulfilled, onRejected);
+        return Promise.resolve()
+          .then(() => ({}))
+          .then(onFulfilled, onRejected);
       }),
     };
     return chain;

@@ -6,7 +6,10 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { requireUserAuth, AuthenticatedUserRequest } from '../middleware/auth.js';
 import { libraryDb } from '../infrastructure/db/client.js';
 import { userLicenses, entitlementAudit } from '../infrastructure/db/schema.js';
-import { getPublishedBuild, DependencyUnavailableError } from '../infrastructure/clients/catalog.js';
+import {
+  getPublishedBuild,
+  DependencyUnavailableError,
+} from '../infrastructure/clients/catalog.js';
 import { s3Client, R2_BUCKET_NAME } from '../infrastructure/storage/r2Client.js';
 
 const router: Router = Router();
