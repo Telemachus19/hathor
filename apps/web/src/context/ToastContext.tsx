@@ -61,48 +61,84 @@ export function ToastProvider({ children }: ToastProviderProps) {
       <div
         style={{
           position: 'fixed',
-          top: '1rem',
-          right: '1rem',
-          zIndex: 1000,
+          bottom: '2rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 10000,
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
           gap: '0.75rem',
+          pointerEvents: 'none',
         }}
       >
         {toasts.map((toast) => (
           <div
             key={toast.id}
             style={{
-              minWidth: '280px',
-              padding: '1rem',
-              borderRadius: '8px',
-              backgroundColor: '#393E46',
-              border: '1px solid #FD7014',
-              color: '#EEEEEE',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+              pointerEvents: 'auto',
+              minWidth: '260px',
+              maxWidth: '480px',
+              padding: '0.75rem 1.25rem',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(24, 28, 36, 0.95)',
+              backdropFilter: 'blur(12px)',
+              border: `1px solid ${
+                toast.type === 'error'
+                  ? 'rgba(239, 68, 68, 0.6)'
+                  : toast.type === 'success'
+                    ? 'rgba(56, 211, 159, 0.6)'
+                    : 'rgba(242, 107, 33, 0.6)'
+              }`,
+              color: '#ffffff',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 12px rgba(242, 107, 33, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              fontFamily: "'Raleway', sans-serif",
+              fontSize: '0.85rem',
             }}
           >
-            <strong
-              style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                textTransform: 'capitalize',
-              }}
-            >
-              {toast.type}
-            </strong>
-
-            <span>{toast.message}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor:
+                    toast.type === 'error'
+                      ? '#ef4444'
+                      : toast.type === 'success'
+                        ? '#38d39f'
+                        : '#f26b21',
+                  boxShadow: `0 0 8px ${
+                    toast.type === 'error'
+                      ? '#ef4444'
+                      : toast.type === 'success'
+                        ? '#38d39f'
+                        : '#f26b21'
+                  }`,
+                }}
+              />
+              <span style={{ fontWeight: 500 }}>{toast.message}</span>
+            </div>
 
             <button
               type="button"
               onClick={() => removeToast(toast.id)}
               style={{
-                marginTop: '0.75rem',
+                background: 'transparent',
+                border: 'none',
+                color: '#8b93a2',
                 cursor: 'pointer',
+                fontSize: '0.75rem',
+                padding: '0.2rem 0.4rem',
+                borderRadius: '3px',
               }}
             >
-              Close
+              ✕
             </button>
           </div>
         ))}

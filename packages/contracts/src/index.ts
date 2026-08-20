@@ -17,7 +17,6 @@ export type Cart = components['schemas']['Cart'];
 export type InitializeTransactionRequest = components['schemas']['InitializeTransactionRequest'];
 export type Order = components['schemas']['Order'];
 export type SimulatorWebhook = components['schemas']['SimulatorWebhook'];
-export type DownloadTokenRequest = components['schemas']['DownloadTokenRequest'];
 export type DownloadToken = components['schemas']['DownloadToken'];
 export type CreateGameRequest = components['schemas']['CreateGameRequest'];
 export type AiThemeProposalRequest = components['schemas']['AiThemeProposalRequest'];

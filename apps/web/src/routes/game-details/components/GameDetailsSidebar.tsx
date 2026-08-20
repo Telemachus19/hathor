@@ -2,10 +2,12 @@ import React from 'react';
 import { ShoppingCart, Download, Library, Loader2, AlertTriangle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAddCartItem } from '../../../services/api/commerce';
+import { useDownload } from '../../../context/DownloadContext';
 
 export interface GameDetailsSidebarProps {
   s?: any;
   gameId?: string;
+  gameTitle?: string;
   isDesignerPreview?: boolean;
   isAuthenticated?: boolean;
   isOwned?: boolean;
@@ -34,6 +36,7 @@ const TEXT_MUTED = '#94a3b8';
 export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
   const navigate = useNavigate();
   const addCartMutation = useAddCartItem();
+  const { startDownload } = useDownload();
   const s = props.s || {};
   const isOwned = props.isOwned ?? (s.sidebarOwned === true ? true : false);
   const isOwnershipCheckPending =
@@ -44,7 +47,11 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
   const handlePrimaryClick = async () => {
     if (props.isDesignerPreview || isOwnershipCheckPending || isOwnershipCheckError) return;
     if (isOwned) {
-      await navigate({ to: '/library' });
+      if (props.gameId) {
+        startDownload(props.gameId, props.gameTitle || 'Game');
+      } else {
+        await navigate({ to: '/library' });
+      }
       return;
     }
     if (!props.isAuthenticated) {
