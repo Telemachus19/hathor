@@ -374,7 +374,11 @@ paths:
       security: [{ bearerAuth: [] }]
       parameters:
         - { name: cursor, in: query, schema: { type: string } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 25 },
+          }
       responses:
         '200':
           description: Paginated users
@@ -415,7 +419,11 @@ paths:
       security: [{ bearerAuth: [] }]
       parameters:
         - { name: cursor, in: query, schema: { type: string } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 25 },
+          }
       responses:
         '200':
           description: Paginated games
@@ -603,7 +611,11 @@ paths:
       security: [{ bearerAuth: [] }]
       parameters:
         - { name: cursor, in: query, schema: { type: string } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 100, default: 25 },
+          }
       responses:
         '200':
           description: Unified audit logs

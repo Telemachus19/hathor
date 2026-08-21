@@ -60,8 +60,9 @@ export async function changeUserStatusHandler(req: AuthenticatedRequest, res: Re
     }
 
     // Increment authorizationVersion if suspending/banning to revoke active sessions
-    const nextAuthVersion = status !== 'active' ? targetUser.authorizationVersion + 1 : targetUser.authorizationVersion;
-    
+    const nextAuthVersion =
+      status !== 'active' ? targetUser.authorizationVersion + 1 : targetUser.authorizationVersion;
+
     await authDb
       .update(users)
       .set({

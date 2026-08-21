@@ -44,30 +44,41 @@ export function CreatorGameCard({
     ? [
         { label: 'Owners', value: owners.toLocaleString(), color: '#4caf80' },
         { label: 'Revenue', value: `EGP ${revenue.toFixed(2)}`, color: '#3b9eda' },
-        { label: 'Rating', value: rating > 0 ? `${rating.toFixed(1)} / 10` : '—', color: '#f59e0b' },
+        {
+          label: 'Rating',
+          value: rating > 0 ? `${rating.toFixed(1)} / 10` : '—',
+          color: '#f59e0b',
+        },
       ]
     : isPending
-    ? [
-        { label: 'Wishlists', value: (analytics?.wishlistCount || 0).toLocaleString(), color: '#f59e0b' },
-        { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
-        { label: 'Status', value: 'Under Review', color: '#f59e0b' },
-      ]
-    : isRejected
-    ? [
-        { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
-        { label: 'Status', value: 'Rejected', color: '#e74c3c' },
-        { label: 'Visibility', value: 'Hidden', color: '#8c9aaa' },
-      ]
-    : [
-        { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
-        { label: 'Stage', value: 'Draft', color: '#8c9aaa' },
-        { label: 'Visibility', value: 'Hidden', color: '#8c9aaa' },
-      ];
+      ? [
+          {
+            label: 'Wishlists',
+            value: (analytics?.wishlistCount || 0).toLocaleString(),
+            color: '#f59e0b',
+          },
+          { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
+          { label: 'Status', value: 'Under Review', color: '#f59e0b' },
+        ]
+      : isRejected
+        ? [
+            { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
+            { label: 'Status', value: 'Rejected', color: '#e74c3c' },
+            { label: 'Visibility', value: 'Hidden', color: '#8c9aaa' },
+          ]
+        : [
+            { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
+            { label: 'Stage', value: 'Draft', color: '#8c9aaa' },
+            { label: 'Visibility', value: 'Hidden', color: '#8c9aaa' },
+          ];
 
   const tags = ((game as any).tags || []).slice(0, 5);
 
   return (
-    <div className={styles.gameCard} style={isRejected ? { borderColor: 'rgba(231, 76, 60, 0.4)' } : undefined}>
+    <div
+      className={styles.gameCard}
+      style={isRejected ? { borderColor: 'rgba(231, 76, 60, 0.4)' } : undefined}
+    >
       <div className={styles.gameTopStripe} style={{ backgroundColor: cardAccent }} />
 
       {/* Header */}
@@ -164,20 +175,12 @@ export function CreatorGameCard({
       {/* Actions */}
       <div className={styles.actionsFooter}>
         {isPublished && (
-          <button
-            type="button"
-            className={styles.actionBtn}
-            onClick={() => onAnalytics(game.id)}
-          >
+          <button type="button" className={styles.actionBtn} onClick={() => onAnalytics(game.id)}>
             <BarChart2 size={11} /> Analytics
           </button>
         )}
 
-        <button
-          type="button"
-          className={styles.actionBtn}
-          onClick={() => onEdit(game.id)}
-        >
+        <button type="button" className={styles.actionBtn} onClick={() => onEdit(game.id)}>
           <Edit3 size={11} /> Edit
         </button>
 
@@ -260,12 +263,36 @@ export function CreatorGameCard({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: '#e74c3c' }} />
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                backgroundColor: '#e74c3c',
+              }}
+            />
 
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e74c3c', marginBottom: '0.25rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: '#e74c3c',
+                  marginBottom: '0.25rem',
+                }}
+              >
                 <AlertTriangle size={18} />
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#eeeeee', fontFamily: "'Cinzel', serif" }}>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: '1.1rem',
+                    color: '#eeeeee',
+                    fontFamily: "'Cinzel', serif",
+                  }}
+                >
                   Submission Feedback
                 </h3>
               </div>
@@ -284,10 +311,26 @@ export function CreatorGameCard({
                 gap: '0.4rem',
               }}
             >
-              <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#e74c3c' }}>
+              <span
+                style={{
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: '#e74c3c',
+                }}
+              >
                 Admin Reason
               </span>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#ffb4aa', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '0.85rem',
+                  color: '#ffb4aa',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
                 {(game as any).rejectionReason ||
                   'No specific reason provided by administration. Please review requirements and update your submission.'}
               </p>
@@ -305,7 +348,12 @@ export function CreatorGameCard({
               <button
                 type="button"
                 className={styles.actionBtn}
-                style={{ padding: '0.5rem 1.25rem', backgroundColor: 'var(--accent-orange)', color: '#000', fontWeight: 700 }}
+                style={{
+                  padding: '0.5rem 1.25rem',
+                  backgroundColor: 'var(--accent-orange)',
+                  color: '#000',
+                  fontWeight: 700,
+                }}
                 onClick={() => {
                   setShowReasonModal(false);
                   onEdit(game.id);

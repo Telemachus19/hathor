@@ -107,8 +107,12 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
               typeof theme === 'object' &&
               ((Array.isArray(theme.sections) && theme.sections.length > 0) ||
                 (Array.isArray(theme) && theme.length > 0) ||
-                (theme.layout && typeof theme.layout === 'object' && Object.keys(theme.layout).length > 0) ||
-                (theme.pageLayout && typeof theme.pageLayout === 'object' && Object.keys(theme.pageLayout).length > 0));
+                (theme.layout &&
+                  typeof theme.layout === 'object' &&
+                  Object.keys(theme.layout).length > 0) ||
+                (theme.pageLayout &&
+                  typeof theme.pageLayout === 'object' &&
+                  Object.keys(theme.pageLayout).length > 0));
 
             if (hasExistingLayout) {
               // Existing game with saved layout: skip template modal and load JSON

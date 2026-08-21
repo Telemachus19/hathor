@@ -110,7 +110,10 @@ function CreatorOverview() {
 
           {games.length === 0 ? (
             <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#8c9aaa' }}>
-              <Gamepad2 size={24} style={{ opacity: 0.3, marginBottom: '0.5rem', color: '#fd7014' }} />
+              <Gamepad2
+                size={24}
+                style={{ opacity: 0.3, marginBottom: '0.5rem', color: '#fd7014' }}
+              />
               <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace' }}>
                 No games created yet. Click "New Game" to get started!
               </p>
@@ -157,7 +160,9 @@ function CreatorOverview() {
                       type="button"
                       className={commonStyles.statsBtn}
                       style={{ borderColor: '#393e46', color: '#8c9aaa' }}
-                      onClick={() => navigate({ to: '/game-info-form', search: { gameId: game.id } })}
+                      onClick={() =>
+                        navigate({ to: '/game-info-form', search: { gameId: game.id } })
+                      }
                     >
                       Edit
                     </button>
@@ -212,12 +217,15 @@ function CreatorOverview() {
             <div className={commonStyles.panelHeader}>
               <span className={commonStyles.panelHeaderTitle}>Quick Actions</span>
             </div>
-            <div style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <button
-                type="button"
-                className={commonStyles.quickActionBtn}
-                onClick={handleNewGame}
-              >
+            <div
+              style={{
+                padding: '0.75rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
+            >
+              <button type="button" className={commonStyles.quickActionBtn} onClick={handleNewGame}>
                 <div className={commonStyles.quickActionIcon}>
                   <Plus size={14} />
                 </div>
@@ -232,7 +240,10 @@ function CreatorOverview() {
                 className={commonStyles.quickActionBtn}
                 style={{ opacity: 0.45, cursor: 'not-allowed', borderColor: '#393e46' }}
               >
-                <div className={commonStyles.quickActionIcon} style={{ borderColor: '#393e46', color: '#8c9aaa' }}>
+                <div
+                  className={commonStyles.quickActionIcon}
+                  style={{ borderColor: '#393e46', color: '#8c9aaa' }}
+                >
                   <FileText size={14} />
                 </div>
                 <div>
@@ -281,7 +292,14 @@ function CreatorOverview() {
                 >
                   {pendingGames.length} title(s) pending review
                 </p>
-                <p style={{ margin: 0, fontSize: '0.55rem', color: '#8c9aaa', fontFamily: 'monospace' }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: '0.55rem',
+                    color: '#8c9aaa',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   Review typically takes 3–5 business days.
                 </p>
               </div>

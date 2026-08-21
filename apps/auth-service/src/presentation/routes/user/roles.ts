@@ -36,7 +36,12 @@ export async function changeRolesHandler(req: AuthenticatedRequest, res: Respons
   }
 
   // 3. Validate input
-  if (!role || !action || !['creator', 'admin'].includes(role) || !['grant', 'revoke'].includes(action)) {
+  if (
+    !role ||
+    !action ||
+    !['creator', 'admin'].includes(role) ||
+    !['grant', 'revoke'].includes(action)
+  ) {
     return res.status(422).json({
       success: false,
       error: {
@@ -60,7 +65,7 @@ export async function changeRolesHandler(req: AuthenticatedRequest, res: Respons
       if (action === 'grant' && !newRoles.includes(role)) {
         newRoles.push(role);
       } else if (action === 'revoke' && newRoles.includes(role)) {
-        newRoles = newRoles.filter(r => r !== role);
+        newRoles = newRoles.filter((r) => r !== role);
       } else {
         // No change needed
         return res.status(204).send();

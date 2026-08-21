@@ -57,7 +57,9 @@ async function getServiceToken(): Promise<string> {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch library service token: ${response.statusText} (${response.status})`);
+      throw new Error(
+        `Failed to fetch library service token: ${response.statusText} (${response.status})`
+      );
     }
 
     const data = await (response.json() as Promise<{ accessToken: string; expiresIn: number }>);
@@ -100,6 +102,8 @@ export async function getGameAnalytics(
     return data;
   } catch (error: any) {
     console.error(`Library analytics fetch failed for game ${gameId}:`, error.message);
-    throw new DependencyUnavailableError(`Library service analytics request failed: ${error.message}`);
+    throw new DependencyUnavailableError(
+      `Library service analytics request failed: ${error.message}`
+    );
   }
 }

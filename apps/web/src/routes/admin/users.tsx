@@ -32,7 +32,9 @@ function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [transactions, setTransactions] = useState<Order[]>([]);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'temp_banned' | 'perma_banned'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'temp_banned' | 'perma_banned'
+  >('all');
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'creator' | 'admin'>('all');
   const [modal, setModal] = useState<{ user: User; action: UserModalAction } | null>(null);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -91,7 +93,11 @@ function AdminUsers() {
     }
   };
 
-  const handleRoleChange = async (userId: string, role: 'creator' | 'admin', action: 'grant' | 'revoke') => {
+  const handleRoleChange = async (
+    userId: string,
+    role: 'creator' | 'admin',
+    action: 'grant' | 'revoke'
+  ) => {
     try {
       await apiClient.POST('/admin/users/{userId}/roles', {
         params: { path: { userId } },
@@ -142,21 +148,33 @@ function AdminUsers() {
     },
     {
       label: 'Active Today',
-      value: users.filter((u) => u.lastLoginAt && new Date(u.lastLoginAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)).length.toString(),
+      value: users
+        .filter(
+          (u) =>
+            u.lastLoginAt && new Date(u.lastLoginAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+        )
+        .length.toString(),
       delta: 'Active last 24h',
       icon: Activity,
       color: '#4caf80',
     },
     {
       label: 'New This Month',
-      value: users.filter((u) => u.createdAt && new Date(u.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length.toString(),
+      value: users
+        .filter(
+          (u) =>
+            u.createdAt && new Date(u.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        )
+        .length.toString(),
       delta: 'New accounts created',
       icon: UserPlus,
       color: '#3b9eda',
     },
     {
       label: 'Banned Users',
-      value: users.filter((u) => u.status === 'banned' || u.status === 'suspended').length.toString(),
+      value: users
+        .filter((u) => u.status === 'banned' || u.status === 'suspended')
+        .length.toString(),
       delta: `${users.filter((u) => u.status === 'suspended').length} temp · ${users.filter((u) => u.status === 'banned').length} perma`,
       icon: UserX,
       color: '#e74c3c',
@@ -172,7 +190,12 @@ function AdminUsers() {
         </div>
       )}
 
-      {openMenu && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpenMenu(null)} />}
+      {openMenu && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+          onClick={() => setOpenMenu(null)}
+        />
+      )}
 
       {modal && (
         <UserActionModal
@@ -196,9 +219,21 @@ function AdminUsers() {
         onStatusFilterChange={setStatusFilter}
         statusOptions={[
           { id: 'all', label: 'All', count: users.length },
-          { id: 'active', label: 'Active', count: users.filter((u) => u.status === 'active').length },
-          { id: 'temp_banned', label: 'Temp Ban', count: users.filter((u) => u.status === 'suspended').length },
-          { id: 'perma_banned', label: 'Perma Ban', count: users.filter((u) => u.status === 'banned').length },
+          {
+            id: 'active',
+            label: 'Active',
+            count: users.filter((u) => u.status === 'active').length,
+          },
+          {
+            id: 'temp_banned',
+            label: 'Temp Ban',
+            count: users.filter((u) => u.status === 'suspended').length,
+          },
+          {
+            id: 'perma_banned',
+            label: 'Perma Ban',
+            count: users.filter((u) => u.status === 'banned').length,
+          },
         ]}
         secondaryFilter={roleFilter}
         onSecondaryFilterChange={setRoleFilter}
@@ -242,9 +277,17 @@ function AdminUsers() {
           </div>
         ) : (
           filteredUsers.map((user, idx) => {
-            const role = user.roles.includes('admin') ? 'admin' : user.roles.includes('creator') ? 'creator' : 'user';
-            const displayDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown';
-            const lastSeen = user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never';
+            const role = user.roles.includes('admin')
+              ? 'admin'
+              : user.roles.includes('creator')
+                ? 'creator'
+                : 'user';
+            const displayDate = user.createdAt
+              ? new Date(user.createdAt).toLocaleDateString()
+              : 'Unknown';
+            const lastSeen = user.lastLoginAt
+              ? new Date(user.lastLoginAt).toLocaleDateString()
+              : 'Never';
 
             return (
               <div
@@ -295,7 +338,13 @@ function AdminUsers() {
 
                 {/* Spent */}
                 <div>
-                  <span className={commonStyles.monoText} style={{ color: (userSpentMap.get(user.id) || 0) > 0 ? '#4caf80' : '#eeeeee', fontWeight: 700 }}>
+                  <span
+                    className={commonStyles.monoText}
+                    style={{
+                      color: (userSpentMap.get(user.id) || 0) > 0 ? '#4caf80' : '#eeeeee',
+                      fontWeight: 700,
+                    }}
+                  >
                     EGP {(userSpentMap.get(user.id) || 0).toFixed(2)}
                   </span>
                 </div>

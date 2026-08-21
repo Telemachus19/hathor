@@ -30,7 +30,8 @@ const queryClient = new QueryClient();
 
 function AppWithRouter() {
   const auth = useAuth();
-  const isFirstLoad = auth.status === 'idle' || (auth.status === 'loading' && !auth.user && !auth.accessToken);
+  const isFirstLoad =
+    auth.status === 'idle' || (auth.status === 'loading' && !auth.user && !auth.accessToken);
 
   if (isFirstLoad) {
     return (

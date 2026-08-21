@@ -130,9 +130,7 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
     draft.title.trim() && draft.shortDesc.trim() && draft.priceEgp.trim()
   );
 
-  const isClassificationValid = Boolean(
-    draft.genre.trim() && draft.tags && draft.tags.length > 0
-  );
+  const isClassificationValid = Boolean(draft.genre.trim() && draft.tags && draft.tags.length > 0);
 
   const isSystemReqsValid = Boolean(
     draft.minReq?.os &&
@@ -146,11 +144,7 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
   const hasBuild = Boolean(buildFile || existingBuild);
 
   const canContinue =
-    isBasicDetailsValid &&
-    isClassificationValid &&
-    isSystemReqsValid &&
-    hasBuild &&
-    !isSubmitting;
+    isBasicDetailsValid && isClassificationValid && isSystemReqsValid && hasBuild && !isSubmitting;
 
   async function handleContinue() {
     if (isSubmitting) return;
@@ -189,7 +183,9 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
       return;
     }
     if (!hasBuild) {
-      setBuildError('Game build package is required. Please choose a compressed (.zip, .rar, etc.) file.');
+      setBuildError(
+        'Game build package is required. Please choose a compressed (.zip, .rar, etc.) file.'
+      );
       setSubmitError('Game build package is required.');
       return;
     }
@@ -242,7 +238,7 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData?.error?.message ||
-          `Failed to save game info and build package (HTTP ${response.status})`
+            `Failed to save game info and build package (HTTP ${response.status})`
         );
       }
 

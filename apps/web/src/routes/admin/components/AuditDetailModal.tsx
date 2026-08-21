@@ -1,5 +1,18 @@
 import { useState } from 'react';
-import { X, ShieldAlert, Copy, Check, Calendar, Hash, FileText, Code, User, Tag as TagIcon, Gamepad2, Layers } from 'lucide-react';
+import {
+  X,
+  ShieldAlert,
+  Copy,
+  Check,
+  Calendar,
+  Hash,
+  FileText,
+  Code,
+  User,
+  Tag as TagIcon,
+  Gamepad2,
+  Layers,
+} from 'lucide-react';
 import styles from '../styles/adminModals.module.css';
 import commonStyles from '../styles/adminCommon.module.css';
 import type { CatalogAuditLog } from '@hathor/contracts';
@@ -21,12 +34,16 @@ export function generateAuditHeadline(log: CatalogAuditLog, targetName?: string)
 
   if (details?.change) return String(details.change);
 
-  if (action === 'create_genre') return `Genre "${name || 'New Genre'}" was created${details?.slug ? ` with slug /${details.slug}` : ''}.`;
-  if (action === 'update_genre') return `Genre "${name || 'Genre'}" was updated${details?.slug ? ` (slug: /${details.slug})` : ''}.`;
+  if (action === 'create_genre')
+    return `Genre "${name || 'New Genre'}" was created${details?.slug ? ` with slug /${details.slug}` : ''}.`;
+  if (action === 'update_genre')
+    return `Genre "${name || 'Genre'}" was updated${details?.slug ? ` (slug: /${details.slug})` : ''}.`;
   if (action === 'delete_genre') return `Genre "${name || 'Genre'}" was permanently deleted.`;
 
-  if (action === 'create_tag') return `Tag "${name || 'New Tag'}" was created${details?.slug ? ` with slug #${details.slug}` : ''}.`;
-  if (action === 'update_tag') return `Tag "${name || 'Tag'}" was updated${details?.slug ? ` (slug: #${details.slug})` : ''}.`;
+  if (action === 'create_tag')
+    return `Tag "${name || 'New Tag'}" was created${details?.slug ? ` with slug #${details.slug}` : ''}.`;
+  if (action === 'update_tag')
+    return `Tag "${name || 'Tag'}" was updated${details?.slug ? ` (slug: #${details.slug})` : ''}.`;
   if (action === 'delete_tag') return `Tag "${name || 'Tag'}" was permanently deleted.`;
 
   if (action === 'update_game_status' || action === 'game_status_change') {
@@ -36,7 +53,8 @@ export function generateAuditHeadline(log: CatalogAuditLog, targetName?: string)
   if (action === 'delete_game') return `Game "${name || 'Game'}" was removed from the catalog.`;
 
   if (action === 'role_change') return `User roles updated: ${details?.change || 'Role updated'}.`;
-  if (action === 'status_change') return `User account status changed to ${details?.status || 'updated'}.`;
+  if (action === 'status_change')
+    return `User account status changed to ${details?.status || 'updated'}.`;
 
   if (details?.status) return `Status changed to: ${details.status}`;
   if (details?.reason) return `Action performed with reason: ${details.reason}`;
@@ -94,14 +112,20 @@ export function AuditDetailModal({
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={`${styles.modalContainer} ${styles.modalContainerLg}`} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.modalContainer} ${styles.modalContainerLg}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.topStripe} style={{ backgroundColor: actionColor }} />
 
         {/* Modal Header */}
         <div className={styles.modalHeader}>
           <div>
             <p className={styles.modalSubtitle}>AUDIT EVENT DETAILS</p>
-            <h3 className={styles.modalTitle} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <h3
+              className={styles.modalTitle}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}
+            >
               <span
                 style={{
                   display: 'inline-block',
@@ -118,7 +142,9 @@ export function AuditDetailModal({
               >
                 {log.action}
               </span>
-              <span style={{ fontSize: '0.9rem', color: '#8c9aaa', fontFamily: 'monospace' }}>#{log.id}</span>
+              <span style={{ fontSize: '0.9rem', color: '#8c9aaa', fontFamily: 'monospace' }}>
+                #{log.id}
+              </span>
             </h3>
           </div>
           <button type="button" className={styles.closeBtn} onClick={onClose}>
@@ -126,7 +152,10 @@ export function AuditDetailModal({
           </button>
         </div>
 
-        <div className={styles.modalBody} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div
+          className={styles.modalBody}
+          style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+        >
           {/* Target & Actor Header Cards */}
           <div
             style={{
@@ -163,13 +192,39 @@ export function AuditDetailModal({
                   {getEntityIcon(log.targetType)}
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: '0.65rem', color: '#8c9aaa', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '0.65rem',
+                      color: '#8c9aaa',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      fontFamily: 'monospace',
+                    }}
+                  >
                     TARGET ({log.targetType?.toUpperCase() || 'ENTITY'})
                   </p>
-                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#eeeeee', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '1rem',
+                      fontWeight: 800,
+                      color: '#eeeeee',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
                     {targetName ? targetName.replace(/^[A-Z]+:\s*/i, '') : log.targetId || 'Global'}
                   </p>
-                  <p style={{ margin: 0, fontSize: '0.7rem', color: '#8c9aaa', fontFamily: 'monospace' }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '0.7rem',
+                      color: '#8c9aaa',
+                      fontFamily: 'monospace',
+                    }}
+                  >
                     ID: {log.targetId || 'N/A'}
                   </p>
                 </div>
@@ -183,7 +238,11 @@ export function AuditDetailModal({
                   style={{ marginLeft: '0.5rem', flexShrink: 0 }}
                   title="Copy Target ID"
                 >
-                  {copiedField === 'Target ID' ? <Check size={12} style={{ color: '#4caf80' }} /> : <Copy size={12} />}
+                  {copiedField === 'Target ID' ? (
+                    <Check size={12} style={{ color: '#4caf80' }} />
+                  ) : (
+                    <Copy size={12} />
+                  )}
                 </button>
               )}
             </div>
@@ -216,13 +275,40 @@ export function AuditDetailModal({
                   <User size={20} />
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: '0.65rem', color: '#8c9aaa', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '0.65rem',
+                      color: '#8c9aaa',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      fontFamily: 'monospace',
+                    }}
+                  >
                     PERFORMED BY (ACTOR)
                   </p>
-                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#fd7014', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {actorName || (log.actorId ? `Actor ${log.actorId.substring(0, 8)}` : 'System Automated')}
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '1rem',
+                      fontWeight: 800,
+                      color: '#fd7014',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {actorName ||
+                      (log.actorId ? `Actor ${log.actorId.substring(0, 8)}` : 'System Automated')}
                   </p>
-                  <p style={{ margin: 0, fontSize: '0.7rem', color: '#8c9aaa', fontFamily: 'monospace' }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '0.7rem',
+                      color: '#8c9aaa',
+                      fontFamily: 'monospace',
+                    }}
+                  >
                     ID: {log.actorId || 'System'}
                   </p>
                 </div>
@@ -236,7 +322,11 @@ export function AuditDetailModal({
                   style={{ marginLeft: '0.5rem', flexShrink: 0 }}
                   title="Copy Actor ID"
                 >
-                  {copiedField === 'Actor ID' ? <Check size={12} style={{ color: '#4caf80' }} /> : <Copy size={12} />}
+                  {copiedField === 'Actor ID' ? (
+                    <Check size={12} style={{ color: '#4caf80' }} />
+                  ) : (
+                    <Copy size={12} />
+                  )}
                 </button>
               )}
             </div>
@@ -244,7 +334,10 @@ export function AuditDetailModal({
 
           {/* Action Details Summary Section */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <p className={styles.fieldLabel} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <p
+              className={styles.fieldLabel}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
               <FileText size={12} style={{ color: '#fd7014' }} /> ACTION DETAILS
             </p>
 
@@ -258,7 +351,15 @@ export function AuditDetailModal({
                 gap: '0.85rem',
               }}
             >
-              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#eeeeee', lineHeight: 1.5 }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '0.9rem',
+                  fontWeight: 700,
+                  color: '#eeeeee',
+                  lineHeight: 1.5,
+                }}
+              >
                 {headline}
               </p>
 
@@ -273,13 +374,32 @@ export function AuditDetailModal({
                   }}
                 >
                   {Object.entries(detailsObj).map(([key, value]) => {
-                    const displayVal = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                    const displayVal =
+                      typeof value === 'object' ? JSON.stringify(value) : String(value);
                     return (
-                      <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                        <span style={{ fontSize: '0.65rem', color: '#8c9aaa', fontFamily: 'monospace', textTransform: 'uppercase' }}>
+                      <div
+                        key={key}
+                        style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}
+                      >
+                        <span
+                          style={{
+                            fontSize: '0.65rem',
+                            color: '#8c9aaa',
+                            fontFamily: 'monospace',
+                            textTransform: 'uppercase',
+                          }}
+                        >
                           {key}
                         </span>
-                        <span style={{ fontSize: '0.8rem', color: '#eeeeee', fontFamily: 'monospace', wordBreak: 'break-all', fontWeight: 600 }}>
+                        <span
+                          style={{
+                            fontSize: '0.8rem',
+                            color: '#eeeeee',
+                            fontFamily: 'monospace',
+                            wordBreak: 'break-all',
+                            fontWeight: 600,
+                          }}
+                        >
                           {displayVal}
                         </span>
                       </div>
@@ -292,7 +412,10 @@ export function AuditDetailModal({
 
           {/* Timing & Event Metadata */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <p className={styles.fieldLabel} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <p
+              className={styles.fieldLabel}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+            >
               <Hash size={12} style={{ color: '#fd7014' }} /> EVENT TIMESTAMP
             </p>
 
@@ -301,7 +424,14 @@ export function AuditDetailModal({
                 <p className={styles.fieldLabel}>Date & Time</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <Calendar size={12} style={{ color: '#8c9aaa' }} />
-                  <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'monospace', color: '#eeeeee' }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '0.8rem',
+                      fontFamily: 'monospace',
+                      color: '#eeeeee',
+                    }}
+                  >
                     {tsStr}
                   </p>
                 </div>
@@ -309,7 +439,14 @@ export function AuditDetailModal({
 
               <div className={styles.infoItem}>
                 <p className={styles.fieldLabel}>Log Reference</p>
-                <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'monospace', color: '#eeeeee' }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: '0.8rem',
+                    fontFamily: 'monospace',
+                    color: '#eeeeee',
+                  }}
+                >
                   Event #{log.id}
                 </p>
               </div>
@@ -359,7 +496,15 @@ export function AuditDetailModal({
                     borderBottom: '1px solid #393e46',
                   }}
                 >
-                  <span style={{ fontSize: '0.7rem', color: '#8c9aaa', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <span
+                    style={{
+                      fontSize: '0.7rem',
+                      color: '#8c9aaa',
+                      fontFamily: 'monospace',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
                     RAW EVENT PAYLOAD
                   </span>
 
@@ -381,7 +526,11 @@ export function AuditDetailModal({
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {copiedField === 'json' ? <Check size={12} style={{ color: '#4caf80' }} /> : <Copy size={12} />}
+                    {copiedField === 'json' ? (
+                      <Check size={12} style={{ color: '#4caf80' }} />
+                    ) : (
+                      <Copy size={12} />
+                    )}
                     <span>{copiedField === 'json' ? 'Copied' : 'Copy JSON'}</span>
                   </button>
                 </div>

@@ -40,14 +40,14 @@ export function TagEditorModal({ game, onClose, onSaveTags }: TagEditorModalProp
         });
 
         if (gameData?.tags && Array.isArray(gameData.tags)) {
-          const currentTagNames = gameData.tags.map((t: any) =>
-            typeof t === 'string' ? t : t?.name || t?.slug || ''
-          ).filter(Boolean);
+          const currentTagNames = gameData.tags
+            .map((t: any) => (typeof t === 'string' ? t : t?.name || t?.slug || ''))
+            .filter(Boolean);
           setSelected(currentTagNames);
         } else if ((game as any).tags && Array.isArray((game as any).tags)) {
-          const currentTagNames = (game as any).tags.map((t: any) =>
-            typeof t === 'string' ? t : t?.name || t?.slug || ''
-          ).filter(Boolean);
+          const currentTagNames = (game as any).tags
+            .map((t: any) => (typeof t === 'string' ? t : t?.name || t?.slug || ''))
+            .filter(Boolean);
           setSelected(currentTagNames);
         }
       } catch (err) {
@@ -93,8 +93,8 @@ export function TagEditorModal({ game, onClose, onSaveTags }: TagEditorModalProp
     }
   };
 
-  const filteredCatalogTags = catalogTags.filter((t) =>
-    !filterSearch || t.name.toLowerCase().includes(filterSearch.toLowerCase())
+  const filteredCatalogTags = catalogTags.filter(
+    (t) => !filterSearch || t.name.toLowerCase().includes(filterSearch.toLowerCase())
   );
 
   return (
@@ -134,7 +134,14 @@ export function TagEditorModal({ game, onClose, onSaveTags }: TagEditorModalProp
         <div className={styles.modalBody}>
           {/* Selected Tags Display */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '0.4rem',
+              }}
+            >
               <p className={styles.fieldLabel} style={{ margin: 0 }}>
                 Selected Tags ({selected.length})
               </p>
@@ -155,7 +162,15 @@ export function TagEditorModal({ game, onClose, onSaveTags }: TagEditorModalProp
                 </button>
               )}
             </div>
-            <div className={styles.tagsContainer} style={{ minHeight: 38, padding: '0.5rem', backgroundColor: '#0c0e14', border: '1px solid #1e2330' }}>
+            <div
+              className={styles.tagsContainer}
+              style={{
+                minHeight: 38,
+                padding: '0.5rem',
+                backgroundColor: '#0c0e14',
+                border: '1px solid #1e2330',
+              }}
+            >
               {selected.length === 0 ? (
                 <span style={{ fontSize: '0.7rem', color: '#8c9aaa', fontStyle: 'italic' }}>
                   No tags selected yet. Pick from the catalog tags below or add a custom tag.
@@ -177,7 +192,14 @@ export function TagEditorModal({ game, onClose, onSaveTags }: TagEditorModalProp
 
           {/* Available Catalog Database Tags */}
           <div style={{ borderTop: '1px solid #1e2330', paddingTop: '0.85rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '0.5rem',
+              }}
+            >
               <p className={styles.fieldLabel} style={{ margin: 0 }}>
                 Catalog Database Tags ({catalogTags.length})
               </p>
@@ -199,16 +221,46 @@ export function TagEditorModal({ game, onClose, onSaveTags }: TagEditorModalProp
             </div>
 
             {loading ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', color: '#8c9aaa', fontSize: '0.75rem' }}>
-                <Loader2 size={16} className="animate-spin" style={{ margin: '0 auto 0.4rem', color: '#a78bfa' }} />
+              <div
+                style={{
+                  padding: '1.5rem',
+                  textAlign: 'center',
+                  color: '#8c9aaa',
+                  fontSize: '0.75rem',
+                }}
+              >
+                <Loader2
+                  size={16}
+                  className="animate-spin"
+                  style={{ margin: '0 auto 0.4rem', color: '#a78bfa' }}
+                />
                 Loading catalog tags from database...
               </div>
             ) : filteredCatalogTags.length === 0 ? (
-              <div style={{ padding: '1rem', textAlign: 'center', color: '#8c9aaa', fontSize: '0.75rem', fontStyle: 'italic' }}>
-                {filterSearch ? `No catalog tags matching "${filterSearch}"` : 'No tags found in catalog.'}
+              <div
+                style={{
+                  padding: '1rem',
+                  textAlign: 'center',
+                  color: '#8c9aaa',
+                  fontSize: '0.75rem',
+                  fontStyle: 'italic',
+                }}
+              >
+                {filterSearch
+                  ? `No catalog tags matching "${filterSearch}"`
+                  : 'No tags found in catalog.'}
               </div>
             ) : (
-              <div className={styles.tagsContainer} style={{ maxHeight: '140px', overflowY: 'auto', padding: '0.5rem', backgroundColor: '#0c0e14', border: '1px solid #1e2330' }}>
+              <div
+                className={styles.tagsContainer}
+                style={{
+                  maxHeight: '140px',
+                  overflowY: 'auto',
+                  padding: '0.5rem',
+                  backgroundColor: '#0c0e14',
+                  border: '1px solid #1e2330',
+                }}
+              >
                 {filteredCatalogTags.map((tag) => {
                   const isSelected = selected.includes(tag.name);
                   return (
@@ -232,7 +284,10 @@ export function TagEditorModal({ game, onClose, onSaveTags }: TagEditorModalProp
             <p className={styles.fieldLabel}>Add New Tag to Catalog</p>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
-                <Hash size={12} style={{ position: 'absolute', left: '0.75rem', color: '#8c9aaa' }} />
+                <Hash
+                  size={12}
+                  style={{ position: 'absolute', left: '0.75rem', color: '#8c9aaa' }}
+                />
                 <input
                   type="text"
                   className={styles.inputField}

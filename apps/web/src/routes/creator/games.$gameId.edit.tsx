@@ -42,7 +42,15 @@ function CreatorGameEditWrapper() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--accent-orange)' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          color: 'var(--accent-orange)',
+        }}
+      >
         <Loader2 size={48} className="animate-spin" />
       </div>
     );
@@ -57,19 +65,21 @@ function CreatorGameEditWrapper() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* Optional: Add a small floating tab switcher if you want to switch between Info and Design */}
-      <div style={{
-        position: 'absolute',
-        top: '1rem',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 9999,
-        background: 'var(--bg-card)',
-        padding: '0.25rem',
-        borderRadius: '8px',
-        border: '1px solid var(--border-color)',
-        display: 'flex',
-        gap: '0.25rem',
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: '1rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          background: 'var(--bg-card)',
+          padding: '0.25rem',
+          borderRadius: '8px',
+          border: '1px solid var(--border-color)',
+          display: 'flex',
+          gap: '0.25rem',
+        }}
+      >
         <button
           onClick={() => setActiveTab('info')}
           style={{

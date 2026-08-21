@@ -48,7 +48,9 @@ function AdminGames() {
     byGame: {},
   });
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'suspended' | 'draft' | 'rejected'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'published' | 'suspended' | 'draft' | 'rejected'
+  >('all');
   const [genreFilter, setGenreFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'title' | 'price' | 'revenue' | 'owners'>('title');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -165,11 +167,17 @@ function AdminGames() {
     return () => observer.disconnect();
   }, [hasMore, loadingMore, initialLoading, loadMoreGames]);
 
-  const handleStatusChange = async (gameId: string, status: 'published' | 'rejected' | 'suspended') => {
+  const handleStatusChange = async (
+    gameId: string,
+    status: 'published' | 'rejected' | 'suspended'
+  ) => {
     try {
       await apiClient.PATCH('/admin/games/{gameId}/status', {
         params: { path: { gameId } },
-        body: { status, reason: status === 'suspended' ? 'Administrative suspension' : 'Admin action' },
+        body: {
+          status,
+          reason: status === 'suspended' ? 'Administrative suspension' : 'Admin action',
+        },
       });
       const msgs: Record<string, string> = {
         published: 'Game published to store catalog',
@@ -298,9 +306,20 @@ function AdminGames() {
         </div>
       )}
 
-      {openMenu && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpenMenu(null)} />}
+      {openMenu && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+          onClick={() => setOpenMenu(null)}
+        />
+      )}
 
-      {tagModal && <TagEditorModal game={tagModal} onClose={() => setTagModal(null)} onSaveTags={handleSaveTags} />}
+      {tagModal && (
+        <TagEditorModal
+          game={tagModal}
+          onClose={() => setTagModal(null)}
+          onSaveTags={handleSaveTags}
+        />
+      )}
       {suspendModal && (
         <SuspendGameModal
           game={suspendModal}
@@ -311,7 +330,9 @@ function AdminGames() {
       {detailModal && (
         <GameDetailModal
           game={detailModal}
-          creatorName={(detailModal as any).creatorId ? usersMap[(detailModal as any).creatorId] : undefined}
+          creatorName={
+            (detailModal as any).creatorId ? usersMap[(detailModal as any).creatorId] : undefined
+          }
           onClose={() => setDetailModal(null)}
         />
       )}
@@ -391,8 +412,14 @@ function AdminGames() {
 
         {initialLoading ? (
           <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#8c9aaa' }}>
-            <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 0.5rem', color: 'var(--accent-orange)' }} />
-            <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'monospace' }}>Loading catalog games...</p>
+            <Loader2
+              size={24}
+              className="animate-spin"
+              style={{ margin: '0 auto 0.5rem', color: 'var(--accent-orange)' }}
+            />
+            <p style={{ margin: 0, fontSize: '0.8rem', fontFamily: 'monospace' }}>
+              Loading catalog games...
+            </p>
           </div>
         ) : filteredGames.length === 0 ? (
           <div className={commonStyles.emptyState}>
@@ -412,7 +439,9 @@ function AdminGames() {
                 : 'Recent';
 
               const creatorId = (game as any).creatorId;
-              const creatorDisplayName = (creatorId && usersMap[creatorId]) || (creatorId ? `Creator (${creatorId.slice(0, 8)})` : 'Hathor Creator');
+              const creatorDisplayName =
+                (creatorId && usersMap[creatorId]) ||
+                (creatorId ? `Creator (${creatorId.slice(0, 8)})` : 'Hathor Creator');
               const gameStats = revenueSummary.byGame[game.id];
               const grossRevenue = Number(gameStats?.grossRevenueEgp || 0);
               const unitsSold = gameStats?.unitsSold || 0;
@@ -445,7 +474,10 @@ function AdminGames() {
                     <div style={{ minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <p className={commonStyles.cellTitle}>{game.title}</p>
-                        <Star size={8} style={{ color: '#fd7014', fill: '#fd7014', flexShrink: 0 }} />
+                        <Star
+                          size={8}
+                          style={{ color: '#fd7014', fill: '#fd7014', flexShrink: 0 }}
+                        />
                       </div>
                       <div className={commonStyles.cellSubtitle}>
                         <ContentRatingBadge rating="T" />
@@ -456,10 +488,20 @@ function AdminGames() {
 
                   {/* Creator */}
                   <div style={{ minWidth: 0, paddingRight: '0.75rem' }}>
-                    <p className={commonStyles.monoText} style={{ margin: 0, fontWeight: 700, color: '#eeeeee' }}>
+                    <p
+                      className={commonStyles.monoText}
+                      style={{ margin: 0, fontWeight: 700, color: '#eeeeee' }}
+                    >
                       {creatorDisplayName}
                     </p>
-                    <p style={{ margin: 0, fontSize: 8, color: 'rgba(140, 154, 170, 0.5)', fontFamily: 'monospace' }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 8,
+                        color: 'rgba(140, 154, 170, 0.5)',
+                        fontFamily: 'monospace',
+                      }}
+                    >
                       {creatorId ? `ID: ${creatorId.slice(0, 8)}...` : '—'}
                     </p>
                   </div>
@@ -481,8 +523,17 @@ function AdminGames() {
 
                   {/* Owners (Units Sold) */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <ShoppingBag size={11} style={{ color: unitsSold > 0 ? '#4caf80' : '#8c9aaa' }} />
-                    <span className={commonStyles.monoText} style={{ color: unitsSold > 0 ? '#4caf80' : '#8c9aaa', fontWeight: unitsSold > 0 ? 700 : 400 }}>
+                    <ShoppingBag
+                      size={11}
+                      style={{ color: unitsSold > 0 ? '#4caf80' : '#8c9aaa' }}
+                    />
+                    <span
+                      className={commonStyles.monoText}
+                      style={{
+                        color: unitsSold > 0 ? '#4caf80' : '#8c9aaa',
+                        fontWeight: unitsSold > 0 ? 700 : 400,
+                      }}
+                    >
                       {unitsSold.toLocaleString()}
                     </span>
                   </div>
@@ -515,7 +566,8 @@ function AdminGames() {
                             setOpenMenu(null);
                           }}
                         >
-                          <Package size={12} style={{ color: '#3b9eda' }} /> View Details &amp; Build
+                          <Package size={12} style={{ color: '#3b9eda' }} /> View Details &amp;
+                          Build
                         </button>
 
                         <button
@@ -560,10 +612,31 @@ function AdminGames() {
             })}
 
             {/* Infinite Scroll Sentinel */}
-            <div ref={observerTarget} style={{ height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div
+              ref={observerTarget}
+              style={{
+                height: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
               {loadingMore && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8c9aaa', fontSize: '0.75rem', fontFamily: 'monospace' }}>
-                  <Loader2 size={13} className="animate-spin" style={{ color: 'var(--accent-orange)' }} />
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    color: '#8c9aaa',
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  <Loader2
+                    size={13}
+                    className="animate-spin"
+                    style={{ color: 'var(--accent-orange)' }}
+                  />
                   <span>Loading more games...</span>
                 </div>
               )}

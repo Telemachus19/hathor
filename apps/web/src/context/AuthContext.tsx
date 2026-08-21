@@ -95,7 +95,7 @@ export function AuthContextProvider({ children, authService }: AuthProviderProps
         setUser(result.user);
 
         setStatus('authenticated');
-        
+
         return result.user;
       } catch (error) {
         setAccessToken(null);

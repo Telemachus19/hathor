@@ -17,9 +17,7 @@ export function DataTable({ columns, children }: DataTableProps) {
             ))}
           </tr>
         </thead>
-        <tbody>
-          {children}
-        </tbody>
+        <tbody>{children}</tbody>
       </table>
     </div>
   );

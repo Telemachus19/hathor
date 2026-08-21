@@ -12,7 +12,10 @@ export function StorePreviewModal({ game, onClose }: StorePreviewModalProps) {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={`${styles.modalContainer} ${styles.modalContainerXl}`} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.modalContainer} ${styles.modalContainerXl}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.topStripe} />
         <div className={styles.modalHeader}>
           <div>
@@ -62,11 +65,21 @@ export function StorePreviewModal({ game, onClose }: StorePreviewModalProps) {
             </h2>
           </div>
 
-          <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div className={styles.warningBox} style={{ borderColor: 'rgba(253, 112, 20, 0.3)', backgroundColor: 'rgba(253, 112, 20, 0.05)', color: 'var(--accent-orange)' }}>
+          <div
+            style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          >
+            <div
+              className={styles.warningBox}
+              style={{
+                borderColor: 'rgba(253, 112, 20, 0.3)',
+                backgroundColor: 'rgba(253, 112, 20, 0.05)',
+                color: 'var(--accent-orange)',
+              }}
+            >
               <ExternalLink size={14} style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
-                This is a metadata preview for review. The full interactive storefront is styled and compiled via the Page Designer engine.
+                This is a metadata preview for review. The full interactive storefront is styled and
+                compiled via the Page Designer engine.
               </div>
             </div>
 

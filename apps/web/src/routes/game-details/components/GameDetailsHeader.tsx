@@ -26,7 +26,8 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
 
   const category = props.category || s.category || s.gameCategory || 'Action';
   const title = props.title || s.title || s.gameTitle || 'YOUR GAME TITLE';
-  const subtitle = props.subtitle !== undefined ? props.subtitle : s.subtitle || s.gameSubtitle || '';
+  const subtitle =
+    props.subtitle !== undefined ? props.subtitle : s.subtitle || s.gameSubtitle || '';
   const ratingScore = props.ratingScore ?? s.ratingScore ?? s.gameRatingScore ?? 4.8;
   const reviewCount = props.reviewCount || s.reviewCount || s.gameReviewCount || '128 Reviews';
   const developer = props.developer || s.dev || s.gameDev || 'Hathor Studios';

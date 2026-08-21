@@ -9,7 +9,11 @@ export function Card({ children, className = '', ...props }: React.HTMLAttribute
   );
 }
 
-export function CardHeader({ children, className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardHeader({
+  children,
+  className = '',
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={`hathor-card-header ${className}`} {...props}>
       {children}
@@ -17,7 +21,11 @@ export function CardHeader({ children, className = '', ...props }: React.HTMLAtt
   );
 }
 
-export function CardContent({ children, className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardContent({
+  children,
+  className = '',
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={`hathor-card-content ${className}`} {...props}>
       {children}

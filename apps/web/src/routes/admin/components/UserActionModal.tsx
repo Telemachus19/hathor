@@ -11,15 +11,30 @@ interface UserActionModalProps {
   action: UserModalAction;
   spent?: number;
   onClose: () => void;
-  onConfirmStatus: (userId: string, status: 'active' | 'suspended' | 'banned', reason?: string, days?: number) => void;
+  onConfirmStatus: (
+    userId: string,
+    status: 'active' | 'suspended' | 'banned',
+    reason?: string,
+    days?: number
+  ) => void;
 }
 
-export function UserActionModal({ user, action, spent = 0, onClose, onConfirmStatus }: UserActionModalProps) {
+export function UserActionModal({
+  user,
+  action,
+  spent = 0,
+  onClose,
+  onConfirmStatus,
+}: UserActionModalProps) {
   const [reason, setReason] = useState('');
   const [days, setDays] = useState(7);
 
   const isDestructive = action === 'perma_ban' || action === 'temp_ban';
-  const roleDisplay = user.roles.includes('admin') ? 'admin' : user.roles.includes('creator') ? 'creator' : 'user';
+  const roleDisplay = user.roles.includes('admin')
+    ? 'admin'
+    : user.roles.includes('creator')
+      ? 'creator'
+      : 'user';
 
   if (action === 'view') {
     return (
@@ -55,10 +70,24 @@ export function UserActionModal({ user, action, spent = 0, onClose, onConfirmSta
                 {user.displayName.slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <p style={{ margin: 0, fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '0.9rem' }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontFamily: "'Cinzel', serif",
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                  }}
+                >
                   {user.displayName}
                 </p>
-                <p style={{ margin: '0.15rem 0 0.35rem 0', fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                <p
+                  style={{
+                    margin: '0.15rem 0 0.35rem 0',
+                    fontSize: '0.7rem',
+                    color: 'var(--text-muted)',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   {user.email}
                 </p>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -71,11 +100,28 @@ export function UserActionModal({ user, action, spent = 0, onClose, onConfirmSta
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}>
                 <p className={styles.fieldLabel}>User ID</p>
-                <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace', wordBreak: 'break-all' }}>{user.id}</p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                    wordBreak: 'break-all',
+                  }}
+                >
+                  {user.id}
+                </p>
               </div>
               <div className={styles.infoItem}>
                 <p className={styles.fieldLabel}>Total Spent</p>
-                <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace', color: spent > 0 ? '#4caf80' : 'var(--text-white)', fontWeight: 700 }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                    color: spent > 0 ? '#4caf80' : 'var(--text-white)',
+                    fontWeight: 700,
+                  }}
+                >
                   EGP {spent.toFixed(2)}
                 </p>
               </div>
@@ -136,7 +182,9 @@ export function UserActionModal({ user, action, spent = 0, onClose, onConfirmSta
     <div className={styles.overlay} onClick={onClose}>
       <div
         className={styles.modalContainer}
-        style={{ borderColor: isDestructive ? 'rgba(231, 76, 60, 0.4)' : 'rgba(76, 175, 128, 0.4)' }}
+        style={{
+          borderColor: isDestructive ? 'rgba(231, 76, 60, 0.4)' : 'rgba(76, 175, 128, 0.4)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
@@ -152,7 +200,9 @@ export function UserActionModal({ user, action, spent = 0, onClose, onConfirmSta
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: isDestructive ? 'rgba(231, 76, 60, 0.1)' : 'rgba(76, 175, 128, 0.1)',
+                backgroundColor: isDestructive
+                  ? 'rgba(231, 76, 60, 0.1)'
+                  : 'rgba(76, 175, 128, 0.1)',
                 border: `1px solid ${isDestructive ? 'rgba(231, 76, 60, 0.3)' : 'rgba(76, 175, 128, 0.3)'}`,
                 color: isDestructive ? '#e74c3c' : '#4caf80',
               }}
@@ -170,7 +220,9 @@ export function UserActionModal({ user, action, spent = 0, onClose, onConfirmSta
         </div>
 
         <div className={styles.modalBody}>
-          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+          <p
+            style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5 }}
+          >
             {descriptions[action]}
           </p>
 
@@ -192,10 +244,24 @@ export function UserActionModal({ user, action, spent = 0, onClose, onConfirmSta
               {user.displayName.slice(0, 2).toUpperCase()}
             </div>
             <div>
-              <p style={{ margin: 0, fontFamily: "'Cinzel', serif", fontWeight: 700, fontSize: '0.8rem' }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: "'Cinzel', serif",
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                }}
+              >
                 {user.displayName}
               </p>
-              <p style={{ margin: 0, fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '0.65rem',
+                  color: 'var(--text-muted)',
+                  fontFamily: 'monospace',
+                }}
+              >
                 {user.email}
               </p>
             </div>
@@ -241,7 +307,11 @@ export function UserActionModal({ user, action, spent = 0, onClose, onConfirmSta
             className={isDestructive ? styles.btnDanger : styles.btnSuccess}
             onClick={handleConfirm}
           >
-            {action === 'temp_ban' ? `Suspend for ${days}d` : action === 'perma_ban' ? 'Perma Ban' : 'Restore Access'}
+            {action === 'temp_ban'
+              ? `Suspend for ${days}d`
+              : action === 'perma_ban'
+                ? 'Perma Ban'
+                : 'Restore Access'}
           </button>
         </div>
       </div>

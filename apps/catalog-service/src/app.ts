@@ -185,7 +185,9 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
     try {
       const { slug } = req.params;
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-      const condition = isUuid ? eq(games.id, slug) : and(eq(games.status, 'published'), eq(games.slug, slug));
+      const condition = isUuid
+        ? eq(games.id, slug)
+        : and(eq(games.status, 'published'), eq(games.slug, slug));
 
       const [game] = await catalogDb
         .select({

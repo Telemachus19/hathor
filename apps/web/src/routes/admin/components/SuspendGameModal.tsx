@@ -51,7 +51,9 @@ export function SuspendGameModal({ game, onClose, onConfirmSuspend }: SuspendGam
               <EyeOff size={16} />
             </div>
             <div>
-              <p className={styles.modalSubtitle} style={{ color: '#f59e0b' }}>Store Catalog Moderation</p>
+              <p className={styles.modalSubtitle} style={{ color: '#f59e0b' }}>
+                Store Catalog Moderation
+              </p>
               <h3 className={styles.modalTitle}>Suspend Game from Store</h3>
             </div>
           </div>
@@ -76,7 +78,9 @@ export function SuspendGameModal({ game, onClose, onConfirmSuspend }: SuspendGam
           >
             <AlertCircle size={18} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} />
             <div>
-              Suspending <strong style={{ color: '#ffffff' }}>{game.title}</strong> will immediately delist it from the store catalog so new users cannot purchase it. Existing license owners will continue to have full access in their library.
+              Suspending <strong style={{ color: '#ffffff' }}>{game.title}</strong> will immediately
+              delist it from the store catalog so new users cannot purchase it. Existing license
+              owners will continue to have full access in their library.
             </div>
           </div>
 
@@ -97,7 +101,12 @@ export function SuspendGameModal({ game, onClose, onConfirmSuspend }: SuspendGam
         </div>
 
         <div className={styles.modalFooter}>
-          <button type="button" className={styles.btnSecondary} onClick={onClose} disabled={isSubmitting}>
+          <button
+            type="button"
+            className={styles.btnSecondary}
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
             Cancel
           </button>
           <button

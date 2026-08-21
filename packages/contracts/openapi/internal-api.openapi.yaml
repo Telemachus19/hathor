@@ -193,7 +193,8 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [totalOwners, totalRevenueEgp, averageScore, lifetimePurchases, monthlyPurchases]
+                required:
+                  [totalOwners, totalRevenueEgp, averageScore, lifetimePurchases, monthlyPurchases]
                 properties:
                   totalOwners: { type: integer }
                   totalRevenueEgp: { type: string }

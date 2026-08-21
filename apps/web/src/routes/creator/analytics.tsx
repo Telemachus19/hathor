@@ -1,12 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
-import {
-  Users,
-  DollarSign,
-  Star,
-  TrendingUp,
-  Loader2,
-} from 'lucide-react';
+import { Users, DollarSign, Star, TrendingUp, Loader2 } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -158,7 +152,20 @@ function CreatorAnalytics() {
   const reviewCount = analytics?.reviewCount || 0;
   const avgRating = analytics?.averageRating || 0;
   const revPerOwner = totalOwners > 0 ? totalRevenue / totalOwners : 0;
-  const ALL_12_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const ALL_12_MONTHS = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
   const rawMonthlyStats: any[] = analytics?.monthlyStats || [];
   const monthlyData =
     rawMonthlyStats.length === 12
@@ -371,13 +378,18 @@ function CreatorAnalytics() {
       {/* Portfolio Comparison */}
       <div className={commonStyles.panelCard}>
         <div className={commonStyles.panelHeader}>
-          <span className={commonStyles.panelHeaderTitle}>Portfolio Comparison — Audience Distribution</span>
+          <span className={commonStyles.panelHeaderTitle}>
+            Portfolio Comparison — Audience Distribution
+          </span>
         </div>
         <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {games.map((g, idx) => {
             const gAnalytics = analyticsMap[g.id];
             const gOwners = gAnalytics?.totalOwners || 0;
-            const maxOwners = Math.max(...games.map((gm) => analyticsMap[gm.id]?.totalOwners || 0), 1);
+            const maxOwners = Math.max(
+              ...games.map((gm) => analyticsMap[gm.id]?.totalOwners || 0),
+              1
+            );
             const pct = (gOwners / maxOwners) * 100;
             const gameAccent = ACCENTS[idx % ACCENTS.length];
 

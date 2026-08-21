@@ -46,7 +46,8 @@ export function parseApiError(error: unknown): ProcessedApiError {
         userMessage = error.message || 'Please correct the highlighted form errors.';
         break;
       case 'FORBIDDEN':
-        userMessage = error.message || 'Access denied. You do not have permission to perform this action.';
+        userMessage =
+          error.message || 'Access denied. You do not have permission to perform this action.';
         break;
       case 'CONFLICT':
       case 'USER_EXISTS':

@@ -64,9 +64,11 @@ function AdminSubmissionDetail() {
     try {
       // First try single game endpoint alongside users list to resolve creator name
       const [gameRes, usersRes] = await Promise.all([
-        (apiClient.GET('/admin/games/{gameId}' as any, {
-          params: { path: { gameId: submissionId } },
-        }) as any).catch(() => ({ data: null })),
+        (
+          apiClient.GET('/admin/games/{gameId}' as any, {
+            params: { path: { gameId: submissionId } },
+          }) as any
+        ).catch(() => ({ data: null })),
         ((apiClient as any).GET('/admin/users', {}) as any).catch(() => ({ data: { items: [] } })),
       ]);
 
@@ -165,7 +167,9 @@ function AdminSubmissionDetail() {
         },
       });
       setShowRejectModal(false);
-      showToast(status === 'published' ? 'Game approved and published to catalog!' : 'Submission rejected.');
+      showToast(
+        status === 'published' ? 'Game approved and published to catalog!' : 'Submission rejected.'
+      );
       setTimeout(() => {
         navigate({ to: '/admin/submissions' });
       }, 800);
@@ -179,7 +183,14 @@ function AdminSubmissionDetail() {
 
   if (loading) {
     return (
-      <div style={{ padding: '3rem', color: 'var(--text-muted)', fontFamily: 'monospace', textAlign: 'center' }}>
+      <div
+        style={{
+          padding: '3rem',
+          color: 'var(--text-muted)',
+          fontFamily: 'monospace',
+          textAlign: 'center',
+        }}
+      >
         Loading submission details...
       </div>
     );
@@ -187,9 +198,15 @@ function AdminSubmissionDetail() {
 
   if (!submission) {
     return (
-      <div style={{ padding: '3rem', color: '#e74c3c', fontFamily: 'monospace', textAlign: 'center' }}>
+      <div
+        style={{ padding: '3rem', color: '#e74c3c', fontFamily: 'monospace', textAlign: 'center' }}
+      >
         <p>Submission not found: {submissionId}</p>
-        <Link to="/admin/submissions" className={styles.backBtn} style={{ marginTop: '1rem', display: 'inline-flex' }}>
+        <Link
+          to="/admin/submissions"
+          className={styles.backBtn}
+          style={{ marginTop: '1rem', display: 'inline-flex' }}
+        >
           <ArrowLeft size={13} /> Back to Submissions
         </Link>
       </div>
@@ -210,22 +227,33 @@ function AdminSubmissionDetail() {
   const buildInfo = (submission as any).build;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+        maxWidth: 1280,
+        margin: '0 auto',
+        width: '100%',
+      }}
+    >
       {toast && (
-        <div style={{
-          position: 'fixed',
-          top: 24,
-          right: 24,
-          zIndex: 999999,
-          background: '#141820',
-          border: '1px solid #4caf80',
-          color: '#4caf80',
-          padding: '12px 20px',
-          borderRadius: 6,
-          fontFamily: 'monospace',
-          fontSize: 13,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 24,
+            right: 24,
+            zIndex: 999999,
+            background: '#141820',
+            border: '1px solid #4caf80',
+            color: '#4caf80',
+            padding: '12px 20px',
+            borderRadius: 6,
+            fontFamily: 'monospace',
+            fontSize: 13,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          }}
+        >
           {toast}
         </div>
       )}
@@ -252,7 +280,12 @@ function AdminSubmissionDetail() {
             type="button"
             className={modalStyles.btnSecondary}
             onClick={() => setPreviewDevice('desktop')}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-orange)' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              color: 'var(--accent-orange)',
+            }}
           >
             <Eye size={13} /> Preview Live Page
           </button>
@@ -294,11 +327,23 @@ function AdminSubmissionDetail() {
             <p className={styles.bannerSuperTitle}>Creator Submission Review</p>
             <h2 className={styles.bannerTitle}>{submission.title}</h2>
             <div className={styles.bannerMetaRow}>
-              <span>Creator: <strong style={{ color: 'var(--accent-orange)' }}>{creatorName || (submission as any).creatorName || (submission as any).creatorId?.substring(0, 8) || 'Creator'}</strong></span>
+              <span>
+                Creator:{' '}
+                <strong style={{ color: 'var(--accent-orange)' }}>
+                  {creatorName ||
+                    (submission as any).creatorName ||
+                    (submission as any).creatorId?.substring(0, 8) ||
+                    'Creator'}
+                </strong>
+              </span>
               <span>•</span>
               <span>ID: {submission.id.substring(0, 8)}...</span>
               <span>•</span>
-              <span>{(submission as any).createdAt ? new Date((submission as any).createdAt).toLocaleDateString() : 'Recent'}</span>
+              <span>
+                {(submission as any).createdAt
+                  ? new Date((submission as any).createdAt).toLocaleDateString()
+                  : 'Recent'}
+              </span>
               <span>•</span>
               <GameStatusBadge status={submission.status} />
             </div>
@@ -307,7 +352,16 @@ function AdminSubmissionDetail() {
           <div className={styles.bannerPrice}>
             <p className={styles.bannerPriceLabel}>Listing Price</p>
             <p className={styles.bannerPriceValue}>{Number(submission.priceEgp || 0).toFixed(2)}</p>
-            <p style={{ margin: 0, fontSize: '0.65rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>EGP</p>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '0.65rem',
+                fontFamily: 'monospace',
+                color: 'var(--text-muted)',
+              }}
+            >
+              EGP
+            </p>
           </div>
         </div>
       </div>
@@ -335,7 +389,10 @@ function AdminSubmissionDetail() {
                     fontFamily: 'monospace',
                   }}
                 >
-                  {creatorName || (submission as any).creatorName || (submission as any).creatorId || 'Unknown'}
+                  {creatorName ||
+                    (submission as any).creatorName ||
+                    (submission as any).creatorId ||
+                    'Unknown'}
                 </div>
               </div>
 
@@ -361,7 +418,13 @@ function AdminSubmissionDetail() {
                   <img
                     src={(submission as any).bannerUrl}
                     alt="Banner"
-                    style={{ width: '100%', height: 110, objectFit: 'cover', borderRadius: 4, border: '1px solid var(--border-color)' }}
+                    style={{
+                      width: '100%',
+                      height: 110,
+                      objectFit: 'cover',
+                      borderRadius: 4,
+                      border: '1px solid var(--border-color)',
+                    }}
                   />
                 </div>
               )}
@@ -397,7 +460,13 @@ function AdminSubmissionDetail() {
                 <p className={modalStyles.fieldLabel}>Style Tags</p>
                 <div className={modalStyles.tagsContainer}>
                   {tags.length === 0 && (
-                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                    <span
+                      style={{
+                        fontSize: '0.65rem',
+                        color: 'var(--text-muted)',
+                        fontStyle: 'italic',
+                      }}
+                    >
                       No tags specified
                     </span>
                   )}
@@ -439,40 +508,82 @@ function AdminSubmissionDetail() {
 
             <div className={styles.detailCardBody}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    marginBottom: '0.35rem',
+                  }}
+                >
                   <Monitor size={12} style={{ color: 'var(--text-muted)' }} />
-                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Supported OS</p>
+                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                    Supported OS
+                  </p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? minReq.os || 'Windows 10 (64-bit)' : recReq.os || 'Windows 11 (64-bit)'}
+                  {specTab === 'min'
+                    ? minReq.os || 'Windows 10 (64-bit)'
+                    : recReq.os || 'Windows 11 (64-bit)'}
                 </div>
               </div>
 
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    marginBottom: '0.35rem',
+                  }}
+                >
                   <Cpu size={12} style={{ color: 'var(--text-muted)' }} />
-                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Processor (CPU)</p>
+                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                    Processor (CPU)
+                  </p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? minReq.cpu || 'Intel Core i5 / AMD Ryzen 5' : recReq.cpu || 'Intel Core i7 / AMD Ryzen 7'}
+                  {specTab === 'min'
+                    ? minReq.cpu || 'Intel Core i5 / AMD Ryzen 5'
+                    : recReq.cpu || 'Intel Core i7 / AMD Ryzen 7'}
                 </div>
               </div>
 
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    marginBottom: '0.35rem',
+                  }}
+                >
                   <Monitor size={12} style={{ color: 'var(--text-muted)' }} />
-                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Graphics Card (GPU)</p>
+                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                    Graphics Card (GPU)
+                  </p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? minReq.gpu || 'NVIDIA GTX 1060 / AMD RX 580' : recReq.gpu || 'NVIDIA RTX 3070 / AMD RX 6700 XT'}
+                  {specTab === 'min'
+                    ? minReq.gpu || 'NVIDIA GTX 1060 / AMD RX 580'
+                    : recReq.gpu || 'NVIDIA RTX 3070 / AMD RX 6700 XT'}
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      marginBottom: '0.35rem',
+                    }}
+                  >
                     <MemoryStick size={12} style={{ color: 'var(--text-muted)' }} />
-                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>RAM</p>
+                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                      RAM
+                    </p>
                   </div>
                   <div className={styles.specItemRow}>
                     <span className={styles.specItemValue}>
@@ -482,9 +593,18 @@ function AdminSubmissionDetail() {
                 </div>
 
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      marginBottom: '0.35rem',
+                    }}
+                  >
                     <HardDrive size={12} style={{ color: 'var(--text-muted)' }} />
-                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Storage</p>
+                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                      Storage
+                    </p>
                   </div>
                   <div className={styles.specItemRow}>
                     <span className={styles.specItemValue}>
@@ -505,15 +625,32 @@ function AdminSubmissionDetail() {
             <div className={styles.detailCardBody}>
               {buildInfo ? (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <FileArchive size={20} style={{ color: '#fd7014' }} />
                       <div>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#eeeeee', fontFamily: 'monospace' }}>
+                        <div
+                          style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: '#eeeeee',
+                            fontFamily: 'monospace',
+                          }}
+                        >
                           Build {buildInfo.version || 'v1.0.0'}
                         </div>
-                        <div style={{ fontSize: '0.65rem', color: '#8c9aaa', fontFamily: 'monospace' }}>
-                          {buildInfo.sizeBytes ? formatBytes(buildInfo.sizeBytes) : 'Compressed Package'}
+                        <div
+                          style={{ fontSize: '0.65rem', color: '#8c9aaa', fontFamily: 'monospace' }}
+                        >
+                          {buildInfo.sizeBytes
+                            ? formatBytes(buildInfo.sizeBytes)
+                            : 'Compressed Package'}
                         </div>
                       </div>
                     </div>
@@ -534,19 +671,51 @@ function AdminSubmissionDetail() {
                     </span>
                   </div>
 
-                  <div style={{ backgroundColor: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: '0.6rem 0.75rem', borderRadius: 3, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.65rem', fontFamily: 'monospace', color: '#8c9aaa' }}>
+                  <div
+                    style={{
+                      backgroundColor: 'var(--bg-main)',
+                      border: '1px solid var(--border-color)',
+                      padding: '0.6rem 0.75rem',
+                      borderRadius: 3,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '0.65rem',
+                        fontFamily: 'monospace',
+                        color: '#8c9aaa',
+                      }}
+                    >
                       <span>Object Key</span>
-                      <span style={{ color: '#eeeeee' }}>{buildInfo.objectKey || `builds/${submission.id}/v1.0.0/game.zip`}</span>
+                      <span style={{ color: '#eeeeee' }}>
+                        {buildInfo.objectKey || `builds/${submission.id}/v1.0.0/game.zip`}
+                      </span>
                     </div>
 
                     {buildInfo.checksumSha256 && (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.65rem', fontFamily: 'monospace', color: '#8c9aaa' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          fontSize: '0.65rem',
+                          fontFamily: 'monospace',
+                          color: '#8c9aaa',
+                        }}
+                      >
                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                           <ShieldCheck size={11} color="#38d39f" /> SHA-256
                         </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                          <span style={{ color: '#eeeeee' }}>{buildInfo.checksumSha256.slice(0, 12)}...</span>
+                          <span style={{ color: '#eeeeee' }}>
+                            {buildInfo.checksumSha256.slice(0, 12)}...
+                          </span>
                           <button
                             type="button"
                             onClick={() => handleCopySha(buildInfo.checksumSha256)}
@@ -597,7 +766,17 @@ function AdminSubmissionDetail() {
                   </button>
                 </>
               ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fca5a5', fontSize: '0.7rem', fontFamily: 'monospace', padding: '0.5rem 0' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    color: '#fca5a5',
+                    fontSize: '0.7rem',
+                    fontFamily: 'monospace',
+                    padding: '0.5rem 0',
+                  }}
+                >
                   <AlertTriangle size={14} color="#ef4444" />
                   <span>No build package uploaded for this submission.</span>
                 </div>
@@ -614,15 +793,36 @@ function AdminSubmissionDetail() {
               <h3 className={styles.cardHeaderTitle}>Storefront Theme</h3>
             </div>
             <div className={styles.detailCardBody}>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
-                This game has a customized designer page layout with {sections.length} active sections.
+              <p
+                style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
+                This game has a customized designer page layout with {sections.length} active
+                sections.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                  marginTop: '0.5rem',
+                }}
+              >
                 <button
                   type="button"
                   className={modalStyles.btnSecondary}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--accent-orange)' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    color: 'var(--accent-orange)',
+                  }}
                   onClick={() => setPreviewDevice('desktop')}
                 >
                   <Monitor size={14} /> Interactive Desktop Theme
@@ -630,7 +830,12 @@ function AdminSubmissionDetail() {
                 <button
                   type="button"
                   className={modalStyles.btnSecondary}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                  }}
                   onClick={() => setPreviewDevice('mobile')}
                 >
                   <Film size={14} /> Interactive Mobile Theme
@@ -649,7 +854,9 @@ function AdminSubmissionDetail() {
               {submission.status !== 'published' ? (
                 <>
                   <div>
-                    <label className={modalStyles.fieldLabel}>Rejection Reason (if rejecting)</label>
+                    <label className={modalStyles.fieldLabel}>
+                      Rejection Reason (if rejecting)
+                    </label>
                     <textarea
                       className={modalStyles.textareaField}
                       placeholder="Explain what needs to be resolved before listing..."
@@ -662,7 +869,14 @@ function AdminSubmissionDetail() {
                     <button
                       type="button"
                       className={modalStyles.btnSuccess}
-                      style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                      }}
                       onClick={() => handleStatusChange('published')}
                       disabled={actionLoading}
                     >
@@ -671,7 +885,14 @@ function AdminSubmissionDetail() {
                     <button
                       type="button"
                       className={modalStyles.btnDanger}
-                      style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                      }}
                       onClick={() => setShowRejectModal(true)}
                       disabled={actionLoading}
                     >
@@ -680,15 +901,17 @@ function AdminSubmissionDetail() {
                   </div>
                 </>
               ) : (
-                <div style={{
-                  padding: '1rem',
-                  background: 'rgba(76, 175, 128, 0.1)',
-                  border: '1px solid rgba(76, 175, 128, 0.3)',
-                  color: '#4caf80',
-                  fontSize: '0.8rem',
-                  textAlign: 'center',
-                  fontFamily: 'monospace',
-                }}>
+                <div
+                  style={{
+                    padding: '1rem',
+                    background: 'rgba(76, 175, 128, 0.1)',
+                    border: '1px solid rgba(76, 175, 128, 0.3)',
+                    color: '#4caf80',
+                    fontSize: '0.8rem',
+                    textAlign: 'center',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   ✓ This game is currently Published and active in the catalog.
                 </div>
               )}
@@ -726,20 +949,51 @@ function AdminSubmissionDetail() {
               position: 'relative',
             }}
           >
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: '#e74c3c' }} />
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                backgroundColor: '#e74c3c',
+              }}
+            />
 
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#eeeeee', fontFamily: "'Cinzel', serif", display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: '1.1rem',
+                  color: '#eeeeee',
+                  fontFamily: "'Cinzel', serif",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
                 <XCircle size={18} style={{ color: '#e74c3c' }} />
                 Reject Game Submission
               </h3>
               <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Provide feedback for <strong style={{ color: '#eeeeee' }}>{submission.title}</strong>. This feedback will be displayed directly on the creator&apos;s dashboard card.
+                Provide feedback for{' '}
+                <strong style={{ color: '#eeeeee' }}>{submission.title}</strong>. This feedback will
+                be displayed directly on the creator&apos;s dashboard card.
               </p>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c9aaa', marginBottom: '0.5rem' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: '#8c9aaa',
+                  marginBottom: '0.5rem',
+                }}
+              >
                 Reason for Rejection (Visible to Creator)
               </label>
               <textarea

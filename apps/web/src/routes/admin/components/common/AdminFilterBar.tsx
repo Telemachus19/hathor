@@ -46,11 +46,7 @@ export function AdminFilterBar<TStatus extends string = string, TRole extends st
             onChange={(e) => onSearchChange(e.target.value)}
           />
           {search && (
-            <button
-              type="button"
-              className={styles.searchClear}
-              onClick={() => onSearchChange('')}
-            >
+            <button type="button" className={styles.searchClear} onClick={() => onSearchChange('')}>
               <X size={13} />
             </button>
           )}

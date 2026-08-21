@@ -20,7 +20,10 @@ type ToastProviderProps = {
   children: ReactNode;
 };
 
-const TOAST_THEMES: Record<ToastType, { color: string; bg: string; border: string; label: string; icon: typeof CheckCircle2 }> = {
+const TOAST_THEMES: Record<
+  ToastType,
+  { color: string; bg: string; border: string; label: string; icon: typeof CheckCircle2 }
+> = {
   success: {
     color: '#4caf80',
     bg: 'rgba(76, 175, 128, 0.12)',
@@ -148,7 +151,14 @@ export function ToastProvider({ children }: ToastProviderProps) {
 
               {/* Message Content */}
               <div style={{ flex: 1, minWidth: 0, paddingRight: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    marginBottom: '0.25rem',
+                  }}
+                >
                   <span
                     style={{
                       fontSize: '0.65rem',

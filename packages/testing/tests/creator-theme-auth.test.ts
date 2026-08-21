@@ -28,7 +28,9 @@ const mockSelectChain: any = {
   orderBy: vi.fn(() => mockSelectChain),
   limit: vi.fn(() => Promise.resolve([])),
   then: vi.fn((onFulfilled, onRejected) => {
-    return Promise.resolve().then(() => []).then(onFulfilled, onRejected);
+    return Promise.resolve()
+      .then(() => [])
+      .then(onFulfilled, onRejected);
   }),
 };
 
@@ -37,7 +39,9 @@ const mockUpdateChain: any = {
   where: vi.fn(() => mockUpdateChain),
   returning: vi.fn(() => Promise.resolve([])),
   then: vi.fn((onFulfilled, onRejected) => {
-    return Promise.resolve().then(() => []).then(onFulfilled, onRejected);
+    return Promise.resolve()
+      .then(() => [])
+      .then(onFulfilled, onRejected);
   }),
 };
 
@@ -46,7 +50,9 @@ const mockInsertChain: any = {
   returning: vi.fn(() => Promise.resolve([])),
   onConflictDoNothing: vi.fn(() => Promise.resolve([])),
   then: vi.fn((onFulfilled, onRejected) => {
-    return Promise.resolve().then(() => []).then(onFulfilled, onRejected);
+    return Promise.resolve()
+      .then(() => [])
+      .then(onFulfilled, onRejected);
   }),
 };
 

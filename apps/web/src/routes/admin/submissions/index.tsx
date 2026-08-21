@@ -71,7 +71,11 @@ function AdminSubmissions() {
     loadSubmissions();
   }, []);
 
-  const handleStatusChange = async (gameId: string, status: 'published' | 'rejected', customReason?: string) => {
+  const handleStatusChange = async (
+    gameId: string,
+    status: 'published' | 'rejected',
+    customReason?: string
+  ) => {
     try {
       const reasonToSend =
         status === 'rejected'
@@ -135,11 +139,18 @@ function AdminSubmissions() {
         </div>
       )}
 
-      {openMenu && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpenMenu(null)} />}
+      {openMenu && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+          onClick={() => setOpenMenu(null)}
+        />
+      )}
 
       {previewGame && (
         <PreviewModal
-          sections={(previewGame as any)?.pageTheme?.sections || (previewGame as any)?.theme?.sections || []}
+          sections={
+            (previewGame as any)?.pageTheme?.sections || (previewGame as any)?.theme?.sections || []
+          }
           pageSettings={
             (previewGame as any)?.pageTheme?.pageSettings ||
             (previewGame as any)?.theme?.pageSettings ||
@@ -195,14 +206,22 @@ function AdminSubmissions() {
               ? new Date((sub as any).createdAt).toLocaleDateString()
               : 'Recent';
             const creatorId = (sub as any).creatorId;
-            const creatorDisplayName = (creatorId ? usersMap[creatorId] : null) || (sub as any).creatorName || 'Unknown Creator';
+            const creatorDisplayName =
+              (creatorId ? usersMap[creatorId] : null) ||
+              (sub as any).creatorName ||
+              'Unknown Creator';
 
             return (
               <div
                 key={sub.id}
                 className={`${commonStyles.tableRow} ${commonStyles.tableRowClickable} ${openMenu === sub.id ? commonStyles.tableRowActive : ''}`}
                 style={{ gridTemplateColumns: '2.5fr 1.5fr 1fr 1fr 1fr auto' }}
-                onClick={() => navigate({ to: '/admin/submissions/$submissionId', params: { submissionId: sub.id } })}
+                onClick={() =>
+                  navigate({
+                    to: '/admin/submissions/$submissionId',
+                    params: { submissionId: sub.id },
+                  })
+                }
               >
                 {/* Game */}
                 <div className={commonStyles.userCell}>
@@ -228,7 +247,10 @@ function AdminSubmissions() {
                 </div>
 
                 {/* Creator Name */}
-                <span className={commonStyles.monoText} style={{ color: '#eeeeee', fontWeight: 600 }}>
+                <span
+                  className={commonStyles.monoText}
+                  style={{ color: '#eeeeee', fontWeight: 600 }}
+                >
                   {creatorDisplayName}
                 </span>
 
@@ -236,7 +258,9 @@ function AdminSubmissions() {
                 <span className={commonStyles.monoText}>{sub.genre?.name || 'Action'}</span>
 
                 {/* Price */}
-                <span className={commonStyles.priceText}>{Number(sub.priceEgp || 0).toFixed(2)}</span>
+                <span className={commonStyles.priceText}>
+                  {Number(sub.priceEgp || 0).toFixed(2)}
+                </span>
 
                 {/* Status */}
                 <div>
@@ -245,7 +269,12 @@ function AdminSubmissions() {
 
                 {/* Actions */}
                 <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    position: 'relative',
+                  }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
@@ -263,7 +292,12 @@ function AdminSubmissions() {
                       <button
                         type="button"
                         className={commonStyles.dropdownMenuItem}
-                        onClick={() => navigate({ to: '/admin/submissions/$submissionId', params: { submissionId: sub.id } })}
+                        onClick={() =>
+                          navigate({
+                            to: '/admin/submissions/$submissionId',
+                            params: { submissionId: sub.id },
+                          })
+                        }
                       >
                         Review Submission
                       </button>
@@ -339,20 +373,51 @@ function AdminSubmissions() {
               position: 'relative',
             }}
           >
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: '#e74c3c' }} />
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                backgroundColor: '#e74c3c',
+              }}
+            />
 
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#eeeeee', fontFamily: "'Cinzel', serif", display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: '1.1rem',
+                  color: '#eeeeee',
+                  fontFamily: "'Cinzel', serif",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
                 <XCircle size={18} style={{ color: '#e74c3c' }} />
                 Reject Game Submission
               </h3>
               <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Provide feedback for <strong style={{ color: '#eeeeee' }}>{rejectingGame.title}</strong>. This feedback will be displayed directly on the creator&apos;s dashboard card.
+                Provide feedback for{' '}
+                <strong style={{ color: '#eeeeee' }}>{rejectingGame.title}</strong>. This feedback
+                will be displayed directly on the creator&apos;s dashboard card.
               </p>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c9aaa', marginBottom: '0.5rem' }}>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: '#8c9aaa',
+                  marginBottom: '0.5rem',
+                }}
+              >
                 Reason for Rejection (Visible to Creator)
               </label>
               <textarea

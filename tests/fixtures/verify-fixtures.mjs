@@ -8,7 +8,7 @@ const checks = [
   [
     process.env.CATALOG_DB_URL,
     'select count(*)::int as count from catalog.tags',
-    10,
+    15,
     'catalog tags',
   ],
   [

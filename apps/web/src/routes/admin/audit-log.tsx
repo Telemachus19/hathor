@@ -46,7 +46,7 @@ function getActionColor(action: string): string {
 function formatAuditDetailsSummary(details: any): string {
   if (!details) return '';
   if (typeof details === 'string') return details;
-  
+
   if (details.change) return String(details.change);
   if (details.name && details.slug) return `Name: "${details.name}" • Slug: /${details.slug}`;
   if (details.name) return `Name: "${details.name}"`;
@@ -57,7 +57,7 @@ function formatAuditDetailsSummary(details: any): string {
   const pairs = Object.entries(details)
     .filter(([_, v]) => v !== undefined && v !== null && typeof v !== 'object')
     .map(([k, v]) => `${k}: ${v}`);
-  
+
   return pairs.length > 0 ? pairs.join(' • ') : JSON.stringify(details);
 }
 
@@ -69,7 +69,9 @@ function AdminAuditLog() {
   const [tags, setTags] = useState<Tag[]>([]);
 
   const [search, setSearch] = useState('');
-  const [targetTypeFilter, setTargetTypeFilter] = useState<'all' | 'game' | 'user' | 'submission' | 'tag' | 'genre'>('all');
+  const [targetTypeFilter, setTargetTypeFilter] = useState<
+    'all' | 'game' | 'user' | 'submission' | 'tag' | 'genre'
+  >('all');
   const [selectedLog, setSelectedLog] = useState<CatalogAuditLog | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -150,18 +152,26 @@ function AdminAuditLog() {
 
     if (targetType === 'user' || action.includes('role') || action.includes('ban')) {
       const user = log.targetId ? userMap.get(log.targetId) : null;
-      const userName = user ? user.displayName || user.email : details?.email || details?.displayName;
-      return userName ? `USER: ${userName}` : `USER: ${log.targetId ? log.targetId.substring(0, 8) + '...' : 'Global'}`;
+      const userName = user
+        ? user.displayName || user.email
+        : details?.email || details?.displayName;
+      return userName
+        ? `USER: ${userName}`
+        : `USER: ${log.targetId ? log.targetId.substring(0, 8) + '...' : 'Global'}`;
     }
 
     if (targetType === 'submission') {
-      const title = details?.title || details?.gameTitle || (log.targetId ? gameMap.get(log.targetId) : null);
+      const title =
+        details?.title || details?.gameTitle || (log.targetId ? gameMap.get(log.targetId) : null);
       return title ? `SUBMISSION: ${title}` : `SUBMISSION: #${log.targetId || 'N/A'}`;
     }
 
     if (targetType === 'game') {
-      const title = details?.title || details?.gameTitle || (log.targetId ? gameMap.get(log.targetId) : null);
-      return title ? `GAME: ${title}` : `GAME: ${log.targetId ? log.targetId.substring(0, 8) + '...' : 'Global'}`;
+      const title =
+        details?.title || details?.gameTitle || (log.targetId ? gameMap.get(log.targetId) : null);
+      return title
+        ? `GAME: ${title}`
+        : `GAME: ${log.targetId ? log.targetId.substring(0, 8) + '...' : 'Global'}`;
     }
 
     return `${(log.targetType || 'ENTITY').toUpperCase()}: ${log.targetId ? log.targetId.substring(0, 8) + '...' : 'Global'}`;
@@ -278,7 +288,9 @@ function AdminAuditLog() {
           <div className={commonStyles.emptyState}>
             <ScrollText size={32} className={commonStyles.emptyIcon} />
             <p className={commonStyles.emptyTitle}>No audit events recorded</p>
-            <p className={commonStyles.emptyDesc}>Audit logs will populate as platform actions occur</p>
+            <p className={commonStyles.emptyDesc}>
+              Audit logs will populate as platform actions occur
+            </p>
           </div>
         ) : (
           filteredLogs.map((log) => {
@@ -326,11 +338,7 @@ function AdminAuditLog() {
                       <span className={styles.actionLabel}>{log.action}</span>
                     </div>
 
-                    {detailsSummary && (
-                      <p className={styles.auditNote}>
-                        {detailsSummary}
-                      </p>
-                    )}
+                    {detailsSummary && <p className={styles.auditNote}>{detailsSummary}</p>}
                   </div>
 
                   {/* Right Meta */}

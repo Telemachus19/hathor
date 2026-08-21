@@ -59,7 +59,9 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData?.error?.message || `Failed to download build (HTTP ${res.status})`);
+        throw new Error(
+          errorData?.error?.message || `Failed to download build (HTTP ${res.status})`
+        );
       }
 
       const blob = await res.blob();
@@ -86,9 +88,9 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
   const sysReqs = detailedGame?.systemRequirements || {};
   const minReq = sysReqs.minReq || sysReqs.minimum || {};
   const recReq = sysReqs.recReq || sysReqs.recommended || {};
-  const tags: string[] = (detailedGame?.tags || []).map((t: any) =>
-    typeof t === 'string' ? t : t?.name || t?.slug || ''
-  ).filter(Boolean);
+  const tags: string[] = (detailedGame?.tags || [])
+    .map((t: any) => (typeof t === 'string' ? t : t?.name || t?.slug || ''))
+    .filter(Boolean);
 
   const formatBytes = (bytes?: number) => {
     if (!bytes) return '—';
@@ -105,7 +107,7 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.topStripe} />
-        
+
         {/* Header */}
         <div className={styles.modalHeader} style={{ flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -123,8 +125,12 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
               <Gamepad2 size={20} style={{ color: 'var(--accent-orange)' }} />
             </div>
             <div>
-              <p className={styles.modalSubtitle} style={{ margin: 0 }}>Catalog Game Inspection</p>
-              <h3 className={styles.modalTitle} style={{ margin: 0, fontSize: '1.2rem' }}>{game.title}</h3>
+              <p className={styles.modalSubtitle} style={{ margin: 0 }}>
+                Catalog Game Inspection
+              </p>
+              <h3 className={styles.modalTitle} style={{ margin: 0, fontSize: '1.2rem' }}>
+                {game.title}
+              </h3>
             </div>
           </div>
           <button type="button" className={styles.closeBtn} onClick={onClose}>
@@ -133,7 +139,17 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
         </div>
 
         {/* Scrollable Body */}
-        <div className={styles.modalBody} style={{ overflowY: 'auto', flex: 1, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div
+          className={styles.modalBody}
+          style={{
+            overflowY: 'auto',
+            flex: 1,
+            padding: '1.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem',
+          }}
+        >
           {downloadToast && (
             <div
               style={{
@@ -174,12 +190,29 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--accent-orange)' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  color: 'var(--accent-orange)',
+                }}
+              >
                 <DollarSign size={14} />
-                <span style={{ fontWeight: 800, fontFamily: 'monospace' }}>EGP {detailedGame.priceEgp || game.priceEgp || '0.00'}</span>
+                <span style={{ fontWeight: 800, fontFamily: 'monospace' }}>
+                  EGP {detailedGame.priceEgp || game.priceEgp || '0.00'}
+                </span>
               </div>
               {creatorName && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#8c9aaa', fontSize: '0.75rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    color: '#8c9aaa',
+                    fontSize: '0.75rem',
+                  }}
+                >
                   <User size={13} />
                   <span>{creatorName}</span>
                 </div>
@@ -200,11 +233,35 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
               position: 'relative',
             }}
           >
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', backgroundColor: '#3b9eda' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '2px',
+                backgroundColor: '#3b9eda',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <HardDrive size={16} style={{ color: '#3b9eda' }} />
-                <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#eeeeee', fontFamily: "'Cinzel', serif" }}>
+                <h4
+                  style={{
+                    margin: 0,
+                    fontSize: '0.9rem',
+                    color: '#eeeeee',
+                    fontFamily: "'Cinzel', serif",
+                  }}
+                >
                   Game Build Package
                 </h4>
               </div>
@@ -244,15 +301,23 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
                   }}
                 >
                   <div>
-                    <span style={{ color: '#8c9aaa', display: 'block', fontSize: '0.65rem' }}>BUILD VERSION</span>
+                    <span style={{ color: '#8c9aaa', display: 'block', fontSize: '0.65rem' }}>
+                      BUILD VERSION
+                    </span>
                     <strong style={{ color: '#ffffff' }}>{activeBuild.version || 'v1.0.0'}</strong>
                   </div>
                   <div>
-                    <span style={{ color: '#8c9aaa', display: 'block', fontSize: '0.65rem' }}>PACKAGE SIZE</span>
-                    <strong style={{ color: '#ffffff' }}>{formatBytes(activeBuild.sizeBytes)}</strong>
+                    <span style={{ color: '#8c9aaa', display: 'block', fontSize: '0.65rem' }}>
+                      PACKAGE SIZE
+                    </span>
+                    <strong style={{ color: '#ffffff' }}>
+                      {formatBytes(activeBuild.sizeBytes)}
+                    </strong>
                   </div>
                   <div style={{ gridColumn: 'span 2' }}>
-                    <span style={{ color: '#8c9aaa', display: 'block', fontSize: '0.65rem' }}>SHA-256 CHECKSUM</span>
+                    <span style={{ color: '#8c9aaa', display: 'block', fontSize: '0.65rem' }}>
+                      SHA-256 CHECKSUM
+                    </span>
                     <span style={{ color: '#38d39f', fontSize: '0.65rem', wordBreak: 'break-all' }}>
                       {activeBuild.checksumSha256 || activeBuild.sha256 || 'Verified'}
                     </span>
@@ -280,45 +345,146 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
                       transition: 'all 0.15s ease',
                     }}
                   >
-                    {downloadLoading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+                    {downloadLoading ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <Download size={13} />
+                    )}
                     {downloadLoading ? 'Downloading...' : 'Download Game Build Package (.zip)'}
                   </button>
                 </div>
               </>
             ) : (
-              <div style={{ padding: '0.75rem', backgroundColor: '#0c0e14', border: '1px dashed #282d3b', color: '#8c9aaa', fontSize: '0.75rem', textAlign: 'center' }}>
+              <div
+                style={{
+                  padding: '0.75rem',
+                  backgroundColor: '#0c0e14',
+                  border: '1px dashed #282d3b',
+                  color: '#8c9aaa',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                }}
+              >
                 No binary package uploaded for this title.
               </div>
             )}
           </div>
 
           {/* System Requirements Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '1rem',
+            }}
+          >
             {/* Minimum Specs */}
-            <div style={{ padding: '1rem', backgroundColor: '#13161f', border: '1px solid #282d3b' }}>
-              <h5 style={{ margin: '0 0 0.75rem 0', fontSize: '0.75rem', color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
+            <div
+              style={{ padding: '1rem', backgroundColor: '#13161f', border: '1px solid #282d3b' }}
+            >
+              <h5
+                style={{
+                  margin: '0 0 0.75rem 0',
+                  fontSize: '0.75rem',
+                  color: '#f59e0b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontFamily: 'monospace',
+                }}
+              >
                 Minimum Requirements
               </h5>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.75rem' }}>
-                <div><span style={{ color: '#8c9aaa' }}>OS:</span> <span style={{ color: '#eeeeee' }}>{minReq.os || 'Windows 10 64-bit'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Processor:</span> <span style={{ color: '#eeeeee' }}>{minReq.processor || minReq.cpu || 'Intel Core i5-6600K / AMD Ryzen 5 1600'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Memory:</span> <span style={{ color: '#eeeeee' }}>{minReq.memory || minReq.ram || '8 GB RAM'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Graphics:</span> <span style={{ color: '#eeeeee' }}>{minReq.graphics || minReq.gpu || 'NVIDIA GTX 1060 6GB / AMD RX 580'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Storage:</span> <span style={{ color: '#eeeeee' }}>{minReq.storage || minReq.disk || '50 GB available space'}</span></div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.4rem',
+                  fontSize: '0.75rem',
+                }}
+              >
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>OS:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>{minReq.os || 'Windows 10 64-bit'}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Processor:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {minReq.processor || minReq.cpu || 'Intel Core i5-6600K / AMD Ryzen 5 1600'}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Memory:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {minReq.memory || minReq.ram || '8 GB RAM'}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Graphics:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {minReq.graphics || minReq.gpu || 'NVIDIA GTX 1060 6GB / AMD RX 580'}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Storage:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {minReq.storage || minReq.disk || '50 GB available space'}
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Recommended Specs */}
-            <div style={{ padding: '1rem', backgroundColor: '#13161f', border: '1px solid #282d3b' }}>
-              <h5 style={{ margin: '0 0 0.75rem 0', fontSize: '0.75rem', color: '#38d39f', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace' }}>
+            <div
+              style={{ padding: '1rem', backgroundColor: '#13161f', border: '1px solid #282d3b' }}
+            >
+              <h5
+                style={{
+                  margin: '0 0 0.75rem 0',
+                  fontSize: '0.75rem',
+                  color: '#38d39f',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontFamily: 'monospace',
+                }}
+              >
                 Recommended Requirements
               </h5>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.75rem' }}>
-                <div><span style={{ color: '#8c9aaa' }}>OS:</span> <span style={{ color: '#eeeeee' }}>{recReq.os || 'Windows 11 64-bit'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Processor:</span> <span style={{ color: '#eeeeee' }}>{recReq.processor || recReq.cpu || 'Intel Core i7-10700K / AMD Ryzen 7 5800X'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Memory:</span> <span style={{ color: '#eeeeee' }}>{recReq.memory || recReq.ram || '16 GB RAM'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Graphics:</span> <span style={{ color: '#eeeeee' }}>{recReq.graphics || recReq.gpu || 'NVIDIA RTX 3070 / AMD RX 6800 XT'}</span></div>
-                <div><span style={{ color: '#8c9aaa' }}>Storage:</span> <span style={{ color: '#eeeeee' }}>{recReq.storage || recReq.disk || '50 GB SSD space'}</span></div>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.4rem',
+                  fontSize: '0.75rem',
+                }}
+              >
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>OS:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>{recReq.os || 'Windows 11 64-bit'}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Processor:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {recReq.processor || recReq.cpu || 'Intel Core i7-10700K / AMD Ryzen 7 5800X'}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Memory:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {recReq.memory || recReq.ram || '16 GB RAM'}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Graphics:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {recReq.graphics || recReq.gpu || 'NVIDIA RTX 3070 / AMD RX 6800 XT'}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ color: '#8c9aaa' }}>Storage:</span>{' '}
+                  <span style={{ color: '#eeeeee' }}>
+                    {recReq.storage || recReq.disk || '50 GB SSD space'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -337,7 +503,10 @@ export function GameDetailModal({ game, onClose, creatorName }: GameDetailModalP
                   lineHeight: 1.6,
                 }}
               >
-                {detailedGame.fullDescription || detailedGame.shortDescription || game.shortDescription || 'No description provided.'}
+                {detailedGame.fullDescription ||
+                  detailedGame.shortDescription ||
+                  game.shortDescription ||
+                  'No description provided.'}
               </div>
             </div>
 

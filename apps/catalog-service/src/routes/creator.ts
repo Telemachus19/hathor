@@ -104,7 +104,9 @@ router.get(
       const items = await catalogDb.select().from(genres).orderBy(genres.name);
       return res.status(200).json(items);
     } catch (error) {
-      return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list genres' } });
+      return res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list genres' } });
     }
   }
 );
@@ -122,7 +124,9 @@ router.get(
       const items = await catalogDb.select().from(tags).orderBy(tags.name);
       return res.status(200).json(items);
     } catch (error) {
-      return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list tags' } });
+      return res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list tags' } });
     }
   }
 );
@@ -284,7 +288,10 @@ router.post(
         try {
           tagList = JSON.parse(tagList);
         } catch {
-          tagList = tagList.split(',').map((t: string) => t.trim()).filter(Boolean);
+          tagList = tagList
+            .split(',')
+            .map((t: string) => t.trim())
+            .filter(Boolean);
         }
       }
 
@@ -302,7 +309,10 @@ router.post(
         try {
           screenshots = JSON.parse(screenshots);
         } catch {
-          screenshots = screenshots.split(',').map((s: string) => s.trim()).filter(Boolean);
+          screenshots = screenshots
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter(Boolean);
         }
       }
 
@@ -355,9 +365,7 @@ router.post(
           const [foundTag] = await catalogDb
             .select()
             .from(tags)
-            .where(
-              sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`
-            )
+            .where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`)
             .limit(1);
           if (foundTag) {
             await catalogDb
@@ -374,11 +382,9 @@ router.post(
         req.file ||
         (Array.isArray(uploadedFiles)
           ? uploadedFiles.find(
-            (f) =>
-              f.fieldname === 'build' ||
-              f.fieldname === 'gameBuild' ||
-              f.fieldname === 'file'
-          ) || uploadedFiles[0]
+              (f) =>
+                f.fieldname === 'build' || f.fieldname === 'gameBuild' || f.fieldname === 'file'
+            ) || uploadedFiles[0]
           : undefined);
 
       let buildInfo = null;
@@ -543,7 +549,11 @@ router.get(
 
       let genreObj = null;
       if (game.genreId) {
-        const [g] = await catalogDb.select().from(genres).where(eq(genres.id, game.genreId)).limit(1);
+        const [g] = await catalogDb
+          .select()
+          .from(genres)
+          .where(eq(genres.id, game.genreId))
+          .limit(1);
         genreObj = g || null;
       }
 
@@ -610,7 +620,11 @@ router.get(
     } catch (error) {
       console.error('Error fetching creator game details:', error);
       return res.status(500).json({
-        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch game details', correlationId },
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch game details',
+          correlationId,
+        },
       });
     }
   }
@@ -651,7 +665,11 @@ router.put(
 
       if (game.creatorId !== callerId) {
         return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Not authorized to modify this game',
+            correlationId,
+          },
         });
       }
 
@@ -677,7 +695,10 @@ router.put(
         try {
           tagList = JSON.parse(tagList);
         } catch {
-          tagList = tagList.split(',').map((t: string) => t.trim()).filter(Boolean);
+          tagList = tagList
+            .split(',')
+            .map((t: string) => t.trim())
+            .filter(Boolean);
         }
       }
 
@@ -695,7 +716,10 @@ router.put(
         try {
           screenshots = JSON.parse(screenshots);
         } catch {
-          screenshots = screenshots.split(',').map((s: string) => s.trim()).filter(Boolean);
+          screenshots = screenshots
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter(Boolean);
         }
       }
 
@@ -722,7 +746,8 @@ router.put(
       if (discountPercent !== undefined) updatedFields.discountPercent = Number(discountPercent);
       if (resolvedGenreId !== undefined) updatedFields.genreId = resolvedGenreId;
       if (bannerUrl !== undefined) updatedFields.bannerUrl = bannerUrl || null;
-      if (screenshots !== undefined) updatedFields.screenshots = Array.isArray(screenshots) ? screenshots : [];
+      if (screenshots !== undefined)
+        updatedFields.screenshots = Array.isArray(screenshots) ? screenshots : [];
       if (trailerUrl !== undefined) updatedFields.trailerUrl = trailerUrl || null;
       if (systemRequirements !== undefined) {
         updatedFields.systemRequirements = systemRequirements || {};
@@ -745,9 +770,7 @@ router.put(
           const [foundTag] = await catalogDb
             .select()
             .from(tags)
-            .where(
-              sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`
-            )
+            .where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`)
             .limit(1);
           if (foundTag) {
             await catalogDb
@@ -764,11 +787,9 @@ router.put(
         req.file ||
         (Array.isArray(uploadedFiles)
           ? uploadedFiles.find(
-            (f) =>
-              f.fieldname === 'build' ||
-              f.fieldname === 'gameBuild' ||
-              f.fieldname === 'file'
-          ) || uploadedFiles[0]
+              (f) =>
+                f.fieldname === 'build' || f.fieldname === 'gameBuild' || f.fieldname === 'file'
+            ) || uploadedFiles[0]
           : undefined);
 
       let buildInfo = null;
@@ -839,7 +860,11 @@ router.post(
 
       if (game.creatorId !== callerId) {
         return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Not authorized to modify this game',
+            correlationId,
+          },
         });
       }
 
@@ -848,18 +873,17 @@ router.post(
         req.file ||
         (Array.isArray(uploadedFiles)
           ? uploadedFiles.find(
-            (f) =>
-              f.fieldname === 'build' ||
-              f.fieldname === 'gameBuild' ||
-              f.fieldname === 'file'
-          ) || uploadedFiles[0]
+              (f) =>
+                f.fieldname === 'build' || f.fieldname === 'gameBuild' || f.fieldname === 'file'
+            ) || uploadedFiles[0]
           : undefined);
 
       if (!buildFile || !buildFile.buffer) {
         return res.status(400).json({
           error: {
             code: 'VALIDATION_FAILED',
-            message: 'No build file uploaded. Please attach a compressed (.zip, .rar, etc.) package file.',
+            message:
+              'No build file uploaded. Please attach a compressed (.zip, .rar, etc.) package file.',
             correlationId,
           },
         });
@@ -877,7 +901,11 @@ router.post(
     } catch (error) {
       console.error('Error uploading game build package:', error);
       return res.status(500).json({
-        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to upload build package', correlationId },
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to upload build package',
+          correlationId,
+        },
       });
     }
   }
@@ -1066,7 +1094,11 @@ router.post(
 
       if (game.creatorId !== req.user!.id) {
         return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Not authorized to modify this game',
+            correlationId,
+          },
         });
       }
 
@@ -1075,21 +1107,21 @@ router.post(
         summary: `I've updated your theme to be more engaging and darker based on your request: "${prompt}". I adjusted the main colors and added a new hero section.`,
         patch: [
           {
-            op: "replace",
-            path: "/colorPalette/primary",
-            value: "#ff6b00"
+            op: 'replace',
+            path: '/colorPalette/primary',
+            value: '#ff6b00',
           },
           {
-            op: "replace",
-            path: "/colorPalette/background",
-            value: "#121212"
+            op: 'replace',
+            path: '/colorPalette/background',
+            value: '#121212',
           },
           {
-            op: "replace",
-            path: "/typography/headingFont",
-            value: "Inter, sans-serif"
-          }
-        ]
+            op: 'replace',
+            path: '/typography/headingFont',
+            value: 'Inter, sans-serif',
+          },
+        ],
       };
 
       return res.status(200).json(mockProposal);
@@ -1140,7 +1172,11 @@ router.get(
 
       if (game.creatorId !== req.user!.id) {
         return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Not authorized to view analytics for this game', correlationId },
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Not authorized to view analytics for this game',
+            correlationId,
+          },
         });
       }
 
@@ -1164,7 +1200,11 @@ router.get(
     } catch (error) {
       console.error('Error in GET /creator/games/:gameId/analytics:', error);
       return res.status(500).json({
-        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch analytics', correlationId },
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch analytics',
+          correlationId,
+        },
       });
     }
   }
@@ -1215,7 +1255,9 @@ router.get(
         try {
           const data = await getGameAnalytics(gameId, correlationId);
           totalOwners += data.totalOwners || 0;
-          totalRevenue += parseFloat(data.totalRevenueEgp || (data.grossRevenueEgp ? String(data.grossRevenueEgp) : '0'));
+          totalRevenue += parseFloat(
+            data.totalRevenueEgp || (data.grossRevenueEgp ? String(data.grossRevenueEgp) : '0')
+          );
           lifetimePurchases += data.lifetimePurchases || 0;
 
           if (Array.isArray(data.monthlyStats)) {
@@ -1227,10 +1269,23 @@ router.get(
               monthlyMap.set(k, curr);
             }
           }
-        } catch (err) { }
+        } catch (err) {}
       }
 
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
       const sortedMonthKeys = Array.from(monthlyMap.keys()).sort();
       let cumOwners = 0;
       const monthlyStats = sortedMonthKeys.map((key) => {
@@ -1255,7 +1310,11 @@ router.get(
         averageRating: 4.8,
         reviewCount: lifetimePurchases > 0 ? Math.max(1, Math.round(lifetimePurchases * 0.4)) : 0,
         lifetimePurchases,
-        monthlyPurchases: monthlyStats.map((m) => ({ year: m.year, month: m.monthIndex, amount: m.newOwners })),
+        monthlyPurchases: monthlyStats.map((m) => ({
+          year: m.year,
+          month: m.monthIndex,
+          amount: m.newOwners,
+        })),
         monthlyStats,
       });
     } catch (error) {

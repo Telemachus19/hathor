@@ -58,7 +58,8 @@ export function RemoveGameModal({ game, onClose, onConfirmRemove }: RemoveGameMo
           <div className={styles.warningBox}>
             <AlertTriangle size={16} style={{ color: '#e74c3c', flexShrink: 0, marginTop: 2 }} />
             <div>
-              Removing <strong style={{ color: '#ffffff' }}>{game.title}</strong> will immediately delist it from the store catalog. Existing owners will retain access in their library.
+              Removing <strong style={{ color: '#ffffff' }}>{game.title}</strong> will immediately
+              delist it from the store catalog. Existing owners will retain access in their library.
             </div>
           </div>
 

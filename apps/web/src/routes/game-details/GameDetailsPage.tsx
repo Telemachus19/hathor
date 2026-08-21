@@ -85,8 +85,7 @@ export function getGameDataForSlug(slug?: string) {
         author: 'PIXEL_WARRIOR',
         rating: 4,
         date: 'Last Month',
-        content:
-          'Stunning design and combat mechanics. Highly recommended for fans of the genre.',
+        content: 'Stunning design and combat mechanics. Highly recommended for fans of the genre.',
         avatar:
           'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=120&auto=format&fit=crop',
         likes: 89,
@@ -147,12 +146,12 @@ export interface GameDetailsPageProps {
   device?: 'desktop' | 'tablet' | 'mobile';
   isDesignerPreview?: boolean;
   themeConfig?:
-  | {
-    theme?: 'default' | 'custom';
-    layout?: Record<string, any>;
-  }
-  | Record<string, any>
-  | string;
+    | {
+        theme?: 'default' | 'custom';
+        layout?: Record<string, any>;
+      }
+    | Record<string, any>
+    | string;
 }
 
 /**
@@ -185,9 +184,11 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
 
   const formattedReleaseDate =
     gameData?.updatedAt || gameData?.createdAt
-      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(
-        new Date(gameData.updatedAt || gameData.createdAt!)
-      )
+      ? new Intl.DateTimeFormat('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }).format(new Date(gameData.updatedAt || gameData.createdAt!))
       : baseData.releaseDate;
 
   const gameCategory =
@@ -210,14 +211,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
   }
 
   const gameDeveloper =
-    (gameData as any)?.developer ||
-    (gameData as any)?.creatorName ||
-    baseData.developer;
+    (gameData as any)?.developer || (gameData as any)?.creatorName || baseData.developer;
 
-  const gamePublisher =
-    (gameData as any)?.publisher ||
-    gameDeveloper ||
-    baseData.publisher;
+  const gamePublisher = (gameData as any)?.publisher || gameDeveloper || baseData.publisher;
 
   const currentGameData = {
     ...baseData,
@@ -229,20 +225,23 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
     platforms: gamePlatforms,
     ...(gameData
       ? {
-        title: gameData.title || baseData.title,
-        priceEgp: gameData.priceEgp || baseData.priceEgp,
-        discountPercent:
-          gameData.discountPercent !== undefined
-            ? gameData.discountPercent
-            : baseData.discountPercent,
-        shortDescription: gameData.shortDescription || baseData.shortDescription,
-        fullDescription: gameData.fullDescription || baseData.fullDescription,
-        bannerUrl: gameData.bannerUrl || baseData.bannerUrl,
-        tags: gameData.tags?.length ? gameData.tags : baseData.tags,
-        heroImages: gameData.bannerUrl
-          ? [gameData.bannerUrl, ...baseData.heroImages.filter((img: string) => img !== gameData.bannerUrl)]
-          : baseData.heroImages,
-      }
+          title: gameData.title || baseData.title,
+          priceEgp: gameData.priceEgp || baseData.priceEgp,
+          discountPercent:
+            gameData.discountPercent !== undefined
+              ? gameData.discountPercent
+              : baseData.discountPercent,
+          shortDescription: gameData.shortDescription || baseData.shortDescription,
+          fullDescription: gameData.fullDescription || baseData.fullDescription,
+          bannerUrl: gameData.bannerUrl || baseData.bannerUrl,
+          tags: gameData.tags?.length ? gameData.tags : baseData.tags,
+          heroImages: gameData.bannerUrl
+            ? [
+                gameData.bannerUrl,
+                ...baseData.heroImages.filter((img: string) => img !== gameData.bannerUrl),
+              ]
+            : baseData.heroImages,
+        }
       : {}),
   };
 
@@ -290,9 +289,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
   const isMobileLayout = activeDevice === 'mobile' || activeDevice === 'tablet';
 
   const isDefaultTheme =
-    themeInfo.theme !== 'custom' ||
-    !themeInfo.sections ||
-    themeInfo.sections.length === 0;
+    themeInfo.theme !== 'custom' || !themeInfo.sections || themeInfo.sections.length === 0;
 
   const customAboutSections = themeInfo.layout?.gameAbout?.sections;
   const activeAboutSections =
@@ -322,12 +319,12 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
 
   const bgImageStyle = themeInfo.pageBody?.bgImage
     ? {
-      backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
-      backgroundSize: themeInfo.pageBody.bgSize || 'cover',
-      backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
-      backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
-      backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
-    }
+        backgroundImage: `url("${themeInfo.pageBody.bgImage}")`,
+        backgroundSize: themeInfo.pageBody.bgSize || 'cover',
+        backgroundPosition: themeInfo.pageBody.bgPosition || 'center center',
+        backgroundRepeat: themeInfo.pageBody.bgRepeat || 'no-repeat',
+        backgroundAttachment: themeInfo.pageBody.bgAttachment || 'fixed',
+      }
     : {};
 
   return (
