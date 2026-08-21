@@ -1,6 +1,12 @@
 /* ===== Top Navbar (Black Background) ===== */
+.navbarWrapper {
+  width: 100%;
+  position: relative;
+  z-index: 100;
+}
+
 .navbarTopWrapper {
-  background-color: var(--bg-topbar);
+  background-color: var(--bg-topbar, #0e1116);
   border-bottom: 1px solid rgba(53, 60, 77, 0.4);
   width: 100%;
 }
@@ -9,7 +15,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: var(--container-max-width);
+  max-width: var(--container-max-width, 1300px);
   margin: 0 auto;
   padding: 0.75rem 1.5rem;
   box-sizing: border-box;
@@ -32,10 +38,10 @@
 }
 
 .logoText {
-  font-family: var(--font-logo);
+  font-family: var(--font-logo, 'Cinzel', serif);
   font-size: 1.375rem;
   font-weight: 700;
-  color: var(--accent-orange);
+  color: var(--accent-orange, #f26b21);
   letter-spacing: 0.12em;
 }
 
@@ -45,9 +51,9 @@
 }
 
 .navLink {
-  color: var(--text-muted);
+  color: var(--text-muted, #8e98a8);
   text-decoration: none;
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -57,7 +63,7 @@
 
 .navLink:hover,
 .navLinkActive {
-  color: var(--text-white);
+  color: var(--text-white, #ffffff);
 }
 
 .navActions {
@@ -69,7 +75,7 @@
 .iconBtn {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--text-muted, #8e98a8);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -78,36 +84,118 @@
 }
 
 .iconBtn:hover {
-  color: var(--text-white);
+  color: var(--text-white, #ffffff);
 }
 
 .loginBtn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--accent-orange);
+  border: 1px solid var(--accent-orange, #f26b21);
   padding: 0.4rem 1.1rem;
   border-radius: 3px;
-  color: var(--accent-orange);
+  color: var(--accent-orange, #f26b21);
   background: transparent;
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .loginBtn:hover {
-  background-color: var(--accent-orange);
+  background-color: var(--accent-orange, #f26b21);
+  color: #0e1116;
+}
+
+.mobileActions {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobileMenuToggle {
+  background: none;
+  border: none;
+  color: var(--text-white, #ffffff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 4px;
+}
+
+.mobileMenuToggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mobileDrawer {
+  display: none;
+  background-color: var(--bg-topbar, #0e1116);
+  border-bottom: 1px solid var(--border-color, rgba(53, 60, 77, 0.4));
+  padding: 1.25rem 1.5rem;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mobileNavLink {
+  color: var(--text-white, #ffffff);
+  text-decoration: none;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mobileNavActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.mobileLoginBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--accent-orange, #f26b21);
+  padding: 0.65rem 1rem;
+  border-radius: 4px;
+  color: var(--accent-orange, #f26b21);
+  background: transparent;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mobileLoginBtn:hover {
+  background-color: var(--accent-orange, #f26b21);
   color: #0e1116;
 }
 
 /* ===== Bottom Sub-Navbar (Slate Blue Background) ===== */
 .navbarBottomWrapper {
-  background-color: var(--bg-subbar);
-  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-subbar, #141822);
+  border-bottom: 1px solid var(--border-color, rgba(53, 60, 77, 0.4));
   width: 100%;
 }
 
@@ -115,10 +203,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: var(--container-max-width);
+  max-width: var(--container-max-width, 1300px);
   margin: 0 auto;
   padding: 0.5rem 1.5rem;
   box-sizing: border-box;
+}
+
+.filtersScroll {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
 }
 
 .filters {
@@ -131,19 +225,20 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: var(--text-muted);
+  color: var(--text-muted, #8e98a8);
   text-decoration: none;
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .filterLink:hover,
 .filterLinkActive {
-  color: var(--accent-orange);
+  color: var(--accent-orange, #f26b21);
 }
 
 .searchWrap {
@@ -158,7 +253,7 @@
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-subtle);
+  color: var(--text-subtle, #576275);
   display: flex;
   align-items: center;
   pointer-events: none;
@@ -166,39 +261,97 @@
 
 .searchInput {
   width: 100%;
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-color);
+  background-color: var(--bg-input, #0e1116);
+  border: 1px solid var(--border-color, rgba(53, 60, 77, 0.4));
   border-radius: 3px;
   padding: 0.4rem 1rem 0.4rem 2.25rem;
-  color: var(--text-white);
-  font-family: var(--font-body);
+  color: var(--text-white, #ffffff);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.75rem;
   transition: border-color 0.2s ease;
+  box-sizing: border-box;
 }
 
 .searchInput::placeholder {
-  color: var(--text-subtle);
+  color: var(--text-subtle, #576275);
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--accent-orange);
+  border-color: var(--accent-orange, #f26b21);
 }
 
 .wishlistLink {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: var(--text-muted);
+  color: var(--text-muted, #8e98a8);
   text-decoration: none;
-  font-family: var(--font-body);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .wishlistLink:hover {
-  color: var(--accent-orange);
+  color: var(--accent-orange, #f26b21);
+}
+
+/* ===== Responsive Breakpoints ===== */
+@media (max-width: 860px) {
+  .navbarTop {
+    padding: 0.75rem 1rem;
+  }
+
+  .navLinks {
+    display: none;
+  }
+
+  .navActions {
+    display: none;
+  }
+
+  .mobileActions {
+    display: flex;
+  }
+
+  .mobileDrawer {
+    display: flex;
+  }
+
+  .navbarBottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.65rem 1rem;
+  }
+
+  .searchWrap {
+    max-width: 100%;
+    margin: 0;
+    width: 100%;
+  }
+
+  .filtersScroll {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 2px 0 4px 0;
+    gap: 1.25rem;
+  }
+
+  .filtersScroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filters {
+    gap: 1.25rem;
+  }
 }

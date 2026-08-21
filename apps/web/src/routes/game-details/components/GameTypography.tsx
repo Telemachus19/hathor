@@ -9,6 +9,11 @@ export const HeadingRenderer: React.FC<{ s?: any; device?: string; pageSettings?
   device,
   pageSettings,
 }) => {
+  const bg = s.headingBg || s.bg || 'transparent';
+  const hasBg = bg && bg !== 'transparent';
+  const padding = s.headingPadding !== undefined ? `${s.headingPadding}px` : (hasBg ? '8px 12px' : undefined);
+  const radius = s.headingRadius ?? (hasBg ? 4 : 0);
+
   return (
     <h3
       style={{
@@ -16,6 +21,9 @@ export const HeadingRenderer: React.FC<{ s?: any; device?: string; pageSettings?
         fontSize: device === 'mobile' ? Math.min(s.size || 24, 20) : s.size || 24,
         fontWeight: s.weight || '700',
         color: s.color || '#ffffff',
+        backgroundColor: bg,
+        padding,
+        borderRadius: radius,
         textAlign: s.align || 'left',
         letterSpacing: s.letterSpacing || '0.04em',
         textTransform: s.textTransform || 'uppercase',
@@ -34,6 +42,11 @@ export const TextRenderer: React.FC<{ s?: any; device?: string; pageSettings?: a
   device,
   pageSettings,
 }) => {
+  const bg = s.textBg || s.bg || 'transparent';
+  const hasBg = bg && bg !== 'transparent';
+  const padding = s.textPadding !== undefined ? `${s.textPadding}px` : (hasBg ? '12px' : undefined);
+  const radius = s.textRadius ?? (hasBg ? 4 : 0);
+
   return (
     <div
       style={{
@@ -41,6 +54,10 @@ export const TextRenderer: React.FC<{ s?: any; device?: string; pageSettings?: a
         margin: '0 auto',
         width: '100%',
         boxSizing: 'border-box',
+        backgroundColor: bg,
+        padding,
+        borderRadius: radius,
+        border: s.textBorder || 'none',
       }}
     >
       <p
@@ -52,7 +69,7 @@ export const TextRenderer: React.FC<{ s?: any; device?: string; pageSettings?: a
           textAlign: s.textAlign || s.align || 'left',
           lineHeight: s.textLineHeight || s.lineHeight || 1.65,
           whiteSpace: 'pre-wrap',
-          margin: '0 0 12px 0',
+          margin: 0,
           wordBreak: 'break-word',
         }}
       >

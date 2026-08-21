@@ -277,6 +277,9 @@ function ComponentNodeContent({
         reviews={gd.userReviews}
         device={device}
         pageSettings={pageSettings}
+        isOwned={pageSettings?.isOwned}
+        isAuthenticated={pageSettings?.isAuthenticated}
+        isDesignerPreview={pageSettings?.isDesignerPreview}
       />
     );
   }

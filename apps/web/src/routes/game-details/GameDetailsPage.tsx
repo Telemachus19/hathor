@@ -72,7 +72,7 @@ export function getGameDataForSlug(slug?: string) {
       {
         id: 'rev-1',
         author: 'CYBER_RUNNER',
-        rating: 5,
+        sentiment: 'positive',
         date: 'Recent',
         content:
           'Absolute masterpiece. The visuals and atmosphere set a new benchmark in gaming excellence.',
@@ -83,20 +83,38 @@ export function getGameDataForSlug(slug?: string) {
       {
         id: 'rev-2',
         author: 'PIXEL_WARRIOR',
-        rating: 4,
+        sentiment: 'positive',
         date: 'Last Month',
         content: 'Stunning design and combat mechanics. Highly recommended for fans of the genre.',
         avatar:
           'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=120&auto=format&fit=crop',
         likes: 89,
       },
+      {
+        id: 'rev-3',
+        author: 'SHADOW_BLADE',
+        sentiment: 'mixed',
+        date: '2 months ago',
+        content: 'Solid gameplay, though boss difficulty spikes significantly in late game areas.',
+        avatar:
+          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=120&auto=format&fit=crop',
+        likes: 45,
+      },
+      {
+        id: 'rev-4',
+        author: 'NEO_TACTICIAN',
+        sentiment: 'mixed',
+        date: '3 months ago',
+        content: 'Great storyline and art direction, but needs performance optimization on older rigs.',
+        avatar:
+          'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=120&auto=format&fit=crop',
+        likes: 31,
+      },
     ],
     ratingsBreakdown: [
-      { stars: 5, percent: 78 },
-      { stars: 4, percent: 14 },
-      { stars: 3, percent: 5 },
-      { stars: 2, percent: 2 },
-      { stars: 1, percent: 1 },
+      { sentiment: 'positive' as const, label: 'Positive', percent: 78 },
+      { sentiment: 'mixed' as const, label: 'Mixed', percent: 14 },
+      { sentiment: 'negative' as const, label: 'Negative', percent: 8 },
     ],
     communityStats: {
       playersCount: '14,892',
@@ -395,6 +413,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                 reviews={currentGameData.userReviews}
                 device={activeDevice}
                 pageSettings={themeInfo.pageBody}
+                isOwned={Boolean(isOwned)}
+                isAuthenticated={isAuthenticated}
+                isDesignerPreview={isDesignerPreview}
               />
             </div>
             <div className={styles.sidebarColumn}>

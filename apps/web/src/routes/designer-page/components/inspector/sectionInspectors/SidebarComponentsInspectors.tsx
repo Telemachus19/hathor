@@ -152,6 +152,15 @@ export function SidebarCtaInspector({
           </PropRow>
         </>
       )}
+      <PropRow label="Button Border Radius">
+        <NumField
+          value={targetObj.ctaBtnRadius ?? 3}
+          onChange={(v) => updateTarget({ ctaBtnRadius: v })}
+          unit="px"
+          min={0}
+          max={24}
+        />
+      </PropRow>
       <PropRow label="Top Accent Line Color">
         <ColorField
           value={targetObj.sideAccentColor || HATHOR_ORANGE}
@@ -244,7 +253,7 @@ export function SidebarRatingsInspector({
           onChange={(v) => updateTarget({ ratingsTitleColor: v })}
         />
       </PropRow>
-      <PropRow label="Stars Label Color">
+      <PropRow label="Ratings Label Color">
         <ColorField
           value={targetObj.ratingsLabelColor || TEXT_MUTED}
           onChange={(v) => updateTarget({ ratingsLabelColor: v })}

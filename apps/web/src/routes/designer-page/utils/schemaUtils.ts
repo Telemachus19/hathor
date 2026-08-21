@@ -284,6 +284,8 @@ function getComponentStyles(s: any): Record<string, any> {
       fontSize: `${s.textSize || s.size || 14}px`,
       fontWeight: s.textWeight || s.weight || '400',
       color: s.textColor || s.color || TEXT_MUTED,
+      background: s.textBg || s.headingBg || s.bg || 'transparent',
+      borderRadius: `${s.textRadius ?? s.headingRadius ?? 0}px`,
       textAlign: s.textAlign || s.align || 'left',
     };
   } else if (s.type === 'button') {

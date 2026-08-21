@@ -667,6 +667,18 @@ export function UserReviewsInspector({
           placeholder="PLAYER REVIEWS"
         />
       </PropRow>
+      <PropRow label="Section Header Color">
+        <ColorField
+          value={
+            targetObj.reviewHeaderColor ||
+            targetObj.reviewTitleColor ||
+            '#f4b183'
+          }
+          onChange={(v) =>
+            updateTarget({ reviewHeaderColor: v, reviewTitleColor: v })
+          }
+        />
+      </PropRow>
       <PropRow label="Card Background / Free Gradient">
         <ColorField
           value={targetObj.reviewCardBg || SURFACE}
@@ -721,10 +733,19 @@ export function UserReviewsInspector({
           options={FONTS}
         />
       </PropRow>
-      <PropRow label="Star Accent Color">
+      <PropRow label="Sentiment Accent Color">
         <ColorField
-          value={targetObj.reviewStarColor || HATHOR_ORANGE}
-          onChange={(v) => updateTarget({ reviewStarColor: v })}
+          value={
+            targetObj.reviewBadgeColor ||
+            targetObj.reviewAccentColor ||
+            GREEN_ACCENT
+          }
+          onChange={(v) =>
+            updateTarget({
+              reviewBadgeColor: v,
+              reviewAccentColor: v,
+            })
+          }
         />
       </PropRow>
     </PropSection>

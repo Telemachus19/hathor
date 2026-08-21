@@ -295,6 +295,8 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({
         <div
           style={{
             maxWidth: 1280,
+            width: '100%',
+            boxSizing: 'border-box',
             margin: device === 'mobile' ? '-1.5rem auto 0' : '-3rem auto 0',
             position: 'relative',
             zIndex: 5,
@@ -307,6 +309,8 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({
               gap: device === 'mobile' ? 8 : 16,
               overflowX: 'auto',
               paddingBottom: device === 'mobile' ? 8 : 12,
+              width: '100%',
+              boxSizing: 'border-box',
             }}
           >
             {mediaItems.map((item: any, idx: number) => {

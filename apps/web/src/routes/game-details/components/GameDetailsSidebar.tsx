@@ -1,8 +1,18 @@
 import React from 'react';
-import { ShoppingCart, Download, Library, Loader2, AlertTriangle } from 'lucide-react';
+import {
+  ShoppingCart,
+  Download,
+  Library,
+  Loader2,
+  AlertTriangle,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
+} from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useAddCartItem } from '../../../services/api/commerce';
 import { useDownload } from '../../../context/DownloadContext';
+import { getHarmonizedSentimentPalette } from '../../../utils/sentimentColors';
 
 export interface GameDetailsSidebarProps {
   s?: any;
@@ -20,7 +30,13 @@ export interface GameDetailsSidebarProps {
   releaseDate?: string;
   genre?: string;
   platforms?: string[];
-  ratingsBreakdown?: Array<{ stars: number; percent: number; pct?: number }>;
+  ratingsBreakdown?: Array<{
+    sentiment?: 'positive' | 'mixed' | 'negative';
+    label?: string;
+    percent?: number;
+    pct?: number;
+    stars?: number;
+  }>;
   communityStats?: { playersCount: string; positiveRatingPct: string };
   device?: 'desktop' | 'tablet' | 'mobile';
   pageSettings?: any;
@@ -425,23 +441,32 @@ export const GameSidebarInfo: React.FC<GameDetailsSidebarProps> = (props) => {
 
 export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => {
   const s = props.s || {};
-  const ratings = s.sideRatings ||
-    props.ratingsBreakdown || [
-      { stars: 5, percent: 82 },
-      { stars: 4, percent: 12 },
-      { stars: 3, percent: 4 },
-      { stars: 2, percent: 1 },
-      { stars: 1, percent: 1 },
-    ];
+  const rawRatings = s.sideRatings || props.ratingsBreakdown;
+
+  const defaultRatings = [
+    { sentiment: 'positive', label: 'Positive', percent: 78 },
+    { sentiment: 'mixed', label: 'Mixed', percent: 14 },
+    { sentiment: 'negative', label: 'Negative', percent: 8 },
+  ];
+
+  const ratings =
+    Array.isArray(rawRatings) && rawRatings.length > 0
+      ? rawRatings[0]?.sentiment || rawRatings[0]?.label
+        ? rawRatings
+        : defaultRatings
+      : defaultRatings;
 
   const cardBg = s.ratingsCardBg || SURFACE;
   const cardBorder = s.ratingsCardBorder || BORDER;
   const titleFont = s.ratingsTitleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
   const titleColor = s.ratingsTitleColor || HATHOR_ORANGE;
-  const fillColor = s.ratingsFillColor || HATHOR_ORANGE;
   const labelColor = s.ratingsLabelColor || TEXT_MUTED;
   const valueColor = s.ratingsValueColor || s.ratingsTextColor || TEXT_MUTED;
   const isMobile = props.device === 'mobile';
+
+  const sentimentPalette = getHarmonizedSentimentPalette(
+    s.ratingsFillColor || s.ratingsAccentColor
+  );
 
   return (
     <div
@@ -469,13 +494,43 @@ export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => 
       >
         {s.ratingsTitle || 'RATING BREAKDOWN'}
       </h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {ratings.map((r: any, idx: number) => {
           const pct = r.percent ?? r.pct ?? 0;
+          const sentiment = r.sentiment || (r.label ? r.label.toLowerCase() : 'positive');
+
+          const sentimentStyle =
+            sentiment === 'negative'
+              ? sentimentPalette.negative
+              : sentiment === 'mixed'
+                ? sentimentPalette.mixed
+                : sentimentPalette.positive;
+
+          const icon =
+            sentiment === 'negative' ? (
+              <ThumbsDown size={12} color={sentimentStyle.color} />
+            ) : sentiment === 'mixed' ? (
+              <Minus size={12} color={sentimentStyle.color} />
+            ) : (
+              <ThumbsUp size={12} color={sentimentStyle.color} />
+            );
+
+          const label = r.label || (sentiment.charAt(0).toUpperCase() + sentiment.slice(1));
+
           return (
             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11 }}>
-              <span style={{ width: 40, fontFamily: 'monospace', color: labelColor }}>
-                {r.stars} Stars
+              <span
+                style={{
+                  width: 80,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontFamily: 'monospace',
+                  color: labelColor,
+                }}
+              >
+                {icon}
+                {label}
               </span>
               <div
                 style={{
@@ -486,11 +541,17 @@ export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => 
                   overflow: 'hidden',
                 }}
               >
-                <div style={{ width: `${pct}%`, height: '100%', background: fillColor }} />
+                <div
+                  style={{
+                    width: `${pct}%`,
+                    height: '100%',
+                    background: s.ratingsFillColor || sentimentStyle.barColor,
+                  }}
+                />
               </div>
               <span
                 style={{
-                  width: 30,
+                  width: 35,
                   textAlign: 'right',
                   fontFamily: 'monospace',
                   color: valueColor,

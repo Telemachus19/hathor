@@ -126,3 +126,37 @@ export const auditLogs = catalogSchema.table(
     actorIdx: index('idx_catalog_audit_actor').on(table.actorId),
   })
 );
+
+export const reviews = catalogSchema.table(
+  'reviews',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id').notNull(),
+    sentiment: varchar('sentiment', { length: 20 }).notNull(), // 'positive' | 'mixed' | 'negative'
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index('idx_reviews_user_id').on(table.userId),
+    sentimentIdx: index('idx_reviews_sentiment').on(table.sentiment),
+  })
+);
+
+export const gameReviews = catalogSchema.table(
+  'game_reviews',
+  {
+    gameId: uuid('game_id')
+      .notNull()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    reviewId: uuid('review_id')
+      .notNull()
+      .references(() => reviews.id, { onDelete: 'cascade' }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.gameId, table.reviewId] }),
+    gameIdIdx: index('idx_game_reviews_game_id').on(table.gameId),
+    reviewIdIdx: index('idx_game_reviews_review_id').on(table.reviewId),
+  })
+);
+

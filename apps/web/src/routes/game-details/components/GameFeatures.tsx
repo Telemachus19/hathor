@@ -23,6 +23,16 @@ export const GameFeatures: React.FC<GameFeaturesProps> = ({
     { icon: '⚡', title: 'FEATURE THREE', desc: 'Describe a third feature.', color: HATHOR_ORANGE },
   ];
   const cols = device === 'mobile' ? 1 : device === 'tablet' ? 2 : s.featuresCols || 3;
+  const isMobile = device === 'mobile';
+  const isTablet = device === 'tablet';
+
+  const gridColsCss =
+    isMobile
+      ? '1fr'
+      : isTablet
+        ? 'repeat(2, 1fr)'
+        : `repeat(${cols}, 1fr)`;
+
   const titleFont = s.font || s.titleFont || pageSettings?.titleFont || "'Cinzel', serif";
   const textFont = s.textFont || pageSettings?.textFont || "'Raleway', sans-serif";
 
@@ -52,11 +62,25 @@ export const GameFeatures: React.FC<GameFeaturesProps> = ({
         paddingRight: pr,
       }}
     >
+      <style>{`
+        @media (max-width: 640px) {
+          .hathor-features-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+        }
+        @media (min-width: 641px) and (max-width: 960px) {
+          .hathor-features-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+      `}</style>
+
       {s.featuresTitle && (
         <h2
           style={{
             fontFamily: titleFont,
-            fontSize: device === 'mobile' ? 14 : 16,
+            fontSize: isMobile ? 14 : 16,
             fontWeight: 900,
             color: titleColor,
             letterSpacing: '0.1em',
@@ -68,9 +92,10 @@ export const GameFeatures: React.FC<GameFeaturesProps> = ({
         </h2>
       )}
       <div
+        className="hathor-features-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gridTemplateColumns: gridColsCss,
           gap: 16,
           width: '100%',
           boxSizing: 'border-box',
@@ -83,15 +108,17 @@ export const GameFeatures: React.FC<GameFeaturesProps> = ({
               background: cardBg,
               border: `1px solid ${cardBorder}`,
               borderRadius: cardRadius,
-              padding: 16,
+              padding: isMobile ? 14 : 18,
               boxSizing: 'border-box',
             }}
           >
-            <div style={{ fontSize: 24, marginBottom: 8 }}>{item.icon || '⚔️'}</div>
+            <div style={{ fontSize: isMobile ? 22 : 26, marginBottom: 8 }}>
+              {item.icon || '⚔️'}
+            </div>
             <h4
               style={{
                 fontFamily: titleFont,
-                fontSize: 14,
+                fontSize: isMobile ? 13 : 14,
                 color: itemTitleColor,
                 margin: '0 0 6px 0',
               }}

@@ -2,7 +2,7 @@
   background-color: var(--bg-darkest, #07080b);
   border-top: 1px solid var(--border-color, rgba(53, 60, 77, 0.4));
   width: 100%;
-  padding: 2rem 0;
+  padding: 2.5rem 0;
   margin-top: 4rem;
 }
 
@@ -13,6 +13,7 @@
   max-width: var(--container-max-width, 1300px);
   margin: 0 auto;
   padding: 0 1.5rem;
+  box-sizing: border-box;
 }
 
 .logoArea {
@@ -42,6 +43,7 @@
 .links {
   display: flex;
   gap: 2.5rem;
+  align-items: center;
 }
 
 .link {
@@ -63,4 +65,29 @@
   color: var(--text-subtle, #576275);
   font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 0.6875rem;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 2rem 0;
+    margin-top: 2.5rem;
+  }
+
+  .inner {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  .links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .copy {
+    text-align: center;
+    font-size: 0.625rem;
+  }
 }

@@ -195,6 +195,8 @@ export interface Section {
   valueColor?: string;
   // User Reviews props & styling
   reviewHeader?: string;
+  reviewHeaderColor?: string;
+  reviewTitleColor?: string;
   reviewCardBg?: string;
   reviewCardBorder?: string;
   reviewCardRadius?: number;
@@ -203,6 +205,7 @@ export interface Section {
   reviewBodyColor?: string;
   reviewBodyFont?: string;
   reviewStarColor?: string;
+  reviewAccentColor?: string;
   reviewBadgeBg?: string;
   reviewBadgeColor?: string;
   // Sidebar CTA
@@ -310,15 +313,22 @@ export interface Section {
   cardBg?: string;
   cardBorder?: string;
   cardRadius?: number;
-  // Text
+  // Text & Heading styling
   textContent?: string;
   textFont?: string;
   textSize?: number;
   textWeight?: string;
   textColor?: string;
+  textBg?: string;
+  textPadding?: number;
+  textRadius?: number;
+  textBorder?: string;
   textAlign?: string;
   textLineHeight?: number;
   textMaxWidth?: number;
+  headingBg?: string;
+  headingPadding?: number;
+  headingRadius?: number;
   // Media Items
   mediaItems?: any[];
   // Carousel
