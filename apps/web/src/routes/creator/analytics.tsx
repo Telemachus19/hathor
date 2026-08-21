@@ -154,20 +154,19 @@ function CreatorAnalytics() {
   const analytics = effectiveId ? analyticsMap[effectiveId] : null;
 
   const totalOwners = analytics?.totalOwners || 0;
-  const totalRevenue = analytics?.grossRevenueEgp || 0;
+  const totalRevenue = Number(analytics?.grossRevenueEgp || analytics?.totalRevenueEgp || 0);
   const reviewCount = analytics?.reviewCount || 0;
   const avgRating = analytics?.averageRating || 0;
   const revPerOwner = totalOwners > 0 ? totalRevenue / totalOwners : 0;
-
-  // Monthly points mock fallback or aggregated history
-  const monthlyData = [
-    { month: 'Jan', newOwners: Math.round(totalOwners * 0.15), revenue: totalRevenue * 0.15, cumOwners: Math.round(totalOwners * 0.15) },
-    { month: 'Feb', newOwners: Math.round(totalOwners * 0.20), revenue: totalRevenue * 0.20, cumOwners: Math.round(totalOwners * 0.35) },
-    { month: 'Mar', newOwners: Math.round(totalOwners * 0.25), revenue: totalRevenue * 0.25, cumOwners: Math.round(totalOwners * 0.60) },
-    { month: 'Apr', newOwners: Math.round(totalOwners * 0.18), revenue: totalRevenue * 0.18, cumOwners: Math.round(totalOwners * 0.78) },
-    { month: 'May', newOwners: Math.round(totalOwners * 0.12), revenue: totalRevenue * 0.12, cumOwners: Math.round(totalOwners * 0.90) },
-    { month: 'Jun', newOwners: Math.round(totalOwners * 0.10), revenue: totalRevenue * 0.10, cumOwners: totalOwners },
-  ];
+  const ALL_12_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const rawMonthlyStats: any[] = analytics?.monthlyStats || [];
+  const monthlyData =
+    rawMonthlyStats.length === 12
+      ? rawMonthlyStats
+      : ALL_12_MONTHS.map((m) => {
+          const found = rawMonthlyStats.find((s) => s.month === m);
+          return found || { month: m, newOwners: 0, revenue: 0, cumOwners: 0 };
+        });
 
   const gameIndex = games.findIndex((g) => g.id === effectiveId);
   const accent = ACCENTS[Math.max(0, gameIndex) % ACCENTS.length];
@@ -279,6 +278,7 @@ function CreatorAnalytics() {
                   tickLine={false}
                 />
                 <YAxis
+                  allowDecimals={false}
                   tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
                   axisLine={false}
                   tickLine={false}
@@ -315,6 +315,7 @@ function CreatorAnalytics() {
                   tickLine={false}
                 />
                 <YAxis
+                  allowDecimals={false}
                   tick={{ fill: '#8c9aaa', fontSize: 9, fontFamily: 'monospace' }}
                   axisLine={false}
                   tickLine={false}

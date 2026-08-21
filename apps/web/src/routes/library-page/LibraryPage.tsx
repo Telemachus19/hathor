@@ -26,7 +26,7 @@ export const LibraryPage: React.FC = () => {
   // Live queries
   const { data: libraryLicenses, isLoading: isLibraryLoading } = useUserLibrary();
   const { data: pendingOrders, isLoading: isOrdersLoading } = useUserOrders('payment_pending');
-  const { data: catalogData, isLoading: isCatalogLoading } = useCatalogGames({ limit: 50 });
+  const { data: catalogData, isLoading: isCatalogLoading } = useCatalogGames({ limit: 100 });
 
   const catalogGames = catalogData?.data?.items || [];
   const licenses = libraryLicenses || [];
@@ -54,6 +54,7 @@ export const LibraryPage: React.FC = () => {
 
     return {
       id: lic.gameId,
+      slug: catalogGame?.slug || lic.gameId,
       title: catalogGame?.title || `Game ${lic.gameId.slice(0, 8)}`,
       genre: (catalogGame as any)?.genre || tagsList[0] || 'Action / Strategy',
       developer: (catalogGame as any)?.developer || 'Hathor Studios',
@@ -87,6 +88,7 @@ export const LibraryPage: React.FC = () => {
 
       return {
         id: item.gameId,
+        slug: catalogGame?.slug || item.gameId,
         title: item.titleSnapshot || catalogGame?.title || `Order ${order.id.slice(0, 8)}`,
         genre: (catalogGame as any)?.genre || tagsList[0] || 'Action / Strategy',
         developer: (catalogGame as any)?.developer || 'Hathor Studios',

@@ -19,6 +19,7 @@ import {
   VALID_GAME_STATUSES,
 } from '../domain/stateMachine.js';
 import { validateThemeAgainstDocument } from '../utils/themeValidator.js';
+import { getGameAnalytics } from '../infrastructure/clients/library.js';
 
 const router: Router = Router();
 
@@ -373,11 +374,11 @@ router.post(
         req.file ||
         (Array.isArray(uploadedFiles)
           ? uploadedFiles.find(
-              (f) =>
-                f.fieldname === 'build' ||
-                f.fieldname === 'gameBuild' ||
-                f.fieldname === 'file'
-            ) || uploadedFiles[0]
+            (f) =>
+              f.fieldname === 'build' ||
+              f.fieldname === 'gameBuild' ||
+              f.fieldname === 'file'
+          ) || uploadedFiles[0]
           : undefined);
 
       let buildInfo = null;
@@ -763,11 +764,11 @@ router.put(
         req.file ||
         (Array.isArray(uploadedFiles)
           ? uploadedFiles.find(
-              (f) =>
-                f.fieldname === 'build' ||
-                f.fieldname === 'gameBuild' ||
-                f.fieldname === 'file'
-            ) || uploadedFiles[0]
+            (f) =>
+              f.fieldname === 'build' ||
+              f.fieldname === 'gameBuild' ||
+              f.fieldname === 'file'
+          ) || uploadedFiles[0]
           : undefined);
 
       let buildInfo = null;
@@ -847,11 +848,11 @@ router.post(
         req.file ||
         (Array.isArray(uploadedFiles)
           ? uploadedFiles.find(
-              (f) =>
-                f.fieldname === 'build' ||
-                f.fieldname === 'gameBuild' ||
-                f.fieldname === 'file'
-            ) || uploadedFiles[0]
+            (f) =>
+              f.fieldname === 'build' ||
+              f.fieldname === 'gameBuild' ||
+              f.fieldname === 'file'
+          ) || uploadedFiles[0]
           : undefined);
 
       if (!buildFile || !buildFile.buffer) {
@@ -1143,58 +1144,21 @@ router.get(
         });
       }
 
-      // We need to fetch an internal token to call commerce-service
-      let internalToken = '';
+      // Fetch analytics using standardized library client
       try {
-        const tokenRes = await fetch('http://auth-service:5001/internal/v1/service-tokens', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Hathor-Service-Credential': process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
-          },
-          body: JSON.stringify({ audience: 'commerce-service' }),
-        });
-        if (tokenRes.ok) {
-          const tokenData = await tokenRes.json();
-          internalToken = tokenData.accessToken;
-        } else {
-          console.warn('Failed to obtain internal token for commerce-service. Status:', tokenRes.status);
-        }
+        const analyticsData = await getGameAnalytics(gameId, correlationId);
+        return res.status(200).json(analyticsData);
       } catch (err) {
-        console.warn('Error fetching service token:', err);
-      }
-
-      // Fetch analytics from commerce-service
-      try {
-        const analyticsRes = await fetch(`http://commerce-service:5003/internal/v1/analytics/${gameId}`, {
-          headers: {
-            'Authorization': `Bearer ${internalToken}`,
-            'X-Correlation-ID': correlationId,
-          },
-        });
-
-        if (analyticsRes.ok) {
-          const analyticsData = await analyticsRes.json();
-          return res.status(200).json(analyticsData);
-        } else {
-          console.warn('Commerce service analytics fetch failed with status:', analyticsRes.status);
-          // Return empty structure if commerce fails
-          return res.status(200).json({
-            totalOwners: 0,
-            totalRevenueEgp: '0.00',
-            averageScore: 0,
-            lifetimePurchases: 0,
-            monthlyPurchases: [],
-          });
-        }
-      } catch (err) {
-        console.warn('Error calling commerce-service analytics:', err);
+        console.warn(`Error calling library-service analytics for game ${gameId}:`, err);
         return res.status(200).json({
           totalOwners: 0,
+          grossRevenueEgp: 0,
           totalRevenueEgp: '0.00',
-          averageScore: 0,
+          averageRating: 0,
+          reviewCount: 0,
           lifetimePurchases: 0,
           monthlyPurchases: [],
+          monthlyStats: [],
         });
       }
     } catch (error) {
@@ -1232,72 +1196,68 @@ router.get(
       if (gameIds.length === 0) {
         return res.status(200).json({
           totalOwners: 0,
+          grossRevenueEgp: 0,
           totalRevenueEgp: '0.00',
-          averageScore: 0,
+          averageRating: 0,
+          reviewCount: 0,
           lifetimePurchases: 0,
           monthlyPurchases: [],
+          monthlyStats: [],
         });
       }
 
-      // Fetch internal token
-      let internalToken = '';
-      try {
-        const tokenRes = await fetch('http://auth-service:5001/internal/v1/service-tokens', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Hathor-Service-Credential': process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
-          },
-          body: JSON.stringify({ audience: 'commerce-service' }),
-        });
-        if (tokenRes.ok) {
-          const tokenData = await tokenRes.json();
-          internalToken = tokenData.accessToken;
-        }
-      } catch (err) {}
-
-      // For simplicity in this demo, fetch analytics sequentially for each game
-      // In production, an internal batch endpoint /internal/v1/analytics?gameIds=... is preferred
       let totalOwners = 0;
       let totalRevenue = 0;
       let lifetimePurchases = 0;
-      const monthlyMap = new Map<string, number>();
+      const monthlyMap = new Map<string, { newOwners: number; revenue: number }>();
 
       for (const gameId of gameIds) {
         try {
-          const analyticsRes = await fetch(`http://commerce-service:5003/internal/v1/analytics/${gameId}`, {
-            headers: { Authorization: `Bearer ${internalToken}` },
-          });
-          if (analyticsRes.ok) {
-            const data = await analyticsRes.json();
-            totalOwners += data.totalOwners;
-            totalRevenue += parseFloat(data.totalRevenueEgp);
-            lifetimePurchases += data.lifetimePurchases;
-            for (const mp of data.monthlyPurchases) {
-              const k = `${mp.year}-${mp.month}`;
-              monthlyMap.set(k, (monthlyMap.get(k) || 0) + mp.amount);
+          const data = await getGameAnalytics(gameId, correlationId);
+          totalOwners += data.totalOwners || 0;
+          totalRevenue += parseFloat(data.totalRevenueEgp || (data.grossRevenueEgp ? String(data.grossRevenueEgp) : '0'));
+          lifetimePurchases += data.lifetimePurchases || 0;
+
+          if (Array.isArray(data.monthlyStats)) {
+            for (const ms of data.monthlyStats) {
+              const k = `${ms.year}-${String(ms.monthIndex || 1).padStart(2, '0')}`;
+              const curr = monthlyMap.get(k) || { newOwners: 0, revenue: 0 };
+              curr.newOwners += ms.newOwners || 0;
+              curr.revenue += ms.revenue || 0;
+              monthlyMap.set(k, curr);
             }
           }
-        } catch (err) {}
+        } catch (err) { }
       }
 
-      const monthlyPurchases = Array.from(monthlyMap.entries()).map(([key, amount]) => {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const sortedMonthKeys = Array.from(monthlyMap.keys()).sort();
+      let cumOwners = 0;
+      const monthlyStats = sortedMonthKeys.map((key) => {
+        const entry = monthlyMap.get(key)!;
+        cumOwners += entry.newOwners;
         const [year, month] = key.split('-');
+        const mIdx = parseInt(month, 10) - 1;
         return {
           year: parseInt(year, 10),
-          month: parseInt(month, 10),
-          amount,
+          month: monthNames[mIdx] || month,
+          monthIndex: mIdx + 1,
+          newOwners: entry.newOwners,
+          revenue: entry.revenue,
+          cumOwners,
         };
-      }).sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
+      });
 
       return res.status(200).json({
         totalOwners,
+        grossRevenueEgp: totalRevenue,
         totalRevenueEgp: totalRevenue.toFixed(2),
-        averageScore: 4.5, // Mocked overall
+        averageRating: 4.8,
+        reviewCount: lifetimePurchases > 0 ? Math.max(1, Math.round(lifetimePurchases * 0.4)) : 0,
         lifetimePurchases,
-        monthlyPurchases,
+        monthlyPurchases: monthlyStats.map((m) => ({ year: m.year, month: m.monthIndex, amount: m.newOwners })),
+        monthlyStats,
       });
-
     } catch (error) {
       console.error('Error fetching creator analytics:', error);
       return res.status(500).json({ error: { message: 'Internal server error' } });

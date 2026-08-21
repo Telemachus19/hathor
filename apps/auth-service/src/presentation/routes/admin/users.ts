@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { randomUUID } from 'node:crypto';
-import { desc, limit as drizzleLimit, offset } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import { authDb } from '../../../infrastructure/db/client.js';
 import { users } from '../../../infrastructure/db/schema.js';
 import { AuthenticatedRequest } from '../../middlewares/auth.js';

@@ -83,7 +83,12 @@ export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
             Download
           </button>
 
-          <Link to="/" className={styles.heroButton} style={{ textDecoration: 'none' }}>
+          <Link
+            to="/store/games/$slug"
+            params={{ slug: (game as any).slug || game.id }}
+            className={styles.heroButton}
+            style={{ textDecoration: 'none' }}
+          >
             <Eye size={12} />
             View Game
           </Link>

@@ -183,6 +183,8 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
             {s.ownedSubtext || 'In your library'}
           </span>
           <button
+            type="button"
+            onClick={handlePrimaryClick}
             style={{
               width: '100%',
               background: primaryBtnBg,
@@ -206,6 +208,8 @@ export const GameSidebarCta: React.FC<GameDetailsSidebarProps> = (props) => {
             <Download size={14} /> {primaryBtnText}
           </button>
           <button
+            type="button"
+            onClick={() => navigate({ to: '/library' })}
             style={{
               width: '100%',
               background: secondaryBtnBg,

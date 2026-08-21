@@ -403,6 +403,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
             <div className={styles.sidebarColumn}>
               <GameDetailsSidebar
                 gameId={effectiveGameId}
+                gameTitle={currentGameData.title}
                 isDesignerPreview={isDesignerPreview}
                 isAuthenticated={isAuthenticated}
                 isOwned={Boolean(isOwned)}

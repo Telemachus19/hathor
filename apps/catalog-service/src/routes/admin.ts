@@ -65,8 +65,35 @@ router.get('/games', requireAuth, requireRole('admin'), async (req: Authenticate
       fetchedGames.pop();
     }
 
+    const gameIds = fetchedGames.map((g) => g.id);
+    const gameTagsMap: Record<string, { id: number; name: string; slug: string }[]> = {};
+    if (gameIds.length > 0) {
+      const tagRows = await catalogDb
+        .select({
+          gameId: gameTags.gameId,
+          id: tags.id,
+          name: tags.name,
+          slug: tags.slug,
+        })
+        .from(gameTags)
+        .innerJoin(tags, eq(gameTags.tagId, tags.id))
+        .where(inArray(gameTags.gameId, gameIds));
+
+      for (const row of tagRows) {
+        if (!gameTagsMap[row.gameId]) {
+          gameTagsMap[row.gameId] = [];
+        }
+        gameTagsMap[row.gameId].push({ id: row.id, name: row.name, slug: row.slug });
+      }
+    }
+
+    const itemsWithTags = fetchedGames.map((g) => ({
+      ...g,
+      tags: gameTagsMap[g.id] || [],
+    }));
+
     res.status(200).json({
-      items: fetchedGames,
+      items: itemsWithTags,
       nextCursor,
     });
   } catch (error) {
@@ -386,12 +413,51 @@ router.get('/audit-logs', requireAuth, requireRole('admin'), async (req: Authent
 router.patch('/games/:gameId/taxonomy', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
   const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
   const { gameId } = req.params;
-  const { genreId, tags: tagIds } = req.body || {};
+  const { genreId, tags: tagList } = req.body || {};
 
   try {
-    const result = await catalogDb.transaction(async (tx) => {
+    await catalogDb.transaction(async (tx) => {
       if (genreId !== undefined) {
         await tx.update(games).set({ genreId, updatedAt: new Date() }).where(eq(games.id, gameId));
+      }
+
+      if (Array.isArray(tagList)) {
+        await tx.delete(gameTags).where(eq(gameTags.gameId, gameId));
+        for (const tagNameOrSlug of tagList) {
+          const val =
+            typeof tagNameOrSlug === 'string'
+              ? tagNameOrSlug.trim()
+              : (tagNameOrSlug?.name || tagNameOrSlug?.slug || '').trim();
+          if (!val) continue;
+
+          let [foundTag] = await tx
+            .select()
+            .from(tags)
+            .where(
+              sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`
+            )
+            .limit(1);
+
+          if (!foundTag) {
+            const finalSlug = val
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '');
+            const [newTag] = await tx
+              .insert(tags)
+              .values({ name: val, slug: finalSlug })
+              .onConflictDoNothing()
+              .returning();
+            foundTag = newTag;
+          }
+
+          if (foundTag) {
+            await tx
+              .insert(gameTags)
+              .values({ gameId, tagId: foundTag.id })
+              .onConflictDoNothing();
+          }
+        }
       }
 
       await tx.insert(auditLogs).values({
@@ -399,10 +465,8 @@ router.patch('/games/:gameId/taxonomy', requireAuth, requireRole('admin'), async
         targetType: 'game',
         targetId: gameId,
         action: 'update_taxonomy',
-        details: { genreId, tags: tagIds },
+        details: { genreId, tags: tagList },
       });
-
-      return { error: null };
     });
     
     return res.status(204).send();

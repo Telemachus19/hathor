@@ -139,34 +139,29 @@ function CreatorOverview() {
                     </p>
                   </div>
 
-                  <div>
+                  <div className={commonStyles.portfolioStatusCol}>
                     <GameStatusBadge status={game.status} />
                   </div>
 
-                  <div className={commonStyles.portfolioStats}>
-                    <p className={commonStyles.portfolioStatsVal} style={{ color: '#4caf80' }}>
-                      {game.status === 'published' ? 'Active' : '—'}
-                    </p>
-                    <p className={commonStyles.portfolioStatsLabel}>status</p>
-                  </div>
-
-                  <button
-                    type="button"
-                    className={commonStyles.statsBtn}
-                    style={{ borderColor: '#393e46', color: '#8c9aaa' }}
-                    onClick={() => navigate({ to: '/game-info-form', search: { gameId: game.id } })}
-                  >
-                    Edit
-                  </button>
-                  {game.status === 'published' && (
+                  <div className={commonStyles.portfolioActionsCol}>
+                    {game.status === 'published' && (
+                      <button
+                        type="button"
+                        className={commonStyles.statsBtn}
+                        onClick={() => navigate({ to: '/creator/analytics' })}
+                      >
+                        <BarChart2 size={10} /> Stats
+                      </button>
+                    )}
                     <button
                       type="button"
                       className={commonStyles.statsBtn}
-                      onClick={() => navigate({ to: '/creator/analytics' })}
+                      style={{ borderColor: '#393e46', color: '#8c9aaa' }}
+                      onClick={() => navigate({ to: '/game-info-form', search: { gameId: game.id } })}
                     >
-                      <BarChart2 size={10} /> Stats
+                      Edit
                     </button>
-                  )}
+                  </div>
                 </div>
               );
             })
