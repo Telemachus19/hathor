@@ -154,9 +154,13 @@ router.post(
         Key: buildMetadata.objectKey,
       });
 
-      const presignedUrl = await getSignedUrl(s3Client, command, {
+      const rawPresignedUrl = await getSignedUrl(s3Client, command, {
         expiresIn: 90,
       });
+
+      const presignedUrl = process.env.R2_PUBLIC_URL
+        ? rawPresignedUrl.replace(/^https?:\/\/[^/]+/, process.env.R2_PUBLIC_URL)
+        : rawPresignedUrl.replace('http://minio:9000', 'http://localhost:9000');
 
       const expiresAt = new Date(Date.now() + 90 * 1000);
 

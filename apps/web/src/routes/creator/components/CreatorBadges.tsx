@@ -3,6 +3,8 @@ export function GameStatusBadge({ status }: { status: string }) {
     published: { label: 'Published', color: '#4caf80' },
     pending_review: { label: 'In Review', color: '#f59e0b' },
     draft: { label: 'Draft', color: '#8c9aaa' },
+    rejected: { label: 'Rejected', color: '#e74c3c' },
+    suspended: { label: 'Suspended', color: '#e74c3c' },
     archived: { label: 'Archived', color: '#e74c3c' },
   };
 

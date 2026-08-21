@@ -1,9 +1,18 @@
 import { Router, Response } from 'express';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and, desc, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
+import multer from 'multer';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
-import { games, gameStatusTransitions, genres, tags, gameTags } from '../infrastructure/db/schema.js';
+import {
+  games,
+  gameStatusTransitions,
+  genres,
+  tags,
+  gameTags,
+  gameBuilds,
+} from '../infrastructure/db/schema.js';
+import { uploadGameBuildPackage } from '../infrastructure/storage/r2Client.js';
 import {
   isValidTransition,
   isCreatorAllowedTargetStatus,
@@ -13,7 +22,61 @@ import { validateThemeAgainstDocument } from '../utils/themeValidator.js';
 
 const router: Router = Router();
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 500 * 1024 * 1024, // 500MB max package size
+  },
+});
+
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function handleGameBuildStorage(
+  gameId: string,
+  file: Express.Multer.File
+): Promise<{
+  objectKey: string;
+  checksumSha256: string;
+  sizeBytes: number;
+}> {
+  const objectKey = `builds/${gameId}/v1.0.0/game.zip`;
+  const { checksumSha256, sizeBytes } = await uploadGameBuildPackage({
+    objectKey,
+    buffer: file.buffer,
+    contentType: file.mimetype || 'application/zip',
+  });
+
+  const [existingBuild] = await catalogDb
+    .select()
+    .from(gameBuilds)
+    .where(and(eq(gameBuilds.gameId, gameId), eq(gameBuilds.version, 'v1.0.0')))
+    .limit(1);
+
+  if (existingBuild) {
+    await catalogDb
+      .update(gameBuilds)
+      .set({
+        objectKey,
+        checksumSha256,
+        sizeBytes,
+        state: 'published',
+        publishedAt: new Date(),
+      })
+      .where(eq(gameBuilds.id, existingBuild.id));
+  } else {
+    await catalogDb.insert(gameBuilds).values({
+      gameId,
+      version: 'v1.0.0',
+      objectKey,
+      checksumSha256,
+      sizeBytes,
+      state: 'published',
+      publishedAt: new Date(),
+    });
+  }
+
+  return { objectKey, checksumSha256, sizeBytes };
+}
 
 function slugifyTitle(title: string): string {
   const baseSlug = title
@@ -83,7 +146,7 @@ router.put(
       const callerId = req.user!.id;
       const { gameId } = req.params;
 
-      if (!gameId || !UUID_REGEX.test(gameId)) {
+      if (!gameId || typeof gameId !== 'string' || !gameId.trim()) {
         return res.status(400).json({
           success: false,
           error: {
@@ -94,7 +157,9 @@ router.put(
         });
       }
 
-      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+      const isUuid = UUID_REGEX.test(gameId);
+      const condition = isUuid ? eq(games.id, gameId) : eq(games.slug, gameId);
+      const [game] = await catalogDb.select().from(games).where(condition).limit(1);
 
       if (!game) {
         return res.status(404).json({
@@ -168,12 +233,13 @@ router.put(
 /**
  * POST /creator/games
  * Creates a draft game associated with the authenticated creator (creator_id == caller_id).
- * Enforces status = "draft".
+ * Enforces status = "draft" and stores uploaded build package to MinIO/R2 if provided.
  */
 router.post(
   '/games',
   requireAuth,
   requireRole('creator'),
+  upload.any(),
   async (req: AuthenticatedRequest, res: Response) => {
     const correlationId =
       (req.headers['x-correlation-id'] as string) ||
@@ -191,12 +257,12 @@ router.post(
         discountPercent,
         genreId,
         genre: genreName,
-        tags: tagList,
+        tags: rawTags,
         bannerUrl,
-        screenshots,
+        screenshots: rawScreenshots,
         trailerUrl,
-        systemRequirements,
-        systemReqs,
+        systemRequirements: rawSystemReqs,
+        systemReqs: rawSystemReqsAlt,
         slug: customSlug,
       } = req.body || {};
 
@@ -211,6 +277,34 @@ router.post(
         });
       }
 
+      // Parse JSON stringified fields if submitted via FormData
+      let tagList = rawTags;
+      if (typeof tagList === 'string') {
+        try {
+          tagList = JSON.parse(tagList);
+        } catch {
+          tagList = tagList.split(',').map((t: string) => t.trim()).filter(Boolean);
+        }
+      }
+
+      let systemRequirements = rawSystemReqs || rawSystemReqsAlt;
+      if (typeof systemRequirements === 'string') {
+        try {
+          systemRequirements = JSON.parse(systemRequirements);
+        } catch {
+          systemRequirements = {};
+        }
+      }
+
+      let screenshots = rawScreenshots;
+      if (typeof screenshots === 'string') {
+        try {
+          screenshots = JSON.parse(screenshots);
+        } catch {
+          screenshots = screenshots.split(',').map((s: string) => s.trim()).filter(Boolean);
+        }
+      }
+
       const baseSlug =
         customSlug && typeof customSlug === 'string' && customSlug.trim()
           ? slugifyTitle(customSlug)
@@ -221,7 +315,11 @@ router.post(
 
       let resolvedGenreId = genreId || null;
       if (!resolvedGenreId && genreName && typeof genreName === 'string') {
-        const [foundGenre] = await catalogDb.select().from(genres).where(eq(genres.name, genreName.trim())).limit(1);
+        const [foundGenre] = await catalogDb
+          .select()
+          .from(genres)
+          .where(eq(genres.name, genreName.trim()))
+          .limit(1);
         if (foundGenre) resolvedGenreId = foundGenre.id;
       }
 
@@ -239,7 +337,7 @@ router.post(
           bannerUrl: bannerUrl || null,
           screenshots: Array.isArray(screenshots) ? screenshots : [],
           trailerUrl: trailerUrl || null,
-          systemRequirements: systemRequirements || systemReqs || {},
+          systemRequirements: systemRequirements || {},
           pageTheme: {}, // Empty theme initially
           status: 'draft', // Mandatory draft status
         })
@@ -248,18 +346,63 @@ router.post(
       // Insert tags if provided
       if (Array.isArray(tagList) && newGame) {
         for (const tagNameOrSlug of tagList) {
-          const val = typeof tagNameOrSlug === 'string' ? tagNameOrSlug.trim() : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
+          const val =
+            typeof tagNameOrSlug === 'string'
+              ? tagNameOrSlug.trim()
+              : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
           if (!val) continue;
-          const [foundTag] = await catalogDb.select().from(tags).where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`).limit(1);
+          const [foundTag] = await catalogDb
+            .select()
+            .from(tags)
+            .where(
+              sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`
+            )
+            .limit(1);
           if (foundTag) {
-            await catalogDb.insert(gameTags).values({ gameId: newGame.id, tagId: foundTag.id }).onConflictDoNothing();
+            await catalogDb
+              .insert(gameTags)
+              .values({ gameId: newGame.id, tagId: foundTag.id })
+              .onConflictDoNothing();
           }
+        }
+      }
+
+      // Handle game build upload if attached
+      const uploadedFiles = req.files as Express.Multer.File[] | undefined;
+      const buildFile =
+        req.file ||
+        (Array.isArray(uploadedFiles)
+          ? uploadedFiles.find(
+              (f) =>
+                f.fieldname === 'build' ||
+                f.fieldname === 'gameBuild' ||
+                f.fieldname === 'file'
+            ) || uploadedFiles[0]
+          : undefined);
+
+      let buildInfo = null;
+      if (buildFile && buildFile.buffer) {
+        try {
+          buildInfo = await handleGameBuildStorage(newGame.id, buildFile);
+        } catch (storageErr) {
+          console.error(`Failed to store game build package for game ${newGame.id}:`, storageErr);
+          return res.status(500).json({
+            success: false,
+            error: {
+              code: 'STORAGE_UPLOAD_FAILED',
+              message: 'Failed to upload and store game build package in storage',
+              correlationId,
+            },
+          });
         }
       }
 
       return res.status(201).json({
         success: true,
-        data: newGame,
+        data: {
+          ...newGame,
+          build: buildInfo,
+        },
       });
     } catch (error) {
       console.error('Error creating draft game:', error);
@@ -284,11 +427,11 @@ router.get(
   requireAuth,
   requireRole('creator'),
   async (req: AuthenticatedRequest, res: Response) => {
-    const correlationId = req.headers['x-correlation-id'] as string || randomUUID();
+    const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
 
     try {
       const callerId = req.user!.id;
-      
+
       const creatorGames = await catalogDb
         .select()
         .from(games)
@@ -297,8 +440,34 @@ router.get(
       const genreList = await catalogDb.select().from(genres);
       const genreMap = new Map(genreList.map((g) => [g.id, g]));
 
+      // Fetch latest rejection reasons if any games are rejected
+      const gameIds = creatorGames.map((g) => g.id);
+      const rejectionMap = new Map<string, string>();
+      if (gameIds.length > 0) {
+        const transitions = await catalogDb
+          .select({
+            gameId: gameStatusTransitions.gameId,
+            reason: gameStatusTransitions.reason,
+            createdAt: gameStatusTransitions.createdAt,
+          })
+          .from(gameStatusTransitions)
+          .where(
+            and(
+              inArray(gameStatusTransitions.gameId, gameIds),
+              eq(gameStatusTransitions.nextStatus, 'rejected')
+            )
+          )
+          .orderBy(desc(gameStatusTransitions.createdAt));
+
+        for (const t of transitions) {
+          if (!rejectionMap.has(t.gameId) && t.reason) {
+            rejectionMap.set(t.gameId, t.reason);
+          }
+        }
+      }
+
       return res.status(200).json(
-        creatorGames.map(game => ({
+        creatorGames.map((game) => ({
           id: game.id,
           title: game.title,
           slug: game.slug,
@@ -307,6 +476,7 @@ router.get(
           priceEgp: game.priceEgp,
           discountPercent: game.discountPercent,
           status: game.status,
+          rejectionReason: rejectionMap.get(game.id) || null,
           genreId: game.genreId,
           genre: game.genreId ? genreMap.get(game.genreId) || null : null,
           systemRequirements: game.systemRequirements,
@@ -315,7 +485,7 @@ router.get(
           screenshots: game.screenshots,
           trailerUrl: game.trailerUrl,
           createdAt: game.createdAt?.toISOString(),
-          updatedAt: game.updatedAt?.toISOString()
+          updatedAt: game.updatedAt?.toISOString(),
         }))
       );
     } catch (error) {
@@ -334,14 +504,17 @@ router.get(
 
 /**
  * GET /creator/games/:gameId
- * Fetches single game details with genre and tags for creator.
+ * Fetches single game details with genre, tags, and latest build for creator.
  */
 router.get(
   '/games/:gameId',
   requireAuth,
   requireRole('creator'),
   async (req: AuthenticatedRequest, res: Response) => {
-    const correlationId = (req.headers['x-correlation-id'] as string) || (req.headers['correlation-id'] as string) || randomUUID();
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
 
     try {
       const callerId = req.user!.id;
@@ -379,6 +552,38 @@ router.get(
         .innerJoin(tags, eq(gameTags.tagId, tags.id))
         .where(eq(gameTags.gameId, game.id));
 
+      const [latestBuild] = await catalogDb
+        .select({
+          id: gameBuilds.id,
+          version: gameBuilds.version,
+          objectKey: gameBuilds.objectKey,
+          checksumSha256: gameBuilds.checksumSha256,
+          sizeBytes: gameBuilds.sizeBytes,
+          state: gameBuilds.state,
+          publishedAt: gameBuilds.publishedAt,
+          createdAt: gameBuilds.createdAt,
+        })
+        .from(gameBuilds)
+        .where(eq(gameBuilds.gameId, game.id))
+        .orderBy(desc(gameBuilds.createdAt))
+        .limit(1);
+
+      let rejectionReason: string | null = null;
+      if (game.status === 'rejected') {
+        const [lastReject] = await catalogDb
+          .select({ reason: gameStatusTransitions.reason })
+          .from(gameStatusTransitions)
+          .where(
+            and(
+              eq(gameStatusTransitions.gameId, game.id),
+              eq(gameStatusTransitions.nextStatus, 'rejected')
+            )
+          )
+          .orderBy(desc(gameStatusTransitions.createdAt))
+          .limit(1);
+        rejectionReason = lastReject?.reason || null;
+      }
+
       return res.status(200).json({
         id: game.id,
         title: game.title,
@@ -388,9 +593,11 @@ router.get(
         priceEgp: game.priceEgp,
         discountPercent: game.discountPercent,
         status: game.status,
+        rejectionReason,
         genreId: game.genreId,
         genre: genreObj,
         tags: gameTagRows,
+        build: latestBuild || null,
         systemRequirements: game.systemRequirements,
         pageTheme: game.pageTheme,
         bannerUrl: game.bannerUrl,
@@ -410,14 +617,18 @@ router.get(
 
 /**
  * PUT /creator/games/:gameId
- * Updates game metadata for creator.
+ * Updates game metadata and optionally updates game build package for creator.
  */
 router.put(
   '/games/:gameId',
   requireAuth,
   requireRole('creator'),
+  upload.any(),
   async (req: AuthenticatedRequest, res: Response) => {
-    const correlationId = (req.headers['x-correlation-id'] as string) || (req.headers['correlation-id'] as string) || randomUUID();
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
 
     try {
       const callerId = req.user!.id;
@@ -452,17 +663,48 @@ router.put(
         discountPercent,
         genreId,
         genre: genreName,
-        tags: tagList,
+        tags: rawTags,
         bannerUrl,
-        screenshots,
+        screenshots: rawScreenshots,
         trailerUrl,
-        systemRequirements,
-        systemReqs,
+        systemRequirements: rawSystemReqs,
+        systemReqs: rawSystemReqsAlt,
       } = req.body || {};
+
+      let tagList = rawTags;
+      if (typeof tagList === 'string') {
+        try {
+          tagList = JSON.parse(tagList);
+        } catch {
+          tagList = tagList.split(',').map((t: string) => t.trim()).filter(Boolean);
+        }
+      }
+
+      let systemRequirements = rawSystemReqs || rawSystemReqsAlt;
+      if (typeof systemRequirements === 'string') {
+        try {
+          systemRequirements = JSON.parse(systemRequirements);
+        } catch {
+          systemRequirements = undefined;
+        }
+      }
+
+      let screenshots = rawScreenshots;
+      if (typeof screenshots === 'string') {
+        try {
+          screenshots = JSON.parse(screenshots);
+        } catch {
+          screenshots = screenshots.split(',').map((s: string) => s.trim()).filter(Boolean);
+        }
+      }
 
       let resolvedGenreId = genreId !== undefined ? genreId : game.genreId;
       if (genreName && typeof genreName === 'string') {
-        const [foundGenre] = await catalogDb.select().from(genres).where(eq(genres.name, genreName.trim())).limit(1);
+        const [foundGenre] = await catalogDb
+          .select()
+          .from(genres)
+          .where(eq(genres.name, genreName.trim()))
+          .limit(1);
         if (foundGenre) resolvedGenreId = foundGenre.id;
       }
 
@@ -481,8 +723,8 @@ router.put(
       if (bannerUrl !== undefined) updatedFields.bannerUrl = bannerUrl || null;
       if (screenshots !== undefined) updatedFields.screenshots = Array.isArray(screenshots) ? screenshots : [];
       if (trailerUrl !== undefined) updatedFields.trailerUrl = trailerUrl || null;
-      if (systemRequirements !== undefined || systemReqs !== undefined) {
-        updatedFields.systemRequirements = systemRequirements || systemReqs || {};
+      if (systemRequirements !== undefined) {
+        updatedFields.systemRequirements = systemRequirements || {};
       }
 
       const [updatedGame] = await catalogDb
@@ -494,23 +736,147 @@ router.put(
       if (Array.isArray(tagList)) {
         await catalogDb.delete(gameTags).where(eq(gameTags.gameId, gameId));
         for (const tagNameOrSlug of tagList) {
-          const val = typeof tagNameOrSlug === 'string' ? tagNameOrSlug.trim() : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
+          const val =
+            typeof tagNameOrSlug === 'string'
+              ? tagNameOrSlug.trim()
+              : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
           if (!val) continue;
-          const [foundTag] = await catalogDb.select().from(tags).where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`).limit(1);
+          const [foundTag] = await catalogDb
+            .select()
+            .from(tags)
+            .where(
+              sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`
+            )
+            .limit(1);
           if (foundTag) {
-            await catalogDb.insert(gameTags).values({ gameId, tagId: foundTag.id }).onConflictDoNothing();
+            await catalogDb
+              .insert(gameTags)
+              .values({ gameId, tagId: foundTag.id })
+              .onConflictDoNothing();
           }
+        }
+      }
+
+      // Handle build package update if attached
+      const uploadedFiles = req.files as Express.Multer.File[] | undefined;
+      const buildFile =
+        req.file ||
+        (Array.isArray(uploadedFiles)
+          ? uploadedFiles.find(
+              (f) =>
+                f.fieldname === 'build' ||
+                f.fieldname === 'gameBuild' ||
+                f.fieldname === 'file'
+            ) || uploadedFiles[0]
+          : undefined);
+
+      let buildInfo = null;
+      if (buildFile && buildFile.buffer) {
+        try {
+          buildInfo = await handleGameBuildStorage(gameId, buildFile);
+        } catch (storageErr) {
+          console.error(`Failed to update game build package for game ${gameId}:`, storageErr);
+          return res.status(500).json({
+            success: false,
+            error: {
+              code: 'STORAGE_UPLOAD_FAILED',
+              message: 'Failed to upload and store game build package in storage',
+              correlationId,
+            },
+          });
         }
       }
 
       return res.status(200).json({
         success: true,
-        data: updatedGame,
+        data: {
+          ...updatedGame,
+          build: buildInfo,
+        },
       });
     } catch (error) {
       console.error('Error updating creator game:', error);
       return res.status(500).json({
         error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update game', correlationId },
+      });
+    }
+  }
+);
+
+/**
+ * POST /creator/games/:gameId/build
+ * Dedicated endpoint to upload/replace game build package.
+ */
+router.post(
+  '/games/:gameId/build',
+  requireAuth,
+  requireRole('creator'),
+  upload.any(),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
+
+    try {
+      const callerId = req.user!.id;
+      const { gameId } = req.params;
+
+      if (!gameId || !UUID_REGEX.test(gameId)) {
+        return res.status(400).json({
+          error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format', correlationId },
+        });
+      }
+
+      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+
+      if (!game) {
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: `Game not found: ${gameId}`, correlationId },
+        });
+      }
+
+      if (game.creatorId !== callerId) {
+        return res.status(403).json({
+          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+        });
+      }
+
+      const uploadedFiles = req.files as Express.Multer.File[] | undefined;
+      const buildFile =
+        req.file ||
+        (Array.isArray(uploadedFiles)
+          ? uploadedFiles.find(
+              (f) =>
+                f.fieldname === 'build' ||
+                f.fieldname === 'gameBuild' ||
+                f.fieldname === 'file'
+            ) || uploadedFiles[0]
+          : undefined);
+
+      if (!buildFile || !buildFile.buffer) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'No build file uploaded. Please attach a compressed (.zip, .rar, etc.) package file.',
+            correlationId,
+          },
+        });
+      }
+
+      const buildInfo = await handleGameBuildStorage(gameId, buildFile);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          gameId,
+          ...buildInfo,
+        },
+      });
+    } catch (error) {
+      console.error('Error uploading game build package:', error);
+      return res.status(500).json({
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to upload build package', correlationId },
       });
     }
   }

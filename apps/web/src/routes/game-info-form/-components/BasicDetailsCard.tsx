@@ -22,7 +22,10 @@ export const BasicDetailsCard: React.FC<BasicDetailsCardProps> = ({
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <div className={styles.accentBar} />
-        <h2 className={styles.cardTitle}>Basic Details</h2>
+        <h2 className={styles.cardTitle}>
+          Basic Details
+          <span className={styles.requiredBadge}>REQUIRED</span>
+        </h2>
       </div>
       <div className={styles.cardBody}>
         <div className={styles.fieldGroup}>

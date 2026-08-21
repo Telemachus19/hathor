@@ -1,0 +1,88 @@
+.ctaContainer {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.textContainer {
+  min-width: 0;
+  flex: 1 1 0%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.ctaTitle {
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.ctaSubtitle {
+  margin: 0;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.ctaButton {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  border: none;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.ctaMobile {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  padding: 1.25rem 1rem !important;
+  gap: 1.25rem !important;
+}
+
+.ctaMobile .textContainer {
+  width: 100% !important;
+}
+
+.ctaMobile .ctaButton {
+  width: 100% !important;
+  padding: 0.85rem 1.25rem !important;
+  white-space: normal !important;
+}
+
+@media (max-width: 768px) {
+  .ctaContainer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 1.25rem 1rem !important;
+    gap: 1.25rem !important;
+  }
+
+  .textContainer {
+    width: 100% !important;
+  }
+
+  .ctaButton {
+    width: 100% !important;
+    padding: 0.85rem 1.25rem !important;
+    white-space: normal !important;
+  }
+}

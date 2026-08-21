@@ -1,10 +1,22 @@
 import { Router, Response } from 'express';
 import { eq, sql, desc, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
+import { Readable } from 'node:stream';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
-import { games, gameStatusTransitions, genres, tags, gameTags, auditLogs } from '../infrastructure/db/schema.js';
+import {
+  games,
+  gameStatusTransitions,
+  genres,
+  tags,
+  gameTags,
+  auditLogs,
+  gameBuilds,
+} from '../infrastructure/db/schema.js';
 import { isValidTransition, VALID_GAME_STATUSES } from '../domain/stateMachine.js';
+import { r2Client, R2_BUCKET_NAME } from '../infrastructure/storage/r2Client.js';
 
 const router: Router = Router();
 
@@ -118,6 +130,13 @@ router.get('/submissions', requireAuth, requireRole('admin'), async (req: Authen
   }
 });
 
+function formatPresignedUrlForClient(rawUrl: string): string {
+  if (process.env.R2_PUBLIC_URL) {
+    return rawUrl.replace(/^https?:\/\/[^/]+/, process.env.R2_PUBLIC_URL);
+  }
+  return rawUrl.replace('http://minio:9000', 'http://localhost:9000');
+}
+
 // GET /admin/games/:gameId
 router.get('/games/:gameId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
   const { gameId } = req.params;
@@ -166,15 +185,173 @@ router.get('/games/:gameId', requireAuth, requireRole('admin'), async (req: Auth
       .innerJoin(tags, eq(gameTags.tagId, tags.id))
       .where(eq(gameTags.gameId, game.id));
 
+    // Fetch latest build package if uploaded
+    const [latestBuild] = await catalogDb
+      .select()
+      .from(gameBuilds)
+      .where(eq(gameBuilds.gameId, game.id))
+      .orderBy(desc(gameBuilds.createdAt))
+      .limit(1);
+
+    let downloadUrl: string | null = null;
+    if (latestBuild) {
+      try {
+        const command = new GetObjectCommand({
+          Bucket: R2_BUCKET_NAME,
+          Key: latestBuild.objectKey,
+        });
+        const rawSignedUrl = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+        downloadUrl = formatPresignedUrlForClient(rawSignedUrl);
+      } catch (e) {
+        console.warn('Failed to generate presigned download URL for build:', e);
+      }
+    }
+
     res.status(200).json({
       ...game,
       tags: gameTagRows,
+      build: latestBuild
+        ? {
+            id: latestBuild.id,
+            version: latestBuild.version,
+            objectKey: latestBuild.objectKey,
+            sizeBytes: latestBuild.sizeBytes,
+            checksumSha256: latestBuild.checksumSha256,
+            state: latestBuild.state,
+            createdAt: latestBuild.createdAt,
+            publishedAt: latestBuild.publishedAt,
+            downloadUrl,
+          }
+        : null,
     });
   } catch (error) {
     console.error('Get admin game error:', error);
     res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to get game' } });
   }
 });
+
+// GET /admin/games/:gameId/build/download - Generate fresh download URL for admin testing
+router.get(
+  '/games/:gameId/build/download',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { gameId } = req.params;
+    if (!gameId || !UUID_REGEX.test(gameId)) {
+      return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format' } });
+    }
+
+    try {
+      const [latestBuild] = await catalogDb
+        .select()
+        .from(gameBuilds)
+        .where(eq(gameBuilds.gameId, gameId))
+        .orderBy(desc(gameBuilds.createdAt))
+        .limit(1);
+
+      if (!latestBuild) {
+        return res
+          .status(404)
+          .json({ error: { code: 'NOT_FOUND', message: 'No build package found for this game' } });
+      }
+
+      const command = new GetObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: latestBuild.objectKey,
+      });
+
+      const rawUrl = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+      const url = formatPresignedUrlForClient(rawUrl);
+
+      return res.status(200).json({
+        url,
+        objectKey: latestBuild.objectKey,
+        version: latestBuild.version,
+        sizeBytes: latestBuild.sizeBytes,
+        checksumSha256: latestBuild.checksumSha256,
+        expiresIn: 3600,
+      });
+    } catch (err: any) {
+      console.error('Failed to generate admin download URL:', err);
+      return res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: err.message || 'Failed to authorize build download',
+        },
+      });
+    }
+  }
+);
+
+// GET /admin/games/:gameId/build/file - Stream file directly for robust admin download
+router.get(
+  '/games/:gameId/build/file',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { gameId } = req.params;
+    if (!gameId || !UUID_REGEX.test(gameId)) {
+      return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format' } });
+    }
+
+    try {
+      const [game] = await catalogDb
+        .select({ id: games.id, title: games.title, slug: games.slug })
+        .from(games)
+        .where(eq(games.id, gameId))
+        .limit(1);
+
+      const [latestBuild] = await catalogDb
+        .select()
+        .from(gameBuilds)
+        .where(eq(gameBuilds.gameId, gameId))
+        .orderBy(desc(gameBuilds.createdAt))
+        .limit(1);
+
+      if (!latestBuild) {
+        return res
+          .status(404)
+          .json({ error: { code: 'NOT_FOUND', message: 'No build package found for this game' } });
+      }
+
+      const command = new GetObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: latestBuild.objectKey,
+      });
+
+      const s3Response = await r2Client.send(command);
+
+      const fileName = `${game?.slug || 'game'}-${latestBuild.version || 'v1.0.0'}.zip`;
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Type', s3Response.ContentType || 'application/zip');
+      if (s3Response.ContentLength) {
+        res.setHeader('Content-Length', s3Response.ContentLength);
+      }
+
+      if (s3Response.Body instanceof Readable) {
+        s3Response.Body.pipe(res);
+      } else if (s3Response.Body) {
+        const stream = s3Response.Body as any;
+        if (typeof stream.pipe === 'function') {
+          stream.pipe(res);
+        } else {
+          const bytes = await s3Response.Body.transformToByteArray();
+          res.end(Buffer.from(bytes));
+        }
+      } else {
+        res.status(500).send('Empty file body');
+      }
+    } catch (err: any) {
+      console.error('Failed to stream admin build download:', err);
+      return res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: err.message || 'Failed to download build package',
+        },
+      });
+    }
+  }
+);
 
 // GET /admin/audit-logs
 router.get('/audit-logs', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {

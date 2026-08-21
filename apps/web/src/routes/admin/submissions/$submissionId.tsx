@@ -11,11 +11,17 @@ import {
   MemoryStick,
   Film,
   Eye,
+  Download,
+  FileArchive,
+  ShieldCheck,
+  Copy,
+  Check,
+  AlertTriangle,
 } from 'lucide-react';
 import { GameStatusBadge } from '../components/common/AdminBadges';
 import { PreviewModal } from '../../designer-page/components/modals/PreviewModal';
 import { Device, DEFAULT_PAGE_SETTINGS } from '../../designer-page/types/designerTypes';
-import { apiClient } from '../../../services/api/index';
+import { apiClient, apiBaseUrl } from '../../../services/api/index';
 import type { Game } from '@hathor/contracts';
 import styles from '../styles/adminSubmissions.module.css';
 import modalStyles from '../styles/adminModals.module.css';
@@ -24,15 +30,28 @@ export const Route = createFileRoute('/admin/submissions/$submissionId')({
   component: AdminSubmissionDetail,
 });
 
+function formatBytes(bytes: number, decimals = 2): string {
+  if (!bytes || bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
 function AdminSubmissionDetail() {
   const { submissionId } = Route.useParams() as { submissionId: string };
   const navigate = useNavigate();
   const [submission, setSubmission] = useState<Game | null>(null);
+  const [creatorName, setCreatorName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [specTab, setSpecTab] = useState<'min' | 'rec'>('min');
   const [previewDevice, setPreviewDevice] = useState<Device | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [showRejectModal, setShowRejectModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [copiedSha, setCopiedSha] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -43,13 +62,25 @@ function AdminSubmissionDetail() {
   const loadSubmission = async () => {
     setLoading(true);
     try {
-      // First try single game endpoint
-      const gameRes = (await apiClient.GET('/admin/games/{gameId}' as any, {
-        params: { path: { gameId: submissionId } },
-      })) as any;
+      // First try single game endpoint alongside users list to resolve creator name
+      const [gameRes, usersRes] = await Promise.all([
+        (apiClient.GET('/admin/games/{gameId}' as any, {
+          params: { path: { gameId: submissionId } },
+        }) as any).catch(() => ({ data: null })),
+        ((apiClient as any).GET('/admin/users', {}) as any).catch(() => ({ data: { items: [] } })),
+      ]);
 
-      if (gameRes.data) {
+      const usersList: any[] = usersRes?.data?.items || [];
+      const resolveCreator = (cId?: string) => {
+        if (!cId) return '';
+        const found = usersList.find((u) => u.id === cId);
+        return found?.displayName || found?.email?.split('@')[0] || cId.substring(0, 8);
+      };
+
+      if (gameRes?.data) {
         setSubmission(gameRes.data);
+        const name = resolveCreator((gameRes.data as any).creatorId);
+        if (name) setCreatorName(name);
         return;
       }
 
@@ -57,7 +88,11 @@ function AdminSubmissionDetail() {
       const { data } = await apiClient.GET('/admin/submissions');
       if (data?.items) {
         const found = data.items.find((s: Game) => s.id === submissionId);
-        if (found) setSubmission(found);
+        if (found) {
+          setSubmission(found);
+          const name = resolveCreator((found as any).creatorId);
+          if (name) setCreatorName(name);
+        }
       }
     } catch (err) {
       console.error('Failed to load submission:', err);
@@ -70,28 +105,73 @@ function AdminSubmissionDetail() {
     loadSubmission();
   }, [submissionId]);
 
-  const handleStatusChange = async (status: 'published' | 'rejected') => {
-    if (status === 'rejected' && !rejectReason.trim()) {
-      alert('Please provide a reason for rejecting this submission.');
-      return;
-    }
+  const handleDownloadBuild = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      showToast('Downloading game build package...');
+      const token = apiClient.getAccessToken();
+      const res = await fetch(`${apiBaseUrl}/admin/games/${submissionId}/build/file`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
 
+      if (!res.ok) {
+        const errorJson = await res.json().catch(() => ({}));
+        throw new Error(
+          errorJson?.error?.message || `Failed to download build package (HTTP ${res.status})`
+        );
+      }
+
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${submission?.slug || 'game'}-${(submission as any)?.build?.version || 'v1.0.0'}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(blobUrl);
+      showToast('Game build downloaded successfully!');
+    } catch (err: any) {
+      console.error('Failed to download build package:', err);
+      showToast(err.message || 'Failed to download build package');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleCopySha = (sha: string) => {
+    navigator.clipboard.writeText(sha);
+    setCopiedSha(true);
+    setTimeout(() => setCopiedSha(false), 2000);
+  };
+
+  const handleStatusChange = async (status: 'published' | 'rejected', customReason?: string) => {
     setActionLoading(true);
     try {
+      const reasonToSend =
+        status === 'rejected'
+          ? (customReason !== undefined ? customReason : rejectReason).trim() ||
+            'Submission rejected during administrative review. Please review requirements and update your submission.'
+          : 'Admin review approved';
+
       await apiClient.PATCH('/admin/games/{gameId}/status', {
         params: { path: { gameId: submissionId } },
         body: {
           status,
-          reason: status === 'rejected' ? rejectReason.trim() : 'Admin review approved',
+          reason: reasonToSend,
         },
       });
+      setShowRejectModal(false);
       showToast(status === 'published' ? 'Game approved and published to catalog!' : 'Submission rejected.');
       setTimeout(() => {
         navigate({ to: '/admin/submissions' });
       }, 800);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to update submission status:', err);
-      alert('Failed to update submission status. Please try again.');
+      showToast(err.message || 'Failed to update submission status. Please try again.');
     } finally {
       setActionLoading(false);
     }
@@ -127,6 +207,7 @@ function AdminSubmissionDetail() {
   const sysReqs = (submission as any).systemRequirements || {};
   const minReq = sysReqs.minReq || {};
   const recReq = sysReqs.recReq || {};
+  const buildInfo = (submission as any).build;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
@@ -190,17 +271,7 @@ function AdminSubmissionDetail() {
               <button
                 type="button"
                 className={modalStyles.btnDanger}
-                onClick={() => {
-                  if (!rejectReason.trim()) {
-                    const reasonInput = prompt('Enter rejection reason for the creator:');
-                    if (reasonInput) {
-                      setRejectReason(reasonInput);
-                      setTimeout(() => handleStatusChange('rejected'), 100);
-                    }
-                  } else {
-                    handleStatusChange('rejected');
-                  }
-                }}
+                onClick={() => setShowRejectModal(true)}
                 disabled={actionLoading}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
               >
@@ -223,6 +294,8 @@ function AdminSubmissionDetail() {
             <p className={styles.bannerSuperTitle}>Creator Submission Review</p>
             <h2 className={styles.bannerTitle}>{submission.title}</h2>
             <div className={styles.bannerMetaRow}>
+              <span>Creator: <strong style={{ color: 'var(--accent-orange)' }}>{creatorName || (submission as any).creatorName || (submission as any).creatorId?.substring(0, 8) || 'Creator'}</strong></span>
+              <span>•</span>
               <span>ID: {submission.id.substring(0, 8)}...</span>
               <span>•</span>
               <span>{(submission as any).createdAt ? new Date((submission as any).createdAt).toLocaleDateString() : 'Recent'}</span>
@@ -249,6 +322,23 @@ function AdminSubmissionDetail() {
               <h3 className={styles.cardHeaderTitle}>Game Information</h3>
             </div>
             <div className={styles.detailCardBody}>
+              <div>
+                <p className={modalStyles.fieldLabel}>Creator / Developer</p>
+                <div
+                  style={{
+                    padding: '0.65rem 0.75rem',
+                    backgroundColor: 'var(--bg-main)',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '0.8rem',
+                    color: '#eeeeee',
+                    fontWeight: 600,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {creatorName || (submission as any).creatorName || (submission as any).creatorId || 'Unknown'}
+                </div>
+              </div>
+
               <div>
                 <p className={modalStyles.fieldLabel}>Short Description</p>
                 <div
@@ -322,9 +412,9 @@ function AdminSubmissionDetail() {
           </div>
         </div>
 
-        {/* Col 2: System Specifications */}
-        <div>
-          <div className={styles.detailCard} style={{ height: '100%' }}>
+        {/* Col 2: System Specifications & Game Build Package */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div className={styles.detailCard}>
             <div className={styles.detailCardHeader}>
               <div className={styles.headerAccent} />
               <h3 className={styles.cardHeaderTitle}>System Requirements</h3>
@@ -405,6 +495,115 @@ function AdminSubmissionDetail() {
               </div>
             </div>
           </div>
+
+          {/* Game Build Package Card & Admin Direct Download */}
+          <div className={styles.detailCard}>
+            <div className={styles.detailCardHeader}>
+              <div className={styles.headerAccent} />
+              <h3 className={styles.cardHeaderTitle}>Game Build Package</h3>
+            </div>
+            <div className={styles.detailCardBody}>
+              {buildInfo ? (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <FileArchive size={20} style={{ color: '#fd7014' }} />
+                      <div>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#eeeeee', fontFamily: 'monospace' }}>
+                          Build {buildInfo.version || 'v1.0.0'}
+                        </div>
+                        <div style={{ fontSize: '0.65rem', color: '#8c9aaa', fontFamily: 'monospace' }}>
+                          {buildInfo.sizeBytes ? formatBytes(buildInfo.sizeBytes) : 'Compressed Package'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <span
+                      style={{
+                        padding: '0.2rem 0.5rem',
+                        fontSize: '0.65rem',
+                        fontFamily: 'monospace',
+                        fontWeight: 700,
+                        backgroundColor: 'rgba(56, 211, 159, 0.15)',
+                        border: '1px solid rgba(56, 211, 159, 0.4)',
+                        color: '#38d39f',
+                        borderRadius: 2,
+                      }}
+                    >
+                      READY FOR TESTING
+                    </span>
+                  </div>
+
+                  <div style={{ backgroundColor: 'var(--bg-main)', border: '1px solid var(--border-color)', padding: '0.6rem 0.75rem', borderRadius: 3, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.65rem', fontFamily: 'monospace', color: '#8c9aaa' }}>
+                      <span>Object Key</span>
+                      <span style={{ color: '#eeeeee' }}>{buildInfo.objectKey || `builds/${submission.id}/v1.0.0/game.zip`}</span>
+                    </div>
+
+                    {buildInfo.checksumSha256 && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.65rem', fontFamily: 'monospace', color: '#8c9aaa' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <ShieldCheck size={11} color="#38d39f" /> SHA-256
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ color: '#eeeeee' }}>{buildInfo.checksumSha256.slice(0, 12)}...</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopySha(buildInfo.checksumSha256)}
+                            title="Copy full SHA-256 checksum"
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: copiedSha ? '#38d39f' : '#8c9aaa',
+                              cursor: 'pointer',
+                              padding: 2,
+                              display: 'flex',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {copiedSha ? <Check size={12} /> : <Copy size={12} />}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Direct Download Button for Testing */}
+                  <button
+                    type="button"
+                    className={modalStyles.btnSecondary}
+                    onClick={handleDownloadBuild}
+                    disabled={downloading}
+                    style={{
+                      width: '100%',
+                      padding: '0.7rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      backgroundColor: 'rgba(253, 112, 20, 0.15)',
+                      border: '1px solid #fd7014',
+                      color: '#fd7014',
+                      fontFamily: 'monospace',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      marginTop: '0.25rem',
+                    }}
+                  >
+                    <Download size={14} />
+                    {downloading ? 'Preparing Download...' : 'Download Build Package (.zip)'}
+                  </button>
+                </>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fca5a5', fontSize: '0.7rem', fontFamily: 'monospace', padding: '0.5rem 0' }}>
+                  <AlertTriangle size={14} color="#ef4444" />
+                  <span>No build package uploaded for this submission.</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Col 3: Interactive Theme Preview & Decision */}
@@ -473,7 +672,7 @@ function AdminSubmissionDetail() {
                       type="button"
                       className={modalStyles.btnDanger}
                       style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                      onClick={() => handleStatusChange('rejected')}
+                      onClick={() => setShowRejectModal(true)}
                       disabled={actionLoading}
                     >
                       <XCircle size={16} /> Reject Submission
@@ -497,6 +696,95 @@ function AdminSubmissionDetail() {
           </div>
         </div>
       </div>
+
+      {/* In-App Rejection Modal */}
+      {showRejectModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#161922',
+              border: '1px solid rgba(231, 76, 60, 0.4)',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.85), 0 0 24px rgba(231, 76, 60, 0.15)',
+              width: '100%',
+              maxWidth: '520px',
+              padding: '1.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.25rem',
+              position: 'relative',
+            }}
+          >
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', backgroundColor: '#e74c3c' }} />
+
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#eeeeee', fontFamily: "'Cinzel', serif", display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <XCircle size={18} style={{ color: '#e74c3c' }} />
+                Reject Game Submission
+              </h3>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Provide feedback for <strong style={{ color: '#eeeeee' }}>{submission.title}</strong>. This feedback will be displayed directly on the creator&apos;s dashboard card.
+              </p>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8c9aaa', marginBottom: '0.5rem' }}>
+                Reason for Rejection (Visible to Creator)
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g. Build file failed validation, missing mandatory minimum specifications, or inappropriate cover art..."
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  backgroundColor: '#0f1117',
+                  border: '1px solid #282d3b',
+                  color: '#ffffff',
+                  fontSize: '0.8rem',
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className={modalStyles.btnSecondary}
+                onClick={() => setShowRejectModal(false)}
+                disabled={actionLoading}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={modalStyles.btnDanger}
+                onClick={() => handleStatusChange('rejected')}
+                disabled={actionLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <XCircle size={14} />
+                {actionLoading ? 'Rejecting...' : 'Confirm Rejection'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

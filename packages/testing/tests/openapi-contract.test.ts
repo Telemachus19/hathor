@@ -76,6 +76,7 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
       limit: vi.fn(() => chain),
       offset: vi.fn(() => chain),
       innerJoin: vi.fn(() => chain),
+      leftJoin: vi.fn(() => chain),
       then: vi.fn((onFulfilled, onRejected) => {
         return Promise.resolve().then(getNextSelectMock).then(onFulfilled, onRejected);
       }),
@@ -245,7 +246,7 @@ describe('M2.5.1 OpenAPI Schema Contract Tests', () => {
     });
 
     it('GET /store/games/:slug returns published game detail with 200 OK', async () => {
-      (globalThis as any).catalogFindFirstMock = {
+      const mockGame = {
         id: gameId,
         creatorId: userId,
         slug: 'cyberpunk-odyssey',
@@ -253,11 +254,20 @@ describe('M2.5.1 OpenAPI Schema Contract Tests', () => {
         shortDescription: 'High-octane action RPG',
         fullDescription: 'Full game description',
         priceEgp: '299.99',
+        discountPercent: 0,
+        bannerUrl: null,
+        screenshots: [],
+        trailerUrl: null,
+        systemRequirements: {},
+        pageTheme: {},
         status: 'published',
+        genreId: null,
+        genre: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      (globalThis as any).catalogSelectQueue = [[]]; // tags
+      (globalThis as any).catalogFindFirstMock = mockGame;
+      (globalThis as any).catalogSelectQueue = [[mockGame], []]; // game, tags
 
       const res = await request(catalogApp).get('/store/games/cyberpunk-odyssey');
       expect(res.status).toBe(200);

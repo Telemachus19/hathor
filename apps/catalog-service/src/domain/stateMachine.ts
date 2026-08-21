@@ -9,9 +9,9 @@ export const VALID_GAME_STATUSES: GameStatus[] = [
 ];
 
 const ALLOWED_TRANSITIONS: Record<GameStatus, GameStatus[]> = {
-  draft: ['pending_review'],
+  draft: ['pending_review', 'draft'],
   pending_review: ['published', 'rejected', 'draft'],
-  published: ['suspended'],
+  published: ['suspended', 'pending_review'],
   suspended: ['published', 'rejected', 'draft'],
   rejected: ['draft', 'pending_review'],
 };
