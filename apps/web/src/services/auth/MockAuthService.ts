@@ -87,4 +87,38 @@ export class MockAuthService implements AuthService {
   async logout(): Promise<void> {
     await Promise.resolve();
   }
+
+  async changeEmail(email: string) {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (this.registeredEmails.has(normalizedEmail)) {
+      throw new GatewayApiError(
+        'EMAIL_ALREADY_EXISTS',
+        'An account with this email address already exists.',
+        409,
+        'corr-email-409'
+      );
+    }
+    this.registeredEmails.add(normalizedEmail);
+    await new Promise((res) => setTimeout(res, 200));
+    return {
+      id: 'mock-user-id',
+      email: normalizedEmail,
+      displayName: 'Mock User',
+      roles: ['gamer' as const],
+    };
+  }
+
+  async changePassword(currentPassword: string, _newPassword: string): Promise<void> {
+    if (currentPassword === 'wrong') {
+      throw new GatewayApiError(
+        'INVALID_CREDENTIALS',
+        'Current password is incorrect.',
+        401,
+        'corr-pw-401'
+      );
+    }
+    await new Promise((res) => setTimeout(res, 200));
+  }
+
 }
+
