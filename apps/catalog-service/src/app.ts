@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
-import { eq, and, or, inArray, count, desc } from 'drizzle-orm';
+import { eq, and, or, inArray, count, desc, ilike, sql } from 'drizzle-orm';
 import { catalogDb } from './infrastructure/db/client.js';
 import { games, tags, gameTags, genres, reviews, gameReviews } from './infrastructure/db/schema.js';
 import { requireAuth, requireRole, type AuthenticatedRequest } from './middleware/auth.js';
@@ -84,6 +84,56 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
 
       const whereConditions = [eq(games.status, 'published')];
 
+      // 1. Keyword search (case-insensitive substring match on games.title)
+      const q = req.query.q as string | undefined;
+      if (q && q.trim()) {
+        whereConditions.push(ilike(games.title, `%${q.trim()}%`));
+      }
+
+      // 2. Multi-genre filter (by comma-separated slugs, IDs, or array)
+      const rawGenre = (req.query.genre || req.query.genres) as string | string[] | undefined;
+      const genreSlugsOrIds: string[] = [];
+      if (rawGenre) {
+        if (Array.isArray(rawGenre)) {
+          for (const g of rawGenre) {
+            genreSlugsOrIds.push(
+              ...g.split(',').map((s) => s.trim().toLowerCase()).filter((s) => Boolean(s) && s !== 'all')
+            );
+          }
+        } else if (typeof rawGenre === 'string') {
+          genreSlugsOrIds.push(
+            ...rawGenre.split(',').map((s) => s.trim().toLowerCase()).filter((s) => Boolean(s) && s !== 'all')
+          );
+        }
+      }
+
+      if (genreSlugsOrIds.length > 0) {
+        const numericIds = genreSlugsOrIds.filter((s) => /^\d+$/.test(s)).map((s) => parseInt(s, 10));
+        const stringSlugs = genreSlugsOrIds.filter((s) => !/^\d+$/.test(s));
+
+        const foundGenreIds: number[] = [...numericIds];
+        if (stringSlugs.length > 0) {
+          const matchingGenres = await catalogDb
+            .select({ id: genres.id })
+            .from(genres)
+            .where(inArray(genres.slug, stringSlugs));
+          foundGenreIds.push(...matchingGenres.map((g) => g.id));
+        }
+
+        if (foundGenreIds.length === 0) {
+          return res.status(200).json({
+            success: true,
+            data: {
+              items: [],
+              pagination: { page, limit, totalItems: 0, totalPages: 0 },
+            },
+          });
+        }
+
+        whereConditions.push(inArray(games.genreId, foundGenreIds));
+      }
+
+      // 3. Tags filter (matching game tags)
       if (tagSlugs.length > 0) {
         const matchingGameIdRecords = await catalogDb
           .selectDistinct({ gameId: gameTags.gameId })
@@ -106,6 +156,17 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         whereConditions.push(inArray(games.id, matchingIds));
       }
 
+      // 4. Dynamic Order By based on sort selection
+      const sort = (req.query.sort as string | undefined)?.toLowerCase();
+      let orderByClause = desc(games.createdAt);
+      if (sort === 'trending') {
+        orderByClause = desc(games.updatedAt);
+      } else if (sort === 'top_rated') {
+        orderByClause = desc(games.discountPercent);
+      } else if (sort === 'new_arrivals') {
+        orderByClause = desc(games.createdAt);
+      }
+
       const gameRecords = await catalogDb
         .select({
           id: games.id,
@@ -117,10 +178,15 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
           bannerUrl: games.bannerUrl,
           pageTheme: games.pageTheme,
           status: games.status,
+          genreId: games.genreId,
+          genreName: genres.name,
+          genreSlug: genres.slug,
           createdAt: games.createdAt,
         })
         .from(games)
+        .leftJoin(genres, eq(games.genreId, genres.id))
         .where(and(...whereConditions))
+        .orderBy(orderByClause)
         .limit(limit)
         .offset(skip);
 
@@ -146,9 +212,11 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         }
       }
 
-      const itemsWithTags = gameRecords.map(({ id, priceEgp, ...g }) => ({
+      const itemsWithTags = gameRecords.map(({ id, priceEgp, genreName, genreSlug, genreId, ...g }) => ({
         id,
         ...g,
+        genreId,
+        genre: genreName ? { id: genreId, name: genreName, slug: genreSlug } : null,
         priceEgp: formatPriceEgp(priceEgp),
         tags: tagsByGameId[id] || [],
       }));
@@ -178,6 +246,76 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       res.status(500).json({
         success: false,
         error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch catalog' },
+      });
+    }
+  });
+
+  // GET /store/genres - List all public genres
+  app.get('/store/genres', async (_req: Request, res: Response) => {
+    try {
+      let items = await catalogDb.select().from(genres).orderBy(genres.name);
+      if (!items || items.length === 0) {
+        const defaultGenres = [
+          { name: 'Action', slug: 'action' },
+          { name: 'Adventure', slug: 'adventure' },
+          { name: 'RPG', slug: 'rpg' },
+          { name: 'Strategy', slug: 'strategy' },
+          { name: 'Simulation', slug: 'simulation' },
+          { name: 'Racing', slug: 'racing' },
+          { name: 'Puzzle', slug: 'puzzle' },
+          { name: 'Sports', slug: 'sports' },
+          { name: 'Horror', slug: 'horror' },
+          { name: 'Indie', slug: 'indie' },
+          { name: 'Sci-Fi', slug: 'sci-fi' },
+        ];
+        for (const g of defaultGenres) {
+          await catalogDb.insert(genres).values(g).onConflictDoNothing();
+        }
+        items = await catalogDb.select().from(genres).orderBy(genres.name);
+      }
+      res.status(200).json({ success: true, data: items });
+    } catch (error) {
+      console.error('Error fetching store genres:', error);
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch genres' },
+      });
+    }
+  });
+
+  // GET /store/tags - List all public tags
+  app.get('/store/tags', async (_req: Request, res: Response) => {
+    try {
+      let items = await catalogDb.select().from(tags).orderBy(tags.name);
+      if (!items || items.length === 0) {
+        const defaultTags = [
+          { name: 'Indie', slug: 'indie' },
+          { name: 'Cyberpunk', slug: 'cyberpunk' },
+          { name: 'Open World', slug: 'open-world' },
+          { name: 'Singleplayer', slug: 'singleplayer' },
+          { name: 'Multiplayer', slug: 'multiplayer' },
+          { name: 'Turn-Based', slug: 'turn-based' },
+          { name: 'Dark Fantasy', slug: 'dark-fantasy' },
+          { name: 'Sci-Fi', slug: 'sci-fi' },
+          { name: 'Historical', slug: 'historical' },
+          { name: 'Pixel Art', slug: 'pixel-art' },
+          { name: 'Sandbox', slug: 'sandbox' },
+          { name: 'Crafting', slug: 'crafting' },
+          { name: 'Roguelike', slug: 'roguelike' },
+          { name: 'Stealth', slug: 'stealth' },
+          { name: 'Platformer', slug: 'platformer' },
+        ];
+        for (const t of defaultTags) {
+          await catalogDb.insert(tags).values(t).onConflictDoNothing();
+        }
+        items = await catalogDb.select().from(tags).orderBy(tags.name);
+      }
+      res.status(200).json({ success: true, data: items });
+    } catch (error) {
+      console.error('Error fetching store tags:', error);
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch tags' },
       });
     }
   });

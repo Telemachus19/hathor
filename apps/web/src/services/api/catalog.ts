@@ -55,7 +55,11 @@ export interface CatalogResponse {
  * Query parameters for filtering and paginating catalog games.
  */
 export interface FetchCatalogParams {
+  q?: string;
+  genre?: string;
+  tags?: string[] | string;
   tag?: string;
+  sort?: 'trending' | 'top_rated' | 'new_arrivals' | string;
   page?: number;
   limit?: number;
 }
@@ -64,14 +68,30 @@ export interface FetchCatalogParams {
  * Fetches published games from the Catalog Service via API Gateway.
  */
 export async function fetchStoreGames({
+  q,
+  genre,
+  tags,
   tag,
+  sort,
   page = 1,
   limit = 10,
 }: FetchCatalogParams): Promise<CatalogResponse> {
   const queryParams = new URLSearchParams();
   if (page) queryParams.set('page', String(page));
   if (limit) queryParams.set('limit', String(limit));
-  if (tag && tag.toUpperCase() !== 'ALL') queryParams.set('tag', tag.toLowerCase());
+  if (q && q.trim()) queryParams.set('q', q.trim());
+  if (genre && genre.trim() && genre.toUpperCase() !== 'ALL') queryParams.set('genre', genre.trim());
+  if (sort) queryParams.set('sort', sort);
+
+  const tagList = tags
+    ? Array.isArray(tags)
+      ? tags.join(',')
+      : tags
+    : tag && tag.toUpperCase() !== 'ALL'
+      ? tag
+      : undefined;
+
+  if (tagList) queryParams.set('tags', tagList);
 
   const response = await fetch(`${apiBaseUrl}/store/games?${queryParams.toString()}`);
 
@@ -86,11 +106,11 @@ export async function fetchStoreGames({
  * React Query hook for fetching and caching catalog game listings.
  */
 export function useCatalogGames(params: FetchCatalogParams = {}) {
-  const { tag, page = 1, limit = 10 } = params;
+  const { q, genre, tags, tag, sort, page = 1, limit = 10 } = params;
 
   return useQuery({
-    queryKey: ['store-games', tag, page, limit],
-    queryFn: () => fetchStoreGames({ tag, page, limit }),
+    queryKey: ['store-games', q, genre, tags, tag, sort, page, limit],
+    queryFn: () => fetchStoreGames({ q, genre, tags, tag, sort, page, limit }),
   });
 }
 
@@ -98,16 +118,57 @@ export function useCatalogGames(params: FetchCatalogParams = {}) {
  * React Query infinite scroll hook for fetching paginated catalog games sequentially.
  */
 export function useInfiniteCatalogGames(params: Omit<FetchCatalogParams, 'page'> = {}) {
-  const { tag, limit = 8 } = params;
+  const { q, genre, tags, tag, sort, limit = 12 } = params;
 
   return useInfiniteQuery({
-    queryKey: ['infinite-store-games', tag, limit],
-    queryFn: ({ pageParam = 1 }) => fetchStoreGames({ tag, page: pageParam, limit }),
+    queryKey: ['infinite-store-games', q, genre, tags, tag, sort, limit],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchStoreGames({ q, genre, tags, tag, sort, page: pageParam, limit }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       const { page, totalPages } = lastPage.data.pagination;
       return page < totalPages ? page + 1 : undefined;
     },
+  });
+}
+
+/**
+ * React Query hook for fetching public store genres list.
+ */
+export function useStoreGenres() {
+  return useQuery<{ id: number; name: string; slug: string }[]>({
+    queryKey: ['store-genres'],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/store/genres`);
+        if (!response.ok) return [];
+        const json = await response.json();
+        return json.data || [];
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * React Query hook for fetching public store tags list.
+ */
+export function useStoreTags() {
+  return useQuery<{ id: number; name: string; slug: string }[]>({
+    queryKey: ['store-tags'],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/store/tags`);
+        if (!response.ok) return [];
+        const json = await response.json();
+        return json.data || [];
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 5 * 60 * 1000,
   });
 }
 

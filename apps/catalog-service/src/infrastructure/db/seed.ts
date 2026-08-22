@@ -1457,7 +1457,7 @@ function createDragonTheme() {
   };
 }
 
-async function seed() {
+export async function seedCatalog() {
   try {
     const defaultGenres = [
       { name: 'Action', slug: 'action' },
@@ -1984,10 +1984,11 @@ async function seed() {
     );
   } catch (error) {
     console.error('Error during catalog database seeding:', error);
-    process.exitCode = 1;
-  } finally {
-    await catalogPool.end();
   }
 }
 
-void seed();
+if (process.argv[1]?.includes('seed')) {
+  void seedCatalog().finally(() => {
+    void catalogPool.end();
+  });
+}

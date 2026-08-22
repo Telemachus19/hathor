@@ -33,6 +33,10 @@ export type AuthContextValue = {
   refresh: () => Promise<void>;
 
   logout: () => Promise<void>;
+
+  changeEmail: (email: string) => Promise<void>;
+
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -159,6 +163,21 @@ export function AuthContextProvider({ children, authService }: AuthProviderProps
     }
   }, [authService]);
 
+  const changeEmail = useCallback(
+    async (email: string) => {
+      const updatedUser = await authService.changeEmail(email);
+      setUser((prev) => (prev ? { ...prev, email: updatedUser.email } : updatedUser));
+    },
+    [authService]
+  );
+
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      await authService.changePassword(currentPassword, newPassword);
+    },
+    [authService]
+  );
+
   const value = useMemo<AuthContextValue>(
     () => ({
       accessToken,
@@ -169,9 +188,12 @@ export function AuthContextProvider({ children, authService }: AuthProviderProps
       register,
       refresh,
       logout,
+      changeEmail,
+      changePassword,
     }),
-    [accessToken, user, status, isAuthenticated, login, register, refresh, logout]
+    [accessToken, user, status, isAuthenticated, login, register, refresh, logout, changeEmail, changePassword]
   );
+
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

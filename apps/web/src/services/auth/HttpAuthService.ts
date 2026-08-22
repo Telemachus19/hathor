@@ -1,4 +1,5 @@
 import type { ApiClient } from '../api/ApiClient';
+import type { AuthUser } from '../../context/AuthContext';
 import type { AuthService, LoginResult, RegisterInput } from './AuthService';
 
 export class HttpAuthService implements AuthService {
@@ -67,4 +68,25 @@ export class HttpAuthService implements AuthService {
       this.apiClient.setAccessToken(null);
     }
   }
+
+  async changeEmail(email: string): Promise<AuthUser> {
+    const { data } = await this.apiClient.PUT('/user/email' as any, {
+      body: { email },
+    });
+
+    const user = (data as any)?.data || (data as any)?.user || data;
+    return {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      roles: user.roles as ('gamer' | 'creator' | 'admin')[],
+    };
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.apiClient.POST('/user/change-password' as any, {
+      body: { currentPassword, newPassword },
+    });
+  }
 }
+
