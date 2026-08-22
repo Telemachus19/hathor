@@ -64,13 +64,7 @@ export const Navbar: React.FC = () => {
 
             {isAuthenticated ? (
               <Link
-                to={
-                  Array.isArray(user?.roles) && user?.roles.includes('admin')
-                    ? '/admin'
-                    : Array.isArray(user?.roles) && user?.roles.includes('creator')
-                      ? '/creator'
-                      : '/profile'
-                }
+                to="/profile"
                 className={styles.navLink}
                 activeProps={{ className: styles.navLinkActive }}
               >
@@ -135,13 +129,7 @@ export const Navbar: React.FC = () => {
               </Link>
               {isAuthenticated ? (
                 <Link
-                  to={
-                    Array.isArray(user?.roles) && user?.roles.includes('admin')
-                      ? '/admin'
-                      : Array.isArray(user?.roles) && user?.roles.includes('creator')
-                        ? '/creator'
-                        : '/profile'
-                  }
+                  to="/profile"
                   className={styles.mobileNavLink}
                   onClick={closeMenu}
                 >
