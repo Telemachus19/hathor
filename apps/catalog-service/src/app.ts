@@ -1,8 +1,9 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
-import { eq, and, or, inArray, count } from 'drizzle-orm';
+import { eq, and, or, inArray, count, desc } from 'drizzle-orm';
 import { catalogDb } from './infrastructure/db/client.js';
-import { games, tags, gameTags, genres } from './infrastructure/db/schema.js';
+import { games, tags, gameTags, genres, reviews, gameReviews } from './infrastructure/db/schema.js';
+import { requireAuth, requireRole, type AuthenticatedRequest } from './middleware/auth.js';
 import adminRouter from './routes/admin.js';
 import creatorRouter from './routes/creator.js';
 import internalRouter from './routes/internal.js';
@@ -249,6 +250,244 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
       });
     }
   });
+
+  // Helper to resolve game by ID or slug
+  async function resolveGame(slugOrId: string) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+    const condition = isUuid ? eq(games.id, slugOrId) : eq(games.slug, slugOrId);
+    const [game] = await catalogDb
+      .select({ id: games.id, title: games.title, slug: games.slug, status: games.status })
+      .from(games)
+      .where(condition)
+      .limit(1);
+    return game || null;
+  }
+
+  // GET /store/games/:slug/reviews - Public review list & calculated breakdown
+  app.get('/store/games/:slug/reviews', async (req: Request, res: Response) => {
+    try {
+      const { slug } = req.params;
+      const game = await resolveGame(slug);
+      if (!game) {
+        return res.status(404).json({
+          success: false,
+          error: { code: 'GAME_NOT_FOUND', message: 'Game not found' },
+        });
+      }
+
+      const reviewRows = await catalogDb
+        .select({
+          id: reviews.id,
+          userId: reviews.userId,
+          sentiment: reviews.sentiment,
+          content: reviews.content,
+          createdAt: reviews.createdAt,
+          updatedAt: reviews.updatedAt,
+        })
+        .from(reviews)
+        .innerJoin(gameReviews, eq(reviews.id, gameReviews.reviewId))
+        .where(eq(gameReviews.gameId, game.id))
+        .orderBy(desc(reviews.createdAt));
+
+      const totalReviews = reviewRows.length;
+      const positiveCount = reviewRows.filter((r) => r.sentiment === 'positive').length;
+      const mixedCount = reviewRows.filter((r) => r.sentiment === 'mixed').length;
+      const negativeCount = reviewRows.filter((r) => r.sentiment === 'negative').length;
+
+      const breakdown = [
+        {
+          sentiment: 'positive' as const,
+          label: 'Positive',
+          count: positiveCount,
+          percent: totalReviews > 0 ? Math.round((positiveCount / totalReviews) * 100) : 0,
+        },
+        {
+          sentiment: 'mixed' as const,
+          label: 'Mixed',
+          count: mixedCount,
+          percent: totalReviews > 0 ? Math.round((mixedCount / totalReviews) * 100) : 0,
+        },
+        {
+          sentiment: 'negative' as const,
+          label: 'Negative',
+          count: negativeCount,
+          percent: totalReviews > 0 ? Math.round((negativeCount / totalReviews) * 100) : 0,
+        },
+      ];
+
+      res.status(200).json({
+        success: true,
+        data: {
+          reviews: reviewRows,
+          totalReviews,
+          breakdown,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching game reviews:', error);
+      res.status(500).json({
+        success: false,
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch reviews' },
+      });
+    }
+  });
+
+  // GET /store/games/:slug/reviews/mine - Fetch current user's review for this game
+  app.get(
+    '/store/games/:slug/reviews/mine',
+    requireAuth,
+    requireRole('gamer'),
+    async (req: Request, res: Response) => {
+      try {
+        const { slug } = req.params;
+        const authReq = req as AuthenticatedRequest;
+        if (!authReq.user) {
+          return res.status(401).json({
+            success: false,
+            error: { code: 'UNAUTHENTICATED', message: 'User not authenticated' },
+          });
+        }
+        const userId = authReq.user.id;
+
+        const game = await resolveGame(slug);
+        if (!game) {
+          return res.status(404).json({
+            success: false,
+            error: { code: 'GAME_NOT_FOUND', message: 'Game not found' },
+          });
+        }
+
+        const [userReview] = await catalogDb
+          .select({
+            id: reviews.id,
+            userId: reviews.userId,
+            sentiment: reviews.sentiment,
+            content: reviews.content,
+            createdAt: reviews.createdAt,
+            updatedAt: reviews.updatedAt,
+          })
+          .from(reviews)
+          .innerJoin(gameReviews, eq(reviews.id, gameReviews.reviewId))
+          .where(and(eq(gameReviews.gameId, game.id), eq(reviews.userId, userId)))
+          .limit(1);
+
+        res.status(200).json({
+          success: true,
+          data: {
+            review: userReview || null,
+          },
+        });
+      } catch (error) {
+        console.error('Error fetching user review:', error);
+        res.status(500).json({
+          success: false,
+          error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch user review' },
+        });
+      }
+    }
+  );
+
+  // POST /store/games/:slug/reviews - Create or update user review
+  app.post(
+    '/store/games/:slug/reviews',
+    requireAuth,
+    requireRole('gamer'),
+    async (req: Request, res: Response) => {
+      try {
+        const { slug } = req.params;
+        const authReq = req as AuthenticatedRequest;
+        if (!authReq.user) {
+          return res.status(401).json({
+            success: false,
+            error: { code: 'UNAUTHENTICATED', message: 'User not authenticated' },
+          });
+        }
+        const userId = authReq.user.id;
+        const { sentiment, content } = req.body || {};
+
+        if (!sentiment || !['positive', 'mixed', 'negative'].includes(sentiment)) {
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'INVALID_SENTIMENT',
+              message: "Sentiment must be 'positive', 'mixed', or 'negative'",
+            },
+          });
+        }
+
+        if (typeof content !== 'string' || !content.trim()) {
+          return res.status(400).json({
+            success: false,
+            error: { code: 'INVALID_CONTENT', message: 'Review content is required' },
+          });
+        }
+
+        const game = await resolveGame(slug);
+        if (!game) {
+          return res.status(404).json({
+            success: false,
+            error: { code: 'GAME_NOT_FOUND', message: 'Game not found' },
+          });
+        }
+
+        // Check if review already exists for this user on this game
+        const [existingReview] = await catalogDb
+          .select({
+            id: reviews.id,
+          })
+          .from(reviews)
+          .innerJoin(gameReviews, eq(reviews.id, gameReviews.reviewId))
+          .where(and(eq(gameReviews.gameId, game.id), eq(reviews.userId, userId)))
+          .limit(1);
+
+        let finalReview;
+
+        if (existingReview) {
+          // Update existing review
+          const [updated] = await catalogDb
+            .update(reviews)
+            .set({
+              sentiment,
+              content: content.trim(),
+              updatedAt: new Date(),
+            })
+            .where(eq(reviews.id, existingReview.id))
+            .returning();
+          finalReview = updated;
+        } else {
+          // Insert new review & link to gameReviews
+          const [created] = await catalogDb
+            .insert(reviews)
+            .values({
+              userId,
+              sentiment,
+              content: content.trim(),
+            })
+            .returning();
+
+          await catalogDb.insert(gameReviews).values({
+            gameId: game.id,
+            reviewId: created.id,
+          });
+
+          finalReview = created;
+        }
+
+        res.status(200).json({
+          success: true,
+          data: {
+            review: finalReview,
+          },
+        });
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        res.status(500).json({
+          success: false,
+          error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to submit review' },
+        });
+      }
+    }
+  );
 
   return app;
 }

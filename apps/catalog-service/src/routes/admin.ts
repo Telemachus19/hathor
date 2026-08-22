@@ -413,32 +413,64 @@ router.get(
   requireAuth,
   requireRole('admin'),
   async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
     const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
-    const cursor = parseInt(req.query.cursor as string) || 0;
+    const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
+    const catalogSecret = process.env.CATALOG_SERVICE_SECRET || 'catalog-service-secret-phrase';
 
     try {
-      const fetchedLogs = await catalogDb
-        .select()
-        .from(auditLogs)
-        .orderBy(desc(auditLogs.createdAt))
-        .limit(limit + 1)
-        .offset(cursor);
+      const [authRes, localLogs] = await Promise.all([
+        fetch(`${authServiceUrl}/internal/v1/auth/audit-logs?limit=${limit}`, {
+          headers: {
+            'x-correlation-id': correlationId,
+            'x-hathor-service-credential': `catalog-service:${catalogSecret}`,
+          },
+        }).catch((err) => {
+          console.error('Failed to fetch auth audit logs from catalog-service:', err);
+          return { ok: false, json: async () => ({ items: [] }) };
+        }),
+        catalogDb
+          .select()
+          .from(auditLogs)
+          .orderBy(desc(auditLogs.createdAt))
+          .limit(limit),
+      ]);
 
-      let nextCursor: string | null = null;
-      if (fetchedLogs.length > limit) {
-        nextCursor = (cursor + limit).toString();
-        fetchedLogs.pop();
-      }
+      const authData = authRes.ok ? await (authRes as any).json() : { items: [] };
+
+      const mappedAuthLogs = (authData.items || []).map((log: any) => ({
+        id: log.id,
+        actorId: log.actorId,
+        targetType: log.targetType || 'user',
+        targetId: log.targetId,
+        action: log.action,
+        details: log.details,
+        timestamp: log.timestamp,
+        service: 'auth-service',
+      }));
+
+      const mappedCatalogLogs = localLogs.map((log) => ({
+        id: log.id,
+        actorId: log.actorId,
+        targetType: log.targetType || 'game',
+        targetId: log.targetId,
+        action: log.action,
+        details: log.details,
+        timestamp: log.createdAt ? log.createdAt.toISOString() : new Date().toISOString(),
+        service: 'catalog-service',
+      }));
+
+      const allLogs = [...mappedAuthLogs, ...mappedCatalogLogs];
+      allLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
       res.status(200).json({
-        items: fetchedLogs,
-        nextCursor,
+        items: allLogs.slice(0, limit),
       });
     } catch (error) {
       console.error('List audit logs error:', error);
-      res
-        .status(500)
-        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list audit logs' } });
+      res.status(500).json({
+        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list audit logs', correlationId },
+      });
     }
   }
 );

@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient, apiBaseUrl } from './index';
 
 /**
@@ -219,4 +219,136 @@ export async function createCreatorGame(
   });
 
   return response.json();
+}
+
+/**
+ * Game review item representation from the catalog service.
+ */
+export interface GameReviewItem {
+  id: string;
+  userId: string;
+  sentiment: 'positive' | 'mixed' | 'negative';
+  content: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Calculated sentiment breakdown item.
+ */
+export interface ReviewBreakdownItem {
+  sentiment: 'positive' | 'mixed' | 'negative';
+  label: string;
+  count: number;
+  percent: number;
+}
+
+/**
+ * Response payload for game reviews endpoint.
+ */
+export interface GameReviewsData {
+  reviews: GameReviewItem[];
+  totalReviews: number;
+  breakdown: ReviewBreakdownItem[];
+}
+
+/**
+ * Fetches all reviews and breakdown for a game by slug or ID.
+ */
+export async function fetchGameReviews(slugOrId: string): Promise<GameReviewsData | null> {
+  try {
+    const response = await fetch(`${apiBaseUrl}/store/games/${slugOrId}/reviews`);
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json.data || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * React Query hook for fetching and caching game reviews.
+ */
+export function useGameReviews(slugOrId?: string) {
+  return useQuery({
+    queryKey: ['game-reviews', slugOrId],
+    queryFn: () => (slugOrId ? fetchGameReviews(slugOrId) : null),
+    enabled: !!slugOrId,
+  });
+}
+
+/**
+ * Fetches the current logged-in user's review for a game.
+ */
+export async function fetchMyGameReview(
+  slugOrId: string,
+  token?: string
+): Promise<GameReviewItem | null> {
+  if (!token) return null;
+  try {
+    const response = await fetch(`${apiBaseUrl}/store/games/${slugOrId}/reviews/mine`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) return null;
+    const json = await response.json();
+    return json.data?.review || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * React Query hook for fetching the current user's review for a game.
+ */
+export function useMyGameReview(slugOrId?: string, token?: string) {
+  return useQuery({
+    queryKey: ['my-game-review', slugOrId, token],
+    queryFn: () => (slugOrId && token ? fetchMyGameReview(slugOrId, token) : null),
+    enabled: !!slugOrId && !!token,
+  });
+}
+
+/**
+ * Submits or updates a review for a game.
+ */
+export async function submitGameReview(
+  slugOrId: string,
+  payload: { sentiment: 'positive' | 'mixed' | 'negative'; content: string },
+  token: string
+): Promise<{ success: boolean; data?: { review: GameReviewItem }; error?: any }> {
+  const response = await fetch(`${apiBaseUrl}/store/games/${slugOrId}/reviews`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return response.json();
+}
+
+/**
+ * React Query hook for submitting or updating a game review.
+ */
+export function useSubmitGameReview() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      slugOrId,
+      payload,
+      token,
+    }: {
+      slugOrId: string;
+      payload: { sentiment: 'positive' | 'mixed' | 'negative'; content: string };
+      token: string;
+    }) => submitGameReview(slugOrId, payload, token),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['game-reviews', variables.slugOrId] });
+      queryClient.invalidateQueries({ queryKey: ['my-game-review', variables.slugOrId] });
+    },
+  });
 }

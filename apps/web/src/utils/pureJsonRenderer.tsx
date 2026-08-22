@@ -280,6 +280,8 @@ function ComponentNodeContent({
         isOwned={pageSettings?.isOwned}
         isAuthenticated={pageSettings?.isAuthenticated}
         isDesignerPreview={pageSettings?.isDesignerPreview}
+        gameId={pageSettings?.gameId || gd.id}
+        slug={pageSettings?.slug || gd.slug}
       />
     );
   }

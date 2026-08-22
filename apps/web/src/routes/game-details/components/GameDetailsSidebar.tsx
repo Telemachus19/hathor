@@ -441,19 +441,17 @@ export const GameSidebarInfo: React.FC<GameDetailsSidebarProps> = (props) => {
 
 export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => {
   const s = props.s || {};
-  const rawRatings = s.sideRatings || props.ratingsBreakdown;
+  const rawRatings = props.ratingsBreakdown;
 
   const defaultRatings = [
-    { sentiment: 'positive', label: 'Positive', percent: 78 },
-    { sentiment: 'mixed', label: 'Mixed', percent: 14 },
-    { sentiment: 'negative', label: 'Negative', percent: 8 },
+    { sentiment: 'positive', label: 'Positive', percent: 0, count: 0 },
+    { sentiment: 'mixed', label: 'Mixed', percent: 0, count: 0 },
+    { sentiment: 'negative', label: 'Negative', percent: 0, count: 0 },
   ];
 
   const ratings =
     Array.isArray(rawRatings) && rawRatings.length > 0
-      ? rawRatings[0]?.sentiment || rawRatings[0]?.label
-        ? rawRatings
-        : defaultRatings
+      ? rawRatings
       : defaultRatings;
 
   const cardBg = s.ratingsCardBg || SURFACE;

@@ -2,17 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ThumbsUp, ThumbsDown, Minus, X, MessageSquare } from 'lucide-react';
 import { getHarmonizedSentimentPalette } from '../../../utils/sentimentColors';
+import { useAuth } from '../../../context/AuthContext';
+import { useMyGameReview, useSubmitGameReview } from '../../../services/api';
 
 export interface GameReviewsProps {
   s?: any;
   score?: number;
-  totalReviews?: string;
+  totalReviews?: string | number;
   reviews?: Array<any>;
   device?: 'desktop' | 'tablet' | 'mobile';
   pageSettings?: any;
   isOwned?: boolean;
   isAuthenticated?: boolean;
   isDesignerPreview?: boolean;
+  gameId?: string;
+  slug?: string;
 }
 
 const GREEN_ACCENT = '#38d39f';
@@ -26,11 +30,69 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const device = props.device || 'desktop';
   const isMobile = device === 'mobile';
 
+  const auth = useAuth();
+  const token = auth?.accessToken || undefined;
   const isOwned = props.isOwned ?? (props.pageSettings?.isOwned === true);
+
+  const targetGameSlugOrId =
+    props.slug ||
+    props.gameId ||
+    s.slug ||
+    s.gameId ||
+    props.pageSettings?.slug ||
+    props.pageSettings?.gameId ||
+    props.pageSettings?.gameData?.slug ||
+    props.pageSettings?.gameData?.id;
+
+  const { data: myReviewData } = useMyGameReview(targetGameSlugOrId, token);
+  const submitReviewMutation = useSubmitGameReview();
+  const hasExistingReview = Boolean(myReviewData);
 
   const [sentiment, setSentiment] = useState<'positive' | 'mixed' | 'negative'>('positive');
   const [reviewContent, setReviewContent] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitFeedback, setSubmitFeedback] = useState<{ error?: string; success?: boolean }>({});
+
+  useEffect(() => {
+    if (myReviewData) {
+      setSentiment(myReviewData.sentiment);
+      setReviewContent(myReviewData.content);
+    }
+  }, [myReviewData]);
+
+  const handleSubmitReview = async () => {
+    if (!targetGameSlugOrId || !token || !reviewContent.trim() || submitReviewMutation.isPending) {
+      return;
+    }
+    setSubmitFeedback({});
+
+    const formatErrorMessage = (raw?: string) => {
+      if (!raw) return 'Failed to submit review. Please try again.';
+      if (/lacks required role/i.test(raw) || /forbidden/i.test(raw)) {
+        return 'You do not have permission to submit a review.';
+      }
+      if (/unauthenticated/i.test(raw) || /not authenticated/i.test(raw)) {
+        return 'Please sign in to submit a review.';
+      }
+      return raw;
+    };
+
+    try {
+      const res = await submitReviewMutation.mutateAsync({
+        slugOrId: targetGameSlugOrId,
+        payload: { sentiment, content: reviewContent.trim() },
+        token,
+      });
+      if (res.success) {
+        setSubmitFeedback({ success: true });
+        setTimeout(() => setSubmitFeedback({}), 4000);
+      } else {
+        setSubmitFeedback({ error: formatErrorMessage(res.error?.message) });
+      }
+    } catch (err: any) {
+      setSubmitFeedback({ error: formatErrorMessage(err.message) });
+    }
+  };
 
   // Lock body scroll and close on Escape key when modal is open
   useEffect(() => {
@@ -66,47 +128,8 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
 
   const headerTitle = s.reviewHeader || 'USER REVIEWS';
   const headerColor = s.reviewHeaderColor || s.reviewTitleColor || s.titleColor || '#f4b183';
-  const totalRev = s.totalReviews || props.totalReviews || '0 total';
-
-  const reviewsList = s.reviews ||
-    props.reviews || [
-      {
-        id: 'rev_1',
-        userName: 'CYBER_RUNNER',
-        userAvatarInitials: 'CR',
-        score: 0,
-        date: 'Recent',
-        comment: 'Absolute masterpiece. The visuals and atmosphere set a new benchmark in gaming excellence.',
-        sentiment: 'positive',
-      },
-      {
-        id: 'rev_2',
-        userName: 'PIXEL_WARRIOR',
-        userAvatarInitials: 'PW',
-        score: 0,
-        date: 'Last Month',
-        comment: 'Stunning design and combat mechanics. Highly recommended for fans of the genre.',
-        sentiment: 'positive',
-      },
-      {
-        id: 'rev_3',
-        userName: 'SHADOW_BLADE',
-        userAvatarInitials: 'SB',
-        score: 0,
-        date: '2 months ago',
-        comment: 'Solid gameplay, though boss difficulty spikes significantly in late game areas.',
-        sentiment: 'mixed',
-      },
-      {
-        id: 'rev_4',
-        userName: 'NEO_TACTICIAN',
-        userAvatarInitials: 'NT',
-        score: 0,
-        date: '3 months ago',
-        comment: 'Great storyline and art direction, but needs performance optimization on older rigs.',
-        sentiment: 'mixed',
-      },
-    ];
+  const reviewsList = Array.isArray(props.reviews) ? props.reviews : [];
+  const totalRev = props.totalReviews !== undefined ? props.totalReviews : `${reviewsList.length} total`;
 
   const displayedReviews = reviewsList.slice(0, 2);
 
@@ -117,40 +140,49 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
     const badgeStyles =
       revSentiment === 'negative'
         ? {
-            bg: sentimentPalette.negative.bg,
-            border: sentimentPalette.negative.border,
-            color: sentimentPalette.negative.color,
-            label: 'Negative',
-            icon: <ThumbsDown size={11} />,
-          }
+          bg: sentimentPalette.negative.bg,
+          border: sentimentPalette.negative.border,
+          color: sentimentPalette.negative.color,
+          label: 'Negative',
+          icon: <ThumbsDown size={11} />,
+        }
         : revSentiment === 'mixed'
           ? {
-              bg: sentimentPalette.mixed.bg,
-              border: sentimentPalette.mixed.border,
-              color: sentimentPalette.mixed.color,
-              label: 'Mixed',
-              icon: <Minus size={11} />,
-            }
+            bg: sentimentPalette.mixed.bg,
+            border: sentimentPalette.mixed.border,
+            color: sentimentPalette.mixed.color,
+            label: 'Mixed',
+            icon: <Minus size={11} />,
+          }
           : {
-              bg: sentimentPalette.positive.bg,
-              border: sentimentPalette.positive.border,
-              color: sentimentPalette.positive.color,
-              label: 'Recommended',
-              icon: <ThumbsUp size={11} />,
-            };
+            bg: sentimentPalette.positive.bg,
+            border: sentimentPalette.positive.border,
+            color: sentimentPalette.positive.color,
+            label: 'Recommended',
+            icon: <ThumbsUp size={11} />,
+          };
 
-    const authorName = rev.userName || rev.author || 'SAMPLE_USER';
+    const authorName =
+      rev.userName ||
+      rev.author ||
+      (rev.userId ? `USER_${String(rev.userId).slice(0, 8).toUpperCase()}` : 'PLAYER');
     const authorInitials =
       rev.userAvatarInitials ||
-      authorName
-        .split(' ')
-        .map((p: string) => p[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase() ||
-      'SU';
+      (rev.userId
+        ? String(rev.userId).slice(0, 2).toUpperCase()
+        : authorName
+          .split(' ')
+          .map((p: string) => p[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase() || 'PL');
     const commentText =
       rev.comment || rev.content || 'Player reviews will appear here once the game is reviewed.';
+    const reviewDate = rev.createdAt
+      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(
+        new Date(rev.createdAt)
+      )
+      : rev.date || 'Recent';
 
     return (
       <div
@@ -230,7 +262,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
               {badgeStyles.icon} {badgeStyles.label}
             </div>
             <span style={{ fontSize: 10, color: TEXT_MUTED, fontFamily: 'monospace' }}>
-              {rev.date || 'No date'}
+              {reviewDate}
             </span>
           </div>
         </div>
@@ -240,7 +272,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
             fontSize: isMobile ? 12 : 13,
             color: bodyColor,
             lineHeight: 1.6,
-            margin: 0,
+            margin: '0 0 12px 0',
           }}
         >
           {commentText}
@@ -250,7 +282,16 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   };
 
   return (
-    <div style={{ width: '100%', boxSizing: 'border-box' }}>
+    <div
+      style={{
+        background: 'transparent',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    >
       <style>{`
         @media (max-width: 640px) {
           .hathor-write-review-header {
@@ -260,68 +301,63 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
           }
           .hathor-sentiment-selector {
             width: 100% !important;
-            box-sizing: border-box !important;
           }
           .hathor-sentiment-btn {
-            flex: 1 !important;
-            justify-content: center !important;
-            padding: 8px 6px !important;
+            flex: 1 1 0% !important;
+            padding: 8px 4px !important;
             font-size: 11px !important;
+            justify-content: center !important;
           }
         }
       `}</style>
 
-      {/* Header Row: Title and Total Badge */}
+      {/* Header Bar */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 20,
-          flexWrap: 'wrap',
-          gap: 12,
+          alignItems: 'center',
+          borderBottom: `1px solid ${cardBorder}`,
+          paddingBottom: 10,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <h2
-            style={{
-              fontFamily: titleFont,
-              fontSize: isMobile ? 16 : 18,
-              fontWeight: 900,
-              color: headerColor,
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              margin: 0,
-            }}
-          >
-            {headerTitle}
-          </h2>
-          <span
-            style={{
-              border: `1px solid ${BORDER}`,
-              background: 'rgba(0,0,0,0.3)',
-              color: TEXT_MUTED,
-              fontSize: 10,
-              fontWeight: 700,
-              padding: '3px 8px',
-              borderRadius: 3,
-              fontFamily: 'monospace',
-            }}
-          >
-            {totalRev}
-          </span>
-        </div>
+        <h3
+          style={{
+            fontFamily: titleFont,
+            fontSize: isMobile ? 14 : 16,
+            fontWeight: 900,
+            color: headerColor,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}
+        >
+          {headerTitle}
+        </h3>
+        <span
+          style={{
+            border: `1px solid ${BORDER}`,
+            background: 'rgba(0,0,0,0.3)',
+            color: TEXT_MUTED,
+            fontSize: 10,
+            fontWeight: 700,
+            padding: '2px 8px',
+            borderRadius: 3,
+            fontFamily: 'monospace',
+          }}
+        >
+          {totalRev}
+        </span>
       </div>
 
-      {/* Write Review Box (Only displayed if user owns the game) */}
+      {/* Write / Edit Review Section for Game Owners */}
       {isOwned && (
         <div
           style={{
             background: cardBg,
             border: `1px solid ${cardBorder}`,
             borderRadius: cardRadius,
-            padding: isMobile ? 14 : 20,
-            marginBottom: 20,
+            padding: isMobile ? 14 : 18,
             boxSizing: 'border-box',
           }}
         >
@@ -348,7 +384,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                   textTransform: 'uppercase',
                 }}
               >
-                Write a Review
+                {hasExistingReview ? 'Edit Your Review' : 'Write a Review'}
               </div>
               <div
                 style={{
@@ -358,7 +394,9 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                   marginTop: 2,
                 }}
               >
-                You own this game. Share your verdict with the community.
+                {hasExistingReview
+                  ? 'You have already reviewed this game. Update your verdict anytime.'
+                  : 'You own this game. Share your verdict with the community.'}
               </div>
             </div>
 
@@ -500,9 +538,20 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
               gap: 12,
             }}
           >
+            {submitFeedback.error && (
+              <span style={{ color: '#ef4444', fontSize: 12, fontFamily: textFont }}>
+                {submitFeedback.error}
+              </span>
+            )}
+            {submitFeedback.success && (
+              <span style={{ color: '#38d39f', fontSize: 12, fontFamily: textFont }}>
+                {hasExistingReview ? 'Review updated successfully!' : 'Review posted successfully!'}
+              </span>
+            )}
             <button
               type="button"
-              disabled={!reviewContent.trim()}
+              onClick={handleSubmitReview}
+              disabled={!reviewContent.trim() || submitReviewMutation.isPending}
               style={{
                 fontFamily: titleFont,
                 fontSize: 12,
@@ -516,58 +565,84 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                   ? `linear-gradient(135deg, ${sentimentPalette[sentiment].color} 0%, #f26b21 100%)`
                   : 'rgba(255, 255, 255, 0.08)',
                 color: reviewContent.trim() ? '#ffffff' : TEXT_MUTED,
-                cursor: reviewContent.trim() ? 'pointer' : 'not-allowed',
+                cursor:
+                  reviewContent.trim() && !submitReviewMutation.isPending ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
               }}
             >
-              Post Review
+              {submitReviewMutation.isPending
+                ? 'Saving...'
+                : hasExistingReview
+                  ? 'Update Review'
+                  : 'Post Review'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Reviews Cards List (Only top 2 reviews shown by default) */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {displayedReviews.map((rev: any, idx: number) => renderReviewCard(rev, idx, false))}
-      </div>
-
-      {/* View All Reviews Button */}
-      {reviewsList.length > 2 && (
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
+      {/* Reviews Cards List or Empty State */}
+      {reviewsList.length === 0 ? (
+        <div
           style={{
-            width: '100%',
-            padding: '12px 16px',
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: cardBg,
             border: `1px solid ${cardBorder}`,
             borderRadius: cardRadius,
-            color: nameColor,
-            fontFamily: titleFont,
-            fontSize: 12,
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            transition: 'all 0.2s ease',
-            marginTop: 14,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = headerColor;
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = cardBorder;
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+            padding: isMobile ? '28px 16px' : '36px 24px',
+            textAlign: 'center',
+            color: bodyColor,
+            fontFamily: textFont,
+            fontSize: 13,
+            lineHeight: 1.6,
           }}
         >
-          <MessageSquare size={14} color="currentColor" />
-          View All Reviews ({reviewsList.length})
-        </button>
+          No reviews available for this game.
+        </div>
+      ) : (
+        <>
+          {/* Reviews Cards List (Only top 2 reviews shown by default) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {displayedReviews.map((rev: any, idx: number) => renderReviewCard(rev, idx, false))}
+          </div>
+
+          {/* View All Reviews Button */}
+          {reviewsList.length > 2 && (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: `1px solid ${cardBorder}`,
+                borderRadius: cardRadius,
+                color: nameColor,
+                fontFamily: titleFont,
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                transition: 'all 0.2s ease',
+                marginTop: 14,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = headerColor;
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = cardBorder;
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+              }}
+            >
+              <MessageSquare size={14} color="currentColor" />
+              View All Reviews ({reviewsList.length})
+            </button>
+          )}
+        </>
       )}
 
       {/* All Reviews Modal */}

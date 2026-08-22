@@ -147,6 +147,8 @@ export function convertJsonToReactLayout(
             score={gameData.ratingScore}
             totalReviews={gameData.totalReviews}
             reviews={gameData.userReviews}
+            gameId={gameData.id}
+            slug={gameData.slug}
           />
         );
 

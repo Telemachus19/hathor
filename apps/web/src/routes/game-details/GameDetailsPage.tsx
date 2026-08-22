@@ -10,7 +10,7 @@ import { GameDetailsSidebar } from './components/GameDetailsSidebar';
 import { MoreLikeThis } from './components/MoreLikeThis';
 import { parseAndRenderPureJson } from '../../utils/pureJsonRenderer';
 import { useAuth } from '../../context/AuthContext';
-import { useGameOwnership, type CatalogGameItem } from '../../services/api';
+import { useGameOwnership, useGameReviews, type CatalogGameItem } from '../../services/api';
 
 export function getGameDataForSlug(slug?: string) {
   const currentSlug = slug || 'elden-throne';
@@ -21,9 +21,9 @@ export function getGameDataForSlug(slug?: string) {
     slug: currentSlug,
     subtitle: '',
     category: 'Action',
-    ratingScore: 4.8,
-    reviewCount: '128 Reviews',
-    totalReviews: '128 total',
+    ratingScore: 0,
+    reviewCount: '0 Reviews',
+    totalReviews: '0 total',
     developer: 'Hathor Studios',
     publisher: 'Hathor Publishing',
     releaseDate: 'Aug 2026',
@@ -68,54 +68,8 @@ export function getGameDataForSlug(slug?: string) {
         storage: '50 GB',
       },
     },
-    userReviews: [
-      {
-        id: 'rev-1',
-        author: 'CYBER_RUNNER',
-        sentiment: 'positive',
-        date: 'Recent',
-        content:
-          'Absolute masterpiece. The visuals and atmosphere set a new benchmark in gaming excellence.',
-        avatar:
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=120&auto=format&fit=crop',
-        likes: 124,
-      },
-      {
-        id: 'rev-2',
-        author: 'PIXEL_WARRIOR',
-        sentiment: 'positive',
-        date: 'Last Month',
-        content: 'Stunning design and combat mechanics. Highly recommended for fans of the genre.',
-        avatar:
-          'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=120&auto=format&fit=crop',
-        likes: 89,
-      },
-      {
-        id: 'rev-3',
-        author: 'SHADOW_BLADE',
-        sentiment: 'mixed',
-        date: '2 months ago',
-        content: 'Solid gameplay, though boss difficulty spikes significantly in late game areas.',
-        avatar:
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=120&auto=format&fit=crop',
-        likes: 45,
-      },
-      {
-        id: 'rev-4',
-        author: 'NEO_TACTICIAN',
-        sentiment: 'mixed',
-        date: '3 months ago',
-        content: 'Great storyline and art direction, but needs performance optimization on older rigs.',
-        avatar:
-          'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=120&auto=format&fit=crop',
-        likes: 31,
-      },
-    ],
-    ratingsBreakdown: [
-      { sentiment: 'positive' as const, label: 'Positive', percent: 78 },
-      { sentiment: 'mixed' as const, label: 'Mixed', percent: 14 },
-      { sentiment: 'negative' as const, label: 'Negative', percent: 8 },
-    ],
+    userReviews: [],
+    ratingsBreakdown: [],
     communityStats: {
       playersCount: '14,892',
       positiveRatingPct: '94%',
@@ -233,6 +187,18 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
 
   const gamePublisher = (gameData as any)?.publisher || gameDeveloper || baseData.publisher;
 
+  const reviewsTargetSlugOrId = (gameData as any)?.slug || slug || effectiveGameId;
+  const { data: reviewsData } = useGameReviews(reviewsTargetSlugOrId);
+
+  const activeUserReviews = reviewsData?.reviews || [];
+  const activeRatingsBreakdown = reviewsData?.breakdown || [];
+  const activeTotalReviews = reviewsData
+    ? `${reviewsData.totalReviews} total`
+    : '0 total';
+  const activeReviewCount = reviewsData
+    ? `${reviewsData.totalReviews} Reviews`
+    : '0 Reviews';
+
   const currentGameData = {
     ...baseData,
     subtitle: (gameData as any)?.subtitle || '',
@@ -241,6 +207,10 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
     publisher: gamePublisher,
     releaseDate: formattedReleaseDate,
     platforms: gamePlatforms,
+    userReviews: activeUserReviews,
+    ratingsBreakdown: activeRatingsBreakdown,
+    totalReviews: activeTotalReviews,
+    reviewCount: activeReviewCount,
     ...(gameData
       ? {
           title: gameData.title || baseData.title,
@@ -416,6 +386,8 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                 isOwned={Boolean(isOwned)}
                 isAuthenticated={isAuthenticated}
                 isDesignerPreview={isDesignerPreview}
+                gameId={effectiveGameId}
+                slug={slug || (gameData as any)?.slug}
               />
             </div>
             <div className={styles.sidebarColumn}>

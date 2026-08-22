@@ -335,6 +335,8 @@ export interface Section {
   carouselImages?: string[];
   carouselHeight?: number;
   carouselRadius?: number;
+  carouselActiveBorder?: string;
+  thumbActiveBorder?: string;
   // Features
   featuresTitle?: string;
   featuresTitleFont?: string;

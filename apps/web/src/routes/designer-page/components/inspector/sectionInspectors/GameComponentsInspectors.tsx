@@ -102,6 +102,14 @@ export function MediaCarouselInspector({
           {(targetObj.showThumbnails ?? true) ? 'VISIBLE' : 'HIDDEN'}
         </button>
       </div>
+      {(targetObj.showThumbnails ?? true) && (
+        <PropRow label="Active Outline Color">
+          <ColorField
+            value={targetObj.carouselActiveBorder || targetObj.thumbActiveBorder || '#f26b21'}
+            onChange={(v) => updateTarget({ carouselActiveBorder: v, thumbActiveBorder: v })}
+          />
+        </PropRow>
+      )}
       <MediaManagerList
         items={targetObj.heroImages || targetObj.carouselImages || targetObj.mediaItems || []}
         onChange={(items) =>

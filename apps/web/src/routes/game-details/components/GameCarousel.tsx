@@ -180,6 +180,13 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({
   const heroShadowEnabled = s.heroShadowEnabled ?? s.shadowOverlay ?? true;
   const heroShadowColor = s.heroShadowColor || s.shadowColor || '#212631';
   const sectionBg = s.bg && s.bg !== 'transparent' ? s.bg : s.carouselBg || 'transparent';
+  const activeBorderColor =
+    s.carouselActiveBorder ||
+    s.thumbActiveBorder ||
+    s.activeThumbBorder ||
+    s.activeBorderColor ||
+    s.accentColor ||
+    HATHOR_ORANGE;
 
   const getShadowGradient = (color: string) => {
     if (!color || color === 'transparent') return 'none';
@@ -303,7 +310,29 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({
             padding: device === 'mobile' ? '0 12px' : '0 24px',
           }}
         >
+          <style>{`
+            .hathor-carousel-thumbs {
+              scrollbar-width: thin;
+              scrollbar-color: ${activeBorderColor} rgba(0, 0, 0, 0.35);
+            }
+            .hathor-carousel-thumbs::-webkit-scrollbar {
+              height: 5px;
+            }
+            .hathor-carousel-thumbs::-webkit-scrollbar-track {
+              background: rgba(0, 0, 0, 0.35);
+              border-radius: 3px;
+            }
+            .hathor-carousel-thumbs::-webkit-scrollbar-thumb {
+              background: ${activeBorderColor};
+              border-radius: 3px;
+              transition: all 0.2s ease;
+            }
+            .hathor-carousel-thumbs::-webkit-scrollbar-thumb:hover {
+              filter: brightness(1.2);
+            }
+          `}</style>
           <div
+            className="hathor-carousel-thumbs"
             style={{
               display: 'flex',
               gap: device === 'mobile' ? 8 : 16,
@@ -335,7 +364,7 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({
                     borderRadius: 4,
                     overflow: 'hidden',
                     border:
-                      idx === activeIdx ? `2px solid ${HATHOR_ORANGE}` : '2px solid transparent',
+                      idx === activeIdx ? `2px solid ${activeBorderColor}` : '2px solid transparent',
                     opacity: idx === activeIdx ? 1 : 0.7,
                     cursor: 'pointer',
                     background: SURFACE,
@@ -379,7 +408,7 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({
                             width: 26,
                             height: 26,
                             borderRadius: '50%',
-                            background: HATHOR_ORANGE,
+                            background: activeBorderColor,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
