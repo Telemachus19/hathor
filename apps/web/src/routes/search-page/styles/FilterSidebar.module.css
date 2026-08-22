@@ -1,0 +1,145 @@
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background-color: #1c2028;
+  border: 1px solid #393e46;
+  border-radius: 4px;
+  position: sticky;
+  top: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #393e46;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.sidebarTitle {
+  font-family: var(--font-heading, 'Cinzel', serif);
+  font-size: 0.75rem;
+  color: #eeeeee;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.clearAllBtn {
+  background: none;
+  border: none;
+  color: var(--accent-orange, #fd7014);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: 600;
+  padding: 0;
+  transition: opacity 0.15s ease;
+}
+
+.clearAllBtn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Filter Group Accordion */
+.filterGroup {
+  border-bottom: 1px solid #393e46;
+}
+
+.filterGroup:last-child {
+  border-bottom: none;
+}
+
+.groupToggleBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #eeeeee;
+  font-family: var(--font-heading, 'Cinzel', serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.groupToggleBtn:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.optionsList {
+  padding: 0 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar for Options */
+.optionsList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.optionsList::-webkit-scrollbar-thumb {
+  background: #393e46;
+  border-radius: 2px;
+}
+
+.optionLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: var(--text-muted, #8c9aaa);
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.optionLabel:hover {
+  color: #eeeeee;
+}
+
+.optionLabelSelected {
+  color: #eeeeee;
+  font-weight: 600;
+}
+
+.checkboxBox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #393e46;
+  border-radius: 2px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.checkboxBoxChecked {
+  border-color: var(--accent-orange, #fd7014);
+  background-color: var(--accent-orange, #fd7014);
+}
+
+.optionText {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+}
