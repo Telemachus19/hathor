@@ -227,6 +227,7 @@ export async function createCreatorGame(
 export interface GameReviewItem {
   id: string;
   userId: string;
+  userName?: string;
   sentiment: 'positive' | 'mixed' | 'negative';
   content: string;
   createdAt?: string;
@@ -250,6 +251,7 @@ export interface GameReviewsData {
   reviews: GameReviewItem[];
   totalReviews: number;
   breakdown: ReviewBreakdownItem[];
+  ratingPercentage?: number | null;
 }
 
 /**
@@ -315,7 +317,7 @@ export function useMyGameReview(slugOrId?: string, token?: string) {
  */
 export async function submitGameReview(
   slugOrId: string,
-  payload: { sentiment: 'positive' | 'mixed' | 'negative'; content: string },
+  payload: { sentiment: 'positive' | 'mixed' | 'negative'; content: string; userName?: string },
   token: string
 ): Promise<{ success: boolean; data?: { review: GameReviewItem }; error?: any }> {
   const response = await fetch(`${apiBaseUrl}/store/games/${slugOrId}/reviews`, {
@@ -343,7 +345,7 @@ export function useSubmitGameReview() {
       token,
     }: {
       slugOrId: string;
-      payload: { sentiment: 'positive' | 'mixed' | 'negative'; content: string };
+      payload: { sentiment: 'positive' | 'mixed' | 'negative'; content: string; userName?: string };
       token: string;
     }) => submitGameReview(slugOrId, payload, token),
     onSuccess: (_, variables) => {

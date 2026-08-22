@@ -80,7 +80,11 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
     try {
       const res = await submitReviewMutation.mutateAsync({
         slugOrId: targetGameSlugOrId,
-        payload: { sentiment, content: reviewContent.trim() },
+        payload: {
+          sentiment,
+          content: reviewContent.trim(),
+          userName: auth?.user?.displayName || undefined,
+        },
         token,
       });
       if (res.success) {
@@ -165,17 +169,22 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
     const authorName =
       rev.userName ||
       rev.author ||
-      (rev.userId ? `USER_${String(rev.userId).slice(0, 8).toUpperCase()}` : 'PLAYER');
+      (rev.userId && auth?.user && auth.user.id === rev.userId
+        ? auth.user.displayName
+        : rev.userId
+          ? `USER_${String(rev.userId).slice(0, 8).toUpperCase()}`
+          : 'PLAYER');
+
     const authorInitials =
       rev.userAvatarInitials ||
-      (rev.userId
-        ? String(rev.userId).slice(0, 2).toUpperCase()
-        : authorName
-          .split(' ')
-          .map((p: string) => p[0])
-          .join('')
-          .slice(0, 2)
-          .toUpperCase() || 'PL');
+      authorName
+        .split(' ')
+        .filter(Boolean)
+        .map((p: string) => p[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase() ||
+      'PL';
     const commentText =
       rev.comment || rev.content || 'Player reviews will appear here once the game is reviewed.';
     const reviewDate = rev.createdAt

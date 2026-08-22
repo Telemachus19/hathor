@@ -279,6 +279,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         .select({
           id: reviews.id,
           userId: reviews.userId,
+          userName: reviews.userName,
           sentiment: reviews.sentiment,
           content: reviews.content,
           createdAt: reviews.createdAt,
@@ -315,12 +316,19 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         },
       ];
 
+      const weightedScore =
+        totalReviews > 0
+          ? (positiveCount * 1 + mixedCount * 0.5 + negativeCount * 0) / totalReviews
+          : 0;
+      const ratingPercentage = totalReviews > 0 ? Math.round(weightedScore * 100) : null;
+
       res.status(200).json({
         success: true,
         data: {
           reviews: reviewRows,
           totalReviews,
           breakdown,
+          ratingPercentage,
         },
       });
     } catch (error) {
@@ -361,6 +369,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
           .select({
             id: reviews.id,
             userId: reviews.userId,
+            userName: reviews.userName,
             sentiment: reviews.sentiment,
             content: reviews.content,
             createdAt: reviews.createdAt,
@@ -403,7 +412,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
           });
         }
         const userId = authReq.user.id;
-        const { sentiment, content } = req.body || {};
+        const { sentiment, content, userName } = req.body || {};
 
         if (!sentiment || !['positive', 'mixed', 'negative'].includes(sentiment)) {
           return res.status(400).json({
@@ -449,6 +458,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
             .set({
               sentiment,
               content: content.trim(),
+              ...(userName ? { userName } : {}),
               updatedAt: new Date(),
             })
             .where(eq(reviews.id, existingReview.id))
@@ -460,6 +470,7 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
             .insert(reviews)
             .values({
               userId,
+              userName: userName || null,
               sentiment,
               content: content.trim(),
             })

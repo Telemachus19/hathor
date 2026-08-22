@@ -7,11 +7,13 @@ CREATE TABLE IF NOT EXISTS "catalog"."game_reviews" (
 CREATE TABLE IF NOT EXISTS "catalog"."reviews" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
+	"user_name" varchar(100),
 	"sentiment" varchar(20) NOT NULL,
 	"content" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now(),
 	"updated_at" timestamp with time zone DEFAULT now()
 );
+ALTER TABLE "catalog"."reviews" ADD COLUMN IF NOT EXISTS "user_name" varchar(100);
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_game_reviews_game_id" ON "catalog"."game_reviews" ("game_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_game_reviews_review_id" ON "catalog"."game_reviews" ("review_id");--> statement-breakpoint

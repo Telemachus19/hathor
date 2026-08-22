@@ -70,10 +70,6 @@ export function getGameDataForSlug(slug?: string) {
     },
     userReviews: [],
     ratingsBreakdown: [],
-    communityStats: {
-      playersCount: '14,892',
-      positiveRatingPct: '94%',
-    },
     moreLikeThisGames: [
       {
         id: 'rec-1',
@@ -192,12 +188,25 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
 
   const activeUserReviews = reviewsData?.reviews || [];
   const activeRatingsBreakdown = reviewsData?.breakdown || [];
-  const activeTotalReviews = reviewsData
-    ? `${reviewsData.totalReviews} total`
-    : '0 total';
-  const activeReviewCount = reviewsData
-    ? `${reviewsData.totalReviews} Reviews`
-    : '0 Reviews';
+
+  const posCount =
+    activeRatingsBreakdown.find((b: any) => b.sentiment === 'positive')?.count ??
+    activeUserReviews.filter((r: any) => r.sentiment === 'positive').length;
+  const mixCount =
+    activeRatingsBreakdown.find((b: any) => b.sentiment === 'mixed')?.count ??
+    activeUserReviews.filter((r: any) => r.sentiment === 'mixed').length;
+  const negCount =
+    activeRatingsBreakdown.find((b: any) => b.sentiment === 'negative')?.count ??
+    activeUserReviews.filter((r: any) => r.sentiment === 'negative').length;
+
+  const calculatedTotalReviews = posCount + mixCount + negCount;
+  const weightedRatingPct =
+    calculatedTotalReviews > 0
+      ? Math.round(((posCount * 1 + mixCount * 0.5 + negCount * 0) / calculatedTotalReviews) * 100)
+      : null;
+
+  const activeTotalReviews = `${calculatedTotalReviews} total`;
+  const activeReviewCount = `${calculatedTotalReviews} ${calculatedTotalReviews === 1 ? 'Review' : 'Reviews'}`;
 
   const currentGameData = {
     ...baseData,
@@ -211,6 +220,7 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
     ratingsBreakdown: activeRatingsBreakdown,
     totalReviews: activeTotalReviews,
     reviewCount: activeReviewCount,
+    ratingPercentage: weightedRatingPct,
     ...(gameData
       ? {
           title: gameData.title || baseData.title,
@@ -351,6 +361,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                 subtitle={currentGameData.subtitle}
                 category={currentGameData.category}
                 ratingScore={currentGameData.ratingScore}
+                ratingPercentage={currentGameData.ratingPercentage}
+                ratingsBreakdown={currentGameData.ratingsBreakdown}
+                userReviews={currentGameData.userReviews}
                 reviewCount={currentGameData.reviewCount}
                 developer={currentGameData.developer}
                 releaseDate={currentGameData.releaseDate}
@@ -407,7 +420,6 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                 genre={currentGameData.category}
                 platforms={currentGameData.platforms}
                 ratingsBreakdown={currentGameData.ratingsBreakdown}
-                communityStats={currentGameData.communityStats}
                 device={activeDevice}
               />
             </div>

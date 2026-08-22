@@ -132,6 +132,7 @@ export const reviews = catalogSchema.table(
   {
     id: uuid('id').defaultRandom().primaryKey(),
     userId: uuid('user_id').notNull(),
+    userName: varchar('user_name', { length: 100 }),
     sentiment: varchar('sentiment', { length: 20 }).notNull(), // 'positive' | 'mixed' | 'negative'
     content: text('content').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),

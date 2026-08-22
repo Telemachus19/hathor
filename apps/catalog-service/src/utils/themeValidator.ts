@@ -46,7 +46,6 @@ const SECTION_TYPE_TO_COMPONENT_KEY: Record<string, string> = {
   'sidebar-cta': 'SidebarCTA',
   'sidebar-info': 'SidebarInfo',
   'sidebar-ratings': 'SidebarRatings',
-  'sidebar-community': 'SidebarCommunity',
   recommendations: 'Recommendations',
   'media-carousel': 'MediaCarousel',
   'game-hero': 'GameHero',

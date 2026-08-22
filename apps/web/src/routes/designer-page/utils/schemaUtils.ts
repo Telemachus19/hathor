@@ -69,7 +69,6 @@ export const INITIAL: Section[] = [
           createGridElement('sidebar-cta'),
           createGridElement('sidebar-info'),
           createGridElement('sidebar-ratings'),
-          createGridElement('sidebar-community'),
         ],
       },
     ],
@@ -101,7 +100,6 @@ const COMPONENT_NAME_MAP: Record<string, string> = {
   'sidebar-cta': 'SidebarCTA',
   'sidebar-info': 'SidebarInfo',
   'sidebar-ratings': 'SidebarRatings',
-  'sidebar-community': 'SidebarCommunity',
   recommendations: 'Recommendations',
   grid: 'CustomGrid',
   text: 'TextBlock',
@@ -190,21 +188,6 @@ function getComponentStyles(s: any): Record<string, any> {
     stylesObj.progressBar = { background: s.ratingsFillColor || HATHOR_ORANGE };
     stylesObj.progressTrack = { background: s.ratingsTrackColor || 'rgba(0,0,0,0.3)' };
     stylesObj.percentage = { color: s.ratingsPctColor || TEXT_PRIMARY };
-  } else if (s.type === 'sidebar-community') {
-    stylesObj.card = {
-      background: s.communityCardBg || SURFACE,
-      borderColor: s.communityCardBorder || BORDER,
-    };
-    stylesObj.headerTitle = {
-      fontFamily: s.communityTitleFont || "'Cinzel', serif",
-      color: s.communityTitleColor || HATHOR_ORANGE,
-    };
-    stylesObj.labels = {
-      color: s.communityLabelColor || TEXT_MUTED,
-      fontFamily: s.communityLabelFont || 'monospace',
-    };
-    stylesObj.playersValue = { color: s.communityPlayersColor || TEXT_PRIMARY };
-    stylesObj.positiveRatingValue = { color: s.communityPositiveColor || GREEN_ACCENT };
   } else if (s.type === 'ownership-banner') {
     stylesObj.banner = {
       background: s.ownershipBg || '#181c24',

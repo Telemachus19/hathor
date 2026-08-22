@@ -25,7 +25,6 @@ import {
   SidebarCtaInspector,
   SidebarInfoInspector,
   SidebarRatingsInspector,
-  SidebarCommunityInspector,
   RecommendationsInspector,
 } from './sectionInspectors/SidebarComponentsInspectors';
 import {
@@ -315,9 +314,6 @@ export function PropertiesPanel({
         )}
         {targetObj.type === 'sidebar-ratings' && (
           <SidebarRatingsInspector targetObj={targetObj} updateTarget={updateTarget} />
-        )}
-        {targetObj.type === 'sidebar-community' && (
-          <SidebarCommunityInspector targetObj={targetObj} updateTarget={updateTarget} />
         )}
         {targetObj.type === 'recommendations' && (
           <RecommendationsInspector targetObj={targetObj} updateTarget={updateTarget} />

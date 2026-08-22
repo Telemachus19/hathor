@@ -44,7 +44,6 @@ export type ElementType =
   | 'sidebar-cta'
   | 'sidebar-info'
   | 'sidebar-ratings'
-  | 'sidebar-community'
   | 'carousel'
   | 'media-carousel'
   | 'features'
@@ -427,7 +426,6 @@ export type SectionType =
   | 'sidebar-cta'
   | 'sidebar-info'
   | 'sidebar-ratings'
-  | 'sidebar-community'
   | 'recommendations'
   | 'heading'
   | 'text'
@@ -638,8 +636,6 @@ export function createGridElement(type: ElementType): GridElement {
           { stars: 1, pct: 0 },
         ],
       };
-    case 'sidebar-community':
-      return { id, type, sideOwners: '0', sidePositive: '0%' };
     case 'heading':
       return {
         id,

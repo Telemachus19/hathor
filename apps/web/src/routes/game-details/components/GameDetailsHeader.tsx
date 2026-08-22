@@ -1,4 +1,5 @@
 import React from 'react';
+import { ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
 
 export interface GameDetailsHeaderProps {
   s?: any;
@@ -6,6 +7,13 @@ export interface GameDetailsHeaderProps {
   title?: string;
   subtitle?: string;
   ratingScore?: number;
+  ratingPercentage?: number | null;
+  ratingsBreakdown?: Array<{
+    sentiment: 'positive' | 'mixed' | 'negative';
+    count: number;
+    percent: number;
+  }>;
+  userReviews?: any[];
   reviewCount?: string;
   developer?: string;
   releaseDate?: string;
@@ -28,8 +36,7 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
   const title = props.title || s.title || s.gameTitle || 'YOUR GAME TITLE';
   const subtitle =
     props.subtitle !== undefined ? props.subtitle : s.subtitle || s.gameSubtitle || '';
-  const ratingScore = props.ratingScore ?? s.ratingScore ?? s.gameRatingScore ?? 4.8;
-  const reviewCount = props.reviewCount || s.reviewCount || s.gameReviewCount || '128 Reviews';
+
   const developer = props.developer || s.dev || s.gameDev || 'Hathor Studios';
   const releaseDate = props.releaseDate || s.releaseDate || s.gameReleaseDate || 'Aug 2026';
 
@@ -44,18 +51,15 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
   const subtitleFont = s.subtitleFont || titleFont;
   const textFont = s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
 
-  // Colors & Fonts
+  // Colors & Styles
   const badgeColor = s.badgeColor || s.subtitleColor || HATHOR_ORANGE;
   const titleColor = s.titleColor || '#ffffff';
   const subtitleColor = s.subtitleColor || HATHOR_ORANGE;
-  const starColor = s.starColor || HATHOR_ORANGE;
   const tagBg = s.tagBg || 'rgba(255, 255, 255, 0.05)';
   const tagBorder = s.tagBorder || BORDER;
   const tagColor = s.tagColor || TEXT_MUTED;
   const descColor = s.descColor || TEXT_MUTED;
 
-  const ratingScoreColor = s.ratingScoreColor || s.headerRatingColor || s.valueColor || '#ffffff';
-  const ratingScoreFont = s.ratingScoreFont || s.headerRatingFont || titleFont;
   const reviewCountColor =
     s.reviewCountColor || s.headerReviewCountColor || s.descColor || TEXT_MUTED;
   const reviewCountFont = s.reviewCountFont || s.headerReviewCountFont || textFont;
@@ -82,6 +86,90 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
     headerBorder && headerBorder !== 'transparent' && headerBorder !== 'none'
       ? `1px solid ${headerBorder}`
       : 'none';
+
+  // ---------------------------------------------------------------------------
+  // Weighted Rating Calculation:
+  // Positive = 1, Mixed = 0.5, Negative = 0
+  // Score % = ((positive * 1 + mixed * 0.5 + negative * 0) / totalReviews) * 100
+  // ---------------------------------------------------------------------------
+  let posCount = 0;
+  let mixCount = 0;
+  let negCount = 0;
+
+  if (Array.isArray(props.ratingsBreakdown) && props.ratingsBreakdown.length > 0) {
+    posCount = props.ratingsBreakdown.find((b) => b.sentiment === 'positive')?.count ?? 0;
+    mixCount = props.ratingsBreakdown.find((b) => b.sentiment === 'mixed')?.count ?? 0;
+    negCount = props.ratingsBreakdown.find((b) => b.sentiment === 'negative')?.count ?? 0;
+  } else if (Array.isArray(props.userReviews) && props.userReviews.length > 0) {
+    posCount = props.userReviews.filter((r) => r.sentiment === 'positive').length;
+    mixCount = props.userReviews.filter((r) => r.sentiment === 'mixed').length;
+    negCount = props.userReviews.filter((r) => r.sentiment === 'negative').length;
+  }
+
+  const calculatedTotal = posCount + mixCount + negCount;
+
+  let computedPercentage: number | null = null;
+  if (props.ratingPercentage !== undefined && props.ratingPercentage !== null) {
+    computedPercentage = props.ratingPercentage;
+  } else if (s.ratingPercentage !== undefined && s.ratingPercentage !== null) {
+    computedPercentage = Number(s.ratingPercentage);
+  } else if (calculatedTotal > 0) {
+    const weightedScore = (posCount * 1 + mixCount * 0.5 + negCount * 0) / calculatedTotal;
+    computedPercentage = Math.round(weightedScore * 100);
+  }
+
+  const effectiveTotal = calculatedTotal > 0 ? calculatedTotal : (props.userReviews?.length ?? 0);
+  const reviewCountText =
+    props.reviewCount ||
+    s.reviewCount ||
+    s.gameReviewCount ||
+    (effectiveTotal > 0
+      ? `${effectiveTotal} ${effectiveTotal === 1 ? 'Review' : 'Reviews'}`
+      : '0 Reviews');
+
+  const getSentimentDisplay = (pct: number | null) => {
+    if (pct === null || (effectiveTotal === 0 && props.ratingPercentage === undefined)) {
+      return {
+        hasRating: false,
+        label: 'No reviews yet',
+        color: TEXT_MUTED,
+        bg: 'rgba(255, 255, 255, 0.04)',
+        border: tagBorder,
+        icon: null,
+      };
+    }
+
+    if (pct >= 70) {
+      return {
+        hasRating: true,
+        label: pct >= 85 ? 'Very Positive' : 'Positive',
+        color: '#4ade80',
+        bg: 'rgba(74, 222, 128, 0.12)',
+        border: 'rgba(74, 222, 128, 0.35)',
+        icon: <ThumbsUp size={11} style={{ flexShrink: 0 }} />,
+      };
+    } else if (pct >= 40) {
+      return {
+        hasRating: true,
+        label: 'Mixed',
+        color: '#fbbf24',
+        bg: 'rgba(251, 191, 36, 0.12)',
+        border: 'rgba(251, 191, 36, 0.35)',
+        icon: <Minus size={11} style={{ flexShrink: 0 }} />,
+      };
+    } else {
+      return {
+        hasRating: true,
+        label: 'Negative',
+        color: '#f87171',
+        bg: 'rgba(248, 113, 113, 0.12)',
+        border: 'rgba(248, 113, 113, 0.35)',
+        icon: <ThumbsDown size={11} style={{ flexShrink: 0 }} />,
+      };
+    }
+  };
+
+  const sentimentDisplay = getSentimentDisplay(computedPercentage);
 
   return (
     <div
@@ -158,18 +246,56 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: device === 'mobile' ? 8 : 14,
+          gap: device === 'mobile' ? 8 : 12,
           fontSize: device === 'mobile' ? 11 : 13,
           marginBottom: 16,
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ color: starColor, letterSpacing: '0.1em' }}>★★★★★</span>
-        <span style={{ fontWeight: 800, color: ratingScoreColor, fontFamily: ratingScoreFont }}>
-          {Number(ratingScore).toFixed(1)}
-        </span>
+        {sentimentDisplay.hasRating ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              background: sentimentDisplay.bg,
+              border: `1px solid ${sentimentDisplay.border}`,
+              padding: '2.5px 8px',
+              borderRadius: 4,
+              fontSize: device === 'mobile' ? 11 : 12,
+              fontWeight: 700,
+              fontFamily: textFont,
+              color: sentimentDisplay.color,
+            }}
+          >
+            {sentimentDisplay.icon}
+            <span style={{ fontWeight: 800 }}>{computedPercentage}%</span>
+            <span style={{ opacity: 0.85, fontWeight: 600, fontSize: device === 'mobile' ? 10 : 11 }}>
+              {sentimentDisplay.label}
+            </span>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              background: sentimentDisplay.bg,
+              border: `1px solid ${sentimentDisplay.border}`,
+              padding: '2.5px 8px',
+              borderRadius: 4,
+              fontSize: device === 'mobile' ? 10 : 11,
+              fontWeight: 600,
+              fontFamily: textFont,
+              color: sentimentDisplay.color,
+            }}
+          >
+            <span>{sentimentDisplay.label}</span>
+          </div>
+        )}
+
         <span style={{ fontSize: 11, color: reviewCountColor, fontFamily: reviewCountFont }}>
-          ({reviewCount})
+          ({reviewCountText})
         </span>
         <span style={{ opacity: 0.4, color: bulletColor }}>•</span>
         <span style={{ color: devColor, fontFamily: devFont }}>{developer}</span>

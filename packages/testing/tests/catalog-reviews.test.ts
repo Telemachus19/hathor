@@ -120,6 +120,7 @@ describe('Catalog Reviews Endpoints', () => {
         { sentiment: 'mixed', label: 'Mixed', count: 0, percent: 0 },
         { sentiment: 'negative', label: 'Negative', count: 0, percent: 0 },
       ]);
+      expect(res.body.data.ratingPercentage).toBeNull();
     });
 
     it('calculates correct percentages when reviews exist', async () => {
@@ -136,6 +137,7 @@ describe('Catalog Reviews Endpoints', () => {
       const res = await request(app).get('/store/games/test-game/reviews');
       expect(res.status).toBe(200);
       expect(res.body.data.totalReviews).toBe(4);
+      expect(res.body.data.ratingPercentage).toBe(63); // (2*1 + 1*0.5 + 1*0)/4 = 2.5/4 = 62.5% -> 63%
       expect(res.body.data.breakdown[0]).toEqual({
         sentiment: 'positive',
         label: 'Positive',

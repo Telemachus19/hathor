@@ -37,7 +37,6 @@ export interface GameDetailsSidebarProps {
     pct?: number;
     stars?: number;
   }>;
-  communityStats?: { playersCount: string; positiveRatingPct: string };
   device?: 'desktop' | 'tablet' | 'mobile';
   pageSettings?: any;
 }
@@ -565,66 +564,6 @@ export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => 
   );
 };
 
-export const GameSidebarCommunity: React.FC<GameDetailsSidebarProps> = (props) => {
-  const s = props.s || {};
-  const players = s.sideOwners || props.communityStats?.playersCount || '0';
-  const positive = s.sidePositive || props.communityStats?.positiveRatingPct || '0%';
-  const avgGameplay = s.sideGameplay || '0 hrs';
-
-  const cardBg = s.communityCardBg || SURFACE;
-  const cardBorder = s.communityCardBorder || BORDER;
-  const titleFont = s.communityTitleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
-  const titleColor = s.communityTitleColor || s.commTitleColor || HATHOR_ORANGE;
-  const labelColor = s.communityLabelColor || s.commLabelColor || TEXT_MUTED;
-  const valueColor = s.communityValueColor || s.commValueColor || TEXT_PRIMARY;
-  const ratingColor = s.communityRatingColor || s.commRatingColor || GREEN_ACCENT;
-  const textFont = props.pageSettings?.textFont || "'Raleway', sans-serif";
-  const isMobile = props.device === 'mobile';
-
-  return (
-    <div
-      style={{
-        background: cardBg,
-        border: `1px solid ${cardBorder}`,
-        borderRadius: 4,
-        padding: isMobile ? 14 : 20,
-        width: '100%',
-        boxSizing: 'border-box',
-      }}
-    >
-      <h4
-        style={{
-          fontFamily: titleFont,
-          fontSize: 13,
-          fontWeight: 900,
-          color: titleColor,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          margin: '0 0 14px 0',
-          borderBottom: `1px solid ${cardBorder}`,
-          paddingBottom: 8,
-        }}
-      >
-        {s.communityTitle || 'COMMUNITY'}
-      </h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ color: labelColor, fontFamily: textFont }}>Players:</span>{' '}
-          <strong style={{ color: valueColor, fontFamily: textFont }}>{players}</strong>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ color: labelColor, fontFamily: textFont }}>Avg. Gameplay:</span>{' '}
-          <strong style={{ color: valueColor, fontFamily: textFont }}>{avgGameplay}</strong>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ color: labelColor, fontFamily: textFont }}>Positive Rating:</span>{' '}
-          <strong style={{ color: ratingColor, fontFamily: textFont }}>{positive}</strong>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export const GameDetailsSidebar: React.FC<GameDetailsSidebarProps> = (props) => {
   return (
     <div
@@ -639,7 +578,6 @@ export const GameDetailsSidebar: React.FC<GameDetailsSidebarProps> = (props) => 
       <GameSidebarCta {...props} />
       <GameSidebarInfo {...props} />
       <GameSidebarRatings {...props} />
-      <GameSidebarCommunity {...props} />
     </div>
   );
 };
