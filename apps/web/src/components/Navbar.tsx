@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate, useLocation } from '@tanstack/react-router';
 import { Menu, X } from 'lucide-react';
 import styles from '../styles/Navbar.module.css';
 import {
@@ -8,7 +8,6 @@ import {
   GlobeIcon,
   CartIcon,
   LoginIcon,
-  FlameIcon,
   TrophyIcon,
   SparkleIcon,
   TrendingIcon,
@@ -19,9 +18,13 @@ import { useAuth } from '../context/AuthContext';
 export const Navbar: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isAuthenticated = auth?.isAuthenticated ?? false;
   const user = auth?.user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const isSearchPage = location.pathname.startsWith('/search');
 
   const handleLogout = async () => {
     setMobileMenuOpen(false);
@@ -29,6 +32,20 @@ export const Navbar: React.FC = () => {
       await auth.logout();
     }
     void navigate({ to: '/' });
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      void navigate({
+        to: '/search',
+        search: { q: searchQuery.trim() },
+      });
+    } else {
+      void navigate({
+        to: '/search',
+      });
+    }
   };
 
   const closeMenu = () => setMobileMenuOpen(false);
@@ -157,40 +174,45 @@ export const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Bottom Sub-Navbar (Slate Blue background) */}
-      <div className={styles.navbarBottomWrapper}>
-        <div className={styles.navbarBottom}>
-          <div className={styles.searchWrap}>
-            <span className={styles.searchIcon}>
-              <SearchIcon />
-            </span>
-            <input type="text" className={styles.searchInput} placeholder="Search games..." />
-          </div>
+      {/* Bottom Sub-Navbar (Slate Blue background) - Hidden on /search page */}
+      {!isSearchPage && (
+        <div className={styles.navbarBottomWrapper}>
+          <div className={styles.navbarBottom}>
+            <form onSubmit={handleSearchSubmit} className={styles.searchWrap}>
+              <span className={styles.searchIcon}>
+                <SearchIcon />
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+                placeholder="Search games..."
+              />
+            </form>
 
-          <div className={styles.filtersScroll}>
-            <div className={styles.filters}>
-              <Link to="/" className={`${styles.filterLink} ${styles.filterLinkActive}`}>
-                <FlameIcon /> DEALS
-              </Link>
-              <Link to="/" className={styles.filterLink}>
-                <TrophyIcon /> TOP RATED
-              </Link>
-              <Link to="/" className={styles.filterLink}>
-                <SparkleIcon /> NEW ARRIVALS
-              </Link>
-              <Link to="/" className={styles.filterLink}>
-                <TrendingIcon /> TRENDING
-              </Link>
+            <div className={styles.filtersScroll}>
+              <div className={styles.filters}>
+                <Link to="/search" search={{ sort: 'top_rated' }} className={styles.filterLink}>
+                  <TrophyIcon /> TOP RATED
+                </Link>
+                <Link to="/search" search={{ sort: 'new_arrivals' }} className={styles.filterLink}>
+                  <SparkleIcon /> NEW ARRIVALS
+                </Link>
+                <Link to="/search" search={{ sort: 'trending' }} className={styles.filterLink}>
+                  <TrendingIcon /> TRENDING
+                </Link>
+              </div>
+
+              {isAuthenticated && (
+                <Link to="/" className={styles.wishlistLink}>
+                  <HeartIcon /> WISHLIST
+                </Link>
+              )}
             </div>
-
-            {isAuthenticated && (
-              <Link to="/" className={styles.wishlistLink}>
-                <HeartIcon /> WISHLIST
-              </Link>
-            )}
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
