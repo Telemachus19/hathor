@@ -1,6 +1,7 @@
 import { createRootRouteWithContext, Outlet, useLocation } from '@tanstack/react-router';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
+import { HathorChatAssistant } from '../components/ChatAssistant';
 import type { AuthContextValue } from '../context/AuthContext';
 
 export interface RouterContext {
@@ -33,10 +34,13 @@ function RootComponent() {
         <Outlet />
       </main>
 
+      <HathorChatAssistant />
+
       <Footer />
     </>
   );
 }
+
 
 function ErrorScreen({ error }: { error: Error }) {
   return (
