@@ -228,6 +228,8 @@ describe('route namespace mapping', () => {
     ['POST', '/api/v1/admin/users/00000000-0000-0000-0000-000000000001/roles', 'Auth'],
     ['PATCH', '/api/v1/admin/games/00000000-0000-0000-0000-000000000001/status', 'Catalog'],
     ['GET', '/api/v1/admin/transactions', 'Commerce'],
+    ['GET', '/api/v1/assistant/recommendations', 'AI'],
+    ['POST', '/api/v1/assistant/chat', 'AI'],
   ] as const;
 
   it.each(publicNamespaces)(
