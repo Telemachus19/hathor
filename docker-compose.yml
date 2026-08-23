@@ -168,7 +168,6 @@ services:
     <<: *service-defaults
     networks:
       - backend
-      - edge
     build:
       context: .
       dockerfile: apps/catalog-service/Dockerfile
@@ -185,12 +184,6 @@ services:
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-hathor_r2_admin}
       R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-hathor_r2_secret_key_2026}
       R2_REGION: ${R2_REGION:-auto}
-      GEMINI_API: ${GEMINI_API:-}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GLM_API: ${GLM_API:-}
-      GLM_API_KEY: ${GLM_API_KEY:-}
-      GLM_MODEL: ${GLM_MODEL:-z-ai/glm-5.2:free}
-      GLM_BASE_URL: ${GLM_BASE_URL:-https://openrouter.ai/api/v1}
     volumes:
       - ./apps/catalog-service/dist:/app/apps/catalog-service/dist
       - ./apps/catalog-service/src:/app/apps/catalog-service/src
@@ -220,7 +213,19 @@ services:
       NODE_ENV: development
       PORT: 5005
       CATALOG_DB_URL: postgresql://catalog_app:${CATALOG_DB_PASSWORD}@catalog-postgres:5432/catalog
+      AUTH_SERVICE_URL: http://auth-service:5001
+      CATALOG_SERVICE_URL: http://catalog-service:5002
+      GEMINI_API: ${GEMINI_API:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      GLM_API: ${GLM_API:-}
+      GLM_API_KEY: ${GLM_API_KEY:-}
+      GLM_MODEL: ${GLM_MODEL:-z-ai/glm-5.2:free}
+      GLM_BASE_URL: ${GLM_BASE_URL:-https://openrouter.ai/api/v1}
+      AI_PROVIDER: ${AI_PROVIDER:-auto}
+    volumes:
+      - ./apps/ai-service/dist:/app/apps/ai-service/dist
+      - ./apps/ai-service/src:/app/apps/ai-service/src
     depends_on:
       catalog-postgres:
         condition: service_healthy
@@ -316,6 +321,9 @@ services:
       COMMERCE_SERVICE_URL: http://commerce-service:5003
       LIBRARY_SERVICE_URL: http://library-service:5004
       AI_SERVICE_URL: http://ai-service:5005
+    volumes:
+      - ./apps/api-gateway/dist:/app/apps/api-gateway/dist
+      - ./apps/api-gateway/src:/app/apps/api-gateway/src
     depends_on:
       auth-service:
         condition: service_healthy

@@ -79,3 +79,67 @@ export function useRecommendations(params: FetchRecommendationsParams = {}) {
     staleTime: 60 * 1000,
   });
 }
+
+export interface DesignerChatParams {
+  gameId: string;
+  message: string;
+  currentTheme?: any;
+  conversationHistory?: Array<{ role: 'user' | 'model'; content: string }>;
+  provider?: 'gemini' | 'glm' | 'auto';
+  model?: string;
+  token?: string;
+}
+
+export interface DesignerChatResponse {
+  success: boolean;
+  data?: {
+    reply: string;
+    proposedTheme?: any;
+    changeSummary?: string[];
+    actionsTaken?: string[];
+    validationResult?: any;
+    providerUsed?: 'gemini' | 'glm';
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+/**
+ * Sends a designer chat message to the dedicated AI Service
+ * via API Gateway (/api/v1/ai/games/:gameId/designer-chat).
+ */
+export async function sendDesignerChat({
+  gameId,
+  message,
+  currentTheme,
+  conversationHistory,
+  provider,
+  model,
+  token,
+}: DesignerChatParams): Promise<DesignerChatResponse> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+  }
+
+  const cleanGameId = gameId || 'draft';
+  const response = await fetch(`${apiBaseUrl}/ai/games/${encodeURIComponent(cleanGameId)}/designer-chat`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      message,
+      currentTheme,
+      conversationHistory,
+      provider,
+      model,
+    }),
+  });
+
+  const data = await response.json();
+  return data;
+}
+

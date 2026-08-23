@@ -29,6 +29,9 @@ importers:
 
   apps/ai-service:
     dependencies:
+      '@google/genai':
+        specifier: ^2.18.0
+        version: 2.18.0
       cors:
         specifier: ^2.8.5
         version: 2.8.6
@@ -41,6 +44,9 @@ importers:
       express:
         specifier: ^4.19.2
         version: 4.22.2
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.3
       pg:
         specifier: ^8.12.0
         version: 8.22.0
@@ -51,6 +57,9 @@ importers:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
+      '@types/jsonwebtoken':
+        specifier: ^9.0.6
+        version: 9.0.10
       '@types/node':
         specifier: ^20.14.9
         version: 20.19.43
@@ -188,9 +197,6 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.1114.0
         version: 3.1114.0
-      '@google/genai':
-        specifier: ^2.18.0
-        version: 2.18.0
       cors:
         specifier: ^2.8.5
         version: 2.8.6

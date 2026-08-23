@@ -20,7 +20,6 @@ import {
 } from '../domain/stateMachine.js';
 import { validateThemeAgainstDocument } from '../utils/themeValidator.js';
 import { getGameAnalytics } from '../infrastructure/clients/library.js';
-import { aiThemeAgent } from '../services/ai/aiThemeAgent.js';
 
 const router: Router = Router();
 
@@ -1132,82 +1131,6 @@ router.post(
         error: {
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to generate AI theme proposal',
-          correlationId,
-        },
-      });
-    }
-  }
-);
-
-/**
- * POST /creator/games/:gameId/ai/agent-chat
- * Multi-turn Agentic AI Store Designer Chatbot with tool calling and self-correction.
- */
-router.post(
-  '/games/:gameId/ai/agent-chat',
-  requireAuth,
-  requireRole('creator'),
-  async (req: AuthenticatedRequest, res: Response) => {
-    const correlationId =
-      (req.headers['x-correlation-id'] as string) ||
-      (req.headers['correlation-id'] as string) ||
-      randomUUID();
-
-    try {
-      const { gameId } = req.params;
-      const { message, currentTheme, conversationHistory, history, provider, model } = req.body || {};
-
-      if (!message || typeof message !== 'string' || !message.trim()) {
-        return res.status(400).json({
-          error: { code: 'VALIDATION_FAILED', message: 'message is required', correlationId },
-        });
-      }
-
-      // If gameId is a real UUID, verify game ownership if it exists
-      if (gameId && UUID_REGEX.test(gameId)) {
-        const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
-        if (game && game.creatorId !== req.user!.id) {
-          return res.status(403).json({
-            error: {
-              code: 'FORBIDDEN',
-              message: 'Not authorized to modify this game',
-              correlationId,
-            },
-          });
-        }
-      }
-
-      const parsedHistory = (conversationHistory || history || []).map((h: any) => ({
-        role: h.role === 'user' ? 'user' : 'model',
-        content: h.content || h.text || '',
-      }));
-
-      const agentResponse = await aiThemeAgent.handleChat({
-        gameId,
-        message,
-        currentTheme,
-        conversationHistory: parsedHistory,
-        provider,
-        model,
-      });
-
-      return res.status(200).json({
-        success: true,
-        data: {
-          reply: agentResponse.reply,
-          proposedTheme: agentResponse.proposedTheme,
-          changeSummary: agentResponse.changeSummary,
-          actionsTaken: agentResponse.actionsTaken,
-          validationResult: agentResponse.validationResult,
-        },
-        correlationId,
-      });
-    } catch (error: any) {
-      console.error('Error in AI agent chat handler:', error);
-      return res.status(500).json({
-        error: {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: error.message || 'Failed to process AI agent chat',
           correlationId,
         },
       });

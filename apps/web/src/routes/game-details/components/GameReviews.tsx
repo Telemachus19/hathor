@@ -150,7 +150,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const textFont = s.reviewBodyFont || s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
 
   const sentimentPalette = getHarmonizedSentimentPalette(
-    s.reviewBadgeBg || s.reviewBadgeColor || s.reviewAccentColor || s.reviewStarColor || GREEN_ACCENT
+    s.reviewAccentColor || s.reviewBadgeColor || s.reviewStarColor || GREEN_ACCENT
   );
 
   const headerTitle = s.reviewHeader || s.reviewTitle || 'USER REVIEWS';

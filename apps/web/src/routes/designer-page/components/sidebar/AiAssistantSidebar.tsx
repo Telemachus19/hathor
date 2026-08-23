@@ -19,7 +19,8 @@ import {
   Code2,
   Copy,
 } from 'lucide-react';
-import { apiClient } from '../../../../services/api/index';
+import { sendDesignerChat } from '../../../../services/api/index';
+import { useAuth } from '../../../../context/AuthContext';
 import styles from '../../DesignerPage.module.css';
 
 interface Message {
@@ -76,6 +77,7 @@ export function AiAssistantSidebar({
   onPreviewTheme,
   onAcceptTheme,
 }: AiAssistantSidebarProps) {
+  const { accessToken } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -153,26 +155,22 @@ export function AiAssistantSidebar({
       const historyPayload = messages
         .filter((m) => m.id !== 'welcome')
         .map((m) => ({
-          role: m.role === 'user' ? 'user' : 'model',
+          role: (m.role === 'user' ? 'user' : 'model') as 'user' | 'model',
           content: m.text,
         }));
 
-      const res = (await apiClient.POST('/creator/games/{gameId}/ai/agent-chat' as any, {
-        params: {
-          path: { gameId: gameId || 'draft' },
-        },
-        body: {
-          message: text,
-          currentTheme,
-          conversationHistory: historyPayload,
-          history: historyPayload,
-          provider: selectedProvider,
-        },
-      })) as any;
+      const res = await sendDesignerChat({
+        gameId: gameId || 'draft',
+        message: text,
+        currentTheme,
+        conversationHistory: historyPayload,
+        provider: selectedProvider,
+        token: accessToken || undefined,
+      });
 
-      if (res.data && res.data.success) {
-        const agentResponse = res.data.data;
-        const proposalObj = agentResponse.proposedTheme || agentResponse.proposal;
+      if (res.success && res.data) {
+        const agentResponse = res.data;
+        const proposalObj = agentResponse.proposedTheme || (agentResponse as any).proposal;
         let replyText = agentResponse.reply || '';
 
         // If the reply contains raw JSON markdown, replace with friendly conversational text
@@ -198,18 +196,18 @@ export function AiAssistantSidebar({
           role: 'agent',
           text: replyText,
           actionsTaken: agentResponse.actionsTaken,
-          proposal: agentResponse.proposedTheme || agentResponse.proposal,
+          proposal: agentResponse.proposedTheme || (agentResponse as any).proposal,
           changeSummary: agentResponse.changeSummary,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
         setMessages((prev) => [...prev, agentMessage]);
 
-        if (agentResponse.proposedTheme || agentResponse.proposal) {
+        if (agentResponse.proposedTheme || (agentResponse as any).proposal) {
           setActivePreviewId(agentMessage.id);
-          onPreviewTheme(agentResponse.proposedTheme || agentResponse.proposal);
+          onPreviewTheme(agentResponse.proposedTheme || (agentResponse as any).proposal);
         }
       } else {
-        const rawErr = res.error?.message || res.data?.error || JSON.stringify(res.error) || 'Failed to generate theme';
+        const rawErr = res.error?.message || JSON.stringify(res.error) || 'Failed to generate theme';
         let friendlyMsg = rawErr;
         if (rawErr.includes('429') || rawErr.includes('RESOURCE_EXHAUSTED') || rawErr.includes('credits are depleted')) {
           friendlyMsg = 'Google API Quota reached (429 / Credits depleted). If you recently added/removed billing in Google Cloud, please ensure your project has the Free Tier enabled or check your Google AI Studio key.';
