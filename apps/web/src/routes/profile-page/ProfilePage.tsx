@@ -29,11 +29,7 @@ export const ProfilePage: React.FC = () => {
         </header>
 
         {/* Identity Summary Card */}
-        <IdentityCard
-          username={username}
-          email={currentEmail}
-          roles={user?.roles}
-        />
+        <IdentityCard username={username} email={currentEmail} roles={user?.roles} />
 
         {/* Action Sections */}
         <div className={styles.sectionsStack}>

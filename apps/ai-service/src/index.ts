@@ -1,0 +1,18 @@
+import * as dotenv from 'dotenv';
+import { createAIApp } from './app.js';
+import { catalogPool } from './infrastructure/db/client.js';
+
+dotenv.config();
+
+const PORT = process.env.PORT || 5005;
+const app = createAIApp(async () => {
+  await catalogPool.query('SELECT 1');
+});
+
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`Hathor AI & Assistant Service running on port ${PORT}`);
+});
+
+process.on('SIGTERM', () => {
+  void catalogPool.end().finally(() => process.exit(0));
+});

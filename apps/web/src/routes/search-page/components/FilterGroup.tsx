@@ -26,13 +26,13 @@ export const FilterGroup: React.FC<FilterGroupProps> = ({
 
   return (
     <div className={styles.filterGroup}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={styles.groupToggleBtn}
-      >
+      <button type="button" onClick={() => setIsOpen(!isOpen)} className={styles.groupToggleBtn}>
         <span>{title}</span>
-        {isOpen ? <ChevronUp size={14} color="#8c9aaa" /> : <ChevronDown size={14} color="#8c9aaa" />}
+        {isOpen ? (
+          <ChevronUp size={14} color="#8c9aaa" />
+        ) : (
+          <ChevronDown size={14} color="#8c9aaa" />
+        )}
       </button>
 
       {isOpen && (
@@ -50,7 +50,9 @@ export const FilterGroup: React.FC<FilterGroupProps> = ({
                   onToggle(opt.slug);
                 }}
               >
-                <div className={`${styles.checkboxBox} ${isChecked ? styles.checkboxBoxChecked : ''}`}>
+                <div
+                  className={`${styles.checkboxBox} ${isChecked ? styles.checkboxBoxChecked : ''}`}
+                >
                   {isChecked && <Check size={11} strokeWidth={3} color="#222831" />}
                 </div>
                 <span className={styles.optionText}>{opt.name}</span>

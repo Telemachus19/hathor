@@ -209,6 +209,9 @@ paths:
                         month: { type: integer }
                         year: { type: integer }
                         amount: { type: integer }
+        '401': { description: Invalid service credential }
+        '403': { description: Missing audience or scope }
+        '404': { description: Game not found }
   /auth/audit-logs:
     get:
       operationId: getInternalAuthLogs
@@ -232,6 +235,8 @@ paths:
                     action: { type: string }
                     details: { type: object }
                     timestamp: { type: string, format: date-time }
+        '401': { description: Invalid service credential }
+        '403': { description: Missing audience or scope }
   /catalog/audit-logs:
     get:
       operationId: getInternalCatalogLogs
@@ -253,6 +258,9 @@ paths:
                     action: { type: string }
                     details: { type: object }
                     timestamp: { type: string, format: date-time }
+        '401': { description: Invalid service credential }
+        '403': { description: Missing audience or scope }
+
 components:
   securitySchemes:
     serviceBearer:

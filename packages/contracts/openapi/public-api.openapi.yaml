@@ -954,24 +954,6 @@ components:
       properties:
         items: { type: array, items: { $ref: '#/components/schemas/Order' } }
         nextCursor: { type: [string, 'null'] }
-    AuditLog:
-      type: object
-      required: [id, timestamp, actorId, action, service]
-      properties:
-        id: { type: string, format: uuid }
-        timestamp: { type: string, format: date-time }
-        actorId: { type: string, format: uuid }
-        targetId: { type: string }
-        action: { type: string }
-        details: { type: object }
-        service: { type: string }
-    AuditLogList:
-      type: object
-      required: [items]
-      properties:
-        items:
-          type: array
-          items: { $ref: '#/components/schemas/AuditLog' }
     Genre:
       type: object
       required: [id, name, slug]

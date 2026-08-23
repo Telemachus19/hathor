@@ -44,11 +44,7 @@ export async function changePasswordHandler(req: AuthenticatedRequest, res: Resp
   }
 
   try {
-    const [user] = await authDb
-      .select()
-      .from(users)
-      .where(eq(users.id, req.user.id))
-      .limit(1);
+    const [user] = await authDb.select().from(users).where(eq(users.id, req.user.id)).limit(1);
 
     if (!user) {
       return res.status(404).json({

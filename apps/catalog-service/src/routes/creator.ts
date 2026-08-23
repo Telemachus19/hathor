@@ -157,7 +157,7 @@ router.put(
           success: false,
           error: {
             code: 'VALIDATION_FAILED',
-            message: 'Invalid gameId format',
+            message: 'Game ID or slug is required',
             correlationId,
           },
         });
@@ -172,7 +172,7 @@ router.put(
           success: false,
           error: {
             code: 'GAME_NOT_FOUND',
-            message: `Game not found for id: ${gameId}`,
+            message: `Game not found for identifier: ${gameId}`,
             correlationId,
           },
         });

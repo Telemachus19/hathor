@@ -191,9 +191,19 @@ export function AuthContextProvider({ children, authService }: AuthProviderProps
       changeEmail,
       changePassword,
     }),
-    [accessToken, user, status, isAuthenticated, login, register, refresh, logout, changeEmail, changePassword]
+    [
+      accessToken,
+      user,
+      status,
+      isAuthenticated,
+      login,
+      register,
+      refresh,
+      logout,
+      changeEmail,
+      changePassword,
+    ]
   );
-
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

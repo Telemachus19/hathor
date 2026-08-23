@@ -26,11 +26,9 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
     return null;
   }
 
-  const getGenreName = (slug: string) =>
-    genres.find((g) => g.slug === slug)?.name || slug;
+  const getGenreName = (slug: string) => genres.find((g) => g.slug === slug)?.name || slug;
 
-  const getTagName = (slug: string) =>
-    tags.find((t) => t.slug === slug)?.name || slug;
+  const getTagName = (slug: string) => tags.find((t) => t.slug === slug)?.name || slug;
 
   return (
     <div className={styles.chipsContainer}>

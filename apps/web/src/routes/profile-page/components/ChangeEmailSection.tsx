@@ -48,9 +48,7 @@ export const ChangeEmailSection: React.FC<ChangeEmailSectionProps> = ({
       setNewEmail('');
     } catch (err: any) {
       const msg =
-        err?.message ||
-        err?.error?.message ||
-        'Failed to update email. Please try again.';
+        err?.message || err?.error?.message || 'Failed to update email. Please try again.';
       setEmailError(msg);
       showToast('error', msg);
     } finally {
@@ -91,4 +89,3 @@ export const ChangeEmailSection: React.FC<ChangeEmailSectionProps> = ({
 };
 
 export default ChangeEmailSection;
-

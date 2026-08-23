@@ -208,6 +208,38 @@ services:
       retries: 5
       start_period: 10s
 
+  ai-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/ai-service/Dockerfile
+    networks:
+      - backend
+      - edge
+    environment:
+      NODE_ENV: development
+      PORT: 5005
+      CATALOG_DB_URL: postgresql://catalog_app:${CATALOG_DB_PASSWORD}@catalog-postgres:5432/catalog
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    depends_on:
+      catalog-postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5005/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
   commerce-service:
     <<: *service-defaults
     build:
@@ -283,6 +315,7 @@ services:
       CATALOG_SERVICE_URL: http://catalog-service:5002
       COMMERCE_SERVICE_URL: http://commerce-service:5003
       LIBRARY_SERVICE_URL: http://library-service:5004
+      AI_SERVICE_URL: http://ai-service:5005
     depends_on:
       auth-service:
         condition: service_healthy
@@ -291,6 +324,8 @@ services:
       commerce-service:
         condition: service_healthy
       library-service:
+        condition: service_healthy
+      ai-service:
         condition: service_healthy
     healthcheck:
       test: [ 'CMD', 'node', '-e', "fetch('http://127.0.0.1:5000/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))" ]

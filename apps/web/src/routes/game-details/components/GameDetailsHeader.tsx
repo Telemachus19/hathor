@@ -36,7 +36,6 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
   const title = props.title || s.title || s.gameTitle || 'YOUR GAME TITLE';
   const subtitle =
     props.subtitle !== undefined ? props.subtitle : s.subtitle || s.gameSubtitle || '';
-
   const developer = props.developer || s.dev || s.gameDev || 'Hathor Studios';
   const releaseDate = props.releaseDate || s.releaseDate || s.gameReleaseDate || 'Aug 2026';
 
@@ -270,7 +269,9 @@ export const GameDetailsHeader: React.FC<GameDetailsHeaderProps> = (props) => {
           >
             {sentimentDisplay.icon}
             <span style={{ fontWeight: 800 }}>{computedPercentage}%</span>
-            <span style={{ opacity: 0.85, fontWeight: 600, fontSize: device === 'mobile' ? 10 : 11 }}>
+            <span
+              style={{ opacity: 0.85, fontWeight: 600, fontSize: device === 'mobile' ? 10 : 11 }}
+            >
               {sentimentDisplay.label}
             </span>
           </div>

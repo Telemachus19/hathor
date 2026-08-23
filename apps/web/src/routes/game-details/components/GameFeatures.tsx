@@ -26,12 +26,7 @@ export const GameFeatures: React.FC<GameFeaturesProps> = ({
   const isMobile = device === 'mobile';
   const isTablet = device === 'tablet';
 
-  const gridColsCss =
-    isMobile
-      ? '1fr'
-      : isTablet
-        ? 'repeat(2, 1fr)'
-        : `repeat(${cols}, 1fr)`;
+  const gridColsCss = isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : `repeat(${cols}, 1fr)`;
 
   const titleFont = s.font || s.titleFont || pageSettings?.titleFont || "'Cinzel', serif";
   const textFont = s.textFont || pageSettings?.textFont || "'Raleway', sans-serif";
@@ -112,9 +107,7 @@ export const GameFeatures: React.FC<GameFeaturesProps> = ({
               boxSizing: 'border-box',
             }}
           >
-            <div style={{ fontSize: isMobile ? 22 : 26, marginBottom: 8 }}>
-              {item.icon || '⚔️'}
-            </div>
+            <div style={{ fontSize: isMobile ? 22 : 26, marginBottom: 8 }}>{item.icon || '⚔️'}</div>
             <h4
               style={{
                 fontFamily: titleFont,

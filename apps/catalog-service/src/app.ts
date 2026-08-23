@@ -97,18 +97,26 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         if (Array.isArray(rawGenre)) {
           for (const g of rawGenre) {
             genreSlugsOrIds.push(
-              ...g.split(',').map((s) => s.trim().toLowerCase()).filter((s) => Boolean(s) && s !== 'all')
+              ...g
+                .split(',')
+                .map((s) => s.trim().toLowerCase())
+                .filter((s) => Boolean(s) && s !== 'all')
             );
           }
         } else if (typeof rawGenre === 'string') {
           genreSlugsOrIds.push(
-            ...rawGenre.split(',').map((s) => s.trim().toLowerCase()).filter((s) => Boolean(s) && s !== 'all')
+            ...rawGenre
+              .split(',')
+              .map((s) => s.trim().toLowerCase())
+              .filter((s) => Boolean(s) && s !== 'all')
           );
         }
       }
 
       if (genreSlugsOrIds.length > 0) {
-        const numericIds = genreSlugsOrIds.filter((s) => /^\d+$/.test(s)).map((s) => parseInt(s, 10));
+        const numericIds = genreSlugsOrIds
+          .filter((s) => /^\d+$/.test(s))
+          .map((s) => parseInt(s, 10));
         const stringSlugs = genreSlugsOrIds.filter((s) => !/^\d+$/.test(s));
 
         const foundGenreIds: number[] = [...numericIds];
@@ -212,14 +220,16 @@ export function createCatalogApp(checkDatabase: ReadinessCheck): Express {
         }
       }
 
-      const itemsWithTags = gameRecords.map(({ id, priceEgp, genreName, genreSlug, genreId, ...g }) => ({
-        id,
-        ...g,
-        genreId,
-        genre: genreName ? { id: genreId, name: genreName, slug: genreSlug } : null,
-        priceEgp: formatPriceEgp(priceEgp),
-        tags: tagsByGameId[id] || [],
-      }));
+      const itemsWithTags = gameRecords.map(
+        ({ id, priceEgp, genreName, genreSlug, genreId, ...g }) => ({
+          id,
+          ...g,
+          genreId,
+          genre: genreName ? { id: genreId, name: genreName, slug: genreSlug } : null,
+          priceEgp: formatPriceEgp(priceEgp),
+          tags: tagsByGameId[id] || [],
+        })
+      );
 
       const [totalResult] = await catalogDb
         .select({ total: count(games.id) })

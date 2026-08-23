@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import {
-  useInfiniteCatalogGames,
-  useStoreGenres,
-  useStoreTags,
-} from '../../services/api/catalog';
+import { useInfiniteCatalogGames, useStoreGenres, useStoreTags } from '../../services/api/catalog';
 import type { SortPreset, GenreItem, TagItem } from './types';
 import { SearchHeader } from './components/SearchHeader';
 import { SortControls } from './components/SortControls';
@@ -34,21 +30,31 @@ export const SearchPage: React.FC = () => {
   }
 
   const initialQ = routeSearch.q || '';
-  const initialSort = (['trending', 'top_rated', 'new_arrivals'].includes(routeSearch.sort || '')
-    ? routeSearch.sort
-    : 'trending') as SortPreset;
+  const initialSort = (
+    ['trending', 'top_rated', 'new_arrivals'].includes(routeSearch.sort || '')
+      ? routeSearch.sort
+      : 'trending'
+  ) as SortPreset;
 
   const initialGenres = useMemo(() => {
     const raw = routeSearch.genre;
     if (Array.isArray(raw)) return raw.map(String).filter(Boolean);
-    if (typeof raw === 'string' && raw.trim()) return raw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+    if (typeof raw === 'string' && raw.trim())
+      return raw
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
     return [];
   }, [routeSearch.genre]);
 
   const initialTags = useMemo(() => {
     const raw = routeSearch.tags || routeSearch.tag;
     if (Array.isArray(raw)) return raw.map(String).filter(Boolean);
-    if (typeof raw === 'string' && raw.trim()) return raw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+    if (typeof raw === 'string' && raw.trim())
+      return raw
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
     return [];
   }, [routeSearch.tags, routeSearch.tag]);
 
@@ -97,19 +103,14 @@ export const SearchPage: React.FC = () => {
   }, [tagsData]);
 
   // Infinite Games Query with full API-side search, multi-genre, multi-tags, sort, and pagination
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useInfiniteCatalogGames({
-    q: q.trim() || undefined,
-    genre: selectedGenres.length > 0 ? selectedGenres.join(',') : undefined,
-    tags: selectedTags.length > 0 ? selectedTags.join(',') : undefined,
-    sort,
-    limit: 12,
-  });
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    useInfiniteCatalogGames({
+      q: q.trim() || undefined,
+      genre: selectedGenres.length > 0 ? selectedGenres.join(',') : undefined,
+      tags: selectedTags.length > 0 ? selectedTags.join(',') : undefined,
+      sort,
+      limit: 12,
+    });
 
   // Flatten games directly from paginated API response
   const gamesList = useMemo(() => {
@@ -269,9 +270,7 @@ export const SearchPage: React.FC = () => {
 
             {/* End of results footer */}
             {!hasNextPage && gamesList.length > 0 && !isLoading && (
-              <div className={styles.endOfResults}>
-                End of catalog results
-              </div>
+              <div className={styles.endOfResults}>End of catalog results</div>
             )}
           </section>
         </div>

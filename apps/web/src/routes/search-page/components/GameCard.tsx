@@ -8,7 +8,8 @@ interface GameCardProps {
   game: CatalogGameItem;
 }
 
-const FALLBACK_BANNER = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop';
+const FALLBACK_BANNER =
+  'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop';
 
 export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const banner = game.bannerUrl || (game.screenshots && game.screenshots[0]) || FALLBACK_BANNER;
@@ -24,9 +25,19 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
     genreTitle = game.category.trim();
   } else if (game.tags && game.tags.length > 0) {
     const knownGenreTag = game.tags.find((t) =>
-      ['rpg', 'action', 'adventure', 'strategy', 'simulation', 'puzzle', 'racing', 'horror', 'indie', 'sports', 'sci-fi'].includes(
-        (t.slug || t.name).toLowerCase()
-      )
+      [
+        'rpg',
+        'action',
+        'adventure',
+        'strategy',
+        'simulation',
+        'puzzle',
+        'racing',
+        'horror',
+        'indie',
+        'sports',
+        'sci-fi',
+      ].includes((t.slug || t.name).toLowerCase())
     );
     genreTitle = knownGenreTag ? knownGenreTag.name : game.tags[0].name;
   }
@@ -34,18 +45,9 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const hasDiscount = !!(game.discountPercent && game.discountPercent > 0);
 
   return (
-    <Link
-      to="/store/games/$slug"
-      params={{ slug: game.slug }}
-      className={styles.card}
-    >
+    <Link to="/store/games/$slug" params={{ slug: game.slug }} className={styles.card}>
       <div className={styles.imageWrapper}>
-        <img
-          src={banner}
-          alt={game.title}
-          className={styles.bannerImage}
-          loading="lazy"
-        />
+        <img src={banner} alt={game.title} className={styles.bannerImage} loading="lazy" />
       </div>
 
       <div className={styles.accentBar} />
@@ -76,13 +78,9 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
           </div>
 
           <div className={styles.priceContainer}>
-            {hasDiscount && (
-              <span className={styles.discountBadge}>-{game.discountPercent}%</span>
-            )}
+            {hasDiscount && <span className={styles.discountBadge}>-{game.discountPercent}%</span>}
             <span className={styles.priceText}>
-              {game.priceEgp === '0.00' || game.priceEgp === '0'
-                ? 'FREE'
-                : `${game.priceEgp} EGP`}
+              {game.priceEgp === '0.00' || game.priceEgp === '0' ? 'FREE' : `${game.priceEgp} EGP`}
             </span>
           </div>
         </div>

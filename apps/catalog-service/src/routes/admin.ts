@@ -429,11 +429,7 @@ router.get(
           console.error('Failed to fetch auth audit logs from catalog-service:', err);
           return { ok: false, json: async () => ({ items: [] }) };
         }),
-        catalogDb
-          .select()
-          .from(auditLogs)
-          .orderBy(desc(auditLogs.createdAt))
-          .limit(limit),
+        catalogDb.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(limit),
       ]);
 
       const authData = authRes.ok ? await (authRes as any).json() : { items: [] };
@@ -469,7 +465,11 @@ router.get(
     } catch (error) {
       console.error('List audit logs error:', error);
       res.status(500).json({
-        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list audit logs', correlationId },
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to list audit logs',
+          correlationId,
+        },
       });
     }
   }

@@ -17,4 +17,6 @@ export {
   EyeOffIcon,
   UserIcon,
   ArrowRightIcon,
+  AnkhIcon,
+  PharaohIcon,
 } from './Icons';

@@ -20,10 +20,7 @@ export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ st
           }}
         />
       </div>
-      <span
-        className={styles.strengthText}
-        style={{ color: strength.color }}
-      >
+      <span className={styles.strengthText} style={{ color: strength.color }}>
         {strength.label}
       </span>
     </div>

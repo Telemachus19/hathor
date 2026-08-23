@@ -31,7 +31,9 @@
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .searchInput:focus {
@@ -53,7 +55,9 @@
   justify-content: center;
   padding: 4px;
   border-radius: 50%;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .clearSearchBtn:hover {

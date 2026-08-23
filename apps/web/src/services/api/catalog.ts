@@ -80,7 +80,8 @@ export async function fetchStoreGames({
   if (page) queryParams.set('page', String(page));
   if (limit) queryParams.set('limit', String(limit));
   if (q && q.trim()) queryParams.set('q', q.trim());
-  if (genre && genre.trim() && genre.toUpperCase() !== 'ALL') queryParams.set('genre', genre.trim());
+  if (genre && genre.trim() && genre.toUpperCase() !== 'ALL')
+    queryParams.set('genre', genre.trim());
   if (sort) queryParams.set('sort', sort);
 
   const tagList = tags

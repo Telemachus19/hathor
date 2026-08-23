@@ -17,7 +17,9 @@ function signJwt(payload: object, privateKeyPem: string): string {
   const base64UrlHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
   const base64UrlPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
   const signatureInput = `${base64UrlHeader}.${base64UrlPayload}`;
-  const signature = sign('sha256', Buffer.from(signatureInput), privateKeyPem).toString('base64url');
+  const signature = sign('sha256', Buffer.from(signatureInput), privateKeyPem).toString(
+    'base64url'
+  );
   return `${signatureInput}.${signature}`;
 }
 
@@ -46,7 +48,9 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
   const createMockInsertChain = () => {
     const chain: any = {};
     chain.values = vi.fn(() => chain);
-    chain.returning = vi.fn(() => Promise.resolve([{ id: 'rev-new', sentiment: 'positive', content: 'Great!' }]));
+    chain.returning = vi.fn(() =>
+      Promise.resolve([{ id: 'rev-new', sentiment: 'positive', content: 'Great!' }])
+    );
     chain.then = vi.fn((onFulfilled, onRejected) => {
       return Promise.resolve([{ id: 'rev-new' }]).then(onFulfilled, onRejected);
     });
@@ -57,7 +61,9 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
     const chain: any = {};
     chain.set = vi.fn(() => chain);
     chain.where = vi.fn(() => chain);
-    chain.returning = vi.fn(() => Promise.resolve([{ id: 'rev-1', sentiment: 'mixed', content: 'Updated content' }]));
+    chain.returning = vi.fn(() =>
+      Promise.resolve([{ id: 'rev-1', sentiment: 'mixed', content: 'Updated content' }])
+    );
     return chain;
   };
 
