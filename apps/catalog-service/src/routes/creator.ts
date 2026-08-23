@@ -83,29 +83,35 @@ router.put(
       const callerId = req.user!.id;
       const { gameId } = req.params;
 
-      if (!gameId || !UUID_REGEX.test(gameId)) {
+      if (!gameId || typeof gameId !== 'string' || !gameId.trim()) {
         return res.status(400).json({
           success: false,
           error: {
             code: 'VALIDATION_FAILED',
-            message: 'Invalid gameId format',
+            message: 'Game ID or slug is required',
             correlationId,
           },
         });
       }
 
-      const [game] = await catalogDb.select().from(games).where(eq(games.id, gameId)).limit(1);
+      const isUuid = UUID_REGEX.test(gameId);
+      const [game] = await catalogDb
+        .select()
+        .from(games)
+        .where(isUuid ? eq(games.id, gameId) : eq(games.slug, gameId))
+        .limit(1);
 
       if (!game) {
         return res.status(404).json({
           success: false,
           error: {
             code: 'GAME_NOT_FOUND',
-            message: `Game not found for id: ${gameId}`,
+            message: `Game not found for identifier: ${gameId}`,
             correlationId,
           },
         });
       }
+
 
       // Enforce creator ownership (creator_id == caller_id)
       if (game.creatorId !== callerId) {
