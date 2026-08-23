@@ -4,7 +4,7 @@ import { requireServiceScope } from '../middleware/auth.js';
 import { commerceDb } from '../infrastructure/db/client.js';
 import { orders, orderItems } from '../infrastructure/db/schema.js';
 
-const router = Router();
+const router: Router = Router();
 
 // GET /internal/v1/analytics/:gameId
 router.get(
