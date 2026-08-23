@@ -11,7 +11,6 @@ import {
   GameSidebarCta,
   GameSidebarInfo,
   GameSidebarRatings,
-  GameSidebarCommunity,
   MoreLikeThis,
   GameCarousel,
   GameFeatures,
@@ -156,9 +155,6 @@ export function SectionWrapper({
         )}
         {s.type === 'sidebar-ratings' && (
           <GameSidebarRatings s={s} device={device} pageSettings={pageSettings} />
-        )}
-        {s.type === 'sidebar-community' && (
-          <GameSidebarCommunity s={s} device={device} pageSettings={pageSettings} />
         )}
         {s.type === 'recommendations' && (
           <MoreLikeThis s={s} device={device} pageSettings={pageSettings} />

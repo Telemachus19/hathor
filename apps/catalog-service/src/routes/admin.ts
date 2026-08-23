@@ -1,6 +1,9 @@
 import { Router, Response } from 'express';
 import { eq, sql, desc, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
+import { Readable } from 'node:stream';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
 import {
@@ -10,8 +13,10 @@ import {
   tags,
   gameTags,
   auditLogs,
+  gameBuilds,
 } from '../infrastructure/db/schema.js';
 import { isValidTransition, VALID_GAME_STATUSES } from '../domain/stateMachine.js';
+import { r2Client, R2_BUCKET_NAME } from '../infrastructure/storage/r2Client.js';
 
 const router: Router = Router();
 
@@ -64,8 +69,35 @@ router.get(
         fetchedGames.pop();
       }
 
+      const gameIds = fetchedGames.map((g) => g.id);
+      const gameTagsMap: Record<string, { id: number; name: string; slug: string }[]> = {};
+      if (gameIds.length > 0) {
+        const tagRows = await catalogDb
+          .select({
+            gameId: gameTags.gameId,
+            id: tags.id,
+            name: tags.name,
+            slug: tags.slug,
+          })
+          .from(gameTags)
+          .innerJoin(tags, eq(gameTags.tagId, tags.id))
+          .where(inArray(gameTags.gameId, gameIds));
+
+        for (const row of tagRows) {
+          if (!gameTagsMap[row.gameId]) {
+            gameTagsMap[row.gameId] = [];
+          }
+          gameTagsMap[row.gameId].push({ id: row.id, name: row.name, slug: row.slug });
+        }
+      }
+
+      const itemsWithTags = fetchedGames.map((g) => ({
+        ...g,
+        tags: gameTagsMap[g.id] || [],
+      }));
+
       res.status(200).json({
-        items: fetchedGames,
+        items: itemsWithTags,
         nextCursor,
       });
     } catch (error) {
@@ -139,6 +171,13 @@ router.get(
   }
 );
 
+function formatPresignedUrlForClient(rawUrl: string): string {
+  if (process.env.R2_PUBLIC_URL) {
+    return rawUrl.replace(/^https?:\/\/[^/]+/, process.env.R2_PUBLIC_URL);
+  }
+  return rawUrl.replace('http://minio:9000', 'http://localhost:9000');
+}
+
 // GET /admin/games/:gameId
 router.get(
   '/games/:gameId',
@@ -193,9 +232,44 @@ router.get(
         .innerJoin(tags, eq(gameTags.tagId, tags.id))
         .where(eq(gameTags.gameId, game.id));
 
+      // Fetch latest build package if uploaded
+      const [latestBuild] = await catalogDb
+        .select()
+        .from(gameBuilds)
+        .where(eq(gameBuilds.gameId, game.id))
+        .orderBy(desc(gameBuilds.createdAt))
+        .limit(1);
+
+      let downloadUrl: string | null = null;
+      if (latestBuild) {
+        try {
+          const command = new GetObjectCommand({
+            Bucket: R2_BUCKET_NAME,
+            Key: latestBuild.objectKey,
+          });
+          const rawSignedUrl = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+          downloadUrl = formatPresignedUrlForClient(rawSignedUrl);
+        } catch (e) {
+          console.warn('Failed to generate presigned download URL for build:', e);
+        }
+      }
+
       res.status(200).json({
         ...game,
         tags: gameTagRows,
+        build: latestBuild
+          ? {
+              id: latestBuild.id,
+              version: latestBuild.version,
+              objectKey: latestBuild.objectKey,
+              sizeBytes: latestBuild.sizeBytes,
+              checksumSha256: latestBuild.checksumSha256,
+              state: latestBuild.state,
+              createdAt: latestBuild.createdAt,
+              publishedAt: latestBuild.publishedAt,
+              downloadUrl,
+            }
+          : null,
       });
     } catch (error) {
       console.error('Get admin game error:', error);
@@ -206,38 +280,197 @@ router.get(
   }
 );
 
+// GET /admin/games/:gameId/build/download - Generate fresh download URL for admin testing
+router.get(
+  '/games/:gameId/build/download',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { gameId } = req.params;
+    if (!gameId || !UUID_REGEX.test(gameId)) {
+      return res
+        .status(400)
+        .json({ error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format' } });
+    }
+
+    try {
+      const [latestBuild] = await catalogDb
+        .select()
+        .from(gameBuilds)
+        .where(eq(gameBuilds.gameId, gameId))
+        .orderBy(desc(gameBuilds.createdAt))
+        .limit(1);
+
+      if (!latestBuild) {
+        return res
+          .status(404)
+          .json({ error: { code: 'NOT_FOUND', message: 'No build package found for this game' } });
+      }
+
+      const command = new GetObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: latestBuild.objectKey,
+      });
+
+      const rawUrl = await getSignedUrl(r2Client, command, { expiresIn: 3600 });
+      const url = formatPresignedUrlForClient(rawUrl);
+
+      return res.status(200).json({
+        url,
+        objectKey: latestBuild.objectKey,
+        version: latestBuild.version,
+        sizeBytes: latestBuild.sizeBytes,
+        checksumSha256: latestBuild.checksumSha256,
+        expiresIn: 3600,
+      });
+    } catch (err: any) {
+      console.error('Failed to generate admin download URL:', err);
+      return res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: err.message || 'Failed to authorize build download',
+        },
+      });
+    }
+  }
+);
+
+// GET /admin/games/:gameId/build/file - Stream file directly for robust admin download
+router.get(
+  '/games/:gameId/build/file',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { gameId } = req.params;
+    if (!gameId || !UUID_REGEX.test(gameId)) {
+      return res
+        .status(400)
+        .json({ error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format' } });
+    }
+
+    try {
+      const [game] = await catalogDb
+        .select({ id: games.id, title: games.title, slug: games.slug })
+        .from(games)
+        .where(eq(games.id, gameId))
+        .limit(1);
+
+      const [latestBuild] = await catalogDb
+        .select()
+        .from(gameBuilds)
+        .where(eq(gameBuilds.gameId, gameId))
+        .orderBy(desc(gameBuilds.createdAt))
+        .limit(1);
+
+      if (!latestBuild) {
+        return res
+          .status(404)
+          .json({ error: { code: 'NOT_FOUND', message: 'No build package found for this game' } });
+      }
+
+      const command = new GetObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: latestBuild.objectKey,
+      });
+
+      const s3Response = await r2Client.send(command);
+
+      const fileName = `${game?.slug || 'game'}-${latestBuild.version || 'v1.0.0'}.zip`;
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Type', s3Response.ContentType || 'application/zip');
+      if (s3Response.ContentLength) {
+        res.setHeader('Content-Length', s3Response.ContentLength);
+      }
+
+      if (s3Response.Body instanceof Readable) {
+        s3Response.Body.pipe(res);
+      } else if (s3Response.Body) {
+        const stream = s3Response.Body as any;
+        if (typeof stream.pipe === 'function') {
+          stream.pipe(res);
+        } else {
+          const bytes = await s3Response.Body.transformToByteArray();
+          res.end(Buffer.from(bytes));
+        }
+      } else {
+        res.status(500).send('Empty file body');
+      }
+    } catch (err: any) {
+      console.error('Failed to stream admin build download:', err);
+      return res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: err.message || 'Failed to download build package',
+        },
+      });
+    }
+  }
+);
+
 // GET /admin/audit-logs
 router.get(
   '/audit-logs',
   requireAuth,
   requireRole('admin'),
   async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
     const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
-    const cursor = parseInt(req.query.cursor as string) || 0;
+    const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
+    const catalogSecret = process.env.CATALOG_SERVICE_SECRET || 'catalog-service-secret-phrase';
 
     try {
-      const fetchedLogs = await catalogDb
-        .select()
-        .from(auditLogs)
-        .orderBy(desc(auditLogs.createdAt))
-        .limit(limit + 1)
-        .offset(cursor);
+      const [authRes, localLogs] = await Promise.all([
+        fetch(`${authServiceUrl}/internal/v1/auth/audit-logs?limit=${limit}`, {
+          headers: {
+            'x-correlation-id': correlationId,
+            'x-hathor-service-credential': `catalog-service:${catalogSecret}`,
+          },
+        }).catch((err) => {
+          console.error('Failed to fetch auth audit logs from catalog-service:', err);
+          return { ok: false, json: async () => ({ items: [] }) };
+        }),
+        catalogDb.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(limit),
+      ]);
 
-      let nextCursor: string | null = null;
-      if (fetchedLogs.length > limit) {
-        nextCursor = (cursor + limit).toString();
-        fetchedLogs.pop();
-      }
+      const authData = authRes.ok ? await (authRes as any).json() : { items: [] };
+
+      const mappedAuthLogs = (authData.items || []).map((log: any) => ({
+        id: log.id,
+        actorId: log.actorId,
+        targetType: log.targetType || 'user',
+        targetId: log.targetId,
+        action: log.action,
+        details: log.details,
+        timestamp: log.timestamp,
+        service: 'auth-service',
+      }));
+
+      const mappedCatalogLogs = localLogs.map((log) => ({
+        id: log.id,
+        actorId: log.actorId,
+        targetType: log.targetType || 'game',
+        targetId: log.targetId,
+        action: log.action,
+        details: log.details,
+        timestamp: log.createdAt ? log.createdAt.toISOString() : new Date().toISOString(),
+        service: 'catalog-service',
+      }));
+
+      const allLogs = [...mappedAuthLogs, ...mappedCatalogLogs];
+      allLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
       res.status(200).json({
-        items: fetchedLogs,
-        nextCursor,
+        items: allLogs.slice(0, limit),
       });
     } catch (error) {
       console.error('List audit logs error:', error);
-      res
-        .status(500)
-        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list audit logs' } });
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to list audit logs',
+          correlationId,
+        },
+      });
     }
   }
 );
@@ -250,10 +483,10 @@ router.patch(
   async (req: AuthenticatedRequest, res: Response) => {
     const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
     const { gameId } = req.params;
-    const { genreId, tags: tagIds } = req.body || {};
+    const { genreId, tags: tagList } = req.body || {};
 
     try {
-      const result = await catalogDb.transaction(async (tx) => {
+      await catalogDb.transaction(async (tx) => {
         if (genreId !== undefined) {
           await tx
             .update(games)
@@ -261,15 +494,52 @@ router.patch(
             .where(eq(games.id, gameId));
         }
 
+        if (Array.isArray(tagList)) {
+          await tx.delete(gameTags).where(eq(gameTags.gameId, gameId));
+          for (const tagNameOrSlug of tagList) {
+            const val =
+              typeof tagNameOrSlug === 'string'
+                ? tagNameOrSlug.trim()
+                : (tagNameOrSlug?.name || tagNameOrSlug?.slug || '').trim();
+            if (!val) continue;
+
+            let [foundTag] = await tx
+              .select()
+              .from(tags)
+              .where(
+                sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`
+              )
+              .limit(1);
+
+            if (!foundTag) {
+              const finalSlug = val
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+              const [newTag] = await tx
+                .insert(tags)
+                .values({ name: val, slug: finalSlug })
+                .onConflictDoNothing()
+                .returning();
+              foundTag = newTag;
+            }
+
+            if (foundTag) {
+              await tx
+                .insert(gameTags)
+                .values({ gameId, tagId: foundTag.id })
+                .onConflictDoNothing();
+            }
+          }
+        }
+
         await tx.insert(auditLogs).values({
           actorId: req.user!.id,
           targetType: 'game',
           targetId: gameId,
           action: 'update_taxonomy',
-          details: { genreId, tags: tagIds },
+          details: { genreId, tags: tagList },
         });
-
-        return { error: null };
       });
 
       return res.status(204).send();

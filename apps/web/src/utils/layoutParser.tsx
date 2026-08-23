@@ -117,6 +117,9 @@ export function convertJsonToReactLayout(
             subtitle={gameData.subtitle}
             category={gameData.category}
             ratingScore={gameData.ratingScore}
+            ratingPercentage={gameData.ratingPercentage}
+            ratingsBreakdown={gameData.ratingsBreakdown}
+            userReviews={gameData.userReviews}
             reviewCount={gameData.reviewCount}
             developer={gameData.developer}
             releaseDate={gameData.releaseDate}
@@ -147,6 +150,8 @@ export function convertJsonToReactLayout(
             score={gameData.ratingScore}
             totalReviews={gameData.totalReviews}
             reviews={gameData.userReviews}
+            gameId={gameData.id}
+            slug={gameData.slug}
           />
         );
 
@@ -160,7 +165,6 @@ export function convertJsonToReactLayout(
             genre={gameData.category}
             platforms={gameData.platforms}
             ratingsBreakdown={gameData.ratingsBreakdown}
-            communityStats={gameData.communityStats}
           />
         );
 

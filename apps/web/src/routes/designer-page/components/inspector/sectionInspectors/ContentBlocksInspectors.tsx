@@ -87,6 +87,35 @@ export function TextBlockInspector({
           onChange={(v) => updateTarget({ textColor: v, color: v })}
         />
       </PropRow>
+      <PropRow label="Background Color">
+        <ColorField
+          value={targetObj.textBg || targetObj.bg || 'transparent'}
+          onChange={(v) => updateTarget({ textBg: v, bg: v })}
+        />
+      </PropRow>
+      <PropRow label="Padding">
+        <NumField
+          value={
+            targetObj.textPadding ??
+            (targetObj.textBg && targetObj.textBg !== 'transparent' ? 12 : 0)
+          }
+          onChange={(v) => updateTarget({ textPadding: v })}
+          unit="px"
+          min={0}
+          max={48}
+        />
+      </PropRow>
+      <PropRow label="Border Radius">
+        <NumField
+          value={
+            targetObj.textRadius ?? (targetObj.textBg && targetObj.textBg !== 'transparent' ? 4 : 0)
+          }
+          onChange={(v) => updateTarget({ textRadius: v })}
+          unit="px"
+          min={0}
+          max={32}
+        />
+      </PropRow>
 
       <p
         className={styles.propLabel}
@@ -154,6 +183,36 @@ export function HeadingBlockInspector({
         <ColorField
           value={targetObj.color || '#ffffff'}
           onChange={(v) => updateTarget({ color: v })}
+        />
+      </PropRow>
+      <PropRow label="Background Color">
+        <ColorField
+          value={targetObj.headingBg || targetObj.bg || 'transparent'}
+          onChange={(v) => updateTarget({ headingBg: v, bg: v })}
+        />
+      </PropRow>
+      <PropRow label="Padding">
+        <NumField
+          value={
+            targetObj.headingPadding ??
+            (targetObj.headingBg && targetObj.headingBg !== 'transparent' ? 8 : 0)
+          }
+          onChange={(v) => updateTarget({ headingPadding: v })}
+          unit="px"
+          min={0}
+          max={48}
+        />
+      </PropRow>
+      <PropRow label="Border Radius">
+        <NumField
+          value={
+            targetObj.headingRadius ??
+            (targetObj.headingBg && targetObj.headingBg !== 'transparent' ? 4 : 0)
+          }
+          onChange={(v) => updateTarget({ headingRadius: v })}
+          unit="px"
+          min={0}
+          max={32}
         />
       </PropRow>
       <PropRow label="Alignment">

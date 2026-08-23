@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowRight, Check, Loader2 } from 'lucide-react';
+import { ArrowRight, Check, Loader2, AlertCircle } from 'lucide-react';
 import {
   saveGameInfoDraft,
   getGameInfoDraft,
@@ -9,11 +9,12 @@ import {
   GameInfoDraft,
   SystemReqSpec,
 } from './gameInfoCache';
-import { apiClient } from '../../services/api/index';
+import { apiClient, apiBaseUrl } from '../../services/api/index';
 import { GameInfoFormHeader } from './-components/GameInfoFormHeader';
 import { BasicDetailsCard } from './-components/BasicDetailsCard';
 import { ClassificationCard } from './-components/ClassificationCard';
 import { MediaAssetsCard } from './-components/MediaAssetsCard';
+import { GameBuildUploadCard, ExistingBuildInfo } from './-components/GameBuildUploadCard';
 import { SystemReqsCard } from './-components/SystemReqsCard';
 import styles from './-styles/GameInfoFormPage.module.css';
 
@@ -25,6 +26,10 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
   const [savedToast, setSavedToast] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [buildFile, setBuildFile] = useState<File | null>(null);
+  const [existingBuild, setExistingBuild] = useState<ExistingBuildInfo | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [buildError, setBuildError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -67,6 +72,9 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
             };
             setDraft(mappedDraft);
             saveGameInfoDraft(mappedDraft);
+            if (data.build) {
+              setExistingBuild(data.build);
+            }
           }
         } catch (err) {
           console.error('Failed to fetch game details for editing:', err);
@@ -110,60 +118,140 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
     });
   }
 
-  async function handleContinue() {
-    if (!draft.title.trim() || isSubmitting) return;
+  function handleBuildFileChange(file: File | null) {
+    setBuildFile(file);
+    if (file) {
+      setBuildError(null);
+      setSubmitError(null);
+    }
+  }
 
+  const isBasicDetailsValid = Boolean(
+    draft.title.trim() && draft.shortDesc.trim() && draft.priceEgp.trim()
+  );
+
+  const isClassificationValid = Boolean(draft.genre.trim() && draft.tags && draft.tags.length > 0);
+
+  const isSystemReqsValid = Boolean(
+    draft.minReq?.os &&
+    draft.minReq.os.length > 0 &&
+    draft.minReq?.cpu?.trim() &&
+    draft.minReq?.gpu?.trim() &&
+    draft.minReq?.ram?.trim() &&
+    draft.minReq?.storageNum?.trim()
+  );
+
+  const hasBuild = Boolean(buildFile || existingBuild);
+
+  const canContinue =
+    isBasicDetailsValid && isClassificationValid && isSystemReqsValid && hasBuild && !isSubmitting;
+
+  async function handleContinue() {
+    if (isSubmitting) return;
+
+    if (!draft.title.trim()) {
+      setSubmitError('Game title is required.');
+      return;
+    }
+    if (!draft.shortDesc.trim()) {
+      setSubmitError('Short description is required in Basic Details.');
+      return;
+    }
+    if (!draft.priceEgp.trim()) {
+      setSubmitError('Price is required in Basic Details.');
+      return;
+    }
+    if (!draft.genre.trim()) {
+      setSubmitError('Genre is required. Please select a genre.');
+      return;
+    }
+    if (!draft.tags || draft.tags.length === 0) {
+      setSubmitError('Tags are required. Please select at least one tag.');
+      return;
+    }
+    if (!draft.minReq?.os || draft.minReq.os.length === 0) {
+      setSubmitError('Please select at least one supported OS in System Requirements.');
+      return;
+    }
+    if (
+      !draft.minReq?.cpu?.trim() ||
+      !draft.minReq?.gpu?.trim() ||
+      !draft.minReq?.ram?.trim() ||
+      !draft.minReq?.storageNum?.trim()
+    ) {
+      setSubmitError('Please complete all minimum system specifications (CPU, GPU, RAM, Storage).');
+      return;
+    }
+    if (!hasBuild) {
+      setBuildError(
+        'Game build package is required. Please choose a compressed (.zip, .rar, etc.) file.'
+      );
+      setSubmitError('Game build package is required.');
+      return;
+    }
+
+    setBuildError(null);
+    setSubmitError(null);
     setIsSubmitting(true);
+
     try {
       let targetGameId = draft.id;
+      const isUpdate = targetGameId && targetGameId !== 'draft_new_game';
+      const url = isUpdate
+        ? `${apiBaseUrl}/creator/games/${targetGameId}`
+        : `${apiBaseUrl}/creator/games`;
+      const method = isUpdate ? 'PUT' : 'POST';
 
-      if (targetGameId && targetGameId !== 'draft_new_game') {
-        // Update existing game in database
-        await apiClient.PUT('/creator/games/{gameId}' as any, {
-          params: { path: { gameId: targetGameId } },
-          body: {
-            title: draft.title.trim(),
-            shortDescription: draft.shortDesc.trim(),
-            shortDesc: draft.shortDesc.trim(),
-            fullDescription: draft.shortDesc.trim(),
-            priceEgp: draft.priceEgp || '0.00',
-            genre: draft.genre,
-            tags: draft.tags,
-            bannerUrl: draft.bannerUrl,
-            trailerUrl: draft.trailerUrl,
-            systemRequirements: {
-              minReq: draft.minReq,
-              recReq: draft.recReq,
-            },
-          },
-        });
-        saveGameInfoDraft(draft);
-      } else {
-        // Create new draft in catalog-service
-        const res = (await apiClient.POST('/creator/games' as any, {
-          body: {
-            title: draft.title.trim(),
-            shortDescription: draft.shortDesc.trim(),
-            shortDesc: draft.shortDesc.trim(),
-            fullDescription: draft.shortDesc.trim(),
-            priceEgp: draft.priceEgp || '0.00',
-            genre: draft.genre,
-            tags: draft.tags,
-            bannerUrl: draft.bannerUrl,
-            trailerUrl: draft.trailerUrl,
-            systemRequirements: {
-              minReq: draft.minReq,
-              recReq: draft.recReq,
-            },
-          },
-        })) as any;
+      // Build multipart/form-data payload with game info & build archive
+      const formData = new FormData();
+      formData.append('title', draft.title.trim());
+      formData.append('shortDescription', draft.shortDesc.trim());
+      formData.append('shortDesc', draft.shortDesc.trim());
+      formData.append('fullDescription', draft.shortDesc.trim());
+      formData.append('priceEgp', draft.priceEgp || '0.00');
+      if (draft.genre) formData.append('genre', draft.genre);
+      formData.append('tags', JSON.stringify(draft.tags || []));
+      if (draft.bannerUrl) formData.append('bannerUrl', draft.bannerUrl);
+      if (draft.trailerUrl) formData.append('trailerUrl', draft.trailerUrl);
+      formData.append(
+        'systemRequirements',
+        JSON.stringify({
+          minReq: draft.minReq,
+          recReq: draft.recReq,
+        })
+      );
 
-        const createdGame = (res.data as any)?.data || res.data;
-        if (createdGame && createdGame.id) {
-          targetGameId = createdGame.id;
-          const updated = { ...draft, id: targetGameId };
-          setDraft(updated);
-          saveGameInfoDraft(updated);
+      if (buildFile) {
+        formData.append('build', buildFile, buildFile.name);
+      }
+
+      const token = apiClient.getAccessToken();
+      const response = await fetch(url, {
+        method,
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData?.error?.message ||
+            `Failed to save game info and build package (HTTP ${response.status})`
+        );
+      }
+
+      const resJson = await response.json();
+      const savedGame = resJson?.data || resJson;
+
+      if (savedGame && savedGame.id) {
+        targetGameId = savedGame.id;
+        const updated = { ...draft, id: targetGameId };
+        setDraft(updated);
+        saveGameInfoDraft(updated);
+        if (savedGame.build) {
+          setExistingBuild(savedGame.build);
         }
       }
 
@@ -177,14 +265,13 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
               : undefined,
         });
       }, 400);
-    } catch (err) {
-      console.error('Failed to submit game info to catalog-service:', err);
+    } catch (err: any) {
+      console.error('Failed to submit game info and build to catalog-service:', err);
+      setSubmitError(err.message || 'Failed to upload game build and save metadata.');
     } finally {
       setIsSubmitting(false);
     }
   }
-
-  const canContinue = draft.title.trim().length > 0 && !isSubmitting;
 
   return (
     <div className={styles.pageContainer}>
@@ -196,16 +283,16 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
         <div className={styles.contentInner}>
           {/* Heading */}
           <div className={styles.headerSection}>
-            <p className={styles.stepSubTag}>Catalog Metadata Entry</p>
+            <p className={styles.stepSubTag}>Catalog Metadata & Build Entry</p>
             <h1 className={styles.mainHeading}>Game Information & Specifications</h1>
             <p className={styles.mainSubheading}>
-              Enter basic metadata, genre classification, and system requirements. This info is
-              cached in draft state and directly populates your store layout components in the Page
-              Designer.
+              Enter basic metadata, classification, media assets, and upload your game build
+              package. All data and build artifacts are securely stored in MinIO/R2 and catalog
+              services before launching the Page Designer.
             </p>
           </div>
 
-          {/* Grid Layout: Left Column (Details/Media) & Right Column (System Specs) */}
+          {/* Grid Layout: Left Column (Details/Media) & Right Column (System Specs/Build) */}
           {loading ? (
             <div
               style={{
@@ -257,14 +344,44 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
                   recReq={draft.recReq}
                   onChangeTier={handleTierChange}
                 />
+
+                {/* Game Build Upload Card (Required) */}
+                <GameBuildUploadCard
+                  buildFile={buildFile}
+                  existingBuild={existingBuild}
+                  onChangeBuildFile={handleBuildFileChange}
+                  error={buildError}
+                />
               </div>
+            </div>
+          )}
+
+          {/* Submission Error Banner if upload fails */}
+          {submitError && (
+            <div
+              style={{
+                marginTop: 24,
+                padding: '14px 18px',
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid #ef4444',
+                borderRadius: 4,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                color: '#fca5a5',
+                fontFamily: 'monospace',
+                fontSize: 12,
+              }}
+            >
+              <AlertCircle size={16} color="#ef4444" />
+              <span>{submitError}</span>
             </div>
           )}
 
           {/* Footer Action */}
           <div className={styles.footerContainer}>
             <div className={styles.statusText}>
-              {savedToast ? (
+              {savedToast && (
                 <span
                   style={{
                     color: '#38d39f',
@@ -274,11 +391,7 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
                     gap: 6,
                   }}
                 >
-                  <Check size={14} /> Draft Saved & Cached
-                </span>
-              ) : (
-                <span>
-                  Catalog Status: <span style={{ color: '#FD7014' }}>"draft"</span> (cached locally)
+                  <Check size={14} /> Draft & Build Saved to MinIO
                 </span>
               )}
             </div>
@@ -291,7 +404,7 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 size={14} className="animate-spin" /> Saving...
+                  <Loader2 size={14} className="animate-spin" /> Uploading & Saving...
                 </>
               ) : (
                 <>

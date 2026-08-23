@@ -1,9 +1,7 @@
-FROM node:20.15-alpine
+FROM node:24-bookworm-slim
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install --global pnpm@9.0.0
-
-RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 COPY . .

@@ -23,6 +23,12 @@ const SERVICE_CLIENTS: Record<string, ServiceClient> = {
       'catalog-service': ['catalog.build.read'],
     },
   },
+  'catalog-service': {
+    clientSecret: process.env.CATALOG_SERVICE_SECRET || 'catalog-service-secret-phrase',
+    allowedAudiences: {
+      'library-service': ['library.ownership.read'],
+    },
+  },
 };
 
 export async function serviceTokensHandler(req: Request, res: Response) {

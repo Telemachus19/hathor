@@ -8,7 +8,6 @@ import {
   MessageSquare,
   MonitorCheck,
   BarChart2,
-  Users,
   ShoppingBag,
   Info,
   LucideIcon,
@@ -91,12 +90,6 @@ export const PALETTE: {
         desc: '5-star rating progress bars',
         Icon: BarChart2,
       },
-      {
-        type: 'sidebar-community',
-        label: 'Sidebar Community',
-        desc: 'Players count & positive rating %',
-        Icon: Users,
-      },
     ],
   },
   {
@@ -140,7 +133,6 @@ export const BLOCK_META: Record<string, { label: string; Icon: LucideIcon }> = {
   'sidebar-cta': { label: 'Sidebar Purchase Card', Icon: ShoppingCart },
   'sidebar-info': { label: 'Sidebar Game Info', Icon: Info },
   'sidebar-ratings': { label: 'Sidebar Ratings', Icon: BarChart2 },
-  'sidebar-community': { label: 'Sidebar Community', Icon: Users },
   recommendations: { label: 'More Like This', Icon: LayoutGrid },
   text: { label: 'Text Block', Icon: Type },
   image: { label: 'Image Block', Icon: ImageIcon },

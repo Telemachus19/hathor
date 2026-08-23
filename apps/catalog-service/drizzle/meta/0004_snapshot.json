@@ -1,5 +1,5 @@
 {
-  "id": "a232d688-f48c-4a7d-b453-94eb5dd3bc89",
+  "id": "53ff9eee-19dc-454e-afcf-433861ad90bc",
   "prevId": "a090bb4c-3373-46d1-b67c-8f854534bba6",
   "version": "5",
   "dialect": "pg",
@@ -72,80 +72,6 @@
         }
       },
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "catalog_recommendation_cache": {
-      "name": "catalog_recommendation_cache",
-      "schema": "catalog",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "context_game_id": {
-          "name": "context_game_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ranked_game_ids": {
-          "name": "ranked_game_ids",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "reasons": {
-          "name": "reasons",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "source": {
-          "name": "source",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'cached'"
-        },
-        "refreshed_at": {
-          "name": "refreshed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "idx_catalog_rec_cache_context": {
-          "name": "idx_catalog_rec_cache_context",
-          "columns": [
-            "context_game_id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "catalog_recommendation_cache_context_game_id_games_id_fk": {
-          "name": "catalog_recommendation_cache_context_game_id_games_id_fk",
-          "tableFrom": "catalog_recommendation_cache",
-          "tableTo": "games",
-          "schemaTo": "catalog",
-          "columnsFrom": [
-            "context_game_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -248,49 +174,43 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "game_embeddings": {
-      "name": "game_embeddings",
+    "game_reviews": {
+      "name": "game_reviews",
       "schema": "catalog",
       "columns": {
         "game_id": {
           "name": "game_id",
           "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "embedding": {
-          "name": "embedding",
-          "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
-        "content_hash": {
-          "name": "content_hash",
-          "type": "varchar(64)",
+        "review_id": {
+          "name": "review_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
         }
       },
       "indexes": {
-        "idx_game_embeddings_game_id": {
-          "name": "idx_game_embeddings_game_id",
+        "idx_game_reviews_game_id": {
+          "name": "idx_game_reviews_game_id",
           "columns": [
             "game_id"
+          ],
+          "isUnique": false
+        },
+        "idx_game_reviews_review_id": {
+          "name": "idx_game_reviews_review_id",
+          "columns": [
+            "review_id"
           ],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "game_embeddings_game_id_games_id_fk": {
-          "name": "game_embeddings_game_id_games_id_fk",
-          "tableFrom": "game_embeddings",
+        "game_reviews_game_id_games_id_fk": {
+          "name": "game_reviews_game_id_games_id_fk",
+          "tableFrom": "game_reviews",
           "tableTo": "games",
           "schemaTo": "catalog",
           "columnsFrom": [
@@ -301,9 +221,31 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "game_reviews_review_id_reviews_id_fk": {
+          "name": "game_reviews_review_id_reviews_id_fk",
+          "tableFrom": "game_reviews",
+          "tableTo": "reviews",
+          "schemaTo": "catalog",
+          "columnsFrom": [
+            "review_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "game_reviews_game_id_review_id_pk": {
+          "name": "game_reviews_game_id_review_id_pk",
+          "columns": [
+            "game_id",
+            "review_id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "game_status_transitions": {
@@ -656,6 +598,70 @@
           ]
         }
       }
+    },
+    "reviews": {
+      "name": "reviews",
+      "schema": "catalog",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sentiment": {
+          "name": "sentiment",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_reviews_user_id": {
+          "name": "idx_reviews_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "idx_reviews_sentiment": {
+          "name": "idx_reviews_sentiment",
+          "columns": [
+            "sentiment"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "tags": {
       "name": "tags",

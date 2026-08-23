@@ -156,7 +156,6 @@ export function GridSectionInspector({
                   { label: '+ Sidebar CTA', type: 'sidebar-cta' },
                   { label: '+ Sidebar Info', type: 'sidebar-info' },
                   { label: '+ Ratings', type: 'sidebar-ratings' },
-                  { label: '+ Community', type: 'sidebar-community' },
                   { label: '+ Text', type: 'text' },
                   { label: '+ Heading', type: 'heading' },
                   { label: '+ Button', type: 'button' },

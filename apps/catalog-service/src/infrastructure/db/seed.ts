@@ -261,17 +261,6 @@ function createCyberpunkTheme() {
                 ratingsLabelColor: '#64748b',
                 ratingsValueColor: '#f8fafc',
               },
-              {
-                id: 'el_cyber_comm',
-                type: 'sidebar-community',
-                communityCardBg: '#101726',
-                communityCardBorder: 'rgba(0, 240, 255, 0.25)',
-                communityTitle: 'ACTIVE NETRUNNERS',
-                communityTitleColor: '#00f0ff',
-                communityLabelColor: '#64748b',
-                communityValueColor: '#f8fafc',
-                communityRatingColor: '#00f0ff',
-              },
             ],
           },
         ],
@@ -505,17 +494,6 @@ function createEgyptianTheme() {
                 ratingsLabelColor: '#a8947f',
                 ratingsValueColor: '#fffbeb',
               },
-              {
-                id: 'el_egypt_comm',
-                type: 'sidebar-community',
-                communityCardBg: '#241a10',
-                communityCardBorder: 'rgba(212, 175, 55, 0.25)',
-                communityTitle: 'PHARAONIC GUILDS',
-                communityTitleColor: '#d4af37',
-                communityLabelColor: '#a8947f',
-                communityValueColor: '#fffbeb',
-                communityRatingColor: '#d4af37',
-              },
             ],
           },
         ],
@@ -742,17 +720,6 @@ function createDarkFantasyTheme() {
                 ratingsLabelColor: '#94a3b8',
                 ratingsValueColor: '#f8fafc',
               },
-              {
-                id: 'el_gothic_comm',
-                type: 'sidebar-community',
-                communityCardBg: '#16121d',
-                communityCardBorder: 'rgba(225, 29, 72, 0.25)',
-                communityTitle: 'COVEN SANCTUM',
-                communityTitleColor: '#f43f5e',
-                communityLabelColor: '#94a3b8',
-                communityValueColor: '#f8fafc',
-                communityRatingColor: '#e11d48',
-              },
             ],
           },
         ],
@@ -976,17 +943,6 @@ function createSciFiTheme() {
                 ratingsFillColor: '#06b6d4',
                 ratingsLabelColor: '#64748b',
                 ratingsValueColor: '#f8fafc',
-              },
-              {
-                id: 'el_scifi_comm',
-                type: 'sidebar-community',
-                communityCardBg: '#0e1630',
-                communityCardBorder: 'rgba(6, 182, 212, 0.25)',
-                communityTitle: 'DEEP SPACE NETWORK',
-                communityTitleColor: '#06b6d4',
-                communityLabelColor: '#64748b',
-                communityValueColor: '#f8fafc',
-                communityRatingColor: '#06b6d4',
               },
             ],
           },
@@ -1212,17 +1168,6 @@ function createRetroPixelTheme() {
                 ratingsLabelColor: '#94a3b8',
                 ratingsValueColor: '#f8fafc',
               },
-              {
-                id: 'el_retro_comm',
-                type: 'sidebar-community',
-                communityCardBg: '#1f1138',
-                communityCardBorder: 'rgba(34, 197, 94, 0.25)',
-                communityTitle: 'SPEEDRUN LOBBY',
-                communityTitleColor: '#22c55e',
-                communityLabelColor: '#94a3b8',
-                communityValueColor: '#f8fafc',
-                communityRatingColor: '#22c55e',
-              },
             ],
           },
         ],
@@ -1447,17 +1392,6 @@ function createDragonTheme() {
                 ratingsLabelColor: '#94a3b8',
                 ratingsValueColor: '#f8fafc',
               },
-              {
-                id: 'el_dragon_comm',
-                type: 'sidebar-community',
-                communityCardBg: '#201010',
-                communityCardBorder: 'rgba(239, 68, 68, 0.25)',
-                communityTitle: 'HUNTING SQUAD TELEMETRY',
-                communityTitleColor: '#ef4444',
-                communityLabelColor: '#94a3b8',
-                communityValueColor: '#f8fafc',
-                communityRatingColor: '#ef4444',
-              },
             ],
           },
         ],
@@ -1523,7 +1457,7 @@ function createDragonTheme() {
   };
 }
 
-async function seed() {
+export async function seedCatalog() {
   try {
     const defaultGenres = [
       { name: 'Action', slug: 'action' },
@@ -2050,10 +1984,11 @@ async function seed() {
     );
   } catch (error) {
     console.error('Error during catalog database seeding:', error);
-    process.exitCode = 1;
-  } finally {
-    await catalogPool.end();
   }
 }
 
-void seed();
+if (process.argv[1]?.includes('seed')) {
+  void seedCatalog().finally(() => {
+    void catalogPool.end();
+  });
+}

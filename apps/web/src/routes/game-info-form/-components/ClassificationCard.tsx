@@ -68,13 +68,16 @@ export const ClassificationCard: React.FC<ClassificationCardProps> = ({
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <div className={styles.accentBar} />
-        <h2 className={styles.cardTitle}>Classification & Tags</h2>
+        <h2 className={styles.cardTitle}>
+          Classification & Tags
+          <span className={styles.requiredBadge}>REQUIRED</span>
+        </h2>
       </div>
       <div className={styles.cardBody}>
         {/* Genre */}
         <div className={styles.fieldGroup}>
           <label className={styles.fieldLabelSub}>
-            <Hash size={11} /> Primary Genre <span style={{ color: '#FD7014' }}>*</span>
+            <Hash size={11} /> Genre
           </label>
           <div className={styles.pillsContainer}>
             {genreList.map((g) => {
@@ -96,7 +99,7 @@ export const ClassificationCard: React.FC<ClassificationCardProps> = ({
         {/* Tags */}
         <div className={styles.fieldGroup} style={{ marginTop: 8 }}>
           <label className={styles.fieldLabelSub}>
-            <Zap size={11} /> Catalog Feature & Style Tags
+            <Zap size={11} /> Tags
           </label>
           <div className={styles.tagsBox}>
             {tagList.map((t) => {

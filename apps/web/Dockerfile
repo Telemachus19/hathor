@@ -1,11 +1,10 @@
-FROM node:20.15-alpine AS build
+FROM node:24-bookworm-slim AS build
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install --global pnpm@9.0.0
 
 WORKDIR /app
 COPY . .
-RUN apk add --no-cache python3 make g++
 RUN pnpm install --filter @hathor/web... --frozen-lockfile
 
 ARG VITE_API_URL="http://localhost:5000/api/v1"

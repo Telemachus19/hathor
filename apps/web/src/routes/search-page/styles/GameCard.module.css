@@ -1,0 +1,151 @@
+.card {
+  background-color: #252b35;
+  border: 1px solid #393e46;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-orange, #fd7014);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  background-color: #1c2028;
+  overflow: hidden;
+}
+
+.bannerImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .bannerImage {
+  transform: scale(1.04);
+}
+
+.accentBar {
+  height: 4px;
+  background: var(--accent-orange, #fd7014);
+  width: 100%;
+}
+
+.cardBody {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.genreBadgeWrapper {
+  margin-bottom: 8px;
+}
+
+.genreBadge {
+  display: inline-block;
+  background-color: rgba(253, 112, 20, 0.12);
+  border: 1px solid rgba(253, 112, 20, 0.35);
+  color: var(--accent-orange, #fd7014);
+  border-radius: 2px;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-family: var(--font-heading, 'Cinzel', serif);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #eeeeee;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+  margin: 0 0 8px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.tagChip {
+  background-color: #1c2028;
+  border: 1px solid #393e46;
+  color: var(--text-muted, #8c9aaa);
+  border-radius: 2px;
+  padding: 2px 6px;
+  font-size: 0.625rem;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(57, 62, 70, 0.5);
+}
+
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ratingScore {
+  color: var(--accent-orange, #fd7014);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.originalPrice {
+  color: var(--text-muted, #8c9aaa);
+  font-size: 0.75rem;
+  text-decoration: line-through;
+}
+
+.discountBadge {
+  background-color: var(--accent-orange, #fd7014);
+  color: #222831;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.priceText {
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+}

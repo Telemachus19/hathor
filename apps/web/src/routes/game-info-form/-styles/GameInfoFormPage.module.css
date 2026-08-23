@@ -154,8 +154,9 @@
 }
 
 .rightColumn {
-  position: sticky;
-  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 /* Card Styling */
@@ -512,4 +513,189 @@
   background-color: #393e46;
   color: rgba(238, 238, 238, 0.3);
   cursor: not-allowed;
+}
+
+/* Game Build Upload Dropzone & Components */
+.uploadDropzone {
+  border: 1px dashed rgba(253, 112, 20, 0.4);
+  background-color: rgba(34, 40, 49, 0.4);
+  border-radius: 4px;
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.uploadDropzone:hover {
+  border-color: #fd7014;
+  background-color: rgba(253, 112, 20, 0.08);
+}
+
+.uploadDropzoneActive {
+  border-color: #fd7014;
+  background-color: rgba(253, 112, 20, 0.15);
+  box-shadow: 0 0 0 2px rgba(253, 112, 20, 0.25);
+}
+
+.uploadDropzoneError {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.uploadIcon {
+  color: #fd7014;
+  margin-bottom: 10px;
+  transition: transform 0.2s ease;
+}
+
+.uploadDropzone:hover .uploadIcon {
+  transform: translateY(-2px);
+}
+
+.uploadTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #eeeeee;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.uploadSubtitle {
+  font-size: 10px;
+  font-family: monospace;
+  color: #8c9aaa;
+}
+
+.fileInfoBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background-color: rgba(34, 40, 49, 0.8);
+  border: 1px solid rgba(253, 112, 20, 0.5);
+  border-radius: 4px;
+  gap: 12px;
+}
+
+.fileInfoLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.fileIcon {
+  color: #fd7014;
+  flex-shrink: 0;
+}
+
+.fileName {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #eeeeee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileSize {
+  font-family: monospace;
+  font-size: 10px;
+  color: #8c9aaa;
+  margin-top: 2px;
+}
+
+.fileBadge {
+  font-size: 9px;
+  font-family: monospace;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background-color: rgba(253, 112, 20, 0.2);
+  color: #fd7014;
+  border: 1px solid rgba(253, 112, 20, 0.4);
+}
+
+.removeFileBtn {
+  background: transparent;
+  border: none;
+  color: #8c9aaa;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.removeFileBtn:hover {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.existingBuildBox {
+  padding: 14px 16px;
+  background-color: rgba(34, 40, 49, 0.6);
+  border: 1px solid rgba(57, 62, 70, 0.8);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.existingBuildHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.existingBuildStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #38d39f;
+}
+
+.existingBuildDetails {
+  font-family: monospace;
+  font-size: 10px;
+  color: #8c9aaa;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.requiredBadge {
+  font-size: 8px;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background-color: rgba(253, 112, 20, 0.15);
+  border: 1px solid rgba(253, 112, 20, 0.4);
+  color: #fd7014;
+  border-radius: 2px;
+  margin-left: 8px;
+}
+
+.errorMessage {
+  font-size: 10px;
+  font-family: monospace;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, Clock, Zap, Download } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 import { DisplayGame } from '../types';
 import { useSimulatePayment } from '../../../services/api';
 import { useDownload } from '../../../context/DownloadContext';
@@ -10,10 +11,12 @@ interface GridCardProps {
 }
 
 export const GridCard: React.FC<GridCardProps> = ({ game }) => {
+  const navigate = useNavigate();
   const simulatePaymentMutation = useSimulatePayment();
   const { startDownload } = useDownload();
 
   const handleSimulatePayment = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     e.preventDefault();
     if (!game.sourceOrderId) return;
     try {
@@ -24,12 +27,20 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
   };
 
   const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
     e.preventDefault();
     startDownload(game.id, game.title);
   };
 
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      onClick={() => {
+        if (game.slug || game.id) {
+          navigate({ to: '/store/games/$slug', params: { slug: game.slug || game.id } });
+        }
+      }}
+    >
       {/* Pending status ribbon */}
       {game.isPending && (
         <div
@@ -51,6 +62,10 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
 
       {/* Footer / Meta info */}
       <div className={styles.cardFooter}>
+        <h4 className={styles.cardTitle} title={game.title}>
+          {game.title}
+        </h4>
+
         <div className={styles.cardGenreRow}>
           <span className={styles.genreText}>{game.genre}</span>
           <div className={styles.ratingBox}>

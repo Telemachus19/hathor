@@ -4,6 +4,7 @@
   background-color: var(--bg-main);
   color: var(--text-cream);
   font-family: var(--font-body);
+  overflow-x: hidden;
 }
 
 .mainContainer {
@@ -12,6 +13,7 @@
   margin: 0 auto;
   padding: 2rem 1.5rem 4rem;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .carouselWrapper {

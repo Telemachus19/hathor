@@ -173,6 +173,23 @@
   min-width: 60px;
 }
 
+.portfolioStatusCol {
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.portfolioActionsCol {
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 .portfolioStatsVal {
   font-size: 0.75rem;
   font-weight: 900;
@@ -188,23 +205,28 @@
 }
 
 .statsBtn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: center;
+  gap: 0.3rem;
   padding: 0.35rem 0.65rem;
-  font-size: 0.55rem;
+  min-width: 54px;
+  font-size: 0.58rem;
   font-family: monospace;
+  font-weight: 700;
   border: 1px solid #393e46;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.02);
   color: #8c9aaa;
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
+  border-radius: 2px;
 }
 
 .statsBtn:hover {
   color: #eeeeee;
   border-color: #fd7014;
+  background: rgba(253, 112, 20, 0.08);
 }
 
 /* Top Performer Card */

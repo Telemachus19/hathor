@@ -8,7 +8,6 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { internalPathBlocker } from './middleware/internalPathBlocker.js';
 import { authRateLimiter, globalRateLimiter } from './middleware/rateLimiter.js';
 import { proxyRouter } from './proxy/router.js';
-import { adminRouter } from './routes/admin.js';
 
 export function createGatewayApp(): Express {
   const app = express();
@@ -127,9 +126,6 @@ export function createGatewayApp(): Express {
   // Stricter rate limit on auth endpoints
   apiV1Router.use('/user/register', authRateLimiter);
   apiV1Router.use('/user/login', authRateLimiter);
-
-  // Custom unified routes
-  apiV1Router.use('/admin', adminRouter);
 
   // Proxy routes — body forwarding is handled by http-proxy-middleware
   apiV1Router.use('/', proxyRouter);

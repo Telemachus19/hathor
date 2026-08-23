@@ -36,7 +36,10 @@ export const SystemReqsCard: React.FC<SystemReqsCardProps> = ({ minReq, recReq, 
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <div className={styles.accentBar} />
-        <h2 className={styles.cardTitle}>System Requirements</h2>
+        <h2 className={styles.cardTitle}>
+          System Requirements
+          <span className={styles.requiredBadge}>REQUIRED</span>
+        </h2>
       </div>
 
       {/* Tabs */}

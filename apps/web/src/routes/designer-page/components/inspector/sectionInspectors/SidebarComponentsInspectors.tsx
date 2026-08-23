@@ -152,6 +152,15 @@ export function SidebarCtaInspector({
           </PropRow>
         </>
       )}
+      <PropRow label="Button Border Radius">
+        <NumField
+          value={targetObj.ctaBtnRadius ?? 3}
+          onChange={(v) => updateTarget({ ctaBtnRadius: v })}
+          unit="px"
+          min={0}
+          max={24}
+        />
+      </PropRow>
       <PropRow label="Top Accent Line Color">
         <ColorField
           value={targetObj.sideAccentColor || HATHOR_ORANGE}
@@ -244,7 +253,7 @@ export function SidebarRatingsInspector({
           onChange={(v) => updateTarget({ ratingsTitleColor: v })}
         />
       </PropRow>
-      <PropRow label="Stars Label Color">
+      <PropRow label="Ratings Label Color">
         <ColorField
           value={targetObj.ratingsLabelColor || TEXT_MUTED}
           onChange={(v) => updateTarget({ ratingsLabelColor: v })}
@@ -272,61 +281,6 @@ export function SidebarRatingsInspector({
         <ColorField
           value={targetObj.ratingsCardBorder || BORDER}
           onChange={(v) => updateTarget({ ratingsCardBorder: v })}
-        />
-      </PropRow>
-    </PropSection>
-  );
-}
-
-export function SidebarCommunityInspector({
-  targetObj,
-  updateTarget,
-}: {
-  targetObj: Section;
-  updateTarget: (updates: Partial<Section>, skipHistory?: boolean) => void;
-}) {
-  return (
-    <PropSection title="Sidebar Community Stats Settings">
-      <PropRow label="Card Header Title">
-        <TxtInput
-          value={targetObj.communityTitle || 'COMMUNITY'}
-          onChange={(v) => updateTarget({ communityTitle: v })}
-        />
-      </PropRow>
-      <PropRow label="Header Title Color">
-        <ColorField
-          value={targetObj.communityTitleColor || targetObj.commTitleColor || HATHOR_ORANGE}
-          onChange={(v) => updateTarget({ communityTitleColor: v, commTitleColor: v })}
-        />
-      </PropRow>
-      <PropRow label="Field Label Color">
-        <ColorField
-          value={targetObj.communityLabelColor || targetObj.commLabelColor || TEXT_MUTED}
-          onChange={(v) => updateTarget({ communityLabelColor: v, commLabelColor: v })}
-        />
-      </PropRow>
-      <PropRow label="Value Text Color">
-        <ColorField
-          value={targetObj.communityValueColor || targetObj.commValueColor || TEXT_PRIMARY}
-          onChange={(v) => updateTarget({ communityValueColor: v, commValueColor: v })}
-        />
-      </PropRow>
-      <PropRow label="Positive Rating % Color">
-        <ColorField
-          value={targetObj.communityRatingColor || targetObj.commRatingColor || GREEN_ACCENT}
-          onChange={(v) => updateTarget({ communityRatingColor: v, commRatingColor: v })}
-        />
-      </PropRow>
-      <PropRow label="Card Background">
-        <ColorField
-          value={targetObj.communityCardBg || SURFACE}
-          onChange={(v) => updateTarget({ communityCardBg: v })}
-        />
-      </PropRow>
-      <PropRow label="Card Border Color">
-        <ColorField
-          value={targetObj.communityCardBorder || BORDER}
-          onChange={(v) => updateTarget({ communityCardBorder: v })}
         />
       </PropRow>
     </PropSection>

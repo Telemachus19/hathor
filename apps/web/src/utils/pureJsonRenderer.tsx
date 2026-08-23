@@ -8,7 +8,6 @@ import {
   GameSidebarCta,
   GameSidebarInfo,
   GameSidebarRatings,
-  GameSidebarCommunity,
   MoreLikeThis,
   GameCarousel,
   GameFeatures,
@@ -47,8 +46,6 @@ const REVERSE_NAME_MAP: Record<string, string> = {
   'sidebar-info': 'sidebar-info',
   SidebarRatings: 'sidebar-ratings',
   'sidebar-ratings': 'sidebar-ratings',
-  SidebarCommunity: 'sidebar-community',
-  'sidebar-community': 'sidebar-community',
   Recommendations: 'recommendations',
   recommendations: 'recommendations',
   CustomGrid: 'grid',
@@ -223,6 +220,9 @@ function ComponentNodeContent({
         title={s.title || gd.title}
         subtitle={s.subtitle || gd.subtitle}
         ratingScore={s.ratingScore ?? gd.ratingScore}
+        ratingPercentage={s.ratingPercentage ?? gd.ratingPercentage}
+        ratingsBreakdown={s.ratingsBreakdown ?? gd.ratingsBreakdown}
+        userReviews={s.userReviews ?? gd.userReviews}
         reviewCount={s.reviewCount || gd.reviewCount}
         developer={s.dev || s.developer || gd.developer}
         releaseDate={s.releaseDate || gd.releaseDate}
@@ -277,6 +277,11 @@ function ComponentNodeContent({
         reviews={gd.userReviews}
         device={device}
         pageSettings={pageSettings}
+        isOwned={pageSettings?.isOwned}
+        isAuthenticated={pageSettings?.isAuthenticated}
+        isDesignerPreview={pageSettings?.isDesignerPreview}
+        gameId={pageSettings?.gameId || gd.id}
+        slug={pageSettings?.slug || gd.slug}
       />
     );
   }
@@ -319,17 +324,6 @@ function ComponentNodeContent({
         key={nodeKey}
         s={s}
         ratingsBreakdown={gd.ratingsBreakdown}
-        device={device}
-        pageSettings={pageSettings}
-      />
-    );
-  }
-  if (type === 'sidebar-community') {
-    return (
-      <GameSidebarCommunity
-        key={nodeKey}
-        s={s}
-        communityStats={gd.communityStats}
         device={device}
         pageSettings={pageSettings}
       />

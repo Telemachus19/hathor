@@ -19,6 +19,7 @@ export interface LibraryGame {
 
 export interface DisplayGame {
   id: string;
+  slug?: string;
   title: string;
   genre: string;
   developer: string;

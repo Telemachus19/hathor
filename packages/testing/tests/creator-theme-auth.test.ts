@@ -21,18 +21,40 @@ function signJwt(payload: object, privateKeyPem: string): string {
   return `${signatureInput}.${signature}`;
 }
 
-const mockSelectChain: any = {};
-mockSelectChain.from = vi.fn().mockReturnValue(mockSelectChain);
-mockSelectChain.where = vi.fn().mockReturnValue(mockSelectChain);
-mockSelectChain.limit = vi.fn().mockResolvedValue([]);
+const mockSelectChain: any = {
+  from: vi.fn(() => mockSelectChain),
+  innerJoin: vi.fn(() => mockSelectChain),
+  where: vi.fn(() => mockSelectChain),
+  orderBy: vi.fn(() => mockSelectChain),
+  limit: vi.fn(() => Promise.resolve([])),
+  then: vi.fn((onFulfilled, onRejected) => {
+    return Promise.resolve()
+      .then(() => [])
+      .then(onFulfilled, onRejected);
+  }),
+};
 
-const mockUpdateChain: any = {};
-mockUpdateChain.set = vi.fn().mockReturnValue(mockUpdateChain);
-mockUpdateChain.where = vi.fn().mockResolvedValue(true);
+const mockUpdateChain: any = {
+  set: vi.fn(() => mockUpdateChain),
+  where: vi.fn(() => mockUpdateChain),
+  returning: vi.fn(() => Promise.resolve([])),
+  then: vi.fn((onFulfilled, onRejected) => {
+    return Promise.resolve()
+      .then(() => [])
+      .then(onFulfilled, onRejected);
+  }),
+};
 
-const mockInsertChain: any = {};
-mockInsertChain.values = vi.fn().mockReturnValue(mockInsertChain);
-mockInsertChain.returning = vi.fn();
+const mockInsertChain: any = {
+  values: vi.fn(() => mockInsertChain),
+  returning: vi.fn(() => Promise.resolve([])),
+  onConflictDoNothing: vi.fn(() => Promise.resolve([])),
+  then: vi.fn((onFulfilled, onRejected) => {
+    return Promise.resolve()
+      .then(() => [])
+      .then(onFulfilled, onRejected);
+  }),
+};
 
 vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
   return {
@@ -44,8 +66,19 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
   };
 });
 
+vi.mock('../../../apps/catalog-service/src/infrastructure/storage/r2Client.js', () => {
+  return {
+    uploadGameBuildPackage: vi.fn(async ({ objectKey, buffer }: any) => ({
+      objectKey,
+      checksumSha256: 'mock-sha256-checksum-1234567890abcdef',
+      sizeBytes: buffer.length,
+    })),
+  };
+});
+
 import { createCatalogApp } from '../../../apps/catalog-service/src/app.js';
 import { catalogDb } from '../../../apps/catalog-service/src/infrastructure/db/client.js';
+import { uploadGameBuildPackage } from '../../../apps/catalog-service/src/infrastructure/storage/r2Client.js';
 
 describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership Verification', () => {
   let app: any;
@@ -53,12 +86,15 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
   beforeEach(() => {
     vi.clearAllMocks();
     mockSelectChain.from.mockReturnValue(mockSelectChain);
+    mockSelectChain.innerJoin.mockReturnValue(mockSelectChain);
     mockSelectChain.where.mockReturnValue(mockSelectChain);
+    mockSelectChain.orderBy.mockReturnValue(mockSelectChain);
     mockSelectChain.limit.mockResolvedValue([]);
     mockUpdateChain.set.mockReturnValue(mockUpdateChain);
-    mockUpdateChain.where.mockResolvedValue(true);
+    mockUpdateChain.where.mockReturnValue(mockUpdateChain);
     mockInsertChain.values.mockReturnValue(mockInsertChain);
     mockInsertChain.returning.mockResolvedValue([]);
+    mockInsertChain.onConflictDoNothing.mockResolvedValue([]);
     app = createCatalogApp(async () => {});
   });
 
@@ -206,7 +242,7 @@ describe('PUT /creator/games/:gameId/theme - Creator Authorization & Ownership V
   });
 });
 
-describe('POST /creator/games - Draft Game Creation', () => {
+describe('POST /creator/games - Draft Game Creation & Build Upload', () => {
   let app: any;
 
   beforeEach(() => {
@@ -249,7 +285,7 @@ describe('POST /creator/games - Draft Game Creation', () => {
 
   it('successfully creates draft game enforcing status="draft" and pageTheme={}', async () => {
     const insertedRecord = {
-      id: 'new-game-uuid-123',
+      id: '00000000-0000-0000-0000-000000000123',
       creatorId: creatorAId,
       title: 'Hathor Quest',
       slug: 'hathor-quest-a1b2',
@@ -293,5 +329,65 @@ describe('POST /creator/games - Draft Game Creation', () => {
     expect(insertedValues.title).toBe('Hathor Quest');
     expect(insertedValues.status).toBe('draft');
     expect(insertedValues.pageTheme).toEqual({});
+  });
+
+  it('uploads build package during multipart game creation and stores objectKey format builds/:gameId/v1.0.0/game.zip', async () => {
+    const targetGameId = '00000000-0000-0000-0000-000000000123';
+    const insertedRecord = {
+      id: targetGameId,
+      creatorId: creatorAId,
+      title: 'Cyber Quest',
+      slug: 'cyber-quest-1234',
+      shortDescription: 'Cyber action game',
+      fullDescription: 'Cyber action game',
+      priceEgp: '199.99',
+      status: 'draft',
+      pageTheme: {},
+    };
+
+    mockInsertChain.returning.mockResolvedValueOnce([insertedRecord]);
+    mockSelectChain.limit.mockResolvedValueOnce([]); // No existing build
+
+    const res = await request(app)
+      .post('/creator/games')
+      .set('Authorization', `Bearer ${tokenCreatorA}`)
+      .field('title', 'Cyber Quest')
+      .field('shortDesc', 'Cyber action game')
+      .field('priceEgp', '199.99')
+      .attach('build', Buffer.from('mock zip binary content'), 'game-package.zip');
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(uploadGameBuildPackage).toHaveBeenCalledWith({
+      objectKey: `builds/${targetGameId}/v1.0.0/game.zip`,
+      buffer: expect.any(Buffer),
+      contentType: 'application/zip',
+    });
+    expect(res.body.data.build).toEqual({
+      objectKey: `builds/${targetGameId}/v1.0.0/game.zip`,
+      checksumSha256: 'mock-sha256-checksum-1234567890abcdef',
+      sizeBytes: expect.any(Number),
+    });
+  });
+
+  it('uploads build package via POST /creator/games/:gameId/build', async () => {
+    const targetGameId = '00000000-0000-0000-0000-000000000123';
+    mockSelectChain.limit.mockResolvedValueOnce([
+      {
+        id: targetGameId,
+        creatorId: creatorAId,
+        title: 'Cyber Quest',
+      },
+    ]);
+    mockSelectChain.limit.mockResolvedValueOnce([]); // existing build check
+
+    const res = await request(app)
+      .post(`/creator/games/${targetGameId}/build`)
+      .set('Authorization', `Bearer ${tokenCreatorA}`)
+      .attach('file', Buffer.from('mock new build data'), 'build.zip');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.objectKey).toBe(`builds/${targetGameId}/v1.0.0/game.zip`);
   });
 });

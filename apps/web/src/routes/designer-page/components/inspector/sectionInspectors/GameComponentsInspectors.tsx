@@ -102,6 +102,14 @@ export function MediaCarouselInspector({
           {(targetObj.showThumbnails ?? true) ? 'VISIBLE' : 'HIDDEN'}
         </button>
       </div>
+      {(targetObj.showThumbnails ?? true) && (
+        <PropRow label="Active Outline Color">
+          <ColorField
+            value={targetObj.carouselActiveBorder || targetObj.thumbActiveBorder || '#f26b21'}
+            onChange={(v) => updateTarget({ carouselActiveBorder: v, thumbActiveBorder: v })}
+          />
+        </PropRow>
+      )}
       <MediaManagerList
         items={targetObj.heroImages || targetObj.carouselImages || targetObj.mediaItems || []}
         onChange={(items) =>
@@ -667,6 +675,12 @@ export function UserReviewsInspector({
           placeholder="PLAYER REVIEWS"
         />
       </PropRow>
+      <PropRow label="Section Header Color">
+        <ColorField
+          value={targetObj.reviewHeaderColor || targetObj.reviewTitleColor || '#f4b183'}
+          onChange={(v) => updateTarget({ reviewHeaderColor: v, reviewTitleColor: v })}
+        />
+      </PropRow>
       <PropRow label="Card Background / Free Gradient">
         <ColorField
           value={targetObj.reviewCardBg || SURFACE}
@@ -721,10 +735,15 @@ export function UserReviewsInspector({
           options={FONTS}
         />
       </PropRow>
-      <PropRow label="Star Accent Color">
+      <PropRow label="Sentiment Accent Color">
         <ColorField
-          value={targetObj.reviewStarColor || HATHOR_ORANGE}
-          onChange={(v) => updateTarget({ reviewStarColor: v })}
+          value={targetObj.reviewBadgeColor || targetObj.reviewAccentColor || GREEN_ACCENT}
+          onChange={(v) =>
+            updateTarget({
+              reviewBadgeColor: v,
+              reviewAccentColor: v,
+            })
+          }
         />
       </PropRow>
     </PropSection>

@@ -1,4 +1,5 @@
-import { Link } from '@tanstack/react-router';
+import React, { useState } from 'react';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from '../../../context/AuthContext';
 import styles from '../styles/Navbar.module.css';
 import {
@@ -6,7 +7,6 @@ import {
   GlobeIcon,
   CartIcon,
   LoginIcon,
-  FlameIcon,
   TrophyIcon,
   SparkleIcon,
   TrendingIcon,
@@ -16,7 +16,23 @@ import logoSvg from '../assets/hathor-logo.svg';
 
 export const Navbar: React.FC = () => {
   const auth = useAuth();
+  const navigate = useNavigate();
   const isAuthenticated = auth?.isAuthenticated ?? false;
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      void navigate({
+        to: '/search',
+        search: { q: searchQuery.trim() },
+      });
+    } else {
+      void navigate({
+        to: '/search',
+      });
+    }
+  };
 
   return (
     <nav>
@@ -77,26 +93,29 @@ export const Navbar: React.FC = () => {
       <div className={styles.navbarBottomWrapper}>
         <div className={styles.navbarBottom}>
           <div className={styles.filters}>
-            <Link to="/" className={`${styles.filterLink} ${styles.filterLinkActive}`}>
-              <FlameIcon /> DEALS
-            </Link>
-            <Link to="/" className={styles.filterLink}>
+            <Link to="/search" search={{ sort: 'top_rated' }} className={styles.filterLink}>
               <TrophyIcon /> TOP RATED
             </Link>
-            <Link to="/" className={styles.filterLink}>
+            <Link to="/search" search={{ sort: 'new_arrivals' }} className={styles.filterLink}>
               <SparkleIcon /> NEW ARRIVALS
             </Link>
-            <Link to="/" className={styles.filterLink}>
+            <Link to="/search" search={{ sort: 'trending' }} className={styles.filterLink}>
               <TrendingIcon /> TRENDING
             </Link>
           </div>
 
-          <div className={styles.searchWrap}>
+          <form onSubmit={handleSearchSubmit} className={styles.searchWrap}>
             <span className={styles.searchIcon}>
               <SearchIcon />
             </span>
-            <input type="text" className={styles.searchInput} placeholder="Search games..." />
-          </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+              placeholder="Search games..."
+            />
+          </form>
 
           {isAuthenticated && (
             <Link to="/" className={styles.wishlistLink}>

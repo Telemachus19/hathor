@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { requireAuth } from '../utils/authGuard';
+import ProfilePage from './profile-page';
 
 export const Route = createFileRoute('/profile')({
   beforeLoad: ({ context, location }) => {
@@ -7,12 +8,3 @@ export const Route = createFileRoute('/profile')({
   },
   component: ProfilePage,
 });
-
-function ProfilePage() {
-  return (
-    <main style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Profile</h1>
-      <p>Your profile information will appear here.</p>
-    </main>
-  );
-}

@@ -20,6 +20,7 @@ import { Route as LibraryRouteImport } from './routes/library'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAuditLogRouteImport } from './routes/admin/audit-log'
 import { Route as AdminGamesRouteImport } from './routes/admin/games'
@@ -88,6 +89,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/games': typeof AdminGamesRoute
   '/admin/genres': typeof AdminGenresRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/games': typeof AdminGamesRoute
   '/admin/genres': typeof AdminGenresRoute
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/games': typeof AdminGamesRoute
   '/admin/genres': typeof AdminGenresRoute
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/search'
     | '/admin/audit-log'
     | '/admin/games'
     | '/admin/genres'
@@ -281,6 +291,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/search'
     | '/admin/audit-log'
     | '/admin/games'
     | '/admin/genres'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/search'
     | '/admin/audit-log'
     | '/admin/games'
     | '/admin/genres'
@@ -336,6 +348,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
+  SearchRoute: typeof SearchRoute
   StoreGamesSlugRoute: typeof StoreGamesSlugRoute
 }
 
@@ -416,6 +429,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -574,6 +594,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
+  SearchRoute: SearchRoute,
   StoreGamesSlugRoute: StoreGamesSlugRoute,
 }
 export const routeTree = rootRouteImport

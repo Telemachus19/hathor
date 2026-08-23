@@ -8,7 +8,6 @@ import {
   GameSidebarCta,
   GameSidebarInfo,
   GameSidebarRatings,
-  GameSidebarCommunity,
   MoreLikeThis,
   GameCarousel,
   GameFeatures,
@@ -168,9 +167,6 @@ export function GridRenderer({
                     )}
                     {el.type === 'sidebar-ratings' && (
                       <GameSidebarRatings s={el} device={device} pageSettings={pageSettings} />
-                    )}
-                    {el.type === 'sidebar-community' && (
-                      <GameSidebarCommunity s={el} device={device} pageSettings={pageSettings} />
                     )}
                     {el.type === 'recommendations' && (
                       <MoreLikeThis s={el} device={device} pageSettings={pageSettings} />

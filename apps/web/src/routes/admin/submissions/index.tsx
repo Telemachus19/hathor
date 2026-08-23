@@ -27,9 +27,12 @@ export const Route = createFileRoute('/admin/submissions/')({
 
 function AdminSubmissions() {
   const [submissions, setSubmissions] = useState<Game[]>([]);
+  const [usersMap, setUsersMap] = useState<Record<string, string>>({});
   const [search, setSearch] = useState('');
   const [previewGame, setPreviewGame] = useState<Game | null>(null);
   const [previewDevice, setPreviewDevice] = useState<Device>('desktop');
+  const [rejectingGame, setRejectingGame] = useState<Game | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -41,9 +44,23 @@ function AdminSubmissions() {
 
   const loadSubmissions = async () => {
     try {
-      const { data } = await apiClient.GET('/admin/submissions');
-      if (data?.items) {
-        setSubmissions(data.items);
+      const [{ data: subsData }, { data: usersData }] = await Promise.all([
+        apiClient.GET('/admin/submissions'),
+        (apiClient as any).GET('/admin/users', {}).catch(() => ({ data: { items: [] } })),
+      ]);
+
+      if (usersData?.items) {
+        const mapping: Record<string, string> = {};
+        for (const u of usersData.items as any[]) {
+          if (u.id) {
+            mapping[u.id] = u.displayName || u.email?.split('@')[0] || u.id.substring(0, 8);
+          }
+        }
+        setUsersMap(mapping);
+      }
+
+      if (subsData?.items) {
+        setSubmissions(subsData.items);
       }
     } catch (err) {
       console.error('Failed to load submissions:', err);
@@ -54,12 +71,24 @@ function AdminSubmissions() {
     loadSubmissions();
   }, []);
 
-  const handleStatusChange = async (gameId: string, status: 'published' | 'rejected') => {
+  const handleStatusChange = async (
+    gameId: string,
+    status: 'published' | 'rejected',
+    customReason?: string
+  ) => {
     try {
+      const reasonToSend =
+        status === 'rejected'
+          ? (customReason !== undefined ? customReason : rejectReason).trim() ||
+            'Submission rejected during administrative review. Please review requirements and update your submission.'
+          : 'Admin review completed';
+
       await apiClient.PATCH('/admin/games/{gameId}/status', {
         params: { path: { gameId } },
-        body: { status, reason: 'Admin review completed' },
+        body: { status, reason: reasonToSend },
       });
+      setRejectingGame(null);
+      setRejectReason('');
       showToast(status === 'published' ? 'Submission approved & published' : 'Submission rejected');
       loadSubmissions();
     } catch (err) {
@@ -71,15 +100,18 @@ function AdminSubmissions() {
   const filteredSubmissions = useMemo(() => {
     return submissions.filter((s) => {
       const q = search.toLowerCase();
+      const creatorId = (s as any).creatorId;
+      const creatorName = (creatorId ? usersMap[creatorId] : '') || '';
       const matchSearch =
         !search ||
         s.title.toLowerCase().includes(q) ||
+        creatorName.toLowerCase().includes(q) ||
         s.id.toLowerCase().includes(q) ||
         (s.genre?.name && s.genre.name.toLowerCase().includes(q));
 
       return matchSearch;
     });
-  }, [submissions, search]);
+  }, [submissions, usersMap, search]);
 
   const stats: AdminStatItem[] = [
     {
@@ -173,6 +205,11 @@ function AdminSubmissions() {
             const submittedDate = (sub as any).createdAt
               ? new Date((sub as any).createdAt).toLocaleDateString()
               : 'Recent';
+            const creatorId = (sub as any).creatorId;
+            const creatorDisplayName =
+              (creatorId ? usersMap[creatorId] : null) ||
+              (sub as any).creatorName ||
+              'Unknown Creator';
 
             return (
               <div
@@ -209,8 +246,13 @@ function AdminSubmissions() {
                   </div>
                 </div>
 
-                {/* Creator */}
-                <span className={commonStyles.monoText}>-</span>
+                {/* Creator Name */}
+                <span
+                  className={commonStyles.monoText}
+                  style={{ color: '#eeeeee', fontWeight: 600 }}
+                >
+                  {creatorDisplayName}
+                </span>
 
                 {/* Genre */}
                 <span className={commonStyles.monoText}>{sub.genre?.name || 'Action'}</span>
@@ -287,7 +329,7 @@ function AdminSubmissions() {
                         type="button"
                         className={`${commonStyles.dropdownMenuItem} ${commonStyles.dropdownMenuItemDanger}`}
                         onClick={() => {
-                          handleStatusChange(sub.id, 'rejected');
+                          setRejectingGame(sub);
                           setOpenMenu(null);
                         }}
                       >
@@ -301,6 +343,135 @@ function AdminSubmissions() {
           })
         )}
       </div>
+
+      {/* In-App Rejection Modal */}
+      {rejectingGame && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#161922',
+              border: '1px solid rgba(231, 76, 60, 0.4)',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.85), 0 0 24px rgba(231, 76, 60, 0.15)',
+              width: '100%',
+              maxWidth: '520px',
+              padding: '1.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.25rem',
+              position: 'relative',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                backgroundColor: '#e74c3c',
+              }}
+            />
+
+            <div>
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: '1.1rem',
+                  color: '#eeeeee',
+                  fontFamily: "'Cinzel', serif",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <XCircle size={18} style={{ color: '#e74c3c' }} />
+                Reject Game Submission
+              </h3>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Provide feedback for{' '}
+                <strong style={{ color: '#eeeeee' }}>{rejectingGame.title}</strong>. This feedback
+                will be displayed directly on the creator&apos;s dashboard card.
+              </p>
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: '#8c9aaa',
+                  marginBottom: '0.5rem',
+                }}
+              >
+                Reason for Rejection (Visible to Creator)
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g. Build package missing executable, system requirements incomplete, or title needs revision..."
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  backgroundColor: '#0f1117',
+                  border: '1px solid #282d3b',
+                  color: '#ffffff',
+                  fontSize: '0.8rem',
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className={commonStyles.actionBtn}
+                style={{ padding: '0.5rem 1rem' }}
+                onClick={() => setRejectingGame(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#e74c3c',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                }}
+                onClick={() => handleStatusChange(rejectingGame.id, 'rejected')}
+              >
+                <XCircle size={14} />
+                Confirm Rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

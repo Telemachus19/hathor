@@ -19,4 +19,8 @@ export interface AuthService {
   refresh(): Promise<LoginResult>;
 
   logout(): Promise<void>;
+
+  changeEmail(email: string): Promise<AuthUser>;
+
+  changePassword(currentPassword: string, newPassword: string): Promise<void>;
 }

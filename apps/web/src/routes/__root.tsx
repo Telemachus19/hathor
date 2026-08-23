@@ -27,17 +27,25 @@ function RootComponent() {
   }
 
   return (
-    <>
+    <div
+      style={{
+        width: '100%',
+        overflowX: 'hidden',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Navbar />
 
-      <main style={{ minHeight: '80vh' }}>
+      <main style={{ minHeight: '80vh', flex: 1, width: '100%', overflowX: 'hidden' }}>
         <Outlet />
       </main>
 
       <HathorChatAssistant />
 
       <Footer />
-    </>
+    </div>
   );
 }
 

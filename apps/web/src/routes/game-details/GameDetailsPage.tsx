@@ -10,7 +10,7 @@ import { GameDetailsSidebar } from './components/GameDetailsSidebar';
 import { MoreLikeThis } from './components/MoreLikeThis';
 import { parseAndRenderPureJson } from '../../utils/pureJsonRenderer';
 import { useAuth } from '../../context/AuthContext';
-import { useGameOwnership, type CatalogGameItem } from '../../services/api';
+import { useGameOwnership, useGameReviews, type CatalogGameItem } from '../../services/api';
 
 export function getGameDataForSlug(slug?: string) {
   const currentSlug = slug || 'elden-throne';
@@ -21,9 +21,9 @@ export function getGameDataForSlug(slug?: string) {
     slug: currentSlug,
     subtitle: '',
     category: 'Action',
-    ratingScore: 4.8,
-    reviewCount: '128 Reviews',
-    totalReviews: '128 total',
+    ratingScore: 0,
+    reviewCount: '0 Reviews',
+    totalReviews: '0 total',
     developer: 'Hathor Studios',
     publisher: 'Hathor Publishing',
     releaseDate: 'Aug 2026',
@@ -68,40 +68,8 @@ export function getGameDataForSlug(slug?: string) {
         storage: '50 GB',
       },
     },
-    userReviews: [
-      {
-        id: 'rev-1',
-        author: 'CYBER_RUNNER',
-        rating: 5,
-        date: 'Recent',
-        content:
-          'Absolute masterpiece. The visuals and atmosphere set a new benchmark in gaming excellence.',
-        avatar:
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=120&auto=format&fit=crop',
-        likes: 124,
-      },
-      {
-        id: 'rev-2',
-        author: 'PIXEL_WARRIOR',
-        rating: 4,
-        date: 'Last Month',
-        content: 'Stunning design and combat mechanics. Highly recommended for fans of the genre.',
-        avatar:
-          'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=120&auto=format&fit=crop',
-        likes: 89,
-      },
-    ],
-    ratingsBreakdown: [
-      { stars: 5, percent: 78 },
-      { stars: 4, percent: 14 },
-      { stars: 3, percent: 5 },
-      { stars: 2, percent: 2 },
-      { stars: 1, percent: 1 },
-    ],
-    communityStats: {
-      playersCount: '14,892',
-      positiveRatingPct: '94%',
-    },
+    userReviews: [],
+    ratingsBreakdown: [],
     moreLikeThisGames: [
       {
         id: 'rec-1',
@@ -215,6 +183,31 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
 
   const gamePublisher = (gameData as any)?.publisher || gameDeveloper || baseData.publisher;
 
+  const reviewsTargetSlugOrId = (gameData as any)?.slug || slug || effectiveGameId;
+  const { data: reviewsData } = useGameReviews(reviewsTargetSlugOrId);
+
+  const activeUserReviews = reviewsData?.reviews || [];
+  const activeRatingsBreakdown = reviewsData?.breakdown || [];
+
+  const posCount =
+    activeRatingsBreakdown.find((b: any) => b.sentiment === 'positive')?.count ??
+    activeUserReviews.filter((r: any) => r.sentiment === 'positive').length;
+  const mixCount =
+    activeRatingsBreakdown.find((b: any) => b.sentiment === 'mixed')?.count ??
+    activeUserReviews.filter((r: any) => r.sentiment === 'mixed').length;
+  const negCount =
+    activeRatingsBreakdown.find((b: any) => b.sentiment === 'negative')?.count ??
+    activeUserReviews.filter((r: any) => r.sentiment === 'negative').length;
+
+  const calculatedTotalReviews = posCount + mixCount + negCount;
+  const weightedRatingPct =
+    calculatedTotalReviews > 0
+      ? Math.round(((posCount * 1 + mixCount * 0.5 + negCount * 0) / calculatedTotalReviews) * 100)
+      : null;
+
+  const activeTotalReviews = `${calculatedTotalReviews} total`;
+  const activeReviewCount = `${calculatedTotalReviews} ${calculatedTotalReviews === 1 ? 'Review' : 'Reviews'}`;
+
   const currentGameData = {
     ...baseData,
     subtitle: (gameData as any)?.subtitle || '',
@@ -223,6 +216,11 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
     publisher: gamePublisher,
     releaseDate: formattedReleaseDate,
     platforms: gamePlatforms,
+    userReviews: activeUserReviews,
+    ratingsBreakdown: activeRatingsBreakdown,
+    totalReviews: activeTotalReviews,
+    reviewCount: activeReviewCount,
+    ratingPercentage: weightedRatingPct,
     ...(gameData
       ? {
           title: gameData.title || baseData.title,
@@ -363,6 +361,9 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                 subtitle={currentGameData.subtitle}
                 category={currentGameData.category}
                 ratingScore={currentGameData.ratingScore}
+                ratingPercentage={currentGameData.ratingPercentage}
+                ratingsBreakdown={currentGameData.ratingsBreakdown}
+                userReviews={currentGameData.userReviews}
                 reviewCount={currentGameData.reviewCount}
                 developer={currentGameData.developer}
                 releaseDate={currentGameData.releaseDate}
@@ -395,11 +396,17 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                 reviews={currentGameData.userReviews}
                 device={activeDevice}
                 pageSettings={themeInfo.pageBody}
+                isOwned={Boolean(isOwned)}
+                isAuthenticated={isAuthenticated}
+                isDesignerPreview={isDesignerPreview}
+                gameId={effectiveGameId}
+                slug={slug || (gameData as any)?.slug}
               />
             </div>
             <div className={styles.sidebarColumn}>
               <GameDetailsSidebar
                 gameId={effectiveGameId}
+                gameTitle={currentGameData.title}
                 isDesignerPreview={isDesignerPreview}
                 isAuthenticated={isAuthenticated}
                 isOwned={Boolean(isOwned)}
@@ -413,7 +420,6 @@ export const GameDetailsPage: React.FC<GameDetailsPageProps> = ({
                 genre={currentGameData.category}
                 platforms={currentGameData.platforms}
                 ratingsBreakdown={currentGameData.ratingsBreakdown}
-                communityStats={currentGameData.communityStats}
                 device={activeDevice}
               />
             </div>

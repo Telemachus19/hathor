@@ -181,6 +181,8 @@ services:
       CATALOG_DB_URL: postgresql://catalog_app:${CATALOG_DB_PASSWORD}@catalog-postgres:5432/catalog
       MEMCACHED_URL: memcached:11211
       AUTH_SERVICE_URL: http://auth-service:5001
+      COMMERCE_SERVICE_URL: http://commerce-service:5003
+      LIBRARY_SERVICE_URL: http://library-service:5004
       R2_ENDPOINT: http://minio:9000
       R2_BUCKET_NAME: ${R2_BUCKET_NAME:-hathor-builds}
       R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-hathor_r2_admin}

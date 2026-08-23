@@ -9,6 +9,8 @@ import { meHandler } from './user/me.js';
 import { disableAccountHandler } from './user/disable.js';
 import { enableAccountHandler } from './user/enable.js';
 import { changeRolesHandler } from './user/roles.js';
+import { changeEmailHandler } from './user/changeEmail.js';
+import { changePasswordHandler } from './user/changePassword.js';
 import { requireAuth } from '../middlewares/auth.js';
 
 export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
@@ -18,6 +20,8 @@ export function createUserRouter(turnstileVerifier: TurnstileVerifier): Router {
   router.post('/login', loginHandler);
   router.post('/refresh', refreshHandler);
   router.post('/logout', logoutHandler);
+  router.put('/email', requireAuth, changeEmailHandler);
+  router.post('/change-password', requireAuth, changePasswordHandler);
   router.post('/:userId/disable', requireAuth, disableAccountHandler);
   router.post('/:userId/enable', requireAuth, enableAccountHandler);
   router.put('/:userId/roles', requireAuth, changeRolesHandler);
