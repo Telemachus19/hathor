@@ -126,3 +126,34 @@ export const auditLogs = catalogSchema.table(
     actorIdx: index('idx_catalog_audit_actor').on(table.actorId),
   })
 );
+
+export const gameEmbeddings = catalogSchema.table(
+  'game_embeddings',
+  {
+    gameId: uuid('game_id')
+      .primaryKey()
+      .references(() => games.id, { onDelete: 'cascade' }),
+    embedding: jsonb('embedding').notNull(), // Stores 1536 float array for vector similarity computation
+    contentHash: varchar('content_hash', { length: 64 }).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    gameIdx: index('idx_game_embeddings_game_id').on(table.gameId),
+  })
+);
+
+export const catalogRecommendationCache = catalogSchema.table(
+  'catalog_recommendation_cache',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    contextGameId: uuid('context_game_id').references(() => games.id, { onDelete: 'cascade' }),
+    rankedGameIds: jsonb('ranked_game_ids').notNull().default([]),
+    reasons: jsonb('reasons').notNull().default([]),
+    source: varchar('source', { length: 50 }).notNull().default('cached'),
+    refreshedAt: timestamp('refreshed_at', { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    contextIdx: index('idx_catalog_rec_cache_context').on(table.contextGameId),
+  })
+);
+

@@ -29,6 +29,13 @@
       "when": 1786904955357,
       "tag": "0003_perpetual_magus",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1787233498804,
+      "tag": "0004_thick_radioactive_man",
+      "breakpoints": true
     }
   ]
 }
