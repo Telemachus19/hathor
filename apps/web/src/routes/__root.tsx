@@ -1,6 +1,7 @@
 import { createRootRouteWithContext, Outlet, useLocation } from '@tanstack/react-router';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
+import { HathorChatAssistant } from '../components/ChatAssistant';
 import type { AuthContextValue } from '../context/AuthContext';
 
 export interface RouterContext {
@@ -26,12 +27,22 @@ function RootComponent() {
   }
 
   return (
-    <div style={{ width: '100%', overflowX: 'hidden', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        width: '100%',
+        overflowX: 'hidden',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Navbar />
 
       <main style={{ minHeight: '80vh', flex: 1, width: '100%', overflowX: 'hidden' }}>
         <Outlet />
       </main>
+
+      <HathorChatAssistant />
 
       <Footer />
     </div>

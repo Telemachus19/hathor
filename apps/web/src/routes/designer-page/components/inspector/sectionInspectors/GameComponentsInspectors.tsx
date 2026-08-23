@@ -677,14 +677,8 @@ export function UserReviewsInspector({
       </PropRow>
       <PropRow label="Section Header Color">
         <ColorField
-          value={
-            targetObj.reviewHeaderColor ||
-            targetObj.reviewTitleColor ||
-            '#f4b183'
-          }
-          onChange={(v) =>
-            updateTarget({ reviewHeaderColor: v, reviewTitleColor: v })
-          }
+          value={targetObj.reviewHeaderColor || targetObj.reviewTitleColor || '#f4b183'}
+          onChange={(v) => updateTarget({ reviewHeaderColor: v, reviewTitleColor: v })}
         />
       </PropRow>
       <PropRow label="Card Background / Free Gradient">
@@ -743,11 +737,7 @@ export function UserReviewsInspector({
       </PropRow>
       <PropRow label="Sentiment Accent Color">
         <ColorField
-          value={
-            targetObj.reviewBadgeColor ||
-            targetObj.reviewAccentColor ||
-            GREEN_ACCENT
-          }
+          value={targetObj.reviewBadgeColor || targetObj.reviewAccentColor || GREEN_ACCENT}
           onChange={(v) =>
             updateTarget({
               reviewBadgeColor: v,

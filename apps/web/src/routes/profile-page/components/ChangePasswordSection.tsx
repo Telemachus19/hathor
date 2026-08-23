@@ -174,4 +174,3 @@ export const ChangePasswordSection: React.FC<ChangePasswordSectionProps> = ({
 };
 
 export default ChangePasswordSection;
-

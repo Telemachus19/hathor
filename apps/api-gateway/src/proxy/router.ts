@@ -8,6 +8,7 @@ const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:5001'
 const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL || 'http://localhost:5002';
 const COMMERCE_SERVICE_URL = process.env.COMMERCE_SERVICE_URL || 'http://localhost:5003';
 const LIBRARY_SERVICE_URL = process.env.LIBRARY_SERVICE_URL || 'http://localhost:5004';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:5005';
 
 // ---------------------------------------------------------------------------
 // Shared proxy configuration
@@ -89,3 +90,6 @@ proxyRouter.use(createServiceProxy(COMMERCE_SERVICE_URL, ['/cart', '/txn', '/adm
 
 // Library Service proxy
 proxyRouter.use(createServiceProxy(LIBRARY_SERVICE_URL, ['/inventory']));
+
+// AI & Assistant Service proxy
+proxyRouter.use(createServiceProxy(AI_SERVICE_URL, ['/assistant', '/ai']));

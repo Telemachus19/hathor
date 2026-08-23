@@ -2,11 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { createPublicKey } from 'node:crypto';
 
+import type { Multer } from 'multer';
+
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     roles: string[];
   };
+  file?: Express.Multer.File;
+  files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
 }
 
 let cachedPublicKeyPem: string | null = null;

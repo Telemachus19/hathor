@@ -24,4 +24,3 @@ export interface AuthService {
 
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
 }
-

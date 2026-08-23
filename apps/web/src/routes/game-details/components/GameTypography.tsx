@@ -11,7 +11,8 @@ export const HeadingRenderer: React.FC<{ s?: any; device?: string; pageSettings?
 }) => {
   const bg = s.headingBg || s.bg || 'transparent';
   const hasBg = bg && bg !== 'transparent';
-  const padding = s.headingPadding !== undefined ? `${s.headingPadding}px` : (hasBg ? '8px 12px' : undefined);
+  const padding =
+    s.headingPadding !== undefined ? `${s.headingPadding}px` : hasBg ? '8px 12px' : undefined;
   const radius = s.headingRadius ?? (hasBg ? 4 : 0);
 
   return (
@@ -44,7 +45,7 @@ export const TextRenderer: React.FC<{ s?: any; device?: string; pageSettings?: a
 }) => {
   const bg = s.textBg || s.bg || 'transparent';
   const hasBg = bg && bg !== 'transparent';
-  const padding = s.textPadding !== undefined ? `${s.textPadding}px` : (hasBg ? '12px' : undefined);
+  const padding = s.textPadding !== undefined ? `${s.textPadding}px` : hasBg ? '12px' : undefined;
   const radius = s.textRadius ?? (hasBg ? 4 : 0);
 
   return (

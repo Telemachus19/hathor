@@ -364,7 +364,9 @@ export const GameCarousel: React.FC<GameCarouselProps> = ({
                     borderRadius: 4,
                     overflow: 'hidden',
                     border:
-                      idx === activeIdx ? `2px solid ${activeBorderColor}` : '2px solid transparent',
+                      idx === activeIdx
+                        ? `2px solid ${activeBorderColor}`
+                        : '2px solid transparent',
                     opacity: idx === activeIdx ? 1 : 0.7,
                     cursor: 'pointer',
                     background: SURFACE,

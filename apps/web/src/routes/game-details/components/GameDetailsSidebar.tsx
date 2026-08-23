@@ -448,10 +448,7 @@ export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => 
     { sentiment: 'negative', label: 'Negative', percent: 0, count: 0 },
   ];
 
-  const ratings =
-    Array.isArray(rawRatings) && rawRatings.length > 0
-      ? rawRatings
-      : defaultRatings;
+  const ratings = Array.isArray(rawRatings) && rawRatings.length > 0 ? rawRatings : defaultRatings;
 
   const cardBg = s.ratingsCardBg || SURFACE;
   const cardBorder = s.ratingsCardBorder || BORDER;
@@ -512,7 +509,7 @@ export const GameSidebarRatings: React.FC<GameDetailsSidebarProps> = (props) => 
               <ThumbsUp size={12} color={sentimentStyle.color} />
             );
 
-          const label = r.label || (sentiment.charAt(0).toUpperCase() + sentiment.slice(1));
+          const label = r.label || sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
 
           return (
             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11 }}>

@@ -280,3 +280,71 @@ export const ArrowRightIcon: React.FC<{ width?: number; height?: number }> = ({
     <polyline points="12 5 19 12 12 19" />
   </svg>
 );
+
+export const AnkhIcon: React.FC<{
+  width?: number;
+  height?: number;
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ width, height, size = 18, className, style }) => {
+  const w = width ?? size;
+  const h = height ?? size;
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 512 512"
+      fill="currentColor"
+      className={className}
+      style={style}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        d="M242 0L228 3L210 10L191 23L177 38L168 52L161 70L158 84L158 96L157 98L158 99L159 117L164 134L168 141L168 143L181 162L214 195L213 196L206 196L205 195L190 195L189 194L156 192L155 191L147 191L139 189L117 187L85 181L85 281L119 276L120 275L150 272L151 271L220 267L220 343L219 382L216 417L212 450L207 481L203 512L309 512L305 481L300 450L296 417L293 382L292 343L292 267L362 272L363 273L394 276L427 281L427 181L395 187L373 189L365 191L357 191L356 192L323 194L322 195L307 195L306 196L299 196L298 195L331 162L344 143L344 141L348 134L353 117L354 99L355 98L354 96L354 84L351 70L344 52L335 38L321 23L302 10L284 3L270 0ZM256 39L270 42L284 49L296 59L306 71L313 85L316 99L315 113L311 127L304 139L294 150L256 188L218 150L208 139L201 127L197 113L196 99L199 85L206 71L216 59L228 49L242 42Z"
+      />
+    </svg>
+  );
+};
+
+export const PharaohIcon: React.FC<{
+  width?: number;
+  height?: number;
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ width, height, size = 18, className, style }) => {
+  const w = width ?? size;
+  const h = height ?? size;
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox="0 0 512 512"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="20"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={style}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Top Head Dome */}
+      <path d="M112 156C116 88 178 72 222 72" />
+      <path d="M290 72C334 72 396 88 400 156" />
+      {/* Center Top Crest */}
+      <path d="M222 166L230 64C244 56 268 56 282 64L290 166Z" />
+      {/* Horizontal Browband */}
+      <path d="M112 156H400" />
+      {/* Face Contour */}
+      <path d="M142 160C148 260 192 366 256 366C320 366 364 260 370 160" />
+      {/* Left Nemes Headdress Wing & Lappet */}
+      <path d="M112 156L54 306C78 322 122 362 150 406C172 440 220 455 220 448V358" />
+      {/* Right Nemes Headdress Wing & Lappet */}
+      <path d="M400 156L458 306C434 322 390 362 362 406C340 440 292 455 292 448V358" />
+    </svg>
+  );
+};

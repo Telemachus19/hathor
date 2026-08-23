@@ -145,11 +145,7 @@ export const Navbar: React.FC = () => {
                 LIBRARY
               </Link>
               {isAuthenticated ? (
-                <Link
-                  to="/profile"
-                  className={styles.mobileNavLink}
-                  onClick={closeMenu}
-                >
+                <Link to="/profile" className={styles.mobileNavLink} onClick={closeMenu}>
                   {user?.displayName ? user.displayName.toUpperCase() : 'PROFILE'}
                 </Link>
               ) : (

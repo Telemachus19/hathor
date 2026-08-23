@@ -95,7 +95,10 @@ export function TextBlockInspector({
       </PropRow>
       <PropRow label="Padding">
         <NumField
-          value={targetObj.textPadding ?? (targetObj.textBg && targetObj.textBg !== 'transparent' ? 12 : 0)}
+          value={
+            targetObj.textPadding ??
+            (targetObj.textBg && targetObj.textBg !== 'transparent' ? 12 : 0)
+          }
           onChange={(v) => updateTarget({ textPadding: v })}
           unit="px"
           min={0}
@@ -104,7 +107,9 @@ export function TextBlockInspector({
       </PropRow>
       <PropRow label="Border Radius">
         <NumField
-          value={targetObj.textRadius ?? (targetObj.textBg && targetObj.textBg !== 'transparent' ? 4 : 0)}
+          value={
+            targetObj.textRadius ?? (targetObj.textBg && targetObj.textBg !== 'transparent' ? 4 : 0)
+          }
           onChange={(v) => updateTarget({ textRadius: v })}
           unit="px"
           min={0}
@@ -188,7 +193,10 @@ export function HeadingBlockInspector({
       </PropRow>
       <PropRow label="Padding">
         <NumField
-          value={targetObj.headingPadding ?? (targetObj.headingBg && targetObj.headingBg !== 'transparent' ? 8 : 0)}
+          value={
+            targetObj.headingPadding ??
+            (targetObj.headingBg && targetObj.headingBg !== 'transparent' ? 8 : 0)
+          }
           onChange={(v) => updateTarget({ headingPadding: v })}
           unit="px"
           min={0}
@@ -197,7 +205,10 @@ export function HeadingBlockInspector({
       </PropRow>
       <PropRow label="Border Radius">
         <NumField
-          value={targetObj.headingRadius ?? (targetObj.headingBg && targetObj.headingBg !== 'transparent' ? 4 : 0)}
+          value={
+            targetObj.headingRadius ??
+            (targetObj.headingBg && targetObj.headingBg !== 'transparent' ? 4 : 0)
+          }
           onChange={(v) => updateTarget({ headingRadius: v })}
           unit="px"
           min={0}

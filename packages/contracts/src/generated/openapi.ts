@@ -743,21 +743,6 @@ export interface components {
       items: components['schemas']['Order'][];
       nextCursor?: string | null;
     };
-    AuditLog: {
-      /** Format: uuid */
-      id: string;
-      /** Format: date-time */
-      timestamp: string;
-      /** Format: uuid */
-      actorId: string;
-      targetId?: string;
-      action: string;
-      details?: Record<string, never>;
-      service: string;
-    };
-    AuditLogList: {
-      items: components['schemas']['AuditLog'][];
-    };
     Genre: {
       id: number;
       name: string;

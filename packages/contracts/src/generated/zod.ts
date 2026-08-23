@@ -227,18 +227,6 @@ const AnalyticsData = z
     ),
   })
   .passthrough();
-const AuditLog = z
-  .object({
-    id: z.string().uuid(),
-    timestamp: z.string().datetime({ offset: true }),
-    actorId: z.string().uuid(),
-    targetId: z.string().optional(),
-    action: z.string(),
-    details: z.object({}).partial().passthrough().optional(),
-    service: z.string(),
-  })
-  .passthrough();
-const AuditLogList = z.object({ items: z.array(AuditLog) }).passthrough();
 
 export const schemas = {
   RegisterRequest,
@@ -274,8 +262,6 @@ export const schemas = {
   CatalogAuditLog,
   AuditLogPage,
   AnalyticsData,
-  AuditLog,
-  AuditLogList,
 };
 
 const endpoints = makeApi([

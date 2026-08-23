@@ -119,6 +119,4 @@ export class MockAuthService implements AuthService {
     }
     await new Promise((res) => setTimeout(res, 200));
   }
-
 }
-

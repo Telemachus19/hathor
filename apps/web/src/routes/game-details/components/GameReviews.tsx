@@ -32,7 +32,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
 
   const auth = useAuth();
   const token = auth?.accessToken || undefined;
-  const isOwned = props.isOwned ?? (props.pageSettings?.isOwned === true);
+  const isOwned = props.isOwned ?? props.pageSettings?.isOwned === true;
 
   const targetGameSlugOrId =
     props.slug ||
@@ -133,38 +133,38 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const headerTitle = s.reviewHeader || 'USER REVIEWS';
   const headerColor = s.reviewHeaderColor || s.reviewTitleColor || s.titleColor || '#f4b183';
   const reviewsList = Array.isArray(props.reviews) ? props.reviews : [];
-  const totalRev = props.totalReviews !== undefined ? props.totalReviews : `${reviewsList.length} total`;
+  const totalRev =
+    props.totalReviews !== undefined ? props.totalReviews : `${reviewsList.length} total`;
 
   const displayedReviews = reviewsList.slice(0, 2);
 
   const renderReviewCard = (rev: any, idx: number, inModal = false) => {
-    const revSentiment =
-      rev.sentiment || (rev.recommended === false ? 'negative' : 'positive');
+    const revSentiment = rev.sentiment || (rev.recommended === false ? 'negative' : 'positive');
 
     const badgeStyles =
       revSentiment === 'negative'
         ? {
-          bg: sentimentPalette.negative.bg,
-          border: sentimentPalette.negative.border,
-          color: sentimentPalette.negative.color,
-          label: 'Negative',
-          icon: <ThumbsDown size={11} />,
-        }
+            bg: sentimentPalette.negative.bg,
+            border: sentimentPalette.negative.border,
+            color: sentimentPalette.negative.color,
+            label: 'Negative',
+            icon: <ThumbsDown size={11} />,
+          }
         : revSentiment === 'mixed'
           ? {
-            bg: sentimentPalette.mixed.bg,
-            border: sentimentPalette.mixed.border,
-            color: sentimentPalette.mixed.color,
-            label: 'Mixed',
-            icon: <Minus size={11} />,
-          }
+              bg: sentimentPalette.mixed.bg,
+              border: sentimentPalette.mixed.border,
+              color: sentimentPalette.mixed.color,
+              label: 'Mixed',
+              icon: <Minus size={11} />,
+            }
           : {
-            bg: sentimentPalette.positive.bg,
-            border: sentimentPalette.positive.border,
-            color: sentimentPalette.positive.color,
-            label: 'Recommended',
-            icon: <ThumbsUp size={11} />,
-          };
+              bg: sentimentPalette.positive.bg,
+              border: sentimentPalette.positive.border,
+              color: sentimentPalette.positive.color,
+              label: 'Recommended',
+              icon: <ThumbsUp size={11} />,
+            };
 
     const authorName =
       rev.userName ||
@@ -188,9 +188,11 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
     const commentText =
       rev.comment || rev.content || 'Player reviews will appear here once the game is reviewed.';
     const reviewDate = rev.createdAt
-      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(
-        new Date(rev.createdAt)
-      )
+      ? new Intl.DateTimeFormat('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }).format(new Date(rev.createdAt))
       : rev.date || 'Recent';
 
     return (
@@ -446,8 +448,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                       : '1px solid rgba(255, 255, 255, 0.06)',
                   background:
                     sentiment === 'positive' ? sentimentPalette.positive.bg : 'rgba(0, 0, 0, 0.2)',
-                  color:
-                    sentiment === 'positive' ? sentimentPalette.positive.color : '#cbd5e1',
+                  color: sentiment === 'positive' ? sentimentPalette.positive.color : '#cbd5e1',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -476,8 +477,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                       : '1px solid rgba(255, 255, 255, 0.06)',
                   background:
                     sentiment === 'mixed' ? sentimentPalette.mixed.bg : 'rgba(0, 0, 0, 0.2)',
-                  color:
-                    sentiment === 'mixed' ? sentimentPalette.mixed.color : '#cbd5e1',
+                  color: sentiment === 'mixed' ? sentimentPalette.mixed.color : '#cbd5e1',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -506,8 +506,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                       : '1px solid rgba(255, 255, 255, 0.06)',
                   background:
                     sentiment === 'negative' ? sentimentPalette.negative.bg : 'rgba(0, 0, 0, 0.2)',
-                  color:
-                    sentiment === 'negative' ? sentimentPalette.negative.color : '#cbd5e1',
+                  color: sentiment === 'negative' ? sentimentPalette.negative.color : '#cbd5e1',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -575,7 +574,9 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                   : 'rgba(255, 255, 255, 0.08)',
                 color: reviewContent.trim() ? '#ffffff' : TEXT_MUTED,
                 cursor:
-                  reviewContent.trim() && !submitReviewMutation.isPending ? 'pointer' : 'not-allowed',
+                  reviewContent.trim() && !submitReviewMutation.isPending
+                    ? 'pointer'
+                    : 'not-allowed',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -785,4 +786,3 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
 };
 
 export default GameReviews;
-

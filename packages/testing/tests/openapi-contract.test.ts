@@ -77,6 +77,8 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
       offset: vi.fn(() => chain),
       innerJoin: vi.fn(() => chain),
       leftJoin: vi.fn(() => chain),
+      orderBy: vi.fn(() => chain),
+      groupBy: vi.fn(() => chain),
       then: vi.fn((onFulfilled, onRejected) => {
         return Promise.resolve().then(getNextSelectMock).then(onFulfilled, onRejected);
       }),
