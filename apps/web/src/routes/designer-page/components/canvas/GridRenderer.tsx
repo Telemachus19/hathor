@@ -152,7 +152,12 @@ export function GridRenderer({
                       <GameSystemReqs s={el} device={device} pageSettings={pageSettings} />
                     )}
                     {el.type === 'user-reviews' && (
-                      <GameReviews s={el} device={device} pageSettings={pageSettings} />
+                      <GameReviews
+                        s={el}
+                        device={device}
+                        pageSettings={pageSettings}
+                        isDesignerPreview={true}
+                      />
                     )}
                     {el.type === 'sidebar-cta' && (
                       <GameSidebarCta

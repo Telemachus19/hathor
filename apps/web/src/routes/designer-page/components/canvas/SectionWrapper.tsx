@@ -140,7 +140,12 @@ export function SectionWrapper({
           <GameSystemReqs s={s} device={device} pageSettings={pageSettings} />
         )}
         {s.type === 'user-reviews' && (
-          <GameReviews s={s} device={device} pageSettings={pageSettings} />
+          <GameReviews
+            s={s}
+            device={device}
+            pageSettings={pageSettings}
+            isDesignerPreview={true}
+          />
         )}
         {s.type === 'sidebar-cta' && (
           <GameSidebarCta
