@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { createGatewayApp } from '../../../apps/api-gateway/src/app.js';
+import { createAIApp } from '../../../apps/ai-service/src/app.js';
 import { createAuthApp } from '../../../apps/auth-service/src/app.js';
 import { createCatalogApp } from '../../../apps/catalog-service/src/app.js';
 import { createCommerceApp } from '../../../apps/commerce-service/src/app.js';
@@ -14,6 +15,7 @@ const services = [
   ['catalog-service', createCatalogApp(ready)],
   ['commerce-service', createCommerceApp(ready)],
   ['library-service', createLibraryApp(ready)],
+  ['ai-service', createAIApp(ready)],
 ] as const;
 
 describe('service health foundation', () => {
