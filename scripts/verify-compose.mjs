@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 
 const expectedServices = new Set([
+  'ai-service',
   'api-gateway',
   'auth-postgres',
   'auth-service',
