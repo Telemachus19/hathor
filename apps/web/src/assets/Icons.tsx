@@ -348,7 +348,3 @@ export const PharaohIcon: React.FC<{
     </svg>
   );
 };
-
-
-
-

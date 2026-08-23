@@ -40,7 +40,7 @@ export async function listUsersHandler(req: AuthenticatedRequest, res: Response)
     }
 
     // Format according to OpenAPI User schema
-    const formattedUsers = fetchedUsers.map(user => ({
+    const formattedUsers = fetchedUsers.map((user) => ({
       id: user.id,
       email: user.email,
       displayName: user.displayName,

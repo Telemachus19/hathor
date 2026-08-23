@@ -3,7 +3,14 @@ import { eq, sql, desc, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
-import { games, gameStatusTransitions, genres, tags, gameTags, auditLogs } from '../infrastructure/db/schema.js';
+import {
+  games,
+  gameStatusTransitions,
+  genres,
+  tags,
+  gameTags,
+  auditLogs,
+} from '../infrastructure/db/schema.js';
 import { isValidTransition, VALID_GAME_STATUSES } from '../domain/stateMachine.js';
 
 const router: Router = Router();
@@ -11,229 +18,273 @@ const router: Router = Router();
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // GET /admin/games
-router.get('/games', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const limit = Math.min(parseInt(req.query.limit as string) || 25, 100);
-  const cursor = parseInt(req.query.cursor as string) || 0;
+router.get(
+  '/games',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const limit = Math.min(parseInt(req.query.limit as string) || 25, 100);
+    const cursor = parseInt(req.query.cursor as string) || 0;
 
-  try {
-    const fetchedGames = await catalogDb
-      .select({
-        id: games.id,
-        creatorId: games.creatorId,
-        title: games.title,
-        slug: games.slug,
-        shortDescription: games.shortDescription,
-        fullDescription: games.fullDescription,
-        priceEgp: games.priceEgp,
-        discountPercent: games.discountPercent,
-        bannerUrl: games.bannerUrl,
-        screenshots: games.screenshots,
-        trailerUrl: games.trailerUrl,
-        systemRequirements: games.systemRequirements,
-        pageTheme: games.pageTheme,
-        status: games.status,
-        genreId: games.genreId,
-        genre: {
-          id: genres.id,
-          name: genres.name,
-          slug: genres.slug,
-        },
-        createdAt: games.createdAt,
-        updatedAt: games.updatedAt,
-      })
-      .from(games)
-      .leftJoin(genres, eq(games.genreId, genres.id))
-      .orderBy(desc(games.createdAt))
-      .limit(limit + 1)
-      .offset(cursor);
+    try {
+      const fetchedGames = await catalogDb
+        .select({
+          id: games.id,
+          creatorId: games.creatorId,
+          title: games.title,
+          slug: games.slug,
+          shortDescription: games.shortDescription,
+          fullDescription: games.fullDescription,
+          priceEgp: games.priceEgp,
+          discountPercent: games.discountPercent,
+          bannerUrl: games.bannerUrl,
+          screenshots: games.screenshots,
+          trailerUrl: games.trailerUrl,
+          systemRequirements: games.systemRequirements,
+          pageTheme: games.pageTheme,
+          status: games.status,
+          genreId: games.genreId,
+          genre: {
+            id: genres.id,
+            name: genres.name,
+            slug: genres.slug,
+          },
+          createdAt: games.createdAt,
+          updatedAt: games.updatedAt,
+        })
+        .from(games)
+        .leftJoin(genres, eq(games.genreId, genres.id))
+        .orderBy(desc(games.createdAt))
+        .limit(limit + 1)
+        .offset(cursor);
 
-    let nextCursor: string | null = null;
-    if (fetchedGames.length > limit) {
-      nextCursor = (cursor + limit).toString();
-      fetchedGames.pop();
-    }
-
-    res.status(200).json({
-      items: fetchedGames,
-      nextCursor,
-    });
-  } catch (error) {
-    console.error('List games error:', error);
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list games' } });
-  }
-});
-
-// GET /admin/submissions
-router.get('/submissions', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
-  const cursor = parseInt(req.query.cursor as string) || 0;
-  const statusFilter = req.query.status as string;
-
-  try {
-    const fetchedGames = await catalogDb
-      .select({
-        id: games.id,
-        creatorId: games.creatorId,
-        title: games.title,
-        slug: games.slug,
-        shortDescription: games.shortDescription,
-        fullDescription: games.fullDescription,
-        priceEgp: games.priceEgp,
-        discountPercent: games.discountPercent,
-        bannerUrl: games.bannerUrl,
-        screenshots: games.screenshots,
-        trailerUrl: games.trailerUrl,
-        systemRequirements: games.systemRequirements,
-        pageTheme: games.pageTheme,
-        status: games.status,
-        genreId: games.genreId,
-        genre: {
-          id: genres.id,
-          name: genres.name,
-          slug: genres.slug,
-        },
-        createdAt: games.createdAt,
-        updatedAt: games.updatedAt,
-      })
-      .from(games)
-      .leftJoin(genres, eq(games.genreId, genres.id))
-      .where(inArray(games.status, ['pending_review']))
-      .orderBy(desc(games.updatedAt))
-      .limit(limit + 1)
-      .offset(cursor);
-
-    let nextCursor: string | null = null;
-    if (fetchedGames.length > limit) {
-      nextCursor = (cursor + limit).toString();
-      fetchedGames.pop();
-    }
-
-    res.status(200).json({
-      items: fetchedGames,
-      nextCursor,
-    });
-  } catch (error) {
-    console.error('List submissions error:', error);
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list submissions' } });
-  }
-});
-
-// GET /admin/games/:gameId
-router.get('/games/:gameId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const { gameId } = req.params;
-  if (!gameId || !UUID_REGEX.test(gameId)) {
-    return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format' } });
-  }
-
-  try {
-    const [game] = await catalogDb
-      .select({
-        id: games.id,
-        creatorId: games.creatorId,
-        title: games.title,
-        slug: games.slug,
-        shortDescription: games.shortDescription,
-        fullDescription: games.fullDescription,
-        priceEgp: games.priceEgp,
-        discountPercent: games.discountPercent,
-        bannerUrl: games.bannerUrl,
-        screenshots: games.screenshots,
-        trailerUrl: games.trailerUrl,
-        systemRequirements: games.systemRequirements,
-        pageTheme: games.pageTheme,
-        status: games.status,
-        genreId: games.genreId,
-        genre: {
-          id: genres.id,
-          name: genres.name,
-          slug: genres.slug,
-        },
-        createdAt: games.createdAt,
-        updatedAt: games.updatedAt,
-      })
-      .from(games)
-      .leftJoin(genres, eq(games.genreId, genres.id))
-      .where(eq(games.id, gameId))
-      .limit(1);
-
-    if (!game) {
-      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Game not found' } });
-    }
-
-    const gameTagRows = await catalogDb
-      .select({ id: tags.id, name: tags.name, slug: tags.slug })
-      .from(gameTags)
-      .innerJoin(tags, eq(gameTags.tagId, tags.id))
-      .where(eq(gameTags.gameId, game.id));
-
-    res.status(200).json({
-      ...game,
-      tags: gameTagRows,
-    });
-  } catch (error) {
-    console.error('Get admin game error:', error);
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to get game' } });
-  }
-});
-
-// GET /admin/audit-logs
-router.get('/audit-logs', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
-  const cursor = parseInt(req.query.cursor as string) || 0;
-
-  try {
-    const fetchedLogs = await catalogDb
-      .select()
-      .from(auditLogs)
-      .orderBy(desc(auditLogs.createdAt))
-      .limit(limit + 1)
-      .offset(cursor);
-
-    let nextCursor: string | null = null;
-    if (fetchedLogs.length > limit) {
-      nextCursor = (cursor + limit).toString();
-      fetchedLogs.pop();
-    }
-
-    res.status(200).json({
-      items: fetchedLogs,
-      nextCursor,
-    });
-  } catch (error) {
-    console.error('List audit logs error:', error);
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list audit logs' } });
-  }
-});
-
-// PATCH /admin/games/:gameId/taxonomy
-router.patch('/games/:gameId/taxonomy', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
-  const { gameId } = req.params;
-  const { genreId, tags: tagIds } = req.body || {};
-
-  try {
-    const result = await catalogDb.transaction(async (tx) => {
-      if (genreId !== undefined) {
-        await tx.update(games).set({ genreId, updatedAt: new Date() }).where(eq(games.id, gameId));
+      let nextCursor: string | null = null;
+      if (fetchedGames.length > limit) {
+        nextCursor = (cursor + limit).toString();
+        fetchedGames.pop();
       }
 
-      await tx.insert(auditLogs).values({
-        actorId: req.user!.id,
-        targetType: 'game',
-        targetId: gameId,
-        action: 'update_taxonomy',
-        details: { genreId, tags: tagIds },
+      res.status(200).json({
+        items: fetchedGames,
+        nextCursor,
+      });
+    } catch (error) {
+      console.error('List games error:', error);
+      res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list games' } });
+    }
+  }
+);
+
+// GET /admin/submissions
+router.get(
+  '/submissions',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    const cursor = parseInt(req.query.cursor as string) || 0;
+    const statusFilter = req.query.status as string;
+
+    try {
+      const fetchedGames = await catalogDb
+        .select({
+          id: games.id,
+          creatorId: games.creatorId,
+          title: games.title,
+          slug: games.slug,
+          shortDescription: games.shortDescription,
+          fullDescription: games.fullDescription,
+          priceEgp: games.priceEgp,
+          discountPercent: games.discountPercent,
+          bannerUrl: games.bannerUrl,
+          screenshots: games.screenshots,
+          trailerUrl: games.trailerUrl,
+          systemRequirements: games.systemRequirements,
+          pageTheme: games.pageTheme,
+          status: games.status,
+          genreId: games.genreId,
+          genre: {
+            id: genres.id,
+            name: genres.name,
+            slug: genres.slug,
+          },
+          createdAt: games.createdAt,
+          updatedAt: games.updatedAt,
+        })
+        .from(games)
+        .leftJoin(genres, eq(games.genreId, genres.id))
+        .where(inArray(games.status, ['pending_review']))
+        .orderBy(desc(games.updatedAt))
+        .limit(limit + 1)
+        .offset(cursor);
+
+      let nextCursor: string | null = null;
+      if (fetchedGames.length > limit) {
+        nextCursor = (cursor + limit).toString();
+        fetchedGames.pop();
+      }
+
+      res.status(200).json({
+        items: fetchedGames,
+        nextCursor,
+      });
+    } catch (error) {
+      console.error('List submissions error:', error);
+      res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list submissions' } });
+    }
+  }
+);
+
+// GET /admin/games/:gameId
+router.get(
+  '/games/:gameId',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { gameId } = req.params;
+    if (!gameId || !UUID_REGEX.test(gameId)) {
+      return res
+        .status(400)
+        .json({ error: { code: 'VALIDATION_FAILED', message: 'Invalid gameId format' } });
+    }
+
+    try {
+      const [game] = await catalogDb
+        .select({
+          id: games.id,
+          creatorId: games.creatorId,
+          title: games.title,
+          slug: games.slug,
+          shortDescription: games.shortDescription,
+          fullDescription: games.fullDescription,
+          priceEgp: games.priceEgp,
+          discountPercent: games.discountPercent,
+          bannerUrl: games.bannerUrl,
+          screenshots: games.screenshots,
+          trailerUrl: games.trailerUrl,
+          systemRequirements: games.systemRequirements,
+          pageTheme: games.pageTheme,
+          status: games.status,
+          genreId: games.genreId,
+          genre: {
+            id: genres.id,
+            name: genres.name,
+            slug: genres.slug,
+          },
+          createdAt: games.createdAt,
+          updatedAt: games.updatedAt,
+        })
+        .from(games)
+        .leftJoin(genres, eq(games.genreId, genres.id))
+        .where(eq(games.id, gameId))
+        .limit(1);
+
+      if (!game) {
+        return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Game not found' } });
+      }
+
+      const gameTagRows = await catalogDb
+        .select({ id: tags.id, name: tags.name, slug: tags.slug })
+        .from(gameTags)
+        .innerJoin(tags, eq(gameTags.tagId, tags.id))
+        .where(eq(gameTags.gameId, game.id));
+
+      res.status(200).json({
+        ...game,
+        tags: gameTagRows,
+      });
+    } catch (error) {
+      console.error('Get admin game error:', error);
+      res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to get game' } });
+    }
+  }
+);
+
+// GET /admin/audit-logs
+router.get(
+  '/audit-logs',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
+    const cursor = parseInt(req.query.cursor as string) || 0;
+
+    try {
+      const fetchedLogs = await catalogDb
+        .select()
+        .from(auditLogs)
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(limit + 1)
+        .offset(cursor);
+
+      let nextCursor: string | null = null;
+      if (fetchedLogs.length > limit) {
+        nextCursor = (cursor + limit).toString();
+        fetchedLogs.pop();
+      }
+
+      res.status(200).json({
+        items: fetchedLogs,
+        nextCursor,
+      });
+    } catch (error) {
+      console.error('List audit logs error:', error);
+      res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list audit logs' } });
+    }
+  }
+);
+
+// PATCH /admin/games/:gameId/taxonomy
+router.patch(
+  '/games/:gameId/taxonomy',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
+    const { gameId } = req.params;
+    const { genreId, tags: tagIds } = req.body || {};
+
+    try {
+      const result = await catalogDb.transaction(async (tx) => {
+        if (genreId !== undefined) {
+          await tx
+            .update(games)
+            .set({ genreId, updatedAt: new Date() })
+            .where(eq(games.id, gameId));
+        }
+
+        await tx.insert(auditLogs).values({
+          actorId: req.user!.id,
+          targetType: 'game',
+          targetId: gameId,
+          action: 'update_taxonomy',
+          details: { genreId, tags: tagIds },
+        });
+
+        return { error: null };
       });
 
-      return { error: null };
-    });
-    
-    return res.status(204).send();
-  } catch (error) {
-    console.error('Error in admin taxonomy update:', error);
-    return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update taxonomy', correlationId } });
+      return res.status(204).send();
+    } catch (error) {
+      console.error('Error in admin taxonomy update:', error);
+      return res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update taxonomy',
+          correlationId,
+        },
+      });
+    }
   }
-});
+);
 
 // PATCH /admin/games/:gameId/status — Admin status mutation endpoint
 router.patch(
@@ -357,115 +408,295 @@ router.patch(
 );
 
 // GET /admin/genres
-router.get('/genres', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const items = await catalogDb.select().from(genres).orderBy(genres.name);
-    res.json({ items });
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list genres', correlationId: randomUUID() } });
+router.get(
+  '/genres',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const items = await catalogDb.select().from(genres).orderBy(genres.name);
+      res.json({ items });
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to list genres',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 // POST /admin/genres
-router.post('/genres', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const { name, slug } = req.body || {};
-  if (!name) return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'name required', correlationId: randomUUID() } });
-  
-  const finalSlug = (slug || name)
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+router.post(
+  '/genres',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { name, slug } = req.body || {};
+    if (!name)
+      return res.status(400).json({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'name required',
+          correlationId: randomUUID(),
+        },
+      });
 
-  try {
-    const [genre] = await catalogDb.insert(genres).values({ name, slug: finalSlug }).returning();
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'genre', targetId: genre.id.toString(), action: 'create_genre', details: { name, slug: finalSlug } });
-    res.status(201).json(genre);
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create genre', correlationId: randomUUID() } });
+    const finalSlug = (slug || name)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    try {
+      const [genre] = await catalogDb.insert(genres).values({ name, slug: finalSlug }).returning();
+      await catalogDb.insert(auditLogs).values({
+        actorId: req.user!.id,
+        targetType: 'genre',
+        targetId: genre.id.toString(),
+        action: 'create_genre',
+        details: { name, slug: finalSlug },
+      });
+      res.status(201).json(genre);
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create genre',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 // PUT /admin/genres/:genreId
-router.put('/genres/:genreId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const { name, slug } = req.body || {};
-  const finalSlug = slug || (name ? name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : undefined);
-  try {
-    const [genre] = await catalogDb.update(genres).set({ name, ...(finalSlug ? { slug: finalSlug } : {}) }).where(eq(genres.id, Number(req.params.genreId))).returning();
-    if (!genre) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Genre not found', correlationId: randomUUID() } });
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'genre', targetId: genre.id.toString(), action: 'update_genre', details: { name, slug: finalSlug } });
-    res.json(genre);
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update genre', correlationId: randomUUID() } });
+router.put(
+  '/genres/:genreId',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { name, slug } = req.body || {};
+    const finalSlug =
+      slug ||
+      (name
+        ? name
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '')
+        : undefined);
+    try {
+      const [genre] = await catalogDb
+        .update(genres)
+        .set({ name, ...(finalSlug ? { slug: finalSlug } : {}) })
+        .where(eq(genres.id, Number(req.params.genreId)))
+        .returning();
+      if (!genre)
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: 'Genre not found', correlationId: randomUUID() },
+        });
+      await catalogDb.insert(auditLogs).values({
+        actorId: req.user!.id,
+        targetType: 'genre',
+        targetId: genre.id.toString(),
+        action: 'update_genre',
+        details: { name, slug: finalSlug },
+      });
+      res.json(genre);
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update genre',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 // DELETE /admin/genres/:genreId
-router.delete('/genres/:genreId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const [genre] = await catalogDb.delete(genres).where(eq(genres.id, Number(req.params.genreId))).returning();
-    if (!genre) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Genre not found', correlationId: randomUUID() } });
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'genre', targetId: genre.id.toString(), action: 'delete_genre', details: { name: genre.name } });
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to delete genre', correlationId: randomUUID() } });
+router.delete(
+  '/genres/:genreId',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const [genre] = await catalogDb
+        .delete(genres)
+        .where(eq(genres.id, Number(req.params.genreId)))
+        .returning();
+      if (!genre)
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: 'Genre not found', correlationId: randomUUID() },
+        });
+      await catalogDb.insert(auditLogs).values({
+        actorId: req.user!.id,
+        targetType: 'genre',
+        targetId: genre.id.toString(),
+        action: 'delete_genre',
+        details: { name: genre.name },
+      });
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete genre',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 // GET /admin/tags
-router.get('/tags', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const items = await catalogDb.select().from(tags).orderBy(tags.name);
-    res.json({ items });
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list tags', correlationId: randomUUID() } });
+router.get(
+  '/tags',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const items = await catalogDb.select().from(tags).orderBy(tags.name);
+      res.json({ items });
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to list tags',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 // POST /admin/tags
-router.post('/tags', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const { name, slug } = req.body || {};
-  if (!name) return res.status(400).json({ error: { code: 'VALIDATION_FAILED', message: 'name required', correlationId: randomUUID() } });
-  
-  const finalSlug = (slug || name)
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+router.post(
+  '/tags',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { name, slug } = req.body || {};
+    if (!name)
+      return res.status(400).json({
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'name required',
+          correlationId: randomUUID(),
+        },
+      });
 
-  try {
-    const [tag] = await catalogDb.insert(tags).values({ name, slug: finalSlug }).returning();
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'tag', targetId: tag.id.toString(), action: 'create_tag', details: { name, slug: finalSlug } });
-    res.status(201).json(tag);
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create tag', correlationId: randomUUID() } });
+    const finalSlug = (slug || name)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    try {
+      const [tag] = await catalogDb.insert(tags).values({ name, slug: finalSlug }).returning();
+      await catalogDb.insert(auditLogs).values({
+        actorId: req.user!.id,
+        targetType: 'tag',
+        targetId: tag.id.toString(),
+        action: 'create_tag',
+        details: { name, slug: finalSlug },
+      });
+      res.status(201).json(tag);
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create tag',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 // PUT /admin/tags/:tagId
-router.put('/tags/:tagId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  const { name, slug } = req.body || {};
-  const finalSlug = slug || (name ? name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : undefined);
-  try {
-    const [tag] = await catalogDb.update(tags).set({ name, ...(finalSlug ? { slug: finalSlug } : {}) }).where(eq(tags.id, Number(req.params.tagId))).returning();
-    if (!tag) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Tag not found', correlationId: randomUUID() } });
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'tag', targetId: tag.id.toString(), action: 'update_tag', details: { name, slug: finalSlug } });
-    res.json(tag);
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to update tag', correlationId: randomUUID() } });
+router.put(
+  '/tags/:tagId',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { name, slug } = req.body || {};
+    const finalSlug =
+      slug ||
+      (name
+        ? name
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '')
+        : undefined);
+    try {
+      const [tag] = await catalogDb
+        .update(tags)
+        .set({ name, ...(finalSlug ? { slug: finalSlug } : {}) })
+        .where(eq(tags.id, Number(req.params.tagId)))
+        .returning();
+      if (!tag)
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: 'Tag not found', correlationId: randomUUID() },
+        });
+      await catalogDb.insert(auditLogs).values({
+        actorId: req.user!.id,
+        targetType: 'tag',
+        targetId: tag.id.toString(),
+        action: 'update_tag',
+        details: { name, slug: finalSlug },
+      });
+      res.json(tag);
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update tag',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 // DELETE /admin/tags/:tagId
-router.delete('/tags/:tagId', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const [tag] = await catalogDb.delete(tags).where(eq(tags.id, Number(req.params.tagId))).returning();
-    if (!tag) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Tag not found', correlationId: randomUUID() } });
-    await catalogDb.insert(auditLogs).values({ actorId: req.user!.id, targetType: 'tag', targetId: tag.id.toString(), action: 'delete_tag', details: { name: tag.name } });
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to delete tag', correlationId: randomUUID() } });
+router.delete(
+  '/tags/:tagId',
+  requireAuth,
+  requireRole('admin'),
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const [tag] = await catalogDb
+        .delete(tags)
+        .where(eq(tags.id, Number(req.params.tagId)))
+        .returning();
+      if (!tag)
+        return res.status(404).json({
+          error: { code: 'NOT_FOUND', message: 'Tag not found', correlationId: randomUUID() },
+        });
+      await catalogDb.insert(auditLogs).values({
+        actorId: req.user!.id,
+        targetType: 'tag',
+        targetId: tag.id.toString(),
+        action: 'delete_tag',
+        details: { name: tag.name },
+      });
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete tag',
+          correlationId: randomUUID(),
+        },
+      });
+    }
   }
-});
+);
 
 export default router;

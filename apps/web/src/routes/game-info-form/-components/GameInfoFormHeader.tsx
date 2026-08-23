@@ -4,7 +4,6 @@ import { HathorLogo } from '../../../assets';
 import styles from '../-styles/GameInfoFormPage.module.css';
 
 export const GameInfoFormHeader: React.FC = () => {
-
   return (
     <div className={styles.topBar}>
       <Link

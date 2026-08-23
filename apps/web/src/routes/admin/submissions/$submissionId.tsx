@@ -85,7 +85,9 @@ function AdminSubmissionDetail() {
           reason: status === 'rejected' ? rejectReason.trim() : 'Admin review approved',
         },
       });
-      showToast(status === 'published' ? 'Game approved and published to catalog!' : 'Submission rejected.');
+      showToast(
+        status === 'published' ? 'Game approved and published to catalog!' : 'Submission rejected.'
+      );
       setTimeout(() => {
         navigate({ to: '/admin/submissions' });
       }, 800);
@@ -99,7 +101,14 @@ function AdminSubmissionDetail() {
 
   if (loading) {
     return (
-      <div style={{ padding: '3rem', color: 'var(--text-muted)', fontFamily: 'monospace', textAlign: 'center' }}>
+      <div
+        style={{
+          padding: '3rem',
+          color: 'var(--text-muted)',
+          fontFamily: 'monospace',
+          textAlign: 'center',
+        }}
+      >
         Loading submission details...
       </div>
     );
@@ -107,9 +116,15 @@ function AdminSubmissionDetail() {
 
   if (!submission) {
     return (
-      <div style={{ padding: '3rem', color: '#e74c3c', fontFamily: 'monospace', textAlign: 'center' }}>
+      <div
+        style={{ padding: '3rem', color: '#e74c3c', fontFamily: 'monospace', textAlign: 'center' }}
+      >
         <p>Submission not found: {submissionId}</p>
-        <Link to="/admin/submissions" className={styles.backBtn} style={{ marginTop: '1rem', display: 'inline-flex' }}>
+        <Link
+          to="/admin/submissions"
+          className={styles.backBtn}
+          style={{ marginTop: '1rem', display: 'inline-flex' }}
+        >
           <ArrowLeft size={13} /> Back to Submissions
         </Link>
       </div>
@@ -129,22 +144,33 @@ function AdminSubmissionDetail() {
   const recReq = sysReqs.recReq || {};
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+        maxWidth: 1280,
+        margin: '0 auto',
+        width: '100%',
+      }}
+    >
       {toast && (
-        <div style={{
-          position: 'fixed',
-          top: 24,
-          right: 24,
-          zIndex: 999999,
-          background: '#141820',
-          border: '1px solid #4caf80',
-          color: '#4caf80',
-          padding: '12px 20px',
-          borderRadius: 6,
-          fontFamily: 'monospace',
-          fontSize: 13,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 24,
+            right: 24,
+            zIndex: 999999,
+            background: '#141820',
+            border: '1px solid #4caf80',
+            color: '#4caf80',
+            padding: '12px 20px',
+            borderRadius: 6,
+            fontFamily: 'monospace',
+            fontSize: 13,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          }}
+        >
           {toast}
         </div>
       )}
@@ -171,7 +197,12 @@ function AdminSubmissionDetail() {
             type="button"
             className={modalStyles.btnSecondary}
             onClick={() => setPreviewDevice('desktop')}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-orange)' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              color: 'var(--accent-orange)',
+            }}
           >
             <Eye size={13} /> Preview Live Page
           </button>
@@ -225,7 +256,11 @@ function AdminSubmissionDetail() {
             <div className={styles.bannerMetaRow}>
               <span>ID: {submission.id.substring(0, 8)}...</span>
               <span>•</span>
-              <span>{(submission as any).createdAt ? new Date((submission as any).createdAt).toLocaleDateString() : 'Recent'}</span>
+              <span>
+                {(submission as any).createdAt
+                  ? new Date((submission as any).createdAt).toLocaleDateString()
+                  : 'Recent'}
+              </span>
               <span>•</span>
               <GameStatusBadge status={submission.status} />
             </div>
@@ -234,7 +269,16 @@ function AdminSubmissionDetail() {
           <div className={styles.bannerPrice}>
             <p className={styles.bannerPriceLabel}>Listing Price</p>
             <p className={styles.bannerPriceValue}>{Number(submission.priceEgp || 0).toFixed(2)}</p>
-            <p style={{ margin: 0, fontSize: '0.65rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>EGP</p>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '0.65rem',
+                fontFamily: 'monospace',
+                color: 'var(--text-muted)',
+              }}
+            >
+              EGP
+            </p>
           </div>
         </div>
       </div>
@@ -271,7 +315,13 @@ function AdminSubmissionDetail() {
                   <img
                     src={(submission as any).bannerUrl}
                     alt="Banner"
-                    style={{ width: '100%', height: 110, objectFit: 'cover', borderRadius: 4, border: '1px solid var(--border-color)' }}
+                    style={{
+                      width: '100%',
+                      height: 110,
+                      objectFit: 'cover',
+                      borderRadius: 4,
+                      border: '1px solid var(--border-color)',
+                    }}
                   />
                 </div>
               )}
@@ -307,7 +357,13 @@ function AdminSubmissionDetail() {
                 <p className={modalStyles.fieldLabel}>Style Tags</p>
                 <div className={modalStyles.tagsContainer}>
                   {tags.length === 0 && (
-                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                    <span
+                      style={{
+                        fontSize: '0.65rem',
+                        color: 'var(--text-muted)',
+                        fontStyle: 'italic',
+                      }}
+                    >
                       No tags specified
                     </span>
                   )}
@@ -349,40 +405,82 @@ function AdminSubmissionDetail() {
 
             <div className={styles.detailCardBody}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    marginBottom: '0.35rem',
+                  }}
+                >
                   <Monitor size={12} style={{ color: 'var(--text-muted)' }} />
-                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Supported OS</p>
+                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                    Supported OS
+                  </p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? minReq.os || 'Windows 10 (64-bit)' : recReq.os || 'Windows 11 (64-bit)'}
+                  {specTab === 'min'
+                    ? minReq.os || 'Windows 10 (64-bit)'
+                    : recReq.os || 'Windows 11 (64-bit)'}
                 </div>
               </div>
 
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    marginBottom: '0.35rem',
+                  }}
+                >
                   <Cpu size={12} style={{ color: 'var(--text-muted)' }} />
-                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Processor (CPU)</p>
+                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                    Processor (CPU)
+                  </p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? minReq.cpu || 'Intel Core i5 / AMD Ryzen 5' : recReq.cpu || 'Intel Core i7 / AMD Ryzen 7'}
+                  {specTab === 'min'
+                    ? minReq.cpu || 'Intel Core i5 / AMD Ryzen 5'
+                    : recReq.cpu || 'Intel Core i7 / AMD Ryzen 7'}
                 </div>
               </div>
 
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    marginBottom: '0.35rem',
+                  }}
+                >
                   <Monitor size={12} style={{ color: 'var(--text-muted)' }} />
-                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Graphics Card (GPU)</p>
+                  <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                    Graphics Card (GPU)
+                  </p>
                 </div>
                 <div className={styles.hardwareBox}>
-                  {specTab === 'min' ? minReq.gpu || 'NVIDIA GTX 1060 / AMD RX 580' : recReq.gpu || 'NVIDIA RTX 3070 / AMD RX 6700 XT'}
+                  {specTab === 'min'
+                    ? minReq.gpu || 'NVIDIA GTX 1060 / AMD RX 580'
+                    : recReq.gpu || 'NVIDIA RTX 3070 / AMD RX 6700 XT'}
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      marginBottom: '0.35rem',
+                    }}
+                  >
                     <MemoryStick size={12} style={{ color: 'var(--text-muted)' }} />
-                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>RAM</p>
+                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                      RAM
+                    </p>
                   </div>
                   <div className={styles.specItemRow}>
                     <span className={styles.specItemValue}>
@@ -392,9 +490,18 @@ function AdminSubmissionDetail() {
                 </div>
 
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      marginBottom: '0.35rem',
+                    }}
+                  >
                     <HardDrive size={12} style={{ color: 'var(--text-muted)' }} />
-                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>Storage</p>
+                    <p className={modalStyles.fieldLabel} style={{ margin: 0 }}>
+                      Storage
+                    </p>
                   </div>
                   <div className={styles.specItemRow}>
                     <span className={styles.specItemValue}>
@@ -415,15 +522,36 @@ function AdminSubmissionDetail() {
               <h3 className={styles.cardHeaderTitle}>Storefront Theme</h3>
             </div>
             <div className={styles.detailCardBody}>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
-                This game has a customized designer page layout with {sections.length} active sections.
+              <p
+                style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
+                This game has a customized designer page layout with {sections.length} active
+                sections.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                  marginTop: '0.5rem',
+                }}
+              >
                 <button
                   type="button"
                   className={modalStyles.btnSecondary}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--accent-orange)' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    color: 'var(--accent-orange)',
+                  }}
                   onClick={() => setPreviewDevice('desktop')}
                 >
                   <Monitor size={14} /> Interactive Desktop Theme
@@ -431,7 +559,12 @@ function AdminSubmissionDetail() {
                 <button
                   type="button"
                   className={modalStyles.btnSecondary}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                  }}
                   onClick={() => setPreviewDevice('mobile')}
                 >
                   <Film size={14} /> Interactive Mobile Theme
@@ -450,7 +583,9 @@ function AdminSubmissionDetail() {
               {submission.status !== 'published' ? (
                 <>
                   <div>
-                    <label className={modalStyles.fieldLabel}>Rejection Reason (if rejecting)</label>
+                    <label className={modalStyles.fieldLabel}>
+                      Rejection Reason (if rejecting)
+                    </label>
                     <textarea
                       className={modalStyles.textareaField}
                       placeholder="Explain what needs to be resolved before listing..."
@@ -463,7 +598,14 @@ function AdminSubmissionDetail() {
                     <button
                       type="button"
                       className={modalStyles.btnSuccess}
-                      style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                      }}
                       onClick={() => handleStatusChange('published')}
                       disabled={actionLoading}
                     >
@@ -472,7 +614,14 @@ function AdminSubmissionDetail() {
                     <button
                       type="button"
                       className={modalStyles.btnDanger}
-                      style={{ width: '100%', padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                      }}
                       onClick={() => handleStatusChange('rejected')}
                       disabled={actionLoading}
                     >
@@ -481,15 +630,17 @@ function AdminSubmissionDetail() {
                   </div>
                 </>
               ) : (
-                <div style={{
-                  padding: '1rem',
-                  background: 'rgba(76, 175, 128, 0.1)',
-                  border: '1px solid rgba(76, 175, 128, 0.3)',
-                  color: '#4caf80',
-                  fontSize: '0.8rem',
-                  textAlign: 'center',
-                  fontFamily: 'monospace',
-                }}>
+                <div
+                  style={{
+                    padding: '1rem',
+                    background: 'rgba(76, 175, 128, 0.1)',
+                    border: '1px solid rgba(76, 175, 128, 0.3)',
+                    color: '#4caf80',
+                    fontSize: '0.8rem',
+                    textAlign: 'center',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   ✓ This game is currently Published and active in the catalog.
                 </div>
               )}

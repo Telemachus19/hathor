@@ -19,7 +19,9 @@ import styles from './-styles/GameInfoFormPage.module.css';
 
 export default function GameInfoFormPage({ initialGame }: { initialGame?: any }) {
   const navigate = useNavigate();
-  const [draft, setDraft] = useState<GameInfoDraft>(() => initialGame || getGameInfoDraft() || EMPTY_GAME_DRAFT);
+  const [draft, setDraft] = useState<GameInfoDraft>(
+    () => initialGame || getGameInfoDraft() || EMPTY_GAME_DRAFT
+  );
   const [savedToast, setSavedToast] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +55,9 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
               shortDesc: data.shortDescription || '',
               priceEgp: data.priceEgp || '0.00',
               genre: (data.genre as any)?.name || '',
-              tags: (data.tags || []).map((t: any) => (typeof t === 'string' ? t : t.name || t.slug || '')),
+              tags: (data.tags || []).map((t: any) =>
+                typeof t === 'string' ? t : t.name || t.slug || ''
+              ),
               bannerUrl: data.bannerUrl || '',
               trailerUrl: data.trailerUrl || '',
               minReq: (data.systemRequirements as any)?.minReq || EMPTY_GAME_DRAFT.minReq,
@@ -167,7 +171,10 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
       setTimeout(() => {
         navigate({
           to: '/designer-page',
-          search: targetGameId && targetGameId !== 'draft_new_game' ? { gameId: targetGameId } : undefined,
+          search:
+            targetGameId && targetGameId !== 'draft_new_game'
+              ? { gameId: targetGameId }
+              : undefined,
         });
       }, 400);
     } catch (err) {
@@ -200,9 +207,20 @@ export default function GameInfoFormPage({ initialGame }: { initialGame?: any })
 
           {/* Grid Layout: Left Column (Details/Media) & Right Column (System Specs) */}
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 320, gap: 12, color: '#fd7014' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 320,
+                gap: 12,
+                color: '#fd7014',
+              }}
+            >
               <Loader2 size={24} className="animate-spin" />
-              <span style={{ fontSize: 13, fontFamily: 'monospace', color: '#eeeeee' }}>Loading game specifications...</span>
+              <span style={{ fontSize: 13, fontFamily: 'monospace', color: '#eeeeee' }}>
+                Loading game specifications...
+              </span>
             </div>
           ) : (
             <div className={styles.gridContainer}>

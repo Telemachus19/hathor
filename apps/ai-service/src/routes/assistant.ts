@@ -6,7 +6,7 @@ export const assistantRouter: Router = Router();
 const handleRecommendations = async (req: Request, res: Response) => {
   try {
     const isPost = req.method === 'POST';
-    const body = isPost ? (req.body || {}) : {};
+    const body = isPost ? req.body || {} : {};
     const query = req.query || {};
 
     const gameId = (body.gameId || query.gameId) as string | undefined;
@@ -14,7 +14,8 @@ const handleRecommendations = async (req: Request, res: Response) => {
     const limit = Math.min(20, Math.max(1, parseInt((body.limit || query.limit) as string) || 6));
     const chatHistory = Array.isArray(body.chatHistory) ? body.chatHistory : [];
 
-    const customApiKey = (body.geminiApiKey || req.headers['x-gemini-api-key']) as string | undefined;
+    const customApiKey = (body.geminiApiKey || req.headers['x-gemini-api-key']) as
+      string | undefined;
 
     const rawOwned = isPost ? body.ownedGameIds : query.ownedGameIds;
     let ownedGameIds: string[] = [];

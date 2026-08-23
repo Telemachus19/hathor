@@ -90,7 +90,9 @@ export function PublishModal({
       }
     } catch (err: any) {
       console.error('Failed to publish game to catalog:', err);
-      setPublishError(err?.message || 'Failed to submit game for review. Please check your page inputs.');
+      setPublishError(
+        err?.message || 'Failed to submit game for review. Please check your page inputs.'
+      );
     } finally {
       setIsPublishing(false);
     }

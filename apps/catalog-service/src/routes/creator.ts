@@ -3,7 +3,13 @@ import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { requireAuth, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
 import { catalogDb } from '../infrastructure/db/client.js';
-import { games, gameStatusTransitions, genres, tags, gameTags } from '../infrastructure/db/schema.js';
+import {
+  games,
+  gameStatusTransitions,
+  genres,
+  tags,
+  gameTags,
+} from '../infrastructure/db/schema.js';
 import {
   isValidTransition,
   isCreatorAllowedTargetStatus,
@@ -40,7 +46,9 @@ router.get(
       const items = await catalogDb.select().from(genres).orderBy(genres.name);
       return res.status(200).json(items);
     } catch (error) {
-      return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list genres' } });
+      return res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list genres' } });
     }
   }
 );
@@ -58,7 +66,9 @@ router.get(
       const items = await catalogDb.select().from(tags).orderBy(tags.name);
       return res.status(200).json(items);
     } catch (error) {
-      return res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list tags' } });
+      return res
+        .status(500)
+        .json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to list tags' } });
     }
   }
 );
@@ -111,7 +121,6 @@ router.put(
           },
         });
       }
-
 
       // Enforce creator ownership (creator_id == caller_id)
       if (game.creatorId !== callerId) {
@@ -227,7 +236,11 @@ router.post(
 
       let resolvedGenreId = genreId || null;
       if (!resolvedGenreId && genreName && typeof genreName === 'string') {
-        const [foundGenre] = await catalogDb.select().from(genres).where(eq(genres.name, genreName.trim())).limit(1);
+        const [foundGenre] = await catalogDb
+          .select()
+          .from(genres)
+          .where(eq(genres.name, genreName.trim()))
+          .limit(1);
         if (foundGenre) resolvedGenreId = foundGenre.id;
       }
 
@@ -254,11 +267,21 @@ router.post(
       // Insert tags if provided
       if (Array.isArray(tagList) && newGame) {
         for (const tagNameOrSlug of tagList) {
-          const val = typeof tagNameOrSlug === 'string' ? tagNameOrSlug.trim() : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
+          const val =
+            typeof tagNameOrSlug === 'string'
+              ? tagNameOrSlug.trim()
+              : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
           if (!val) continue;
-          const [foundTag] = await catalogDb.select().from(tags).where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`).limit(1);
+          const [foundTag] = await catalogDb
+            .select()
+            .from(tags)
+            .where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`)
+            .limit(1);
           if (foundTag) {
-            await catalogDb.insert(gameTags).values({ gameId: newGame.id, tagId: foundTag.id }).onConflictDoNothing();
+            await catalogDb
+              .insert(gameTags)
+              .values({ gameId: newGame.id, tagId: foundTag.id })
+              .onConflictDoNothing();
           }
         }
       }
@@ -290,11 +313,11 @@ router.get(
   requireAuth,
   requireRole('creator'),
   async (req: AuthenticatedRequest, res: Response) => {
-    const correlationId = req.headers['x-correlation-id'] as string || randomUUID();
+    const correlationId = (req.headers['x-correlation-id'] as string) || randomUUID();
 
     try {
       const callerId = req.user!.id;
-      
+
       const creatorGames = await catalogDb
         .select()
         .from(games)
@@ -304,7 +327,7 @@ router.get(
       const genreMap = new Map(genreList.map((g) => [g.id, g]));
 
       return res.status(200).json(
-        creatorGames.map(game => ({
+        creatorGames.map((game) => ({
           id: game.id,
           title: game.title,
           slug: game.slug,
@@ -321,7 +344,7 @@ router.get(
           screenshots: game.screenshots,
           trailerUrl: game.trailerUrl,
           createdAt: game.createdAt?.toISOString(),
-          updatedAt: game.updatedAt?.toISOString()
+          updatedAt: game.updatedAt?.toISOString(),
         }))
       );
     } catch (error) {
@@ -347,7 +370,10 @@ router.get(
   requireAuth,
   requireRole('creator'),
   async (req: AuthenticatedRequest, res: Response) => {
-    const correlationId = (req.headers['x-correlation-id'] as string) || (req.headers['correlation-id'] as string) || randomUUID();
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
 
     try {
       const callerId = req.user!.id;
@@ -375,7 +401,11 @@ router.get(
 
       let genreObj = null;
       if (game.genreId) {
-        const [g] = await catalogDb.select().from(genres).where(eq(genres.id, game.genreId)).limit(1);
+        const [g] = await catalogDb
+          .select()
+          .from(genres)
+          .where(eq(genres.id, game.genreId))
+          .limit(1);
         genreObj = g || null;
       }
 
@@ -408,7 +438,11 @@ router.get(
     } catch (error) {
       console.error('Error fetching creator game details:', error);
       return res.status(500).json({
-        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch game details', correlationId },
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch game details',
+          correlationId,
+        },
       });
     }
   }
@@ -423,7 +457,10 @@ router.put(
   requireAuth,
   requireRole('creator'),
   async (req: AuthenticatedRequest, res: Response) => {
-    const correlationId = (req.headers['x-correlation-id'] as string) || (req.headers['correlation-id'] as string) || randomUUID();
+    const correlationId =
+      (req.headers['x-correlation-id'] as string) ||
+      (req.headers['correlation-id'] as string) ||
+      randomUUID();
 
     try {
       const callerId = req.user!.id;
@@ -445,7 +482,11 @@ router.put(
 
       if (game.creatorId !== callerId) {
         return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Not authorized to modify this game',
+            correlationId,
+          },
         });
       }
 
@@ -468,7 +509,11 @@ router.put(
 
       let resolvedGenreId = genreId !== undefined ? genreId : game.genreId;
       if (genreName && typeof genreName === 'string') {
-        const [foundGenre] = await catalogDb.select().from(genres).where(eq(genres.name, genreName.trim())).limit(1);
+        const [foundGenre] = await catalogDb
+          .select()
+          .from(genres)
+          .where(eq(genres.name, genreName.trim()))
+          .limit(1);
         if (foundGenre) resolvedGenreId = foundGenre.id;
       }
 
@@ -485,7 +530,8 @@ router.put(
       if (discountPercent !== undefined) updatedFields.discountPercent = Number(discountPercent);
       if (resolvedGenreId !== undefined) updatedFields.genreId = resolvedGenreId;
       if (bannerUrl !== undefined) updatedFields.bannerUrl = bannerUrl || null;
-      if (screenshots !== undefined) updatedFields.screenshots = Array.isArray(screenshots) ? screenshots : [];
+      if (screenshots !== undefined)
+        updatedFields.screenshots = Array.isArray(screenshots) ? screenshots : [];
       if (trailerUrl !== undefined) updatedFields.trailerUrl = trailerUrl || null;
       if (systemRequirements !== undefined || systemReqs !== undefined) {
         updatedFields.systemRequirements = systemRequirements || systemReqs || {};
@@ -500,11 +546,21 @@ router.put(
       if (Array.isArray(tagList)) {
         await catalogDb.delete(gameTags).where(eq(gameTags.gameId, gameId));
         for (const tagNameOrSlug of tagList) {
-          const val = typeof tagNameOrSlug === 'string' ? tagNameOrSlug.trim() : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
+          const val =
+            typeof tagNameOrSlug === 'string'
+              ? tagNameOrSlug.trim()
+              : (tagNameOrSlug.name || tagNameOrSlug.slug || '').trim();
           if (!val) continue;
-          const [foundTag] = await catalogDb.select().from(tags).where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`).limit(1);
+          const [foundTag] = await catalogDb
+            .select()
+            .from(tags)
+            .where(sql`lower(${tags.name}) = lower(${val}) or lower(${tags.slug}) = lower(${val})`)
+            .limit(1);
           if (foundTag) {
-            await catalogDb.insert(gameTags).values({ gameId, tagId: foundTag.id }).onConflictDoNothing();
+            await catalogDb
+              .insert(gameTags)
+              .values({ gameId, tagId: foundTag.id })
+              .onConflictDoNothing();
           }
         }
       }
@@ -705,7 +761,11 @@ router.post(
 
       if (game.creatorId !== req.user!.id) {
         return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Not authorized to modify this game', correlationId },
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Not authorized to modify this game',
+            correlationId,
+          },
         });
       }
 
@@ -714,21 +774,21 @@ router.post(
         summary: `I've updated your theme to be more engaging and darker based on your request: "${prompt}". I adjusted the main colors and added a new hero section.`,
         patch: [
           {
-            op: "replace",
-            path: "/colorPalette/primary",
-            value: "#ff6b00"
+            op: 'replace',
+            path: '/colorPalette/primary',
+            value: '#ff6b00',
           },
           {
-            op: "replace",
-            path: "/colorPalette/background",
-            value: "#121212"
+            op: 'replace',
+            path: '/colorPalette/background',
+            value: '#121212',
           },
           {
-            op: "replace",
-            path: "/typography/headingFont",
-            value: "Inter, sans-serif"
-          }
-        ]
+            op: 'replace',
+            path: '/typography/headingFont',
+            value: 'Inter, sans-serif',
+          },
+        ],
       };
 
       return res.status(200).json(mockProposal);
@@ -779,7 +839,11 @@ router.get(
 
       if (game.creatorId !== req.user!.id) {
         return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Not authorized to view analytics for this game', correlationId },
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Not authorized to view analytics for this game',
+            correlationId,
+          },
         });
       }
 
@@ -790,7 +854,8 @@ router.get(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Hathor-Service-Credential': process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
+            'X-Hathor-Service-Credential':
+              process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
           },
           body: JSON.stringify({ audience: 'commerce-service' }),
         });
@@ -798,7 +863,10 @@ router.get(
           const tokenData = await tokenRes.json();
           internalToken = tokenData.accessToken;
         } else {
-          console.warn('Failed to obtain internal token for commerce-service. Status:', tokenRes.status);
+          console.warn(
+            'Failed to obtain internal token for commerce-service. Status:',
+            tokenRes.status
+          );
         }
       } catch (err) {
         console.warn('Error fetching service token:', err);
@@ -806,12 +874,15 @@ router.get(
 
       // Fetch analytics from commerce-service
       try {
-        const analyticsRes = await fetch(`http://commerce-service:5003/internal/v1/analytics/${gameId}`, {
-          headers: {
-            'Authorization': `Bearer ${internalToken}`,
-            'X-Correlation-ID': correlationId,
-          },
-        });
+        const analyticsRes = await fetch(
+          `http://commerce-service:5003/internal/v1/analytics/${gameId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${internalToken}`,
+              'X-Correlation-ID': correlationId,
+            },
+          }
+        );
 
         if (analyticsRes.ok) {
           const analyticsData = await analyticsRes.json();
@@ -840,7 +911,11 @@ router.get(
     } catch (error) {
       console.error('Error in GET /creator/games/:gameId/analytics:', error);
       return res.status(500).json({
-        error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch analytics', correlationId },
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch analytics',
+          correlationId,
+        },
       });
     }
   }
@@ -886,7 +961,8 @@ router.get(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Hathor-Service-Credential': process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
+            'X-Hathor-Service-Credential':
+              process.env.SERVICE_CREDENTIAL || 'catalog-service-secret',
           },
           body: JSON.stringify({ audience: 'commerce-service' }),
         });
@@ -905,9 +981,12 @@ router.get(
 
       for (const gameId of gameIds) {
         try {
-          const analyticsRes = await fetch(`http://commerce-service:5003/internal/v1/analytics/${gameId}`, {
-            headers: { Authorization: `Bearer ${internalToken}` },
-          });
+          const analyticsRes = await fetch(
+            `http://commerce-service:5003/internal/v1/analytics/${gameId}`,
+            {
+              headers: { Authorization: `Bearer ${internalToken}` },
+            }
+          );
           if (analyticsRes.ok) {
             const data = await analyticsRes.json();
             totalOwners += data.totalOwners;
@@ -921,14 +1000,16 @@ router.get(
         } catch (err) {}
       }
 
-      const monthlyPurchases = Array.from(monthlyMap.entries()).map(([key, amount]) => {
-        const [year, month] = key.split('-');
-        return {
-          year: parseInt(year, 10),
-          month: parseInt(month, 10),
-          amount,
-        };
-      }).sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
+      const monthlyPurchases = Array.from(monthlyMap.entries())
+        .map(([key, amount]) => {
+          const [year, month] = key.split('-');
+          return {
+            year: parseInt(year, 10),
+            month: parseInt(month, 10),
+            amount,
+          };
+        })
+        .sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month));
 
       return res.status(200).json({
         totalOwners,
@@ -937,7 +1018,6 @@ router.get(
         lifetimePurchases,
         monthlyPurchases,
       });
-
     } catch (error) {
       console.error('Error fetching creator analytics:', error);
       return res.status(500).json({ error: { message: 'Internal server error' } });

@@ -1,18 +1,6 @@
 import { useState } from 'react';
-import {
-  createFileRoute,
-  Outlet,
-  Link,
-  useRouterState,
-  useNavigate,
-} from '@tanstack/react-router';
-import {
-  Home,
-  Gamepad2,
-  BarChart2,
-  Plus,
-  ChevronDown,
-} from 'lucide-react';
+import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from '@tanstack/react-router';
+import { Home, Gamepad2, BarChart2, Plus, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { requireCreator } from '../utils/authGuard';
 import styles from './creator/styles/creatorLayout.module.css';
@@ -63,11 +51,7 @@ function CreatorLayout() {
         }`}
       >
         {/* Logo */}
-        <Link
-          to="/"
-          className={styles.logoSection}
-          title="Back to Hathor Store"
-        >
+        <Link to="/" className={styles.logoSection} title="Back to Hathor Store">
           <img src={hathorLogo} alt="Hathor" className={styles.logoImg} />
           {sidebarOpen && <span className={styles.logoText}>HATHOR</span>}
         </Link>
@@ -91,9 +75,7 @@ function CreatorLayout() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`${styles.navItem} ${
-                  isActive ? styles.navItemActive : ''
-                }`}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
                 title={!sidebarOpen ? item.label : undefined}
               >
                 {isActive && <div className={styles.activeIndicator} />}
@@ -108,9 +90,7 @@ function CreatorLayout() {
         <div className={styles.newGameWrapper}>
           <button
             type="button"
-            className={`${styles.newGameBtn} ${
-              !sidebarOpen ? styles.newGameBtnCollapsed : ''
-            }`}
+            className={`${styles.newGameBtn} ${!sidebarOpen ? styles.newGameBtnCollapsed : ''}`}
             onClick={handleNewGame}
             title="Publish New Game"
           >

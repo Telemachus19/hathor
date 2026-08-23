@@ -156,4 +156,3 @@ export const catalogRecommendationCache = catalogSchema.table(
     contextIdx: index('idx_catalog_rec_cache_context').on(table.contextGameId),
   })
 );
-

@@ -5,7 +5,13 @@ export interface AdminStatItem {
   label: string;
   value: string | number;
   delta?: string;
-  icon: LucideIcon | React.ComponentType<{ size?: number | string; style?: React.CSSProperties; className?: string }>;
+  icon:
+    | LucideIcon
+    | React.ComponentType<{
+        size?: number | string;
+        style?: React.CSSProperties;
+        className?: string;
+      }>;
   color: string;
 }
 

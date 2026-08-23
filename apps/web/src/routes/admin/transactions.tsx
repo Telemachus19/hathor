@@ -25,7 +25,9 @@ function AdminTransactions() {
   const [transactions, setTransactions] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'fulfilled' | 'pending' | 'failed'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'fulfilled' | 'pending' | 'failed'>(
+    'all'
+  );
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<Order | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -134,7 +136,12 @@ function AdminTransactions() {
         </div>
       )}
 
-      {openMenu && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpenMenu(null)} />}
+      {openMenu && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+          onClick={() => setOpenMenu(null)}
+        />
+      )}
 
       {/* Top Stats */}
       <AdminStatsGrid stats={stats} />
@@ -148,7 +155,11 @@ function AdminTransactions() {
         onStatusFilterChange={setStatusFilter}
         statusOptions={[
           { id: 'all', label: 'All', count: transactions.length },
-          { id: 'fulfilled', label: 'Completed', count: transactions.filter((t) => t.status === 'fulfilled').length },
+          {
+            id: 'fulfilled',
+            label: 'Completed',
+            count: transactions.filter((t) => t.status === 'fulfilled').length,
+          },
           { id: 'pending', label: 'Pending', count: pendingCount },
           { id: 'failed', label: 'Failed', count: failedCount },
         ]}
@@ -158,7 +169,8 @@ function AdminTransactions() {
       <div className={commonStyles.resultsMeta}>
         <Filter size={12} />
         <span>
-          Showing <strong>{filteredTransactions.length}</strong> of {transactions.length} transactions
+          Showing <strong>{filteredTransactions.length}</strong> of {transactions.length}{' '}
+          transactions
         </span>
       </div>
 
@@ -222,7 +234,10 @@ function AdminTransactions() {
                     <DollarSign size={15} />
                   </div>
                   <div>
-                    <p className={commonStyles.monoText} style={{ color: 'var(--text-white)', fontWeight: 700 }}>
+                    <p
+                      className={commonStyles.monoText}
+                      style={{ color: 'var(--text-white)', fontWeight: 700 }}
+                    >
                       {trx.id.substring(0, 12)}...
                     </p>
                     <p className={commonStyles.cellSubtitle}>Order Purchase</p>
@@ -236,14 +251,28 @@ function AdminTransactions() {
                   style={{ cursor: 'pointer' }}
                 >
                   <div className={commonStyles.avatarSmall}>
-                    {user ? (user.displayName || user.email || 'U').charAt(0).toUpperCase() : <UserIcon size={12} />}
+                    {user ? (
+                      (user.displayName || user.email || 'U').charAt(0).toUpperCase()
+                    ) : (
+                      <UserIcon size={12} />
+                    )}
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <p className={commonStyles.cellTitle} style={{ margin: 0, fontSize: '0.78rem' }}>
-                      {user ? user.displayName || user.email : (trx as any).userId ? `${(trx as any).userId.substring(0, 8)}...` : 'Unknown'}
+                    <p
+                      className={commonStyles.cellTitle}
+                      style={{ margin: 0, fontSize: '0.78rem' }}
+                    >
+                      {user
+                        ? user.displayName || user.email
+                        : (trx as any).userId
+                          ? `${(trx as any).userId.substring(0, 8)}...`
+                          : 'Unknown'}
                     </p>
                     {user && (
-                      <p className={commonStyles.cellSubtitle} style={{ margin: 0, fontSize: '0.68rem', fontFamily: 'monospace' }}>
+                      <p
+                        className={commonStyles.cellSubtitle}
+                        style={{ margin: 0, fontSize: '0.68rem', fontFamily: 'monospace' }}
+                      >
                         {user.email}
                       </p>
                     )}
@@ -251,7 +280,9 @@ function AdminTransactions() {
                 </div>
 
                 {/* Amount */}
-                <span className={commonStyles.priceText}>{Number(trx.totalAmountEgp || 0).toFixed(2)}</span>
+                <span className={commonStyles.priceText}>
+                  {Number(trx.totalAmountEgp || 0).toFixed(2)}
+                </span>
 
                 {/* Date */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -318,7 +349,11 @@ function AdminTransactions() {
       {selectedTransaction && (
         <TransactionDetailModal
           transaction={selectedTransaction}
-          user={(selectedTransaction as any).userId ? userMap.get((selectedTransaction as any).userId) : null}
+          user={
+            (selectedTransaction as any).userId
+              ? userMap.get((selectedTransaction as any).userId)
+              : null
+          }
           onClose={() => setSelectedTransaction(null)}
           onShowToast={showToast}
         />

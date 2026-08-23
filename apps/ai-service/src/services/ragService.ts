@@ -54,33 +54,188 @@ export interface GeminiFlashResponse {
  * Standard stop words & conversational filler set
  */
 export const STOP_WORDS = new Set([
-  'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'aren',
-  'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both',
-  'but', 'by', 'can', 'cannot', 'could', 'did', 'do', 'does', 'doing', 'down', 'during', 'each',
-  'few', 'for', 'from', 'further', 'had', 'has', 'have', 'having', 'he', 'her', 'here', 'hers',
-  'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in', 'into', 'is', 'it', 'its', 'itself',
-  'let', 'me', 'more', 'most', 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only',
-  'or', 'other', 'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', 'she', 'should',
-  'so', 'some', 'such', 'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then',
-  'there', 'these', 'they', 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very',
-  'was', 'we', 'were', 'what', 'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'with',
-  'you', 'your', 'yours', 'yourself', 'yourselves',
+  'a',
+  'about',
+  'above',
+  'after',
+  'again',
+  'against',
+  'all',
+  'am',
+  'an',
+  'and',
+  'any',
+  'are',
+  'aren',
+  'as',
+  'at',
+  'be',
+  'because',
+  'been',
+  'before',
+  'being',
+  'below',
+  'between',
+  'both',
+  'but',
+  'by',
+  'can',
+  'cannot',
+  'could',
+  'did',
+  'do',
+  'does',
+  'doing',
+  'down',
+  'during',
+  'each',
+  'few',
+  'for',
+  'from',
+  'further',
+  'had',
+  'has',
+  'have',
+  'having',
+  'he',
+  'her',
+  'here',
+  'hers',
+  'herself',
+  'him',
+  'himself',
+  'his',
+  'how',
+  'i',
+  'if',
+  'in',
+  'into',
+  'is',
+  'it',
+  'its',
+  'itself',
+  'let',
+  'me',
+  'more',
+  'most',
+  'my',
+  'myself',
+  'no',
+  'nor',
+  'not',
+  'of',
+  'off',
+  'on',
+  'once',
+  'only',
+  'or',
+  'other',
+  'ought',
+  'our',
+  'ours',
+  'ourselves',
+  'out',
+  'over',
+  'own',
+  'same',
+  'she',
+  'should',
+  'so',
+  'some',
+  'such',
+  'than',
+  'that',
+  'the',
+  'their',
+  'theirs',
+  'them',
+  'themselves',
+  'then',
+  'there',
+  'these',
+  'they',
+  'this',
+  'those',
+  'through',
+  'to',
+  'too',
+  'under',
+  'until',
+  'up',
+  'very',
+  'was',
+  'we',
+  'were',
+  'what',
+  'when',
+  'where',
+  'which',
+  'while',
+  'who',
+  'whom',
+  'why',
+  'with',
+  'you',
+  'your',
+  'yours',
+  'yourself',
+  'yourselves',
   // Conversational & gaming boilerplate fillers
-  'game', 'games', 'gaming', 'gamer', 'play', 'played', 'playing', 'player',
-  'recommend', 'recommendation', 'recommendations', 'suggest', 'suggestion', 'suggestions',
-  'looking', 'look', 'looks', 'find', 'show', 'give', 'tell', 'want', 'wanted', 'wants',
-  'like', 'liked', 'likes', 'something', 'good', 'best', 'nice', 'cool', 'please',
-  'hi', 'hello', 'hey', 'yo', 'sup', 'thanks', 'thank', 'buy', 'bought', 'get', 'got',
-  'help', 'assist', 'assistant', 'hathor'
+  'game',
+  'games',
+  'gaming',
+  'gamer',
+  'play',
+  'played',
+  'playing',
+  'player',
+  'recommend',
+  'recommendation',
+  'recommendations',
+  'suggest',
+  'suggestion',
+  'suggestions',
+  'looking',
+  'look',
+  'looks',
+  'find',
+  'show',
+  'give',
+  'tell',
+  'want',
+  'wanted',
+  'wants',
+  'like',
+  'liked',
+  'likes',
+  'something',
+  'good',
+  'best',
+  'nice',
+  'cool',
+  'please',
+  'hi',
+  'hello',
+  'hey',
+  'yo',
+  'sup',
+  'thanks',
+  'thank',
+  'buy',
+  'bought',
+  'get',
+  'got',
+  'help',
+  'assist',
+  'assistant',
+  'hathor',
 ]);
 
 /**
  * Extracts meaningful keyword tokens from text, omitting stopwords and short tokens.
  */
 export function extractMeaningfulKeywords(text: string): string[] {
-  const normalized = (text || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ');
+  const normalized = (text || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
   const tokens = normalized.split(/\s+/).filter(Boolean);
   return tokens.filter((t) => !STOP_WORDS.has(t) && t.length > 2);
 }
@@ -109,12 +264,28 @@ export function isLibraryRecommendationIntent(text?: string): boolean {
  */
 export function isCasualGreetingOrChat(text?: string): boolean {
   if (!text) return false;
-  const clean = text.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '');
+  const clean = text
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '');
   const greetings = [
-    'hi', 'hello', 'hey', 'yo', 'sup', 'greetings',
-    'good morning', 'good evening', 'good afternoon',
-    'how are you', 'who are you', 'what are you',
-    'what can you do', 'help', 'test', 'thank you', 'thanks'
+    'hi',
+    'hello',
+    'hey',
+    'yo',
+    'sup',
+    'greetings',
+    'good morning',
+    'good evening',
+    'good afternoon',
+    'how are you',
+    'who are you',
+    'what are you',
+    'what can you do',
+    'help',
+    'test',
+    'thank you',
+    'thanks',
   ];
   return greetings.includes(clean);
 }
@@ -141,20 +312,17 @@ export function computeCosineSimilarity(vecA: number[], vecB: number[]): number 
 /**
  * Creates SHA-256 content hash of game textual metadata
  */
-export function computeContentHash(
-  title: string,
-  shortDesc: string,
-  fullDesc: string
-): string {
-  return createHash('sha256')
-    .update(`${title}:${shortDesc}:${fullDesc}`)
-    .digest('hex');
+export function computeContentHash(title: string, shortDesc: string, fullDesc: string): string {
+  return createHash('sha256').update(`${title}:${shortDesc}:${fullDesc}`).digest('hex');
 }
 
 /**
  * Calls Google Gemini API to generate embedding for query text
  */
-export async function generateEmbedding(text: string, apiKeyOverride?: string): Promise<number[] | null> {
+export async function generateEmbedding(
+  text: string,
+  apiKeyOverride?: string
+): Promise<number[] | null> {
   const apiKey = apiKeyOverride || process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
@@ -189,7 +357,11 @@ export async function generateEmbedding(text: string, apiKeyOverride?: string): 
 /**
  * Helper: fetch with timeout using AbortController
  */
-async function fetchWithTimeout(url: string, options: any = {}, timeoutMs = 8000): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  options: any = {},
+  timeoutMs = 8000
+): Promise<Response> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -229,7 +401,13 @@ async function tryFetchWithRetries(
  */
 export async function generateGeminiFlashResponse(
   prompt: string,
-  candidateGames: Array<{ gameId: string; title: string; shortDescription: string; priceEgp: string; reason?: string }>,
+  candidateGames: Array<{
+    gameId: string;
+    title: string;
+    shortDescription: string;
+    priceEgp: string;
+    reason?: string;
+  }>,
   ownedGamesSummary?: string,
   chatHistory: Array<{ sender: string; text: string }> = [],
   apiKeyOverride?: string
@@ -386,7 +564,9 @@ Respond STRICTLY in JSON format:
           return {
             reply: parsed.reply || cleanJsonStr,
             isRecommendation: parsed.isRecommendation !== false,
-            recommendedGameIds: Array.isArray(parsed.recommendedGameIds) ? parsed.recommendedGameIds : [],
+            recommendedGameIds: Array.isArray(parsed.recommendedGameIds)
+              ? parsed.recommendedGameIds
+              : [],
             gameReasons: parsed.gameReasons || {},
           };
         } catch {
@@ -397,7 +577,9 @@ Respond STRICTLY in JSON format:
               return {
                 reply: parsed.reply || textOutput,
                 isRecommendation: parsed.isRecommendation !== false,
-                recommendedGameIds: Array.isArray(parsed.recommendedGameIds) ? parsed.recommendedGameIds : [],
+                recommendedGameIds: Array.isArray(parsed.recommendedGameIds)
+                  ? parsed.recommendedGameIds
+                  : [],
                 gameReasons: parsed.gameReasons || {},
               };
             } catch {
@@ -444,7 +626,8 @@ export async function getDynamicKeywordFallback(
       return {
         items: [],
         source: 'curated_fallback',
-        conversationalReply: 'Hello! I am your Hathor assistant. Tell me what genres or gameplay styles you enjoy, and I will find the best matches for you!',
+        conversationalReply:
+          'Hello! I am your Hathor assistant. Tell me what genres or gameplay styles you enjoy, and I will find the best matches for you!',
         refreshedAt: new Date().toISOString(),
       };
     }
@@ -454,7 +637,8 @@ export async function getDynamicKeywordFallback(
       return {
         items: [],
         source: 'curated_fallback',
-        conversationalReply: "I don't have any record of games in your library yet! Tell me what kind of genres, themes, or gameplay styles you like (e.g. RPG, Action, Cyberpunk, Stealth), and I'll find great matches for you.",
+        conversationalReply:
+          "I don't have any record of games in your library yet! Tell me what kind of genres, themes, or gameplay styles you like (e.g. RPG, Action, Cyberpunk, Stealth), and I'll find great matches for you.",
         refreshedAt: new Date().toISOString(),
       };
     }
@@ -489,7 +673,8 @@ export async function getDynamicKeywordFallback(
       return {
         items: [],
         source: 'curated_fallback',
-        conversationalReply: 'What kind of game are you looking for? Try mentioning genres like Cyberpunk, Stealth, RPG, Space, or Strategy!',
+        conversationalReply:
+          'What kind of game are you looking for? Try mentioning genres like Cyberpunk, Stealth, RPG, Space, or Strategy!',
         refreshedAt: new Date().toISOString(),
       };
     }
@@ -645,7 +830,10 @@ export async function getHybridRecommendations(
         const queryVector = await generateEmbedding(vectorQueryText, effectiveGeminiKey);
 
         if (queryVector) {
-          console.log('[AI Service] Executing Cosine Similarity Vector Search for query:', vectorQueryText);
+          console.log(
+            '[AI Service] Executing Cosine Similarity Vector Search for query:',
+            vectorQueryText
+          );
           const storedEmbeddings = await catalogDb.select().from(gameEmbeddings);
 
           if (storedEmbeddings.length > 0) {
@@ -696,7 +884,12 @@ export async function getHybridRecommendations(
 
     // 4. Keyword Fallback Candidate Retrieval if Vector search returned empty
     if (candidateItems.length === 0 && !isCasualGreetingOrChat(rawPrompt)) {
-      const keywordResult = await getDynamicKeywordFallback(rawPrompt, contextGameId, ownedGameIds, 10);
+      const keywordResult = await getDynamicKeywordFallback(
+        rawPrompt,
+        contextGameId,
+        ownedGameIds,
+        10
+      );
       candidateItems = keywordResult.items;
       candidateSource = keywordResult.source as 'curated_fallback';
     }
@@ -779,7 +972,8 @@ export async function getHybridRecommendations(
       return {
         items: [],
         source: 'curated_fallback',
-        conversationalReply: 'Hello! I am your Hathor assistant. Ask me about games, genres, or recommendations!',
+        conversationalReply:
+          'Hello! I am your Hathor assistant. Ask me about games, genres, or recommendations!',
         refreshedAt: new Date().toISOString(),
       };
     }

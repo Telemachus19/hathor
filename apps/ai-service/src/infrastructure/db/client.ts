@@ -8,11 +8,14 @@ const { Pool } = pg;
 const connectionString = process.env.CATALOG_DB_URL;
 
 if (!connectionString) {
-  console.warn('[AI Service] WARNING: CATALOG_DB_URL is not set; database features will be disabled.');
+  console.warn(
+    '[AI Service] WARNING: CATALOG_DB_URL is not set; database features will be disabled.'
+  );
 }
 
 export const catalogPool = new Pool({
-  connectionString: connectionString || 'postgresql://catalog_app:dummy@catalog-postgres:5432/catalog',
+  connectionString:
+    connectionString || 'postgresql://catalog_app:dummy@catalog-postgres:5432/catalog',
 });
 
 export const catalogDb = drizzle(catalogPool, { schema });

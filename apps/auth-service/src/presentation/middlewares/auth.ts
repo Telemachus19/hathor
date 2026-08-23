@@ -54,7 +54,10 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
         success: false,
         error: {
           code: 'UNAUTHENTICATED',
-          message: user.status === 'banned' ? 'User account is permanently banned' : 'User account is suspended',
+          message:
+            user.status === 'banned'
+              ? 'User account is permanently banned'
+              : 'User account is suspended',
           correlationId,
         },
       });

@@ -73,7 +73,17 @@ export const proxyRouter: Router = Router();
 proxyRouter.use(createServiceProxy(AUTH_SERVICE_URL, ['/user', '/admin/users']));
 
 // Catalog Service proxy
-proxyRouter.use(createServiceProxy(CATALOG_SERVICE_URL, ['/store', '/creator', '/admin/games', '/admin/genres', '/admin/tags', '/admin/submissions', '/admin/audit-logs']));
+proxyRouter.use(
+  createServiceProxy(CATALOG_SERVICE_URL, [
+    '/store',
+    '/creator',
+    '/admin/games',
+    '/admin/genres',
+    '/admin/tags',
+    '/admin/submissions',
+    '/admin/audit-logs',
+  ])
+);
 
 // Commerce Service proxy
 proxyRouter.use(createServiceProxy(COMMERCE_SERVICE_URL, ['/cart', '/txn', '/admin/transactions']));

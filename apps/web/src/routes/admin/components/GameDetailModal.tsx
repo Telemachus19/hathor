@@ -13,7 +13,10 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={`${styles.modalContainer} ${styles.modalContainerLg}`} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.modalContainer} ${styles.modalContainerLg}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.topStripe} />
         <div className={styles.modalHeader}>
           <div>
@@ -48,22 +51,42 @@ export function GameDetailModal({ game, onClose }: GameDetailModalProps) {
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
               <p className={styles.fieldLabel}>Game ID</p>
-              <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace', wordBreak: 'break-all' }}>{game.id}</p>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '0.75rem',
+                  fontFamily: 'monospace',
+                  wordBreak: 'break-all',
+                }}
+              >
+                {game.id}
+              </p>
             </div>
             <div className={styles.infoItem}>
               <p className={styles.fieldLabel}>Genre</p>
-              <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700 }}>{game.genre?.name || 'Unassigned'}</p>
+              <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700 }}>
+                {game.genre?.name || 'Unassigned'}
+              </p>
             </div>
             <div className={styles.infoItem}>
               <p className={styles.fieldLabel}>Price</p>
-              <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--accent-orange)' }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '0.75rem',
+                  fontFamily: 'monospace',
+                  color: 'var(--accent-orange)',
+                }}
+              >
                 EGP {game.priceEgp || '0.00'}
               </p>
             </div>
             <div className={styles.infoItem}>
               <p className={styles.fieldLabel}>Created At</p>
               <p style={{ margin: 0, fontSize: '0.75rem', fontFamily: 'monospace' }}>
-                {(game as any).createdAt ? new Date((game as any).createdAt).toLocaleDateString() : 'Unknown'}
+                {(game as any).createdAt
+                  ? new Date((game as any).createdAt).toLocaleDateString()
+                  : 'Unknown'}
               </p>
             </div>
           </div>

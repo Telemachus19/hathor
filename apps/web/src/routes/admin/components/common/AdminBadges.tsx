@@ -29,7 +29,11 @@ export function RoleBadge({ role }: { role: string }) {
   if (normalized.includes('admin')) {
     badgeClass = `${styles.badge} ${styles.badgeAdmin}`;
     label = 'ADMIN';
-  } else if (normalized.includes('creator') || normalized.includes('developer') || normalized.includes('dev')) {
+  } else if (
+    normalized.includes('creator') ||
+    normalized.includes('developer') ||
+    normalized.includes('dev')
+  ) {
     badgeClass = `${styles.badge} ${styles.badgeDev}`;
     label = 'DEV';
   } else if (normalized.includes('mod')) {

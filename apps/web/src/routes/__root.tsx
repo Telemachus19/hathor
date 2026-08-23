@@ -41,7 +41,6 @@ function RootComponent() {
   );
 }
 
-
 function ErrorScreen({ error }: { error: Error }) {
   return (
     <main

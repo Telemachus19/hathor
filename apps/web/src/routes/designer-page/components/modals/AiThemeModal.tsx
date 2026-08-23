@@ -44,11 +44,11 @@ export function AiThemeModal({ gameId, currentTheme, onClose, onAccept }: AiThem
 
   const handleAccept = () => {
     if (!proposal) return;
-    
+
     // In a real application, we would apply the JSON Patch (RFC 6902) to the currentTheme.
     // For this demonstration with the mock AI, we'll manually apply the specific patch changes.
     const newTheme = JSON.parse(JSON.stringify(currentTheme));
-    
+
     // Apply the mock patch
     proposal.patch.forEach((p: any) => {
       if (p.op === 'replace') {
@@ -64,39 +64,65 @@ export function AiThemeModal({ gameId, currentTheme, onClose, onAccept }: AiThem
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.85)',
-      backdropFilter: 'blur(4px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-    }}>
-      <div style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-color)',
-        borderRadius: '8px',
-        width: '500px',
-        maxWidth: '90vw',
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        backdropFilter: 'blur(4px)',
         display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-      }}>
-        <div style={{
-          padding: '1.5rem',
-          borderBottom: '1px solid var(--border-color)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+      }}
+    >
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '8px',
+          width: '500px',
+          maxWidth: '90vw',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          background: 'var(--bg-card-hover)',
-        }}>
-          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '1.25rem', color: 'var(--accent-orange)' }}>
+          flexDirection: 'column',
+          overflow: 'hidden',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        }}
+      >
+        <div
+          style={{
+            padding: '1.5rem',
+            borderBottom: '1px solid var(--border-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'var(--bg-card-hover)',
+          }}
+        >
+          <h2
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              margin: 0,
+              fontSize: '1.25rem',
+              color: 'var(--accent-orange)',
+            }}
+          >
             <Wand2 size={20} /> AI Theme Proposal
           </h2>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+            }}
+          >
             <X size={20} />
           </button>
         </div>
@@ -104,8 +130,16 @@ export function AiThemeModal({ gameId, currentTheme, onClose, onAccept }: AiThem
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {!proposal ? (
             <>
-              <p style={{ color: 'var(--text-light)', margin: 0, fontSize: '0.9rem', lineHeight: 1.5 }}>
-                Describe how you want your game store page to look. The AI will analyze your prompt and suggest layout and styling changes.
+              <p
+                style={{
+                  color: 'var(--text-light)',
+                  margin: 0,
+                  fontSize: '0.9rem',
+                  lineHeight: 1.5,
+                }}
+              >
+                Describe how you want your game store page to look. The AI will analyze your prompt
+                and suggest layout and styling changes.
               </p>
               <textarea
                 value={prompt}
@@ -124,22 +158,71 @@ export function AiThemeModal({ gameId, currentTheme, onClose, onAccept }: AiThem
                 }}
               />
               {error && (
-                <div style={{ padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '4px', color: '#ef4444', fontSize: '0.85rem' }}>
+                <div
+                  style={{
+                    padding: '0.75rem',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '4px',
+                    color: '#ef4444',
+                    fontSize: '0.85rem',
+                  }}
+                >
                   {error}
                 </div>
               )}
             </>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ padding: '1rem', background: 'rgba(56, 211, 159, 0.1)', border: '1px solid rgba(56, 211, 159, 0.2)', borderRadius: '4px' }}>
-                <h3 style={{ color: 'var(--accent-green)', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>AI Summary</h3>
-                <p style={{ color: 'var(--text-light)', margin: 0, fontSize: '0.9rem', lineHeight: 1.5 }}>{proposal.summary}</p>
+              <div
+                style={{
+                  padding: '1rem',
+                  background: 'rgba(56, 211, 159, 0.1)',
+                  border: '1px solid rgba(56, 211, 159, 0.2)',
+                  borderRadius: '4px',
+                }}
+              >
+                <h3
+                  style={{ color: 'var(--accent-green)', margin: '0 0 0.5rem 0', fontSize: '1rem' }}
+                >
+                  AI Summary
+                </h3>
+                <p
+                  style={{
+                    color: 'var(--text-light)',
+                    margin: 0,
+                    fontSize: '0.9rem',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {proposal.summary}
+                </p>
               </div>
 
               <div>
-                <h4 style={{ color: 'var(--text-white)', margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>Proposed Changes:</h4>
-                <div style={{ background: 'var(--bg-main)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '1rem', maxHeight: '150px', overflowY: 'auto' }}>
-                  <pre style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                <h4
+                  style={{ color: 'var(--text-white)', margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}
+                >
+                  Proposed Changes:
+                </h4>
+                <div
+                  style={{
+                    background: 'var(--bg-main)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '4px',
+                    padding: '1rem',
+                    maxHeight: '150px',
+                    overflowY: 'auto',
+                  }}
+                >
+                  <pre
+                    style={{
+                      margin: 0,
+                      color: 'var(--text-muted)',
+                      fontSize: '0.8rem',
+                      fontFamily: 'monospace',
+                    }}
+                  >
                     {JSON.stringify(proposal.patch, null, 2)}
                   </pre>
                 </div>
@@ -148,14 +231,16 @@ export function AiThemeModal({ gameId, currentTheme, onClose, onAccept }: AiThem
           )}
         </div>
 
-        <div style={{
-          padding: '1.5rem',
-          borderTop: '1px solid var(--border-color)',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: '1rem',
-          background: 'var(--bg-card-hover)',
-        }}>
+        <div
+          style={{
+            padding: '1.5rem',
+            borderTop: '1px solid var(--border-color)',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '1rem',
+            background: 'var(--bg-card-hover)',
+          }}
+        >
           <button
             onClick={onClose}
             style={{
@@ -170,7 +255,7 @@ export function AiThemeModal({ gameId, currentTheme, onClose, onAccept }: AiThem
           >
             Cancel
           </button>
-          
+
           {!proposal ? (
             <button
               onClick={handleGenerate}

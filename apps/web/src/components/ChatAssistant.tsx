@@ -69,7 +69,9 @@ export const HathorChatAssistant: React.FC<HathorChatAssistantProps> = ({
       const source = response?.data?.source || 'curated_fallback';
       const conversationalReply = response?.data?.conversationalReply;
 
-      let replyText = conversationalReply || `I retrieved ${items.length} titles from the Hathor catalog matching "${textToSend}".`;
+      let replyText =
+        conversationalReply ||
+        `I retrieved ${items.length} titles from the Hathor catalog matching "${textToSend}".`;
       if (items.length === 0 && !conversationalReply) {
         replyText = `No exact matches found for "${textToSend}". Try searching for categories like RPG, Cyberpunk, Strategy, or Indie!`;
       }
@@ -144,23 +146,20 @@ export const HathorChatAssistant: React.FC<HathorChatAssistantProps> = ({
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`${styles.messageRow} ${msg.sender === 'user' ? styles.userRow : ''
-                  }`}
+                className={`${styles.messageRow} ${msg.sender === 'user' ? styles.userRow : ''}`}
               >
                 <div
-                  className={`${styles.avatar} ${msg.sender === 'oracle' ? styles.oracleAvatar : styles.userAvatar
-                    }`}
+                  className={`${styles.avatar} ${
+                    msg.sender === 'oracle' ? styles.oracleAvatar : styles.userAvatar
+                  }`}
                 >
-                  {msg.sender === 'oracle' ? (
-                    <AnkhIcon size={22} />
-                  ) : (
-                    <PharaohIcon size={28} />
-                  )}
+                  {msg.sender === 'oracle' ? <AnkhIcon size={22} /> : <PharaohIcon size={28} />}
                 </div>
 
                 <div
-                  className={`${styles.bubble} ${msg.sender === 'oracle' ? styles.oracleBubble : styles.userBubble
-                    }`}
+                  className={`${styles.bubble} ${
+                    msg.sender === 'oracle' ? styles.oracleBubble : styles.userBubble
+                  }`}
                 >
                   <div style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</div>
 
@@ -189,13 +188,9 @@ export const HathorChatAssistant: React.FC<HathorChatAssistantProps> = ({
                 <div className={`${styles.avatar} ${styles.oracleAvatar}`}>
                   <AnkhIcon size={22} />
                 </div>
-                <div className={`${styles.bubble} ${styles.oracleBubble}`}>
-                  Thinking...
-                </div>
+                <div className={`${styles.bubble} ${styles.oracleBubble}`}>Thinking...</div>
               </div>
             )}
-
-
           </div>
 
           {/* Quick Prompts & Form Footer */}
@@ -236,5 +231,3 @@ export const HathorChatAssistant: React.FC<HathorChatAssistantProps> = ({
     </>
   );
 };
-
-

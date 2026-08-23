@@ -8,21 +8,21 @@ const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL || 'http://localhost
 adminRouter.get('/audit-logs', async (req: Request, res: Response) => {
   const correlationId = req.correlationId || 'unknown';
   const limit = req.query.limit || 50;
-  
+
   try {
     const [authRes, catalogRes] = await Promise.all([
       fetch(`${AUTH_SERVICE_URL}/internal/v1/auth/audit-logs?limit=${limit}`, {
-        headers: { 'x-correlation-id': correlationId }
-      }).catch(err => {
+        headers: { 'x-correlation-id': correlationId },
+      }).catch((err) => {
         console.error('Failed to fetch auth audit logs:', err);
         return { ok: false, json: async () => ({ items: [] }) };
       }),
       fetch(`${CATALOG_SERVICE_URL}/internal/v1/catalog/audit-logs?limit=${limit}`, {
-        headers: { 'x-correlation-id': correlationId }
-      }).catch(err => {
+        headers: { 'x-correlation-id': correlationId },
+      }).catch((err) => {
         console.error('Failed to fetch catalog audit logs:', err);
         return { ok: false, json: async () => ({ items: [] }) };
-      })
+      }),
     ]);
 
     const authData = authRes.ok ? await (authRes as any).json() : { items: [] };
@@ -36,7 +36,7 @@ adminRouter.get('/audit-logs', async (req: Request, res: Response) => {
       targetId: log.targetId,
       action: log.action,
       details: log.details,
-      timestamp: log.timestamp
+      timestamp: log.timestamp,
     }));
 
     const mappedCatalogLogs = (catalogData.items || []).map((log: any) => ({
@@ -46,11 +46,11 @@ adminRouter.get('/audit-logs', async (req: Request, res: Response) => {
       targetId: log.targetId,
       action: log.action,
       details: log.details,
-      timestamp: log.timestamp
+      timestamp: log.timestamp,
     }));
 
     const allLogs = [...mappedAuthLogs, ...mappedCatalogLogs];
-    
+
     allLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     // Apply the combined limit
@@ -59,6 +59,8 @@ adminRouter.get('/audit-logs', async (req: Request, res: Response) => {
     res.json({ items: finalLogs });
   } catch (error) {
     console.error('Audit logs aggregation error:', error);
-    res.status(500).json({ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to aggregate audit logs' } });
+    res.status(500).json({
+      error: { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to aggregate audit logs' },
+    });
   }
 });

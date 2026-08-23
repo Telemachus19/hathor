@@ -107,11 +107,18 @@ function AdminSubmissions() {
         </div>
       )}
 
-      {openMenu && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpenMenu(null)} />}
+      {openMenu && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+          onClick={() => setOpenMenu(null)}
+        />
+      )}
 
       {previewGame && (
         <PreviewModal
-          sections={(previewGame as any)?.pageTheme?.sections || (previewGame as any)?.theme?.sections || []}
+          sections={
+            (previewGame as any)?.pageTheme?.sections || (previewGame as any)?.theme?.sections || []
+          }
           pageSettings={
             (previewGame as any)?.pageTheme?.pageSettings ||
             (previewGame as any)?.theme?.pageSettings ||
@@ -172,7 +179,12 @@ function AdminSubmissions() {
                 key={sub.id}
                 className={`${commonStyles.tableRow} ${commonStyles.tableRowClickable} ${openMenu === sub.id ? commonStyles.tableRowActive : ''}`}
                 style={{ gridTemplateColumns: '2.5fr 1.5fr 1fr 1fr 1fr auto' }}
-                onClick={() => navigate({ to: '/admin/submissions/$submissionId', params: { submissionId: sub.id } })}
+                onClick={() =>
+                  navigate({
+                    to: '/admin/submissions/$submissionId',
+                    params: { submissionId: sub.id },
+                  })
+                }
               >
                 {/* Game */}
                 <div className={commonStyles.userCell}>
@@ -204,7 +216,9 @@ function AdminSubmissions() {
                 <span className={commonStyles.monoText}>{sub.genre?.name || 'Action'}</span>
 
                 {/* Price */}
-                <span className={commonStyles.priceText}>{Number(sub.priceEgp || 0).toFixed(2)}</span>
+                <span className={commonStyles.priceText}>
+                  {Number(sub.priceEgp || 0).toFixed(2)}
+                </span>
 
                 {/* Status */}
                 <div>
@@ -213,7 +227,12 @@ function AdminSubmissions() {
 
                 {/* Actions */}
                 <div
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    position: 'relative',
+                  }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
@@ -231,7 +250,12 @@ function AdminSubmissions() {
                       <button
                         type="button"
                         className={commonStyles.dropdownMenuItem}
-                        onClick={() => navigate({ to: '/admin/submissions/$submissionId', params: { submissionId: sub.id } })}
+                        onClick={() =>
+                          navigate({
+                            to: '/admin/submissions/$submissionId',
+                            params: { submissionId: sub.id },
+                          })
+                        }
                       >
                         Review Submission
                       </button>

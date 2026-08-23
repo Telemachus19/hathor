@@ -9,12 +9,12 @@ export function createAdminRouter(): Router {
 
   // /admin/users
   router.get('/users', requireAuth, listUsersHandler);
-  
+
   // /admin/users/:userId/status
   router.patch('/users/:userId/status', requireAuth, changeUserStatusHandler);
-  
+
   // /admin/users/:userId/roles
   router.post('/users/:userId/roles', requireAuth, changeRolesHandler);
-  
+
   return router;
 }

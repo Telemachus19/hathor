@@ -65,22 +65,21 @@ export function DesignerCanvas({
       onClick={onDeselectAll}
     >
       {/* Outer Canvas Background Overlay Tint */}
-      {bgImage &&
-        (pageSettings.bgOverlay || pageSettings.bgOverlayOpacity !== undefined) && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: pageSettings.bgOverlay || 'rgba(0,0,0,0.5)',
-              opacity: pageSettings.bgOverlayOpacity ?? 0,
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          />
-        )}
+      {bgImage && (pageSettings.bgOverlay || pageSettings.bgOverlayOpacity !== undefined) && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: pageSettings.bgOverlay || 'rgba(0,0,0,0.5)',
+            opacity: pageSettings.bgOverlayOpacity ?? 0,
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+      )}
 
       {/* Page frame */}
       <div

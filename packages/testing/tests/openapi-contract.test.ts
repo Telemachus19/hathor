@@ -85,7 +85,6 @@ vi.mock('../../../apps/catalog-service/src/infrastructure/db/client.js', () => {
     return chain;
   };
 
-
   return {
     catalogDb: {
       select: vi.fn(createMockChain),
@@ -274,7 +273,6 @@ describe('M2.5.1 OpenAPI Schema Contract Tests', () => {
       expect(res.body.data.slug).toBe('cyberpunk-odyssey');
       expect(res.body.data.priceEgp).toBe('299.99');
     });
-
   });
 
   describe('2. Commerce Cart Endpoints (/cart)', () => {

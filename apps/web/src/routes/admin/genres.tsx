@@ -1,14 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect, useMemo } from 'react';
-import {
-  Gamepad2,
-  Tag as TagIcon,
-  Search,
-  Plus,
-  Trash2,
-  X,
-  Check,
-} from 'lucide-react';
+import { Gamepad2, Tag as TagIcon, Search, Plus, Trash2, X, Check } from 'lucide-react';
 import { apiClient } from '../../services/api/index';
 import type { Genre, Tag } from '@hathor/contracts';
 import styles from './styles/adminGenres.module.css';
@@ -156,7 +148,9 @@ function AdminGenres() {
           <div className={styles.columnTopAccent} style={{ backgroundColor: '#fd7014' }} />
           <div className={styles.columnHeader}>
             <h3 className={styles.columnTitle}>Global Genres</h3>
-            <p className={styles.columnSubtitle}>Manage top-level store categories and primary taxonomy.</p>
+            <p className={styles.columnSubtitle}>
+              Manage top-level store categories and primary taxonomy.
+            </p>
           </div>
 
           <div className={styles.columnBody}>
@@ -171,7 +165,11 @@ function AdminGenres() {
                   onChange={(e) => setGenreSearch(e.target.value)}
                 />
                 {genreSearch && (
-                  <button type="button" className={commonStyles.searchClear} onClick={() => setGenreSearch('')}>
+                  <button
+                    type="button"
+                    className={commonStyles.searchClear}
+                    onClick={() => setGenreSearch('')}
+                  >
                     <X size={12} />
                   </button>
                 )}
@@ -234,7 +232,15 @@ function AdminGenres() {
                 </li>
               ))}
               {filteredGenres.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '2rem', color: '#8c9aaa', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+                <div
+                  style={{
+                    textAlign: 'center',
+                    padding: '2rem',
+                    color: '#8c9aaa',
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   No genres found.
                 </div>
               )}
@@ -262,7 +268,11 @@ function AdminGenres() {
                   onChange={(e) => setTagSearch(e.target.value)}
                 />
                 {tagSearch && (
-                  <button type="button" className={commonStyles.searchClear} onClick={() => setTagSearch('')}>
+                  <button
+                    type="button"
+                    className={commonStyles.searchClear}
+                    onClick={() => setTagSearch('')}
+                  >
                     <X size={12} />
                   </button>
                 )}
@@ -270,7 +280,13 @@ function AdminGenres() {
               <button
                 type="button"
                 className={modalStyles.btnPrimary}
-                style={{ backgroundColor: '#3b9eda', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                style={{
+                  backgroundColor: '#3b9eda',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                }}
                 onClick={() => setShowAddTag(!showAddTag)}
               >
                 <Plus size={13} /> Add Tag
@@ -329,7 +345,15 @@ function AdminGenres() {
                 </li>
               ))}
               {filteredTags.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '2rem', color: '#8c9aaa', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+                <div
+                  style={{
+                    textAlign: 'center',
+                    padding: '2rem',
+                    color: '#8c9aaa',
+                    fontSize: '0.75rem',
+                    fontFamily: 'monospace',
+                  }}
+                >
                   No tags found.
                 </div>
               )}

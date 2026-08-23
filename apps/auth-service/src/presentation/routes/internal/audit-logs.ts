@@ -6,14 +6,14 @@ import { roleChangeAudit } from '../../../infrastructure/db/schema.js';
 export async function auditLogsHandler(req: Request, res: Response) {
   try {
     const limit = Math.min(parseInt(req.query.limit as string) || 100, 500);
-    
+
     const logs = await authDb
       .select()
       .from(roleChangeAudit)
       .orderBy(desc(roleChangeAudit.timestamp))
       .limit(limit);
 
-    const formattedLogs = logs.map(log => ({
+    const formattedLogs = logs.map((log) => ({
       id: log.id,
       timestamp: log.timestamp ? log.timestamp.toISOString() : new Date().toISOString(),
       actorId: log.actorId,
@@ -23,7 +23,7 @@ export async function auditLogsHandler(req: Request, res: Response) {
         change: log.change,
         authorizationVersion: log.authorizationVersion,
       },
-      service: 'auth-service'
+      service: 'auth-service',
     }));
 
     res.json({ items: formattedLogs });

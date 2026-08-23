@@ -51,14 +51,10 @@ export const ClassificationCard: React.FC<ClassificationCardProps> = ({
   const { data: serverTags } = useCatalogTags();
 
   const genreList =
-    serverGenres && serverGenres.length > 0
-      ? serverGenres.map((g) => g.name)
-      : DEFAULT_GENRES;
+    serverGenres && serverGenres.length > 0 ? serverGenres.map((g) => g.name) : DEFAULT_GENRES;
 
   const tagList =
-    serverTags && serverTags.length > 0
-      ? serverTags.map((t) => t.name)
-      : DEFAULT_TAGS;
+    serverTags && serverTags.length > 0 ? serverTags.map((t) => t.name) : DEFAULT_TAGS;
 
   function toggleTag(tag: string) {
     if (tags.some((selected) => selected.toLowerCase() === tag.toLowerCase())) {

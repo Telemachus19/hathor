@@ -1,12 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
-import {
-  Users,
-  DollarSign,
-  Star,
-  TrendingUp,
-  Loader2,
-} from 'lucide-react';
+import { Users, DollarSign, Star, TrendingUp, Loader2 } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -161,12 +155,42 @@ function CreatorAnalytics() {
 
   // Monthly points mock fallback or aggregated history
   const monthlyData = [
-    { month: 'Jan', newOwners: Math.round(totalOwners * 0.15), revenue: totalRevenue * 0.15, cumOwners: Math.round(totalOwners * 0.15) },
-    { month: 'Feb', newOwners: Math.round(totalOwners * 0.20), revenue: totalRevenue * 0.20, cumOwners: Math.round(totalOwners * 0.35) },
-    { month: 'Mar', newOwners: Math.round(totalOwners * 0.25), revenue: totalRevenue * 0.25, cumOwners: Math.round(totalOwners * 0.60) },
-    { month: 'Apr', newOwners: Math.round(totalOwners * 0.18), revenue: totalRevenue * 0.18, cumOwners: Math.round(totalOwners * 0.78) },
-    { month: 'May', newOwners: Math.round(totalOwners * 0.12), revenue: totalRevenue * 0.12, cumOwners: Math.round(totalOwners * 0.90) },
-    { month: 'Jun', newOwners: Math.round(totalOwners * 0.10), revenue: totalRevenue * 0.10, cumOwners: totalOwners },
+    {
+      month: 'Jan',
+      newOwners: Math.round(totalOwners * 0.15),
+      revenue: totalRevenue * 0.15,
+      cumOwners: Math.round(totalOwners * 0.15),
+    },
+    {
+      month: 'Feb',
+      newOwners: Math.round(totalOwners * 0.2),
+      revenue: totalRevenue * 0.2,
+      cumOwners: Math.round(totalOwners * 0.35),
+    },
+    {
+      month: 'Mar',
+      newOwners: Math.round(totalOwners * 0.25),
+      revenue: totalRevenue * 0.25,
+      cumOwners: Math.round(totalOwners * 0.6),
+    },
+    {
+      month: 'Apr',
+      newOwners: Math.round(totalOwners * 0.18),
+      revenue: totalRevenue * 0.18,
+      cumOwners: Math.round(totalOwners * 0.78),
+    },
+    {
+      month: 'May',
+      newOwners: Math.round(totalOwners * 0.12),
+      revenue: totalRevenue * 0.12,
+      cumOwners: Math.round(totalOwners * 0.9),
+    },
+    {
+      month: 'Jun',
+      newOwners: Math.round(totalOwners * 0.1),
+      revenue: totalRevenue * 0.1,
+      cumOwners: totalOwners,
+    },
   ];
 
   const gameIndex = games.findIndex((g) => g.id === effectiveId);
@@ -370,13 +394,18 @@ function CreatorAnalytics() {
       {/* Portfolio Comparison */}
       <div className={commonStyles.panelCard}>
         <div className={commonStyles.panelHeader}>
-          <span className={commonStyles.panelHeaderTitle}>Portfolio Comparison — Audience Distribution</span>
+          <span className={commonStyles.panelHeaderTitle}>
+            Portfolio Comparison — Audience Distribution
+          </span>
         </div>
         <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {games.map((g, idx) => {
             const gAnalytics = analyticsMap[g.id];
             const gOwners = gAnalytics?.totalOwners || 0;
-            const maxOwners = Math.max(...games.map((gm) => analyticsMap[gm.id]?.totalOwners || 0), 1);
+            const maxOwners = Math.max(
+              ...games.map((gm) => analyticsMap[gm.id]?.totalOwners || 0),
+              1
+            );
             const pct = (gOwners / maxOwners) * 100;
             const gameAccent = ACCENTS[idx % ACCENTS.length];
 

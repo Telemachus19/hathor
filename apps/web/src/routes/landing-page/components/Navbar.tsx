@@ -41,8 +41,8 @@ export const Navbar: React.FC = () => {
                   Array.isArray(auth?.user?.roles) && auth?.user?.roles.includes('admin')
                     ? '/admin'
                     : Array.isArray(auth?.user?.roles) && auth?.user?.roles.includes('creator')
-                    ? '/creator'
-                    : '/profile'
+                      ? '/creator'
+                      : '/profile'
                 }
                 className={styles.navLink}
               >

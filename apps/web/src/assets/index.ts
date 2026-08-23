@@ -20,4 +20,3 @@ export {
   AnkhIcon,
   PharaohIcon,
 } from './Icons';
-

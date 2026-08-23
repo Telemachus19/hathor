@@ -23,9 +23,7 @@ router.get(
         })
         .from(orderItems)
         .innerJoin(orders, eq(orderItems.orderId, orders.id))
-        .where(
-          sql`${orderItems.gameId} = ${gameId} AND ${orders.status} = 'fulfilled'`
-        );
+        .where(sql`${orderItems.gameId} = ${gameId} AND ${orders.status} = 'fulfilled'`);
 
       let totalRevenue = 0;
       const uniqueOwners = new Set<string>();
@@ -42,14 +40,16 @@ router.get(
         }
       });
 
-      const monthlyPurchases = Array.from(monthlyMap.entries()).map(([key, amount]) => {
-        const [year, month] = key.split('-');
-        return {
-          year: parseInt(year, 10),
-          month: parseInt(month, 10),
-          amount,
-        };
-      }).sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
+      const monthlyPurchases = Array.from(monthlyMap.entries())
+        .map(([key, amount]) => {
+          const [year, month] = key.split('-');
+          return {
+            year: parseInt(year, 10),
+            month: parseInt(month, 10),
+            amount,
+          };
+        })
+        .sort((a, b) => (a.year !== b.year ? a.year - b.year : a.month - b.month));
 
       res.status(200).json({
         totalOwners: uniqueOwners.size,

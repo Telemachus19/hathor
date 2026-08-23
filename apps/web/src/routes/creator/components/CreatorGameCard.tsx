@@ -39,19 +39,27 @@ export function CreatorGameCard({
     ? [
         { label: 'Owners', value: owners.toLocaleString(), color: '#4caf80' },
         { label: 'Revenue', value: `EGP ${revenue.toFixed(2)}`, color: '#3b9eda' },
-        { label: 'Rating', value: rating > 0 ? `${rating.toFixed(1)} / 10` : '—', color: '#f59e0b' },
+        {
+          label: 'Rating',
+          value: rating > 0 ? `${rating.toFixed(1)} / 10` : '—',
+          color: '#f59e0b',
+        },
       ]
     : isPending
-    ? [
-        { label: 'Wishlists', value: (analytics?.wishlistCount || 0).toLocaleString(), color: '#f59e0b' },
-        { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
-        { label: 'Status', value: 'Under Review', color: '#f59e0b' },
-      ]
-    : [
-        { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
-        { label: 'Stage', value: 'Draft', color: '#8c9aaa' },
-        { label: 'Visibility', value: 'Hidden', color: '#8c9aaa' },
-      ];
+      ? [
+          {
+            label: 'Wishlists',
+            value: (analytics?.wishlistCount || 0).toLocaleString(),
+            color: '#f59e0b',
+          },
+          { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
+          { label: 'Status', value: 'Under Review', color: '#f59e0b' },
+        ]
+      : [
+          { label: 'Price', value: `EGP ${price.toFixed(2)}`, color: '#eeeeee' },
+          { label: 'Stage', value: 'Draft', color: '#8c9aaa' },
+          { label: 'Visibility', value: 'Hidden', color: '#8c9aaa' },
+        ];
 
   const tags = ((game as any).tags || []).slice(0, 5);
 
@@ -122,20 +130,12 @@ export function CreatorGameCard({
       {/* Actions */}
       <div className={styles.actionsFooter}>
         {isPublished && (
-          <button
-            type="button"
-            className={styles.actionBtn}
-            onClick={() => onAnalytics(game.id)}
-          >
+          <button type="button" className={styles.actionBtn} onClick={() => onAnalytics(game.id)}>
             <BarChart2 size={11} /> Analytics
           </button>
         )}
 
-        <button
-          type="button"
-          className={styles.actionBtn}
-          onClick={() => onEdit(game.id)}
-        >
+        <button type="button" className={styles.actionBtn} onClick={() => onEdit(game.id)}>
           <Edit3 size={11} /> Edit
         </button>
 

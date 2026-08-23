@@ -32,7 +32,9 @@ export const Route = createFileRoute('/admin/games')({
 function AdminGames() {
   const [games, setGames] = useState<Game[]>([]);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'hidden' | 'removed'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'hidden' | 'removed'>(
+    'all'
+  );
   const [genreFilter, setGenreFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'title' | 'price'>('title');
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -61,7 +63,10 @@ function AdminGames() {
     loadGames();
   }, []);
 
-  const handleStatusChange = async (gameId: string, status: 'published' | 'rejected' | 'suspended') => {
+  const handleStatusChange = async (
+    gameId: string,
+    status: 'published' | 'rejected' | 'suspended'
+  ) => {
     try {
       await apiClient.PATCH('/admin/games/{gameId}/status', {
         params: { path: { gameId } },
@@ -179,9 +184,20 @@ function AdminGames() {
         </div>
       )}
 
-      {openMenu && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpenMenu(null)} />}
+      {openMenu && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+          onClick={() => setOpenMenu(null)}
+        />
+      )}
 
-      {tagModal && <TagEditorModal game={tagModal} onClose={() => setTagModal(null)} onSaveTags={handleSaveTags} />}
+      {tagModal && (
+        <TagEditorModal
+          game={tagModal}
+          onClose={() => setTagModal(null)}
+          onSaveTags={handleSaveTags}
+        />
+      )}
       {removeModal && (
         <RemoveGameModal
           game={removeModal}
@@ -269,7 +285,11 @@ function AdminGames() {
         ) : (
           filteredGames.map((game, idx) => {
             const releaseDate = (game as any).createdAt
-              ? new Date((game as any).createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+              ? new Date((game as any).createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
               : 'Mar 12, 2025';
 
             return (
@@ -283,12 +303,30 @@ function AdminGames() {
                   <div className={commonStyles.gameSwatch}>
                     <Gamepad2 size={12} style={{ color: '#fd7014', opacity: 0.75 }} />
                     {game.status === 'suspended' && (
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: 'rgba(0,0,0,0.5)',
+                        }}
+                      >
                         <EyeOff size={9} style={{ color: '#f59e0b' }} />
                       </div>
                     )}
                     {game.status === 'rejected' && (
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)' }}>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: 'rgba(0,0,0,0.6)',
+                        }}
+                      >
                         <Trash2 size={9} style={{ color: '#e74c3c' }} />
                       </div>
                     )}
@@ -307,12 +345,25 @@ function AdminGames() {
 
                 {/* Developer */}
                 <div style={{ minWidth: 0, paddingRight: '0.75rem' }}>
-                  <p className={commonStyles.monoText} style={{ margin: 0 }}>Irongate Studios</p>
-                  <p style={{ margin: 0, fontSize: 8, color: 'rgba(140, 154, 170, 0.5)', fontFamily: 'monospace' }}>pub: Obsidian Arc</p>
+                  <p className={commonStyles.monoText} style={{ margin: 0 }}>
+                    Irongate Studios
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 8,
+                      color: 'rgba(140, 154, 170, 0.5)',
+                      fontFamily: 'monospace',
+                    }}
+                  >
+                    pub: Obsidian Arc
+                  </p>
                 </div>
 
                 {/* Genre */}
-                <span className={commonStyles.monoText} style={{ fontSize: 9 }}>{game.genre?.name || '—'}</span>
+                <span className={commonStyles.monoText} style={{ fontSize: 9 }}>
+                  {game.genre?.name || '—'}
+                </span>
 
                 {/* Status */}
                 <div>
@@ -321,9 +372,18 @@ function AdminGames() {
 
                 {/* Rating */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <div style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#4caf80' }} />
-                  <span className={commonStyles.monoText} style={{ color: '#4caf80', fontWeight: 700 }}>9.4</span>
-                  <span style={{ fontSize: 8, color: '#8c9aaa', fontFamily: 'monospace' }}>(48k)</span>
+                  <div
+                    style={{ width: 5, height: 5, borderRadius: '50%', backgroundColor: '#4caf80' }}
+                  />
+                  <span
+                    className={commonStyles.monoText}
+                    style={{ color: '#4caf80', fontWeight: 700 }}
+                  >
+                    9.4
+                  </span>
+                  <span style={{ fontSize: 8, color: '#8c9aaa', fontFamily: 'monospace' }}>
+                    (48k)
+                  </span>
                 </div>
 
                 {/* Owners */}

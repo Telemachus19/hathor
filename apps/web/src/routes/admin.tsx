@@ -62,8 +62,15 @@ function AdminLayout() {
   return (
     <div className={styles.layoutContainer}>
       {/* Sidebar */}
-      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarExpanded : styles.sidebarCollapsed}`}>
-        <Link to="/" className={styles.logoSection} style={{ textDecoration: 'none' }} title="Back to Hathor Home">
+      <aside
+        className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarExpanded : styles.sidebarCollapsed}`}
+      >
+        <Link
+          to="/"
+          className={styles.logoSection}
+          style={{ textDecoration: 'none' }}
+          title="Back to Hathor Home"
+        >
           <img src={hathorLogo} alt="Hathor" className={styles.logoImg} />
           {sidebarOpen && <span className={styles.logoText}>HATHOR</span>}
         </Link>
