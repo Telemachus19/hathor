@@ -25,7 +25,7 @@ import { TemplateModal } from './components/modals/TemplateModal';
 import { PublishModal } from './components/modals/PublishModal';
 import { ImportModal } from './components/modals/ImportModal';
 import { PreviewModal } from './components/modals/PreviewModal';
-import { AiThemeModal } from './components/modals/AiThemeModal';
+import { AiAssistantSidebar } from './components/sidebar/AiAssistantSidebar';
 import { validateThemeAgainstDocument } from '../../utils/themeValidator';
 import styles from './DesignerPage.module.css';
 
@@ -42,6 +42,11 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
   });
 
   const [pageSettings, setPageSettings] = useState<PageSettings>(DEFAULT_PAGE_SETTINGS);
+  const [previewTheme, setPreviewTheme] = useState<{
+    sections?: Section[];
+    pageSettings?: PageSettings;
+    settings?: PageSettings;
+  } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedColIdx, setSelectedColIdx] = useState<number | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
@@ -101,7 +106,16 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
           if (data) {
             if (data.title) setGameTitle(data.title.toUpperCase());
 
-            const theme = data.pageTheme as any;
+            const rawTheme = data.pageTheme ?? (data as any).theme;
+            let theme = rawTheme;
+            if (typeof rawTheme === 'string') {
+              try {
+                theme = JSON.parse(rawTheme);
+              } catch (e) {
+                console.error('Error parsing theme JSON:', e);
+              }
+            }
+
             const hasExistingLayout =
               theme &&
               typeof theme === 'object' &&
@@ -117,7 +131,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
             if (hasExistingLayout) {
               // Existing game with saved layout: skip template modal and load JSON
               setShowModal(false);
-              handleImportJSON(JSON.stringify(theme));
+              handleImportJSON(typeof rawTheme === 'string' ? rawTheme : JSON.stringify(rawTheme));
             } else {
               // New game / no saved layout: open template selector modal
               setShowModal(true);
@@ -211,30 +225,18 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
       }
       const parsed = JSON.parse(jsonString);
 
-      // Validate theme against ThemeDocument specification & anti-injection rules
-      const validation = validateThemeAgainstDocument(parsed);
-      if (!validation.valid) {
-        const primaryError = validation.errors[0];
-        setImportError(
-          `Validation Rejected (${primaryError.code}): ${primaryError.message}${
-            primaryError.path ? ` at [${primaryError.path}]` : ''
-          }`
-        );
-        return;
-      }
-
-      let importedSections: Section[] = [];
+      let rawSections: any[] = [];
       let importedSettings: Partial<PageSettings> | null = null;
 
       if (Array.isArray(parsed)) {
-        importedSections = parsed;
+        rawSections = parsed;
       } else if (parsed && typeof parsed === 'object') {
         if (Array.isArray(parsed.sections)) {
-          importedSections = parsed.sections;
+          rawSections = parsed.sections;
         } else if (parsed.layout && typeof parsed.layout === 'object') {
-          importedSections = Object.values(parsed.layout);
+          rawSections = Object.values(parsed.layout);
         } else if (parsed.pageLayout && typeof parsed.pageLayout === 'object') {
-          importedSections = Object.values(parsed.pageLayout);
+          rawSections = Object.values(parsed.pageLayout);
         }
         if (parsed.pageSettings && typeof parsed.pageSettings === 'object') {
           importedSettings = parsed.pageSettings;
@@ -243,7 +245,7 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
         }
       }
 
-      if (!importedSections || importedSections.length === 0) {
+      if (!rawSections || rawSections.length === 0) {
         setImportError(
           'No valid sections found in JSON. Expected { sections: [...] } or Section[].'
         );
@@ -262,36 +264,53 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
         ) {
           t = 'media-carousel';
         }
-        const imgs = item.heroImages || item.carouselImages || item.mediaItems || item.images || [];
-        return {
-          ...item,
-          type: t,
-          id: item.id || uid(),
-          heroImages: imgs,
-          carouselImages: imgs,
-          mediaItems: imgs,
-        };
+        const res: any = { ...item, type: t, id: item.id || uid() };
+        if (t === 'media-carousel') {
+          const imgs = item.heroImages || item.carouselImages || item.mediaItems || item.images || [];
+          res.heroImages = imgs;
+          res.carouselImages = imgs;
+          delete res.mediaItems;
+        } else {
+          delete res.heroImages;
+          delete res.carouselImages;
+          delete res.mediaItems;
+        }
+        return res;
       };
 
-      const sanitizedSections = importedSections.map((sec) => {
-        const normSec = normalizeItem(sec);
-        return {
-          ...normSec,
-          gridCols: normSec.gridCols
-            ? normSec.gridCols.map((col: any) => ({
-                ...col,
-                id: col.id || uid(),
-                elements: (col.elements || []).map((el: any) => normalizeItem(el)),
-              }))
-            : normSec.gridCols,
-        };
-      });
+      const cleanItemTree = (item: any): any => {
+        const cleaned = normalizeItem(item);
+        if (cleaned.type === 'grid' && Array.isArray(cleaned.gridCols)) {
+          cleaned.gridCols = cleaned.gridCols.map((col: any) => ({
+            ...col,
+            id: col.id || uid(),
+            elements: Array.isArray(col.elements) ? col.elements.map(cleanItemTree) : [],
+          }));
+        }
+        return cleaned;
+      };
+
+      const cleanedSections = rawSections.map(cleanItemTree);
+      const payloadToValidate = Array.isArray(parsed)
+        ? cleanedSections
+        : { ...parsed, sections: cleanedSections };
+
+      // Validate theme against ThemeDocument specification & anti-injection rules
+      const validation = validateThemeAgainstDocument(payloadToValidate);
+      if (!validation.valid) {
+        const primaryError = validation.errors[0];
+        const errorMsg = `Validation Rejected (${primaryError.code}): ${primaryError.message}${primaryError.path ? ` at [${primaryError.path}]` : ''
+          }`;
+        console.error('Designer theme validation rejected:', errorMsg, validation.errors);
+        setImportError(errorMsg);
+        return;
+      }
 
       if (importedSettings) {
         setPageSettings((prev) => ({ ...prev, ...importedSettings }));
       }
 
-      mutateSections(sanitizedSections);
+      mutateSections(cleanedSections);
       setSelectedId(null);
       setSelectedColIdx(null);
       setSelectedElementId(null);
@@ -535,30 +554,19 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
         onOpenImport={() => setShowImportModal(true)}
         onSaveDraft={handleSaveDraft}
         onOpenPublish={() => setShowPublishModal(true)}
+        onToggleAi={() => setShowAiModal((prev) => !prev)}
+        isAiOpen={showAiModal}
       />
 
       {/* Main Workspace Body */}
       <div className={styles.editorBody}>
-        {showAiModal && (
-          <AiThemeModal
-            gameId={initialGame?.id || 'draft'}
-            currentTheme={{ sections, settings: pageSettings }}
-            onClose={() => setShowAiModal(false)}
-            onAccept={(newTheme) => {
-              if (newTheme?.sections) mutateSections(newTheme.sections);
-              if (newTheme?.settings) setPageSettings(newTheme.settings);
-              setShowAiModal(false);
-              showToast('AI Theme Applied successfully!');
-            }}
-          />
-        )}
         {/* Left Sidebar — Block Palette */}
         <BlockPalette onAdd={addSection} onAddGridWithCols={addGridSection} />
 
         {/* Center Canvas */}
         <DesignerCanvas
-          sections={sections}
-          pageSettings={pageSettings}
+          sections={previewTheme?.sections || (Array.isArray(previewTheme) ? (previewTheme as any) : sections)}
+          pageSettings={previewTheme?.pageSettings || previewTheme?.settings || pageSettings}
           device={device}
           selectedId={selectedId}
           selectedColIdx={selectedColIdx}
@@ -597,6 +605,36 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
             setSelectedId(null);
             setSelectedColIdx(null);
             setSelectedElementId(null);
+          }}
+        />
+
+        {/* AI Assistant Sidebar */}
+        <AiAssistantSidebar
+          isOpen={showAiModal}
+          onClose={() => {
+            setShowAiModal(false);
+            setPreviewTheme(null);
+          }}
+          gameId={activeGameId || initialGame?.id || 'draft'}
+          currentTheme={{ sections, pageSettings }}
+          onPreviewTheme={(theme) => {
+            if (theme) {
+              setPreviewTheme(theme);
+            } else {
+              setPreviewTheme(null);
+            }
+          }}
+          onAcceptTheme={(theme) => {
+            const incomingSections = theme?.sections || (Array.isArray(theme) ? theme : null);
+            const incomingSettings = theme?.pageSettings || theme?.settings || theme?.pageBody;
+            if (incomingSections && incomingSections.length > 0) {
+              mutateSections(incomingSections);
+            }
+            if (incomingSettings) {
+              setPageSettings((prev) => ({ ...prev, ...incomingSettings }));
+            }
+            setPreviewTheme(null);
+            showToast('AI Theme Applied successfully!');
           }}
         />
       </div>

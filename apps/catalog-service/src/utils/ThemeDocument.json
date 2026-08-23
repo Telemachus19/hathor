@@ -36,7 +36,11 @@
       "top center",
       "bottom center",
       "top left",
-      "top right"
+      "top right",
+      "center left",
+      "center right",
+      "bottom left",
+      "bottom right"
     ],
     "allowedBackgroundRepeats": ["no-repeat", "repeat", "repeat-x", "repeat-y"],
     "allowedBackgroundAttachments": ["scroll", "fixed", "local"],
@@ -851,6 +855,24 @@
           "maxLength": 255,
           "sanitization": "plain_text"
         },
+        "reviewHeaderColor": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "reviewTitleColor": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "reviewAccentColor": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
         "reviewCardBg": {
           "type": "color",
           "editable": true,
@@ -931,8 +953,7 @@
         },
         "sidebarOwned": {
           "type": "boolean",
-          "editable": false,
-          "description": "Ownership state is dynamic."
+          "editable": true
         },
         "sidebarOriginalPrice": {
           "type": "string",
@@ -1464,6 +1485,18 @@
           "max": 32,
           "sanitization": "numeric_bound"
         },
+        "carouselActiveBorder": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "thumbActiveBorder": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
         "heroImages": {
           "type": "array",
           "editable": true,
@@ -1524,6 +1557,18 @@
           "maxItems": 20,
           "sanitization": "media_array"
         },
+        "carouselActiveBorder": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "thumbActiveBorder": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
         "heroHeight": {
           "type": "number",
           "editable": true,
@@ -1572,6 +1617,18 @@
           "editable": true,
           "maxItems": 20,
           "sanitization": "media_array"
+        },
+        "carouselActiveBorder": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "thumbActiveBorder": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
         },
         "mediaItems": {
           "type": "array",
@@ -1630,11 +1687,10 @@
         },
         "size": {
           "type": "number",
-          "editable": false,
-          "fixedValue": 24,
-          "min": 16,
-          "max": 48,
-          "description": "Heading font size is fixed to maintain visual scale hierarchy."
+          "editable": true,
+          "min": 12,
+          "max": 72,
+          "sanitization": "numeric_bound"
         },
         "weight": {
           "type": "string",
@@ -1665,6 +1721,32 @@
           "editable": true,
           "allowedValuesRef": "globalConstraints.allowedTextTransforms",
           "sanitization": "enum_check"
+        },
+        "headingBg": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "bg": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "headingPadding": {
+          "type": "number",
+          "editable": true,
+          "min": 0,
+          "max": 48,
+          "sanitization": "numeric_bound"
+        },
+        "headingRadius": {
+          "type": "number",
+          "editable": true,
+          "min": 0,
+          "max": 32,
+          "sanitization": "numeric_bound"
         }
       }
     },
@@ -1699,19 +1781,17 @@
         },
         "size": {
           "type": "number",
-          "editable": false,
-          "fixedValue": 14,
+          "editable": true,
           "min": 10,
-          "max": 24,
-          "description": "Body text font size is fixed to maintain baseline readability."
+          "max": 72,
+          "sanitization": "numeric_bound"
         },
         "textSize": {
           "type": "number",
-          "editable": false,
-          "fixedValue": 14,
+          "editable": true,
           "min": 10,
-          "max": 24,
-          "description": "Text size is fixed."
+          "max": 72,
+          "sanitization": "numeric_bound"
         },
         "weight": {
           "type": "string",
@@ -1781,6 +1861,38 @@
           "editable": true,
           "patternRef": "globalConstraints.allowedBorderPattern",
           "sanitization": "border_color"
+        },
+        "textBorder": {
+          "type": "border",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedBorderPattern",
+          "sanitization": "border_color"
+        },
+        "textBg": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "bg": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "textPadding": {
+          "type": "number",
+          "editable": true,
+          "min": 0,
+          "max": 48,
+          "sanitization": "numeric_bound"
+        },
+        "textRadius": {
+          "type": "number",
+          "editable": true,
+          "min": 0,
+          "max": 32,
+          "sanitization": "numeric_bound"
         }
       }
     },
@@ -1968,6 +2080,42 @@
           "editable": true,
           "patternRef": "globalConstraints.allowedBorderPattern",
           "sanitization": "border_color"
+        },
+        "itemTitleColor": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "itemDescColor": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "cardBg": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
+        },
+        "cardBorder": {
+          "type": "border",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedBorderPattern",
+          "sanitization": "border_color"
+        },
+        "titleFont": {
+          "type": "string",
+          "editable": true,
+          "allowedValuesRef": "globalConstraints.allowedFonts",
+          "sanitization": "enum_check"
+        },
+        "titleColor": {
+          "type": "color",
+          "editable": true,
+          "patternRef": "globalConstraints.allowedColorPattern",
+          "sanitization": "hex_color"
         }
       }
     },
@@ -1979,7 +2127,7 @@
         "twoColRatio": {
           "type": "string",
           "editable": true,
-          "allowedValues": ["1:1", "2:1", "1:2"],
+          "allowedValues": ["1:1", "2:1", "1:2", "3:2", "2:3"],
           "sanitization": "enum_check"
         },
         "twoColGap": {
@@ -2009,11 +2157,10 @@
         },
         "twoColLeftSize": {
           "type": "number",
-          "editable": false,
-          "fixedValue": 15,
-          "min": 12,
-          "max": 24,
-          "description": "Two column text size is fixed."
+          "editable": true,
+          "min": 10,
+          "max": 72,
+          "sanitization": "numeric_bound"
         },
         "twoColLeftWeight": {
           "type": "string",
@@ -2059,11 +2206,10 @@
         },
         "twoColRightSize": {
           "type": "number",
-          "editable": false,
-          "fixedValue": 15,
-          "min": 12,
-          "max": 24,
-          "description": "Two column right text size is fixed."
+          "editable": true,
+          "min": 10,
+          "max": 72,
+          "sanitization": "numeric_bound"
         },
         "twoColRightWeight": {
           "type": "string",
@@ -2110,8 +2256,9 @@
         },
         "ctaPrice": {
           "type": "string",
-          "editable": false,
-          "description": "CTA price is dynamic."
+          "editable": true,
+          "maxLength": 50,
+          "sanitization": "plain_text"
         },
         "ctaBtnText": {
           "type": "string",

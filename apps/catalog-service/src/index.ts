@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import { createCatalogApp } from './app.js';
 import { catalogPool } from './infrastructure/db/client.js';
 import { seedCatalog } from './infrastructure/db/seed.js';
+export { validateThemeAgainstDocument } from './utils/themeValidator.js';
 
 dotenv.config();
 

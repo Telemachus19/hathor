@@ -9,7 +9,8 @@ export interface ValidationError {
     | 'DISALLOWED_PROPERTY'
     | 'TYPE_MISMATCH'
     | 'BOUNDS_EXCEEDED'
-    | 'INVALID_VALUE';
+    | 'INVALID_VALUE'
+    | 'EMPTY_GRID_COLUMNS';
 }
 
 export interface ValidationWarning {
@@ -39,17 +40,30 @@ const BORDER_REGEX = new RegExp(ThemeDocument.globalConstraints.allowedBorderPat
 // Map section type strings to component keys in ThemeDocument.json
 const SECTION_TYPE_TO_COMPONENT_KEY: Record<string, string> = {
   'game-header': 'GameHeader',
+  header: 'GameHeader',
+  gameheader: 'GameHeader',
   'ownership-banner': 'OwnershipBanner',
   'about-game': 'AboutGame',
+  about: 'AboutGame',
   'system-reqs': 'SystemReqs',
+  specs: 'SystemReqs',
+  spec: 'SystemReqs',
+  systemreqs: 'SystemReqs',
   'user-reviews': 'UserReviews',
+  reviews: 'UserReviews',
+  review: 'UserReviews',
   'sidebar-cta': 'SidebarCTA',
   'sidebar-info': 'SidebarInfo',
+  info: 'SidebarInfo',
   'sidebar-ratings': 'SidebarRatings',
+  ratings: 'SidebarRatings',
+  rating: 'SidebarRatings',
   recommendations: 'Recommendations',
+  recs: 'Recommendations',
   'media-carousel': 'MediaCarousel',
-  'game-hero': 'GameHero',
-  carousel: 'CarouselShowcase',
+  'game-hero': 'MediaCarousel',
+  hero: 'MediaCarousel',
+  carousel: 'MediaCarousel',
   heading: 'HeadingBlock',
   text: 'TextBlock',
   image: 'ImageBlock',
@@ -151,37 +165,58 @@ function validateSection(
     return;
   }
 
-  // Common section layout validation
-  validateProperties(
-    section,
-    pathPrefix,
-    ThemeDocument.commonSectionProperties as Record<string, any>,
-    errors,
-    warnings
-  );
-
   const componentKey = SECTION_TYPE_TO_COMPONENT_KEY[type];
   if (!componentKey) {
-    warnings.push({
+    errors.push({
       path: `${pathPrefix}.type`,
-      message: `Unknown section type "${type}". It will be rendered using fallback default rules.`,
+      message: `Disallowed or unknown component type "${type}". Component type must match a supported ThemeDocument component.`,
+      code: 'INVALID_VALUE',
     });
     return;
   }
 
   const compSpec = (ThemeDocument.components as Record<string, any>)[componentKey];
-  if (compSpec && compSpec.editableProperties) {
-    validateProperties(section, pathPrefix, compSpec.editableProperties, errors, warnings);
-  }
+  const combinedSchemaProps = {
+    ...(ThemeDocument.commonSectionProperties as Record<string, any>),
+    ...(compSpec?.editableProperties || {}),
+  };
+
+  validateProperties(section, pathPrefix, combinedSchemaProps, errors, warnings, type);
 
   // Handle grid nested columns and elements recursively
   if (type === 'grid' && Array.isArray(section.gridCols)) {
+    const colAllowedProps: Record<string, any> = {
+      bg: { type: 'color', editable: true, sanitization: 'hex_color' },
+      borderTopColor: { type: 'color', editable: true, sanitization: 'hex_color' },
+      pt: { type: 'number', editable: true, min: 0, max: 200, sanitization: 'numeric_bound' },
+      pb: { type: 'number', editable: true, min: 0, max: 200, sanitization: 'numeric_bound' },
+      ph: { type: 'number', editable: true, min: 0, max: 200, sanitization: 'numeric_bound' },
+      pl: { type: 'number', editable: true, min: 0, max: 200, sanitization: 'numeric_bound' },
+      pr: { type: 'number', editable: true, min: 0, max: 200, sanitization: 'numeric_bound' },
+      radius: { type: 'number', editable: true, min: 0, max: 64, sanitization: 'numeric_bound' },
+    };
+
+    const hasAnyElements = section.gridCols.some(
+      (col: any) => col && Array.isArray(col.elements) && col.elements.length > 0
+    );
+    if (!hasAnyElements) {
+      errors.push({
+        path: `${pathPrefix}.gridCols`,
+        message:
+          'Grid columns are empty. Grid columns must contain component elements (such as about-game, system-reqs, sidebar-cta, sidebar-info, sidebar-ratings, user-reviews) inside col.elements.',
+        code: 'EMPTY_GRID_COLUMNS',
+      });
+    }
+
     section.gridCols.forEach((col: any, colIdx: number) => {
       const colPath = `${pathPrefix}.gridCols[${colIdx}]`;
-      if (col && Array.isArray(col.elements)) {
-        col.elements.forEach((elem: any, elemIdx: number) => {
-          validateSection(elem, `${colPath}.elements[${elemIdx}]`, errors, warnings);
-        });
+      if (col && typeof col === 'object') {
+        validateProperties(col, colPath, colAllowedProps, errors, warnings, 'gridCol');
+        if (Array.isArray(col.elements)) {
+          col.elements.forEach((elem: any, elemIdx: number) => {
+            validateSection(elem, `${colPath}.elements[${elemIdx}]`, errors, warnings);
+          });
+        }
       }
     });
   }
@@ -192,7 +227,8 @@ function validateProperties(
   pathPrefix: string,
   schemaProps: Record<string, any>,
   errors: ValidationError[],
-  warnings: ValidationWarning[]
+  _warnings: ValidationWarning[],
+  componentType?: string
 ) {
   for (const [propName, propValue] of Object.entries(obj)) {
     if (
@@ -211,14 +247,20 @@ function validateProperties(
     deepScanSecurity(propValue, propPath, errors);
 
     if (!propSpec) {
-      continue; // Unrecognized property; allowed unless strict mode enforced
+      errors.push({
+        path: propPath,
+        message: `Property "${propName}" is not a recognized or editable property${componentType ? ` for component "${componentType}"` : ''}.`,
+        code: 'DISALLOWED_PROPERTY',
+      });
+      continue;
     }
 
     // Check if property is non-editable
     if (propSpec.editable === false) {
-      warnings.push({
+      errors.push({
         path: propPath,
-        message: `Property "${propName}" is non-editable/restricted by theme specification. Value will be ignored/overridden at runtime.`,
+        message: `Property "${propName}" is locked/non-editable in ThemeDocument specification and cannot be modified.`,
+        code: 'DISALLOWED_PROPERTY',
       });
       continue;
     }
