@@ -616,8 +616,6 @@ export async function getDynamicKeywordFallback(
   ownedGameIds: string[] = [],
   limit = 6
 ): Promise<RecommendationResult> {
-  console.log('[AI Service] Executing Dynamic Keyword Fallback for prompt:', prompt || '(none)');
-
   try {
     const rawPrompt = prompt || '';
 
@@ -777,14 +775,6 @@ export async function getHybridRecommendations(
 ): Promise<RecommendationResult> {
   const effectiveGeminiKey = apiKeyOverride || process.env.GEMINI_API_KEY;
   const rawPrompt = (prompt || '').trim();
-
-  console.log('[AI Service] Incoming recommendation request:', {
-    prompt: rawPrompt || '(none)',
-    contextGameId,
-    ownedGameCount: ownedGameIds.length,
-    hasGeminiKey: !!effectiveGeminiKey,
-  });
-
   try {
     const ownedSet = new Set(ownedGameIds);
     let candidateItems: RecommendationItem[] = [];
@@ -830,10 +820,6 @@ export async function getHybridRecommendations(
         const queryVector = await generateEmbedding(vectorQueryText, effectiveGeminiKey);
 
         if (queryVector) {
-          console.log(
-            '[AI Service] Executing Cosine Similarity Vector Search for query:',
-            vectorQueryText
-          );
           const storedEmbeddings = await catalogDb.select().from(gameEmbeddings);
 
           if (storedEmbeddings.length > 0) {
@@ -923,8 +909,6 @@ export async function getHybridRecommendations(
 
     // 5. Conversational AI Synthesis via Google Gemini API
     if (effectiveGeminiKey && rawPrompt) {
-      console.log('[AI Service] Invoking Gemini API for conversational response & selection...');
-
       const geminiResult = await generateGeminiFlashResponse(
         rawPrompt,
         candidateItems,
@@ -934,11 +918,6 @@ export async function getHybridRecommendations(
       );
 
       if (geminiResult) {
-        console.log('[AI Service] Gemini response received:', {
-          isRecommendation: geminiResult.isRecommendation,
-          recommendedCount: geminiResult.recommendedGameIds.length,
-        });
-
         // If not a recommendation or no games selected, return empty items array (no game cards!)
         if (!geminiResult.isRecommendation || geminiResult.recommendedGameIds.length === 0) {
           return {

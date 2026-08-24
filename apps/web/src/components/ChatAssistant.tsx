@@ -53,8 +53,6 @@ export const HathorChatAssistant: React.FC<HathorChatAssistantProps> = ({
     setInputPrompt('');
     setIsLoading(true);
 
-    console.log('[Hathor AI Chatbot] Sending user prompt & history to AI engine:', textToSend);
-
     try {
       const response = await fetchRecommendations({
         prompt: textToSend,
@@ -62,8 +60,6 @@ export const HathorChatAssistant: React.FC<HathorChatAssistantProps> = ({
         limit: 4,
         chatHistory: currentHistory,
       });
-
-      console.log('[Hathor AI Chatbot] Received API response:', response);
 
       const items = response?.data?.items || [];
       const source = response?.data?.source || 'curated_fallback';

@@ -126,7 +126,6 @@ async function processOrderPaidEvent(event: OrderPaidEvent) {
         status: 'pending',
       });
     });
-    console.log(`Successfully processed event ${event.eventId} and granted licenses.`);
   } catch (error: any) {
     // Rethrow database errors or other issues so they trigger RabbitMQ nack/retry logic
     throw error;
@@ -142,7 +141,6 @@ export async function startQueueConsumer(rabbitmqUrl: string) {
   await channel.prefetch(1);
 
   const queueName = 'library.order-paid.queue';
-  console.log(`Starting consumer on queue "${queueName}"...`);
 
   await channel.consume(queueName, async (msg) => {
     if (!msg) return;
