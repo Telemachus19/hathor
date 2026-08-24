@@ -266,7 +266,8 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
         }
         const res: any = { ...item, type: t, id: item.id || uid() };
         if (t === 'media-carousel') {
-          const imgs = item.heroImages || item.carouselImages || item.mediaItems || item.images || [];
+          const imgs =
+            item.heroImages || item.carouselImages || item.mediaItems || item.images || [];
           res.heroImages = imgs;
           res.carouselImages = imgs;
           delete res.mediaItems;
@@ -299,8 +300,9 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
       const validation = validateThemeAgainstDocument(payloadToValidate);
       if (!validation.valid) {
         const primaryError = validation.errors[0];
-        const errorMsg = `Validation Rejected (${primaryError.code}): ${primaryError.message}${primaryError.path ? ` at [${primaryError.path}]` : ''
-          }`;
+        const errorMsg = `Validation Rejected (${primaryError.code}): ${primaryError.message}${
+          primaryError.path ? ` at [${primaryError.path}]` : ''
+        }`;
         console.error('Designer theme validation rejected:', errorMsg, validation.errors);
         setImportError(errorMsg);
         return;
@@ -565,7 +567,10 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
 
         {/* Center Canvas */}
         <DesignerCanvas
-          sections={previewTheme?.sections || (Array.isArray(previewTheme) ? (previewTheme as any) : sections)}
+          sections={
+            previewTheme?.sections ||
+            (Array.isArray(previewTheme) ? (previewTheme as any) : sections)
+          }
           pageSettings={previewTheme?.pageSettings || previewTheme?.settings || pageSettings}
           device={device}
           selectedId={selectedId}

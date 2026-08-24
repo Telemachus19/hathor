@@ -128,17 +128,20 @@ export async function sendDesignerChat({
 
   const cleanGameId = gameId || 'draft';
   try {
-    const response = await fetch(`${apiBaseUrl}/ai/games/${encodeURIComponent(cleanGameId)}/designer-chat`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        message,
-        currentTheme,
-        conversationHistory,
-        provider,
-        model,
-      }),
-    });
+    const response = await fetch(
+      `${apiBaseUrl}/ai/games/${encodeURIComponent(cleanGameId)}/designer-chat`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          message,
+          currentTheme,
+          conversationHistory,
+          provider,
+          model,
+        }),
+      }
+    );
 
     const contentType = response.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
@@ -151,7 +154,8 @@ export async function sendDesignerChat({
       success: false,
       error: {
         code: `HTTP_${response.status}`,
-        message: text.slice(0, 300) || `Server returned HTTP ${response.status} (${response.statusText})`,
+        message:
+          text.slice(0, 300) || `Server returned HTTP ${response.status} (${response.statusText})`,
       },
     };
   } catch (err: any) {
@@ -164,5 +168,3 @@ export async function sendDesignerChat({
     };
   }
 }
-
-

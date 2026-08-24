@@ -50,7 +50,8 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const s = props.s || {};
   const device = props.device || 'desktop';
   const isMobile = device === 'mobile';
-  const isDesigner = props.isDesignerPreview === true || props.pageSettings?.isDesignerPreview === true;
+  const isDesigner =
+    props.isDesignerPreview === true || props.pageSettings?.isDesignerPreview === true;
 
   const auth = useAuth();
   const token = auth?.accessToken || undefined;
@@ -144,10 +145,17 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const cardBorder = s.reviewCardBorder || s.cardBorder || BORDER;
   const cardRadius = s.reviewCardRadius ?? s.cardRadius ?? 4;
   const nameColor = s.reviewNameColor || TEXT_PRIMARY;
-  const nameFont = s.reviewNameFont || s.titleFont || s.font || props.pageSettings?.titleFont || "'Cinzel', serif";
-  const titleFont = s.reviewHeaderFont || s.titleFont || s.font || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const nameFont =
+    s.reviewNameFont || s.titleFont || s.font || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const titleFont =
+    s.reviewHeaderFont ||
+    s.titleFont ||
+    s.font ||
+    props.pageSettings?.titleFont ||
+    "'Cinzel', serif";
   const bodyColor = s.reviewBodyColor || TEXT_MUTED;
-  const textFont = s.reviewBodyFont || s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
+  const textFont =
+    s.reviewBodyFont || s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
 
   const sentimentPalette = getHarmonizedSentimentPalette(
     s.reviewAccentColor || s.reviewBadgeColor || s.reviewStarColor || GREEN_ACCENT
@@ -156,13 +164,19 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const headerTitle = s.reviewHeader || s.reviewTitle || 'USER REVIEWS';
   const headerColor = s.reviewHeaderColor || s.reviewTitleColor || s.titleColor || '#f4b183';
 
-  const reviewsList = (isDesigner && (!props.reviews || props.reviews.length === 0))
-    ? MOCK_DESIGNER_REVIEWS
-    : (Array.isArray(props.reviews) ? props.reviews : []);
+  const reviewsList =
+    isDesigner && (!props.reviews || props.reviews.length === 0)
+      ? MOCK_DESIGNER_REVIEWS
+      : Array.isArray(props.reviews)
+        ? props.reviews
+        : [];
 
-  const totalRev = (isDesigner && (!props.reviews || props.reviews.length === 0))
-    ? `${MOCK_DESIGNER_REVIEWS.length} reviews (Preview)`
-    : (props.totalReviews !== undefined ? props.totalReviews : `${reviewsList.length} total`);
+  const totalRev =
+    isDesigner && (!props.reviews || props.reviews.length === 0)
+      ? `${MOCK_DESIGNER_REVIEWS.length} reviews (Preview)`
+      : props.totalReviews !== undefined
+        ? props.totalReviews
+        : `${reviewsList.length} total`;
 
   const displayedReviews = reviewsList.slice(0, 2);
 
@@ -172,27 +186,27 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
     const badgeStyles =
       revSentiment === 'negative'
         ? {
-          bg: sentimentPalette.negative.bg,
-          border: sentimentPalette.negative.border,
-          color: sentimentPalette.negative.color,
-          label: 'Negative',
-          icon: <ThumbsDown size={11} />,
-        }
+            bg: sentimentPalette.negative.bg,
+            border: sentimentPalette.negative.border,
+            color: sentimentPalette.negative.color,
+            label: 'Negative',
+            icon: <ThumbsDown size={11} />,
+          }
         : revSentiment === 'mixed'
           ? {
-            bg: sentimentPalette.mixed.bg,
-            border: sentimentPalette.mixed.border,
-            color: sentimentPalette.mixed.color,
-            label: 'Mixed',
-            icon: <Minus size={11} />,
-          }
+              bg: sentimentPalette.mixed.bg,
+              border: sentimentPalette.mixed.border,
+              color: sentimentPalette.mixed.color,
+              label: 'Mixed',
+              icon: <Minus size={11} />,
+            }
           : {
-            bg: sentimentPalette.positive.bg,
-            border: sentimentPalette.positive.border,
-            color: sentimentPalette.positive.color,
-            label: 'Recommended',
-            icon: <ThumbsUp size={11} />,
-          };
+              bg: sentimentPalette.positive.bg,
+              border: sentimentPalette.positive.border,
+              color: sentimentPalette.positive.color,
+              label: 'Recommended',
+              icon: <ThumbsUp size={11} />,
+            };
 
     const authorName =
       rev.userName ||
@@ -217,10 +231,10 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
       rev.comment || rev.content || 'Player reviews will appear here once the game is reviewed.';
     const reviewDate = rev.createdAt
       ? new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }).format(new Date(rev.createdAt))
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }).format(new Date(rev.createdAt))
       : rev.date || 'Recent';
 
     return (

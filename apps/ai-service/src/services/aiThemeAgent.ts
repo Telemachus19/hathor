@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { GoogleGenAI, Type, type FunctionDeclaration } from '@google/genai';
-import { validateThemeAgainstDocument, type ThemeValidationResult } from '../utils/themeValidator.js';
+import {
+  validateThemeAgainstDocument,
+  type ThemeValidationResult,
+} from '../utils/themeValidator.js';
 
 export interface AgentChatMessage {
   role: 'user' | 'model';
@@ -30,7 +33,8 @@ export interface AgentChatResponse {
 // 1. Define Tool Declarations for Agent Tool Calling
 const getGameMetadataTool: FunctionDeclaration = {
   name: 'get_game_metadata',
-  description: 'Fetches the game title, genre, short description, tags, and banner/screenshot URLs from the catalog service for the given game ID.',
+  description:
+    'Fetches the game title, genre, short description, tags, and banner/screenshot URLs from the catalog service for the given game ID.',
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -45,13 +49,15 @@ const getGameMetadataTool: FunctionDeclaration = {
 
 const suggestColorPaletteTool: FunctionDeclaration = {
   name: 'suggest_color_palette',
-  description: 'Returns curated, high-contrast, theme-appropriate color palettes matching a requested mood, genre, or style.',
+  description:
+    'Returns curated, high-contrast, theme-appropriate color palettes matching a requested mood, genre, or style.',
   parameters: {
     type: Type.OBJECT,
     properties: {
       themeStyle: {
         type: Type.STRING,
-        description: 'The style or aesthetic (e.g., "cyberpunk", "dark-gothic", "sci-fi", "minimalist", "retro-arcade", "fantasy", "egyptian-gold").',
+        description:
+          'The style or aesthetic (e.g., "cyberpunk", "dark-gothic", "sci-fi", "minimalist", "retro-arcade", "fantasy", "egyptian-gold").',
       },
     },
     required: ['themeStyle'],
@@ -60,13 +66,15 @@ const suggestColorPaletteTool: FunctionDeclaration = {
 
 const validateThemeSchemaTool: FunctionDeclaration = {
   name: 'validate_theme_schema',
-  description: 'Validates a candidate theme JSON object against Hathor ThemeDocument rules and security constraints. Returns whether it is valid and any specific error paths/messages for self-correction.',
+  description:
+    'Validates a candidate theme JSON object against Hathor ThemeDocument rules and security constraints. Returns whether it is valid and any specific error paths/messages for self-correction.',
   parameters: {
     type: Type.OBJECT,
     properties: {
       themeJson: {
         type: Type.OBJECT,
-        description: 'The candidate theme JSON object containing pageSettings and/or sections array to validate.',
+        description:
+          'The candidate theme JSON object containing pageSettings and/or sections array to validate.',
       },
     },
     required: ['themeJson'],
@@ -75,7 +83,8 @@ const validateThemeSchemaTool: FunctionDeclaration = {
 
 const proposeThemeLayoutTool: FunctionDeclaration = {
   name: 'propose_theme_layout',
-  description: 'Finalizes and proposes a validated theme layout for Human-in-the-Loop review by the creator. Call this tool when your theme is valid and ready.',
+  description:
+    'Finalizes and proposes a validated theme layout for Human-in-the-Loop review by the creator. Call this tool when your theme is valid and ready.',
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -86,11 +95,13 @@ const proposeThemeLayoutTool: FunctionDeclaration = {
       changeSummary: {
         type: Type.ARRAY,
         items: { type: Type.STRING },
-        description: 'A list of 2-5 concise bullet points explaining the visual/layout changes made.',
+        description:
+          'A list of 2-5 concise bullet points explaining the visual/layout changes made.',
       },
       explanation: {
         type: Type.STRING,
-        description: 'A friendly 1-2 sentence message summarizing the theme design for the creator.',
+        description:
+          'A friendly 1-2 sentence message summarizing the theme design for the creator.',
       },
     },
     required: ['theme', 'changeSummary', 'explanation'],
@@ -98,8 +109,11 @@ const proposeThemeLayoutTool: FunctionDeclaration = {
 };
 
 // Preset high-contrast palettes
-const PRESET_PALETTES: Record<string, { accent: string; bg: string; text: string; headerBg: string }> = {
-  'cyberpunk': { accent: '#00f3ff', bg: '#070a13', text: '#ffffff', headerBg: '#0e1424' },
+const PRESET_PALETTES: Record<
+  string,
+  { accent: string; bg: string; text: string; headerBg: string }
+> = {
+  cyberpunk: { accent: '#00f3ff', bg: '#070a13', text: '#ffffff', headerBg: '#0e1424' },
   'neon-cyan': { accent: '#00f3ff', bg: '#08090d', text: '#eeeeee', headerBg: '#121620' },
   'dark-gothic': { accent: '#c5a059', bg: '#0a0a0d', text: '#f0e2b6', headerBg: '#14141a' },
   'egyptian-gold': { accent: '#f26b21', bg: '#0e1116', text: '#ffffff', headerBg: '#161a22' },
@@ -200,7 +214,9 @@ function normalizeThemeSections(theme: any): any {
         if (!col || typeof col !== 'object') return col;
         const colId = col.id || `col-${cIdx + 1}-${Math.random().toString(36).substring(2, 7)}`;
         const rawElements = Array.isArray(col.elements) ? col.elements : [];
-        const sanitizedElements = rawElements.map((el: any, eIdx: number) => sanitizeSection(el, eIdx));
+        const sanitizedElements = rawElements.map((el: any, eIdx: number) =>
+          sanitizeSection(el, eIdx)
+        );
         return {
           ...col,
           id: colId,
@@ -263,7 +279,11 @@ export class AiThemeAgent {
    * Executes tool functions requested by the agent.
    * Fetches metadata through catalog-service HTTP API preserving service boundaries.
    */
-  private async executeTool(name: string, args: Record<string, any>, authToken?: string): Promise<any> {
+  private async executeTool(
+    name: string,
+    args: Record<string, any>,
+    authToken?: string
+  ): Promise<any> {
     switch (name) {
       case 'get_game_metadata': {
         const { gameId } = args;
@@ -284,13 +304,19 @@ export class AiThemeAgent {
             'Content-Type': 'application/json',
           };
           if (authToken) {
-            headers['Authorization'] = authToken.startsWith('Bearer ') ? authToken : `Bearer ${authToken}`;
+            headers['Authorization'] = authToken.startsWith('Bearer ')
+              ? authToken
+              : `Bearer ${authToken}`;
           }
 
           // Try fetching from creator endpoint first (with auth), or fallback to store endpoint
-          let res = await fetch(`${catalogUrl}/creator/games/${encodeURIComponent(gameId)}`, { headers });
+          let res = await fetch(`${catalogUrl}/creator/games/${encodeURIComponent(gameId)}`, {
+            headers,
+          });
           if (!res.ok) {
-            res = await fetch(`${catalogUrl}/store/games/${encodeURIComponent(gameId)}`, { headers });
+            res = await fetch(`${catalogUrl}/store/games/${encodeURIComponent(gameId)}`, {
+              headers,
+            });
           }
 
           if (res.ok) {
@@ -300,7 +326,10 @@ export class AiThemeAgent {
               id: game.id,
               title: game.title || 'UNTITLED GAME DRAFT',
               genre: game.genreName || game.genre?.name || game.category || 'Action RPG',
-              shortDescription: game.shortDescription || game.description || 'An immersive new indie game experience.',
+              shortDescription:
+                game.shortDescription ||
+                game.description ||
+                'An immersive new indie game experience.',
               fullDescription: game.fullDescription || '',
               priceEgp: game.priceEgp,
               bannerUrl: game.bannerUrl || game.coverUrl || '',
@@ -320,7 +349,10 @@ export class AiThemeAgent {
             screenshots: [],
           };
         } catch (err: any) {
-          console.warn(`[AI Theme Agent] Could not fetch game metadata for ${gameId}:`, err.message);
+          console.warn(
+            `[AI Theme Agent] Could not fetch game metadata for ${gameId}:`,
+            err.message
+          );
           return {
             title: 'UNTITLED GAME DRAFT',
             genre: 'Action RPG',
@@ -422,7 +454,9 @@ export class AiThemeAgent {
             throw new Error('GLM / OpenRouter requires credits (HTTP 402 Payment Required).');
           }
           if (res.status === 429) {
-            console.warn(`[GLM 5.2 Agent] Model ${model} is rate-limited (HTTP 429). Retrying in 2s...`);
+            console.warn(
+              `[GLM 5.2 Agent] Model ${model} is rate-limited (HTTP 429). Retrying in 2s...`
+            );
             await new Promise((r) => setTimeout(r, 2000));
             // One immediate retry on rate-limit
             const retryRes = await fetch(`${baseUrl}/chat/completions`, {
@@ -565,9 +599,10 @@ export class AiThemeAgent {
         ? fs.readFileSync(promptPath, 'utf8')
         : 'You are an elite Game Storefront Architect and Visual Designer for Hathor.';
 
-      const isIncrementalEdit = /\b(only change|tweak color|change color of|change button|change only|keep my layout)\b/i.test(
-        message
-      );
+      const isIncrementalEdit =
+        /\b(only change|tweak color|change color of|change button|change only|keep my layout)\b/i.test(
+          message
+        );
 
       let contextDirective = '';
       if (
@@ -596,11 +631,9 @@ export class AiThemeAgent {
         'gemini-2.5-pro',
       ].filter(Boolean) as string[];
 
-      const glmCandidateModels = [
-        input.model,
-        process.env.GLM_MODEL,
-        'z-ai/glm-5.2:free',
-      ].filter(Boolean) as string[];
+      const glmCandidateModels = [input.model, process.env.GLM_MODEL, 'z-ai/glm-5.2:free'].filter(
+        Boolean
+      ) as string[];
 
       let activeProvider = primaryProvider;
       let providerUsed: 'gemini' | 'glm' = activeProvider;
@@ -706,7 +739,9 @@ export class AiThemeAgent {
           // 1. propose_theme_layout tool or nested theme payload
           if (
             toolName === 'propose_theme_layout' ||
-            (parsed.theme && typeof parsed.theme === 'object' && (Array.isArray(parsed.theme.sections) || parsed.theme.pageSettings))
+            (parsed.theme &&
+              typeof parsed.theme === 'object' &&
+              (Array.isArray(parsed.theme.sections) || parsed.theme.pageSettings))
           ) {
             const rawTheme = parsed.theme || toolArgs.theme || parsed;
             const normalized = normalizeThemeSections(rawTheme);
@@ -725,10 +760,10 @@ export class AiThemeAgent {
                 Array.isArray(toolResult.changeSummary) && toolResult.changeSummary.length > 0
                   ? toolResult.changeSummary
                   : [
-                    `Assembled full-page storefront layout with ${toolResult.theme.sections?.length || 0} sections`,
-                    `Configured theme palette: accent ${toolResult.theme.pageSettings?.accentColor || '#f26b21'}, bg ${toolResult.theme.pageSettings?.bg || '#080b10'}`,
-                    `Populated narrative lore, feature matrices, and sidebar widgets`,
-                  ];
+                      `Assembled full-page storefront layout with ${toolResult.theme.sections?.length || 0} sections`,
+                      `Configured theme palette: accent ${toolResult.theme.pageSettings?.accentColor || '#f26b21'}, bg ${toolResult.theme.pageSettings?.bg || '#080b10'}`,
+                      `Populated narrative lore, feature matrices, and sidebar widgets`,
+                    ];
               finalExplanation =
                 toolResult.explanation ||
                 `Here is the custom theme layout designed for your game based on your request. You can preview it live on the canvas, accept, or reject the proposal below.`;
@@ -789,14 +824,18 @@ export class AiThemeAgent {
             actionsTaken.push(
               `Theme proposal generated & validated via ${providerUsed.toUpperCase()} (${normalized.sections?.length || 0} sections)`
             );
-            changeSummary = Array.isArray(parsed.changeSummary) && parsed.changeSummary.length > 0
-              ? parsed.changeSummary
-              : [
-                `Assembled full-page storefront layout with ${normalized.sections?.length || 0} sections`,
-                `Configured theme palette: accent ${normalized.pageSettings?.accentColor || '#f26b21'}, bg ${normalized.pageSettings?.bg || '#080b10'}`,
-                `Populated narrative lore, feature matrices, and sidebar widgets`,
-              ];
-            finalExplanation = parsed.explanation || parsed.reply || `Here is the custom theme layout designed for your game based on your request. You can preview it live on the canvas, accept, or reject the proposal below.`;
+            changeSummary =
+              Array.isArray(parsed.changeSummary) && parsed.changeSummary.length > 0
+                ? parsed.changeSummary
+                : [
+                    `Assembled full-page storefront layout with ${normalized.sections?.length || 0} sections`,
+                    `Configured theme palette: accent ${normalized.pageSettings?.accentColor || '#f26b21'}, bg ${normalized.pageSettings?.bg || '#080b10'}`,
+                    `Populated narrative lore, feature matrices, and sidebar widgets`,
+                  ];
+            finalExplanation =
+              parsed.explanation ||
+              parsed.reply ||
+              `Here is the custom theme layout designed for your game based on your request. You can preview it live on the canvas, accept, or reject the proposal below.`;
             break;
           } else {
             actionsTaken.push(

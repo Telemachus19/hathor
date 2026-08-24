@@ -59,9 +59,34 @@ const handleDesignerChat = async (req: Request, res: Response) => {
 };
 
 // Mount routes with authentication for creators and admins
-designerChatRouter.post('/games/:gameId/designer-chat', requireAuth, requireRole(['creator', 'admin']), handleDesignerChat);
-designerChatRouter.post('/games/:gameId/ai/agent-chat', requireAuth, requireRole(['creator', 'admin']), handleDesignerChat);
-designerChatRouter.post('/creator/games/:gameId/agent-chat', requireAuth, requireRole(['creator', 'admin']), handleDesignerChat);
-designerChatRouter.post('/creator/games/:gameId/ai/agent-chat', requireAuth, requireRole(['creator', 'admin']), handleDesignerChat);
-designerChatRouter.post('/designer-chat', requireAuth, requireRole(['creator', 'admin']), handleDesignerChat);
+designerChatRouter.post(
+  '/games/:gameId/designer-chat',
+  requireAuth,
+  requireRole(['creator', 'admin']),
+  handleDesignerChat
+);
+designerChatRouter.post(
+  '/games/:gameId/ai/agent-chat',
+  requireAuth,
+  requireRole(['creator', 'admin']),
+  handleDesignerChat
+);
+designerChatRouter.post(
+  '/creator/games/:gameId/agent-chat',
+  requireAuth,
+  requireRole(['creator', 'admin']),
+  handleDesignerChat
+);
+designerChatRouter.post(
+  '/creator/games/:gameId/ai/agent-chat',
+  requireAuth,
+  requireRole(['creator', 'admin']),
+  handleDesignerChat
+);
+designerChatRouter.post(
+  '/designer-chat',
+  requireAuth,
+  requireRole(['creator', 'admin']),
+  handleDesignerChat
+);
 designerChatRouter.post('/', requireAuth, requireRole(['creator', 'admin']), handleDesignerChat);

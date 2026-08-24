@@ -176,8 +176,13 @@ export function AiAssistantSidebar({
         // If the reply contains raw JSON markdown, replace with friendly conversational text
         if (proposalObj && (replyText.includes('```json') || replyText.trim().startsWith('{'))) {
           replyText = `Here is the custom theme layout crafted for your game based on your request! You can live-preview the changes on your canvas, accept, or reject the proposal below.`;
-        } else if (!proposalObj && (replyText.includes('```json') || replyText.trim().startsWith('{'))) {
-          const jsonMatch = replyText.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) || replyText.match(/(\{[\s\S]*"pageSettings"[\s\S]*\})/);
+        } else if (
+          !proposalObj &&
+          (replyText.includes('```json') || replyText.trim().startsWith('{'))
+        ) {
+          const jsonMatch =
+            replyText.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/) ||
+            replyText.match(/(\{[\s\S]*"pageSettings"[\s\S]*\})/);
           if (jsonMatch) {
             try {
               const extracted = JSON.parse(jsonMatch[1]);
@@ -207,10 +212,16 @@ export function AiAssistantSidebar({
           onPreviewTheme(agentResponse.proposedTheme || (agentResponse as any).proposal);
         }
       } else {
-        const rawErr = res.error?.message || JSON.stringify(res.error) || 'Failed to generate theme';
+        const rawErr =
+          res.error?.message || JSON.stringify(res.error) || 'Failed to generate theme';
         let friendlyMsg = rawErr;
-        if (rawErr.includes('429') || rawErr.includes('RESOURCE_EXHAUSTED') || rawErr.includes('credits are depleted')) {
-          friendlyMsg = 'Google API Quota reached (429 / Credits depleted). If you recently added/removed billing in Google Cloud, please ensure your project has the Free Tier enabled or check your Google AI Studio key.';
+        if (
+          rawErr.includes('429') ||
+          rawErr.includes('RESOURCE_EXHAUSTED') ||
+          rawErr.includes('credits are depleted')
+        ) {
+          friendlyMsg =
+            'Google API Quota reached (429 / Credits depleted). If you recently added/removed billing in Google Cloud, please ensure your project has the Free Tier enabled or check your Google AI Studio key.';
         }
         setMessages((prev) => [
           ...prev,
@@ -226,7 +237,8 @@ export function AiAssistantSidebar({
     } catch (err: any) {
       let friendlyMsg = err.message || 'Connection error';
       if (friendlyMsg.includes('Failed to fetch') || friendlyMsg.includes('NetworkError')) {
-        friendlyMsg = 'The request took longer than expected or was interrupted. The backend is processing; please retry shortly.';
+        friendlyMsg =
+          'The request took longer than expected or was interrupted. The backend is processing; please retry shortly.';
       }
       setMessages((prev) => [
         ...prev,
@@ -380,7 +392,12 @@ export function AiAssistantSidebar({
                   backgroundColor: '#121620',
                   border: '1px solid #393e46',
                   borderRadius: 3,
-                  color: selectedProvider === 'glm' ? '#00f3ff' : selectedProvider === 'gemini' ? '#fd7014' : '#eeeeee',
+                  color:
+                    selectedProvider === 'glm'
+                      ? '#00f3ff'
+                      : selectedProvider === 'gemini'
+                        ? '#fd7014'
+                        : '#eeeeee',
                   fontSize: 9,
                   fontWeight: 700,
                   fontFamily: 'monospace',
@@ -547,7 +564,8 @@ export function AiAssistantSidebar({
                 color: '#eeeeee',
                 fontSize: 12,
                 lineHeight: 1.55,
-                border: msg.role === 'user' ? '1px solid rgba(253, 112, 20, 0.4)' : '1px solid #393e46',
+                border:
+                  msg.role === 'user' ? '1px solid rgba(253, 112, 20, 0.4)' : '1px solid #393e46',
                 wordBreak: 'break-word',
               }}
             >
@@ -587,7 +605,15 @@ export function AiAssistantSidebar({
                 </div>
 
                 {msg.changeSummary && msg.changeSummary.length > 0 && (
-                  <div style={{ fontSize: 11, color: '#c0ccdb', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: '#c0ccdb',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                    }}
+                  >
                     <span
                       style={{
                         fontSize: 10,
@@ -600,8 +626,14 @@ export function AiAssistantSidebar({
                       Changes:
                     </span>
                     {msg.changeSummary.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 11 }}>
-                        <CheckCircle2 size={12} style={{ color: '#fd7014', marginTop: 2, flexShrink: 0 }} />
+                      <div
+                        key={idx}
+                        style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 11 }}
+                      >
+                        <CheckCircle2
+                          size={12}
+                          style={{ color: '#fd7014', marginTop: 2, flexShrink: 0 }}
+                        />
                         <span>{item}</span>
                       </div>
                     ))}
@@ -612,13 +644,19 @@ export function AiAssistantSidebar({
                 <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                   <button
                     onClick={() => handleTogglePreview(msg)}
-                    title={activePreviewId === msg.id ? 'Hide canvas preview' : 'Preview theme live on canvas'}
+                    title={
+                      activePreviewId === msg.id
+                        ? 'Hide canvas preview'
+                        : 'Preview theme live on canvas'
+                    }
                     style={{
                       flex: 1,
                       padding: '7px 8px',
                       borderRadius: 4,
-                      border: activePreviewId === msg.id ? '1px solid #fd7014' : '1px solid #393e46',
-                      backgroundColor: activePreviewId === msg.id ? 'rgba(253, 112, 20, 0.15)' : 'transparent',
+                      border:
+                        activePreviewId === msg.id ? '1px solid #fd7014' : '1px solid #393e46',
+                      backgroundColor:
+                        activePreviewId === msg.id ? 'rgba(253, 112, 20, 0.15)' : 'transparent',
                       color: activePreviewId === msg.id ? '#fd7014' : '#eeeeee',
                       fontSize: 10,
                       fontWeight: 700,
@@ -713,7 +751,9 @@ export function AiAssistantSidebar({
                     }}
                   >
                     <Code2 size={11} style={{ color: '#fd7014' }} />
-                    <span>{viewingJsonId === msg.id ? 'Hide Raw JSON' : 'View Raw Theme JSON'}</span>
+                    <span>
+                      {viewingJsonId === msg.id ? 'Hide Raw JSON' : 'View Raw Theme JSON'}
+                    </span>
                   </button>
 
                   {viewingJsonId === msg.id && (

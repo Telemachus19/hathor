@@ -227,7 +227,7 @@ function validateProperties(
   pathPrefix: string,
   schemaProps: Record<string, any>,
   errors: ValidationError[],
-  _warnings: ValidationWarning[],
+  warnings: ValidationWarning[],
   componentType?: string
 ) {
   for (const [propName, propValue] of Object.entries(obj)) {
@@ -257,10 +257,9 @@ function validateProperties(
 
     // Check if property is non-editable
     if (propSpec.editable === false) {
-      errors.push({
+      warnings.push({
         path: propPath,
-        message: `Property "${propName}" is locked/non-editable in ThemeDocument specification and cannot be modified.`,
-        code: 'DISALLOWED_PROPERTY',
+        message: `Property "${propName}" is non-editable/restricted in ThemeDocument specification and cannot be modified.`,
       });
       continue;
     }
