@@ -127,19 +127,42 @@ export async function sendDesignerChat({
   }
 
   const cleanGameId = gameId || 'draft';
-  const response = await fetch(`${apiBaseUrl}/ai/games/${encodeURIComponent(cleanGameId)}/designer-chat`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      message,
-      currentTheme,
-      conversationHistory,
-      provider,
-      model,
-    }),
-  });
+  try {
+    const response = await fetch(`${apiBaseUrl}/ai/games/${encodeURIComponent(cleanGameId)}/designer-chat`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        message,
+        currentTheme,
+        conversationHistory,
+        provider,
+        model,
+      }),
+    });
 
-  const data = await response.json();
-  return data;
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const data = (await response.json()) as DesignerChatResponse;
+      return data;
+    }
+
+    const text = await response.text();
+    return {
+      success: false,
+      error: {
+        code: `HTTP_${response.status}`,
+        message: text.slice(0, 300) || `Server returned HTTP ${response.status} (${response.statusText})`,
+      },
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: {
+        code: 'NETWORK_ERROR',
+        message: err.message || 'Failed to connect to AI Service.',
+      },
+    };
+  }
 }
+
 

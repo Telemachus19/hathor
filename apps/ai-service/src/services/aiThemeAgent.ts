@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { GoogleGenAI, Type, type FunctionDeclaration } from '@google/genai';
-import { validateThemeAgainstDocument, type ThemeValidationResult } from '../../utils/themeValidator.js';
+import { validateThemeAgainstDocument, type ThemeValidationResult } from '../utils/themeValidator.js';
 
 export interface AgentChatMessage {
   role: 'user' | 'model';
@@ -400,7 +400,6 @@ export class AiThemeAgent {
 
     for (const model of candidateModels) {
       try {
-        console.log(`[GLM 5.2 Agent] Calling ${baseUrl} with model ${model}...`);
         const res = await fetch(`${baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
@@ -483,7 +482,6 @@ export class AiThemeAgent {
 
     for (const model of candidateModels) {
       try {
-        console.log(`[Gemini Agent] Generating with model ${model}...`);
         const response = await this.ai.models.generateContent({
           model,
           contents,
@@ -669,7 +667,6 @@ export class AiThemeAgent {
 
           // Hot-swap fallback to alternate provider if available
           if (activeProvider === 'gemini' && hasGlm) {
-            console.log('[AI Theme Agent] Hot-swapping to GLM 5.2 engine...');
             actionsTaken.push(`Gemini quota/error encountered. Hot-swapping to GLM 5.2 engine...`);
             activeProvider = 'glm';
             const glmRes = await this.generateWithGlm(glmOpenAiMessages, glmCandidateModels);
@@ -677,7 +674,6 @@ export class AiThemeAgent {
             modelUsed = glmRes.modelUsed;
             providerUsed = 'glm';
           } else if (activeProvider === 'glm' && hasGemini) {
-            console.log('[AI Theme Agent] Hot-swapping to Gemini engine...');
             actionsTaken.push(`GLM error encountered. Hot-swapping to Gemini engine...`);
             activeProvider = 'gemini';
             const geminiRes = await this.generateWithGemini(
@@ -692,10 +688,6 @@ export class AiThemeAgent {
             throw providerErr;
           }
         }
-
-        console.log(
-          `\n==================== [AI GENERATION TURN ${currentIteration} (${providerUsed.toUpperCase()}: ${modelUsed})] ====================`
-        );
 
         try {
           const parsed = JSON.parse(rawJsonText);
@@ -733,10 +725,10 @@ export class AiThemeAgent {
                 Array.isArray(toolResult.changeSummary) && toolResult.changeSummary.length > 0
                   ? toolResult.changeSummary
                   : [
-                      `Assembled full-page storefront layout with ${toolResult.theme.sections?.length || 0} sections`,
-                      `Configured theme palette: accent ${toolResult.theme.pageSettings?.accentColor || '#f26b21'}, bg ${toolResult.theme.pageSettings?.bg || '#080b10'}`,
-                      `Populated narrative lore, feature matrices, and sidebar widgets`,
-                    ];
+                    `Assembled full-page storefront layout with ${toolResult.theme.sections?.length || 0} sections`,
+                    `Configured theme palette: accent ${toolResult.theme.pageSettings?.accentColor || '#f26b21'}, bg ${toolResult.theme.pageSettings?.bg || '#080b10'}`,
+                    `Populated narrative lore, feature matrices, and sidebar widgets`,
+                  ];
               finalExplanation =
                 toolResult.explanation ||
                 `Here is the custom theme layout designed for your game based on your request. You can preview it live on the canvas, accept, or reject the proposal below.`;
@@ -791,9 +783,6 @@ export class AiThemeAgent {
           // 4. Direct Theme Output
           const normalized = normalizeThemeSections(parsed);
           const val = validateThemeAgainstDocument(normalized);
-          console.log(
-            `[Validation Result Turn ${currentIteration}]: valid=${val.valid}, errors=${val.errors.length}`
-          );
 
           if (val.valid && (normalized.sections?.length > 0 || normalized.pageSettings)) {
             proposedTheme = normalized;
@@ -803,10 +792,10 @@ export class AiThemeAgent {
             changeSummary = Array.isArray(parsed.changeSummary) && parsed.changeSummary.length > 0
               ? parsed.changeSummary
               : [
-                  `Assembled full-page storefront layout with ${normalized.sections?.length || 0} sections`,
-                  `Configured theme palette: accent ${normalized.pageSettings?.accentColor || '#f26b21'}, bg ${normalized.pageSettings?.bg || '#080b10'}`,
-                  `Populated narrative lore, feature matrices, and sidebar widgets`,
-                ];
+                `Assembled full-page storefront layout with ${normalized.sections?.length || 0} sections`,
+                `Configured theme palette: accent ${normalized.pageSettings?.accentColor || '#f26b21'}, bg ${normalized.pageSettings?.bg || '#080b10'}`,
+                `Populated narrative lore, feature matrices, and sidebar widgets`,
+              ];
             finalExplanation = parsed.explanation || parsed.reply || `Here is the custom theme layout designed for your game based on your request. You can preview it live on the canvas, accept, or reject the proposal below.`;
             break;
           } else {

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { aiThemeAgent } from '../services/ai/aiThemeAgent.js';
+import { aiThemeAgent } from '../services/aiThemeAgent.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 
 export const designerChatRouter: Router = Router();
