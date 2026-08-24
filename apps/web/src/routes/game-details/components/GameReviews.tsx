@@ -25,10 +25,33 @@ const BORDER = '#2e3544';
 const TEXT_PRIMARY = '#ffffff';
 const TEXT_MUTED = '#7a8b9e';
 
+const MOCK_DESIGNER_REVIEWS = [
+  {
+    id: 'mock-review-1',
+    userName: 'ALEX_VANCE',
+    userAvatarInitials: 'AV',
+    sentiment: 'positive',
+    comment:
+      'Incredible atmosphere and responsive controls! The narrative depth and visual polish exceeded all my expectations.',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'mock-review-2',
+    userName: 'CYBER_PILOT',
+    userAvatarInitials: 'CP',
+    sentiment: 'mixed',
+    comment:
+      'Strong core mechanics and visual identity. Could use minor balance tweaks, but overall a very promising title!',
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+  },
+];
+
 export const GameReviews: React.FC<GameReviewsProps> = (props) => {
   const s = props.s || {};
   const device = props.device || 'desktop';
   const isMobile = device === 'mobile';
+  const isDesigner =
+    props.isDesignerPreview === true || props.pageSettings?.isDesignerPreview === true;
 
   const auth = useAuth();
   const token = auth?.accessToken || undefined;
@@ -118,23 +141,42 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
     };
   }, [isModalOpen]);
 
-  const cardBg = s.reviewCardBg || SURFACE;
-  const cardBorder = s.reviewCardBorder || BORDER;
-  const cardRadius = s.reviewCardRadius ?? 4;
+  const cardBg = s.reviewCardBg || s.cardBg || SURFACE;
+  const cardBorder = s.reviewCardBorder || s.cardBorder || BORDER;
+  const cardRadius = s.reviewCardRadius ?? s.cardRadius ?? 4;
   const nameColor = s.reviewNameColor || TEXT_PRIMARY;
-  const titleFont = s.font || s.titleFont || props.pageSettings?.titleFont || "'Cinzel', serif";
-  const bodyColor = s.reviewBodyColor || '#94a3b8';
-  const textFont = s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
+  const nameFont =
+    s.reviewNameFont || s.titleFont || s.font || props.pageSettings?.titleFont || "'Cinzel', serif";
+  const titleFont =
+    s.reviewHeaderFont ||
+    s.titleFont ||
+    s.font ||
+    props.pageSettings?.titleFont ||
+    "'Cinzel', serif";
+  const bodyColor = s.reviewBodyColor || TEXT_MUTED;
+  const textFont =
+    s.reviewBodyFont || s.textFont || props.pageSettings?.textFont || "'Raleway', sans-serif";
 
   const sentimentPalette = getHarmonizedSentimentPalette(
-    s.reviewBadgeColor || s.reviewAccentColor || s.reviewStarColor || GREEN_ACCENT
+    s.reviewAccentColor || s.reviewBadgeColor || s.reviewStarColor || GREEN_ACCENT
   );
 
-  const headerTitle = s.reviewHeader || 'USER REVIEWS';
+  const headerTitle = s.reviewHeader || s.reviewTitle || 'USER REVIEWS';
   const headerColor = s.reviewHeaderColor || s.reviewTitleColor || s.titleColor || '#f4b183';
-  const reviewsList = Array.isArray(props.reviews) ? props.reviews : [];
+
+  const reviewsList =
+    isDesigner && (!props.reviews || props.reviews.length === 0)
+      ? MOCK_DESIGNER_REVIEWS
+      : Array.isArray(props.reviews)
+        ? props.reviews
+        : [];
+
   const totalRev =
-    props.totalReviews !== undefined ? props.totalReviews : `${reviewsList.length} total`;
+    isDesigner && (!props.reviews || props.reviews.length === 0)
+      ? `${MOCK_DESIGNER_REVIEWS.length} reviews (Preview)`
+      : props.totalReviews !== undefined
+        ? props.totalReviews
+        : `${reviewsList.length} total`;
 
   const displayedReviews = reviewsList.slice(0, 2);
 
@@ -223,7 +265,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                 background: 'rgba(0,0,0,0.3)',
                 border: `1px solid ${BORDER}`,
                 color: nameColor,
-                fontFamily: titleFont,
+                fontFamily: nameFont,
                 fontWeight: 900,
                 fontSize: 12,
                 display: 'flex',
@@ -240,7 +282,7 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
                   color: nameColor,
                   fontWeight: 700,
                   fontSize: 13,
-                  fontFamily: textFont,
+                  fontFamily: nameFont,
                 }}
               >
                 {authorName}
@@ -361,8 +403,8 @@ export const GameReviews: React.FC<GameReviewsProps> = (props) => {
         </span>
       </div>
 
-      {/* Write / Edit Review Section for Game Owners */}
-      {isOwned && (
+      {/* Write / Edit Review Section for Game Owners (Hidden in Designer Preview) */}
+      {isOwned && !isDesigner && (
         <div
           style={{
             background: cardBg,

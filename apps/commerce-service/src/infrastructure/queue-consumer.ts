@@ -88,7 +88,6 @@ export async function startQueueConsumer(rabbitmqUrl: string) {
   await channel.prefetch(1);
 
   const queueName = 'commerce.entitlement-granted.queue';
-  console.log(`Starting consumer on queue "${queueName}"...`);
 
   await channel.consume(queueName, async (msg) => {
     if (!msg) return;

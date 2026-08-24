@@ -13,7 +13,7 @@ const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:5005';
 // ---------------------------------------------------------------------------
 // Shared proxy configuration
 // ---------------------------------------------------------------------------
-const PROXY_TIMEOUT_MS = 30_000; // 30 seconds
+const PROXY_TIMEOUT_MS = Number(process.env.PROXY_TIMEOUT_MS) || 120_000; // 120 seconds (2 minutes for AI & long queries)
 
 /**
  * Proxy error handler that returns the standard error model per service-contracts.md.

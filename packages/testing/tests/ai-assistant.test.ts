@@ -3,11 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { createAIApp } from '../../../apps/ai-service/src/app.js';
 import {
   computeCosineSimilarity,
+  computeContentHash,
+  generateEmbedding,
   extractMeaningfulKeywords,
   isCasualGreetingOrChat,
   isLibraryRecommendationIntent,
+  getDynamicKeywordFallback,
   STOP_WORDS,
-} from '../../../apps/ai-service/src/services/ragService.js';
+} from '../../../apps/ai-service/src/services/rag/index.js';
 import { withCorrelationId } from '../src/index.js';
 
 const ready = async () => undefined;
@@ -112,6 +115,37 @@ describe('AI & Assistant Service Test Suite', () => {
       // Handles invalid inputs safely
       expect(computeCosineSimilarity([], [])).toBe(0);
       expect(computeCosineSimilarity([1, 2], [1])).toBe(0);
+    });
+
+    it('computes sha256 content hashes reproducibly', () => {
+      const hash1 = computeContentHash('Cyber Quest', 'Short summary', 'Full lore');
+      const hash2 = computeContentHash('Cyber Quest', 'Short summary', 'Full lore');
+      const hash3 = computeContentHash('Cyber Quest 2', 'Short summary', 'Full lore');
+
+      expect(hash1).toBe(hash2);
+      expect(hash1).not.toBe(hash3);
+      expect(hash1).toHaveLength(64);
+    });
+
+    it('returns null safely from generateEmbedding when no API key is present', async () => {
+      const embedding = await generateEmbedding('Cyberpunk game', '');
+      expect(embedding).toBeNull();
+    });
+
+    it('getDynamicKeywordFallback returns friendly explanation on empty library query', async () => {
+      const result = await getDynamicKeywordFallback('based on games in my library', undefined, []);
+      expect(result.source).toBe('curated_fallback');
+      expect(result.items).toHaveLength(0);
+      expect(result.conversationalReply).toContain(
+        "don't have any record of games in your library"
+      );
+    });
+
+    it('getDynamicKeywordFallback returns conversational greeting on pure hello prompt', async () => {
+      const result = await getDynamicKeywordFallback('hello', undefined, []);
+      expect(result.source).toBe('curated_fallback');
+      expect(result.items).toHaveLength(0);
+      expect(result.conversationalReply).toContain('Hello! I am your Hathor assistant');
     });
 
     it('maintains expected stop words dictionary', () => {

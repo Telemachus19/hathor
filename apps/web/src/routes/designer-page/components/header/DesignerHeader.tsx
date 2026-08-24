@@ -31,6 +31,8 @@ export function DesignerHeader({
   onOpenImport,
   onSaveDraft,
   onOpenPublish,
+  onToggleAi,
+  isAiOpen,
 }: {
   gameTitle: string;
   setGameTitle: (title: string) => void;
@@ -45,6 +47,8 @@ export function DesignerHeader({
   onOpenImport: () => void;
   onSaveDraft: () => void;
   onOpenPublish: () => void;
+  onToggleAi?: () => void;
+  isAiOpen?: boolean;
 }) {
   const navigate = useNavigate();
 
@@ -234,14 +238,19 @@ export function DesignerHeader({
       </button>
       <button
         onClick={() => {
-          // This will be passed down from props later, but for now we dispatch an event
-          document.dispatchEvent(new CustomEvent('openAiThemeModal'));
+          if (onToggleAi) {
+            onToggleAi();
+          } else {
+            document.dispatchEvent(new CustomEvent('openAiThemeModal'));
+          }
         }}
         className={styles.saveDraftBtn}
         style={{
-          background: 'linear-gradient(90deg, rgba(138,43,226,0.1) 0%, rgba(242,107,33,0.1) 100%)',
-          border: '1px solid rgba(138,43,226,0.5)',
-          color: '#e2b3ff',
+          background: isAiOpen
+            ? 'linear-gradient(90deg, rgba(138,43,226,0.3) 0%, rgba(242,107,33,0.3) 100%)'
+            : 'linear-gradient(90deg, rgba(138,43,226,0.1) 0%, rgba(242,107,33,0.1) 100%)',
+          border: isAiOpen ? '1px solid rgba(138,43,226,0.9)' : '1px solid rgba(138,43,226,0.5)',
+          color: isAiOpen ? '#ffffff' : '#e2b3ff',
           fontWeight: 800,
         }}
       >

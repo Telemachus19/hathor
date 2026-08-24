@@ -142,20 +142,6 @@ export const gameEmbeddings = catalogSchema.table(
   })
 );
 
-export const catalogRecommendationCache = catalogSchema.table(
-  'catalog_recommendation_cache',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    contextGameId: uuid('context_game_id').references(() => games.id, { onDelete: 'cascade' }),
-    rankedGameIds: jsonb('ranked_game_ids').notNull().default([]),
-    reasons: jsonb('reasons').notNull().default([]),
-    source: varchar('source', { length: 50 }).notNull().default('cached'),
-    refreshedAt: timestamp('refreshed_at', { withTimezone: true }).defaultNow(),
-  },
-  (table) => ({
-    contextIdx: index('idx_catalog_rec_cache_context').on(table.contextGameId),
-  })
-);
 export const reviews = catalogSchema.table(
   'reviews',
   {

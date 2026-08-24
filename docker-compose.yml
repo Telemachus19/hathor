@@ -172,6 +172,8 @@ services:
 
   catalog-service:
     <<: *service-defaults
+    networks:
+      - backend
     build:
       context: .
       dockerfile: apps/catalog-service/Dockerfile
@@ -220,7 +222,16 @@ services:
       NODE_ENV: development
       PORT: 5005
       CATALOG_DB_URL: postgresql://catalog_app:${CATALOG_DB_PASSWORD}@catalog-postgres:5432/catalog
+      AUTH_SERVICE_URL: http://auth-service:5001
+      CATALOG_SERVICE_URL: http://catalog-service:5002
+      GEMINI_API: ${GEMINI_API:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      GLM_API: ${GLM_API:-}
+      GLM_API_KEY: ${GLM_API_KEY:-}
+      GLM_MODEL: ${GLM_MODEL:-z-ai/glm-5.2:free}
+      GLM_BASE_URL: ${GLM_BASE_URL:-https://openrouter.ai/api/v1}
+      AI_PROVIDER: ${AI_PROVIDER:-auto}
     depends_on:
       catalog-postgres:
         condition: service_healthy

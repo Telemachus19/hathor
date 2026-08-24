@@ -5,8 +5,6 @@ export class MockAuthService implements AuthService {
   private registeredEmails = new Set<string>(['existing@example.com']);
 
   async login(identifier: string, password: string): Promise<LoginResult> {
-    console.log('Mock Login:', identifier, password);
-
     // Simulate Gateway Errors for testing
     if (identifier.includes('invalid') || password === 'wrong') {
       throw new GatewayApiError(
@@ -44,7 +42,6 @@ export class MockAuthService implements AuthService {
   }
 
   async register(input: RegisterInput): Promise<void> {
-    console.log('Mock Register:', input.displayName, input.email, input.password);
     const normalizedEmail = input.email.toLowerCase().trim();
 
     if (this.registeredEmails.has(normalizedEmail) || normalizedEmail.includes('existing')) {

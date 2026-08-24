@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express, { Request, Response, type Express } from 'express';
 import { assistantRouter } from './routes/assistant.js';
+import { designerChatRouter } from './routes/designerChat.js';
 
 export type ReadinessCheck = () => Promise<void>;
 
@@ -23,7 +24,11 @@ export function createAIApp(checkDatabase: ReadinessCheck): Express {
   );
   app.use(express.json());
 
-  // Mount Assistant & AI Routes
+  // Mount Agentic AI Designer Chat Routes
+  app.use('/ai', designerChatRouter);
+  app.use('/creator', designerChatRouter);
+
+  // Mount Assistant & RAG Recommendation Routes
   app.use('/assistant', assistantRouter);
   app.use('/ai', assistantRouter);
   app.use('/store', assistantRouter); // For direct backward-compatibility

@@ -50,7 +50,6 @@ export class OutboxWorker {
   public start(): void {
     if (this.running) return;
     this.running = true;
-    console.log('[OutboxWorker] Outbox background worker started');
     this.scheduleNextTick(0);
   }
 
@@ -60,7 +59,6 @@ export class OutboxWorker {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    console.log('[OutboxWorker] Outbox background worker stopped');
   }
 
   private scheduleNextTick(delayMs: number): void {
@@ -125,9 +123,6 @@ export class OutboxWorker {
 
             outboxPublishedCounter.inc({ event_type: record.eventType });
             processedCount++;
-            console.log(
-              `[OutboxWorker] Successfully published event ${record.eventType} (id: ${record.id})`
-            );
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             const newRetryCount = record.retryCount + 1;
