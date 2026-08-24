@@ -67,19 +67,24 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
         </h4>
 
         <div className={styles.cardGenreRow}>
-          <span className={styles.genreText}>{game.genre}</span>
+          <span className={styles.genreText}>
+            {typeof game.genre === 'string' ? game.genre : (game.genre as any)?.name || 'Action / Strategy'}
+          </span>
           <div className={styles.ratingBox}>
             <Star size={9} className={styles.ratingStar} />
-            <span className={styles.ratingValue}>{game.rating.toFixed(1)}</span>
+            <span className={styles.ratingValue}>{(game.rating || 4.8).toFixed(1)}</span>
           </div>
         </div>
 
         <div className={styles.tagRow}>
-          {game.tags.slice(0, 2).map((tag) => (
-            <span key={tag} className={styles.tagPill}>
-              {tag}
-            </span>
-          ))}
+          {(game.tags || []).slice(0, 2).map((tag, idx) => {
+            const tagName = typeof tag === 'string' ? tag : (tag as any)?.name || 'Tag';
+            return (
+              <span key={`${tagName}-${idx}`} className={styles.tagPill}>
+                {tagName}
+              </span>
+            );
+          })}
         </div>
 
         {game.isPending ? (

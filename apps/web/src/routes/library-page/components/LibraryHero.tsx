@@ -53,13 +53,17 @@ export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
           <h2 className={styles.heroTitle}>{game.title}</h2>
 
           <div className={styles.heroMeta}>
-            <span className={styles.heroMetaItem}>{game.genre}</span>
+            <span className={styles.heroMetaItem}>
+              {typeof game.genre === 'string' ? game.genre : (game.genre as any)?.name || 'Action / Strategy'}
+            </span>
             <span className={styles.metaDivider}>|</span>
-            <span className={styles.heroMetaItem}>{game.developer}</span>
+            <span className={styles.heroMetaItem}>
+              {typeof game.developer === 'string' ? game.developer : 'Hathor Studios'}
+            </span>
             <span className={styles.metaDivider}>|</span>
             <div className={styles.ratingBox}>
               <Star size={10} className={styles.ratingStar} />
-              <span className={styles.ratingValue}>{game.rating.toFixed(1)}</span>
+              <span className={styles.ratingValue}>{(game.rating || 4.8).toFixed(1)}</span>
             </div>
           </div>
 

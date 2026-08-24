@@ -52,11 +52,17 @@ export const LibraryPage: React.FC = () => {
       ? rawTags.map((t: any) => (typeof t === 'string' ? t : t?.name || 'Tag'))
       : ['Action'];
 
+    const rawGenre = (catalogGame as any)?.genre;
+    const genreStr =
+      typeof rawGenre === 'string'
+        ? rawGenre
+        : rawGenre?.name || tagsList[0] || 'Action / Strategy';
+
     return {
       id: lic.gameId,
       slug: catalogGame?.slug || lic.gameId,
       title: catalogGame?.title || `Game ${lic.gameId.slice(0, 8)}`,
-      genre: (catalogGame as any)?.genre || tagsList[0] || 'Action / Strategy',
+      genre: genreStr,
       developer: (catalogGame as any)?.developer || 'Hathor Studios',
       rating: (catalogGame as any)?.ratingScore || 4.8,
       coverImage:
@@ -86,11 +92,17 @@ export const LibraryPage: React.FC = () => {
         ? rawTags.map((t: any) => (typeof t === 'string' ? t : t?.name || 'Tag'))
         : ['Pending'];
 
+      const rawGenre = (catalogGame as any)?.genre;
+      const genreStr =
+        typeof rawGenre === 'string'
+          ? rawGenre
+          : rawGenre?.name || tagsList[0] || 'Action / Strategy';
+
       return {
         id: item.gameId,
         slug: catalogGame?.slug || item.gameId,
         title: item.titleSnapshot || catalogGame?.title || `Order ${order.id.slice(0, 8)}`,
-        genre: (catalogGame as any)?.genre || tagsList[0] || 'Action / Strategy',
+        genre: genreStr,
         developer: (catalogGame as any)?.developer || 'Hathor Studios',
         rating: (catalogGame as any)?.ratingScore || 4.8,
         coverImage:
@@ -112,28 +124,33 @@ export const LibraryPage: React.FC = () => {
     })
   );
 
-  // Extract unique genres dynamically from owned games
+  const currentList = viewMode === 'owned' ? ownedGames : pendingGames;
+
+  // Extract unique genres dynamically from current list
   const uniqueGenresSet = new Set<string>();
-  ownedGames.forEach((g) => {
-    if (g.genre) uniqueGenresSet.add(g.genre);
-    g.tags.forEach((t) => uniqueGenresSet.add(t));
+  currentList.forEach((g) => {
+    if (typeof g.genre === 'string' && g.genre.trim()) uniqueGenresSet.add(g.genre.trim());
+    if (Array.isArray(g.tags)) {
+      g.tags.forEach((t) => {
+        if (typeof t === 'string' && t.trim()) uniqueGenresSet.add(t.trim());
+      });
+    }
   });
 
   const uniqueGenresList = Array.from(uniqueGenresSet).sort();
 
   const sidebarFilters: DynamicFilterItem[] = [
-    { label: 'All', count: ownedGames.length },
+    { label: 'All', count: currentList.length },
     ...uniqueGenresList.map((genre) => ({
       label: genre,
-      count: ownedGames.filter(
+      count: currentList.filter(
         (g) =>
-          g.genre.toLowerCase() === genre.toLowerCase() ||
-          g.tags.some((t) => t.toLowerCase() === genre.toLowerCase())
+          (typeof g.genre === 'string' && g.genre.toLowerCase() === genre.toLowerCase()) ||
+          (Array.isArray(g.tags) &&
+            g.tags.some((t) => typeof t === 'string' && t.toLowerCase() === genre.toLowerCase()))
       ).length,
     })),
   ];
-
-  const currentList = viewMode === 'owned' ? ownedGames : pendingGames;
   const sortOptions: SortOption[] = ['Title', 'Rating', 'Purchase Date'];
   const heroGame = ownedGames[0];
 
