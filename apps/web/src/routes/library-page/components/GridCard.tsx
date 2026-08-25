@@ -68,7 +68,9 @@ export const GridCard: React.FC<GridCardProps> = ({ game }) => {
 
         <div className={styles.cardGenreRow}>
           <span className={styles.genreText}>
-            {typeof game.genre === 'string' ? game.genre : (game.genre as any)?.name || 'Action / Strategy'}
+            {typeof game.genre === 'string'
+              ? game.genre
+              : (game.genre as any)?.name || 'Action / Strategy'}
           </span>
           <div className={styles.ratingBox}>
             <Star size={9} className={styles.ratingStar} />

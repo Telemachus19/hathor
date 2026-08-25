@@ -54,7 +54,9 @@ export const LibraryHero: React.FC<LibraryHeroProps> = ({ game }) => {
 
           <div className={styles.heroMeta}>
             <span className={styles.heroMetaItem}>
-              {typeof game.genre === 'string' ? game.genre : (game.genre as any)?.name || 'Action / Strategy'}
+              {typeof game.genre === 'string'
+                ? game.genre
+                : (game.genre as any)?.name || 'Action / Strategy'}
             </span>
             <span className={styles.metaDivider}>|</span>
             <span className={styles.heroMetaItem}>
