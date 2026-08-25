@@ -32,15 +32,21 @@ CRITICAL DIRECTIVES:
    - NEVER output generic cyberpunk, sci-fi, or futuristic cyber text unless the user explicitly requested a cyberpunk or sci-fi theme.
    - If the user asks for a medieval fantasy, anime, cozy farm, horror, fruit/nature, or playful theme, every single text snippet and color must fully immerse the reader in that specific world.
 
-2. DATABASE-FETCHED CONTENT (STRICT NO-OVERRIDE MANDATE):
-   - ALL catalog game data (Game Title, Category/Genre Badge, Rating Score, Review Count, Developer, Publisher, Release Date, Tags, Synopsis Description, Minimum & Recommended Hardware Specs, User Reviews, Sidebar Metadata, and Recommended Games) are AUTOMATICALLY RETRIEVED FROM THE DATABASE AND BOUND DYNAMICALLY AT RUNTIME.
-   - DO NOT output mock text values for catalog fields (e.g. DO NOT include "gameTitle", "gameDev", "gameDesc", "gameTags", "reqsMin", "reqsRec", "sideDev", "sidePub", "sideDate", "sideGenre", "sidePlatforms", "reviews", "sideOwners", "sidePositive").
-   - Focus your output strictly on VISUAL ARCHITECTURE, COMPONENT COMPOSITION, COLOR PALETTES, TYPOGRAPHY, CARD BACKGROUNDS, BORDERS, PADDING, CUSTOM GAME LORE ("about-game"), FEATURE MATRICES ("features"), DUAL-COLUMN BLOCKS ("two-col"), CALL-TO-ACTION PROMOTIONS ("cta"), AND MEDIA SHOWCASES ("media-carousel").
+2. COMPLETE STOREFRONT ASSEMBLY MANDATE:
+   - You MUST assemble a COMPLETE, multi-section storefront layout in the "sections" array.
+   - Every theme proposal MUST include 4 to 8 sections tailored specifically to the user's prompt (e.g., "media-carousel", "game-header", "features" with 3-4 prompt-themed feature cards, "grid" with "about-game" containing custom narrative lore chapters tailored to the user's theme, "system-reqs", "user-reviews", and sidebar widgets "sidebar-cta", "sidebar-info", "sidebar-ratings", and "cta").
+   - For narrative sections ("about-game", "features", "cta", "two-col"), WRITE IMMERSIVE, CUSTOM THEMED COPY that directly reflects the user's prompt (e.g. for One Piece: Pirate adventures, Devil Fruit powers, Straw Hat crew synergy, Grand Line voyages).
+   - Component-level styling (colors, fonts, borders, button labels) must reflect the theme aesthetic.
 
-3. DYNAMIC CONTRAST & READABILITY:
+3. DATABASE-BINDING MANDATE (NO GAME DATA OVERRIDES):
+   - All core game data (Game Title, Genre/Category, Short Description, Developer, Publisher, Release Date, Tags, Minimum & Recommended Hardware Specs, User Reviews, and Ratings) are bound dynamically from the database at runtime.
+   - The AI must ONLY style their visual appearance (e.g. titleFont, titleColor, subtitleColor, badgeColor, descColor, reqsTitleColor, reqsCardBg, cardBg, accentColor, infoTitleColor, etc.).
+   - NEVER output mock override values for game metadata ("title", "gameTitle", "desc", "gameDesc", "dev", "gameDev", "tags", "min", "rec", "reqsMin", "reqsRec", "genre", "platforms"). Custom narrative writing belongs in "about-game" chapters, "features" cards, and "cta" promotional blocks.
+
+4. DYNAMIC CONTRAST & READABILITY:
    - Always ensure high contrast between text colors and card/page backgrounds.
 
-4. CARD PADDING & INTERNAL SPACING:
+5. CARD PADDING & INTERNAL SPACING:
    - When assigning a card background or border, include appropriate internal padding ("pt", "pb", "pl", "pr") for clean spacing.
 
 OUTPUT REQUIREMENTS:
@@ -74,7 +80,8 @@ Root Object Structure:
 "containerWidth": 1280 // 800 to 1920 (default 1280)
 },
 "sections": [
-/* Array of Section objects */
+// MANDATORY: You MUST populate 4 to 8 sections tailored to the theme (e.g. media-carousel, game-header, grid with about-game lore, reqs, reviews, and sidebar widgets, features, cta).
+// NEVER RETURN AN EMPTY SECTIONS ARRAY.
 ]
 }
 

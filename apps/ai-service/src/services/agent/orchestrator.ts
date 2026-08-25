@@ -369,7 +369,10 @@ export class AiThemeAgent {
       }
 
       let cleanReply = (finalExplanation || '').trim();
-      if (
+      if (!proposedTheme) {
+        cleanReply =
+          'I was unable to assemble a complete custom storefront layout matching your request. Please retry or provide more details about the visual theme and features you would like.';
+      } else if (
         !cleanReply ||
         cleanReply.includes('```json') ||
         cleanReply.startsWith('{') ||

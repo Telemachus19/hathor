@@ -624,7 +624,12 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
           currentTheme={{ sections, pageSettings }}
           onPreviewTheme={(theme) => {
             if (theme) {
-              setPreviewTheme(theme);
+              const incomingSections = theme.sections || (Array.isArray(theme) ? theme : []);
+              const syncedSections = syncSectionsWithDraft(incomingSections);
+              setPreviewTheme({
+                ...theme,
+                sections: syncedSections,
+              });
             } else {
               setPreviewTheme(null);
             }
@@ -633,7 +638,8 @@ export default function DesignerPage({ initialGame }: { initialGame?: any }) {
             const incomingSections = theme?.sections || (Array.isArray(theme) ? theme : null);
             const incomingSettings = theme?.pageSettings || theme?.settings || theme?.pageBody;
             if (incomingSections && incomingSections.length > 0) {
-              mutateSections(incomingSections);
+              const synced = syncSectionsWithDraft(incomingSections);
+              mutateSections(synced);
             }
             if (incomingSettings) {
               setPageSettings((prev) => ({ ...prev, ...incomingSettings }));

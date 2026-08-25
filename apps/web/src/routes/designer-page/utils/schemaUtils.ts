@@ -366,6 +366,80 @@ export function generatePageJSON(sections: Section[], pageSettings?: PageSetting
   };
 }
 
+function syncElementWithDraft(el: any, draft: any): any {
+  if (!el || typeof el !== 'object') return el;
+  const res = { ...el };
+
+  if (res.type === 'game-header') {
+    if (draft.genre) {
+      res.gameCategory = draft.genre.toUpperCase();
+      res.category = draft.genre.toUpperCase();
+    }
+    if (draft.title) {
+      res.gameTitle = draft.title.toUpperCase();
+      res.title = draft.title.toUpperCase();
+    }
+    if (draft.tags && draft.tags.length > 0) {
+      res.gameTags = draft.tags;
+      res.tags = draft.tags;
+    }
+    if (draft.shortDesc) {
+      res.gameDesc = draft.shortDesc;
+      res.desc = draft.shortDesc;
+    }
+  }
+
+  if (res.type === 'sidebar-info') {
+    if (draft.genre) {
+      res.sideGenre = draft.genre;
+      res.genre = draft.genre;
+    }
+  }
+
+  if (res.type === 'system-reqs') {
+    if (draft.minReq) {
+      res.reqsMin = {
+        os:
+          draft.minReq.os && draft.minReq.os.length > 0
+            ? draft.minReq.os.join(', ')
+            : res.reqsMin?.os || 'Windows 10 (64-bit)',
+        cpu: draft.minReq.cpu || res.reqsMin?.cpu || 'Intel Core i5-8400',
+        ram: draft.minReq.ram
+          ? draft.minReq.ram.toUpperCase().includes('GB')
+            ? draft.minReq.ram
+            : `${draft.minReq.ram} GB`
+          : res.reqsMin?.ram || '12 GB',
+        gpu: draft.minReq.gpu || res.reqsMin?.gpu || 'NVIDIA GTX 1070',
+        storage: draft.minReq.storageNum
+          ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix}`
+          : res.reqsMin?.storage?.replace(/NVMe SSD|Available Space/gi, '').trim() || '85 GB',
+      };
+      res.min = res.reqsMin;
+    }
+    if (draft.recReq) {
+      res.reqsRec = {
+        os:
+          draft.recReq.os && draft.recReq.os.length > 0
+            ? draft.recReq.os.join(', ')
+            : res.reqsRec?.os || 'Windows 11 (64-bit)',
+        cpu: draft.recReq.cpu || res.reqsRec?.cpu || 'Intel Core i7-12700K',
+        ram: draft.recReq.ram
+          ? draft.recReq.ram.toUpperCase().includes('GB')
+            ? draft.recReq.ram
+            : `${draft.recReq.ram} GB`
+          : res.reqsRec?.ram || '16 GB',
+        gpu: draft.recReq.gpu || res.reqsRec?.gpu || 'NVIDIA RTX 4070',
+        storage: draft.recReq.storageNum
+          ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix}`
+          : res.reqsRec?.storage?.replace(/NVMe SSD|Available Space/gi, '').trim() || '85 GB',
+      };
+      res.rec = res.reqsRec;
+    }
+  }
+
+  return res;
+}
+
 export function syncSectionsWithDraft(sections: Section[]): Section[] {
   const draft = getGameInfoDraft();
   if (!draft) return sections;
@@ -376,70 +450,10 @@ export function syncSectionsWithDraft(sections: Section[]): Section[] {
         ...sec,
         gridCols: sec.gridCols.map((col) => ({
           ...col,
-          elements: col.elements.map((el) => {
-            if (el.type === 'game-header') {
-              return {
-                ...el,
-                gameCategory: (draft.genre || el.gameCategory || 'GENRE').toUpperCase(),
-                gameTitle: (draft.title || el.gameTitle || 'YOUR GAME TITLE').toUpperCase(),
-                gameTags:
-                  draft.tags && draft.tags.length > 0
-                    ? draft.tags
-                    : el.gameTags || ['TAG 1', 'TAG 2'],
-                gameDesc: draft.shortDesc || el.gameDesc,
-              };
-            }
-            if (el.type === 'sidebar-info') {
-              return {
-                ...el,
-                sideGenre: draft.genre || el.sideGenre,
-              };
-            }
-            if (el.type === 'system-reqs') {
-              const reqEl = el as any;
-              return {
-                ...el,
-                reqsMin: {
-                  os:
-                    draft.minReq.os && draft.minReq.os.length > 0
-                      ? draft.minReq.os.join(', ')
-                      : reqEl.reqsMin?.os || 'Windows 10 (64-bit)',
-                  cpu: draft.minReq.cpu || reqEl.reqsMin?.cpu || 'Intel Core i5-8400',
-                  ram: draft.minReq.ram
-                    ? draft.minReq.ram.toUpperCase().includes('GB')
-                      ? draft.minReq.ram
-                      : `${draft.minReq.ram} GB`
-                    : reqEl.reqsMin?.ram || '12 GB',
-                  gpu: draft.minReq.gpu || reqEl.reqsMin?.gpu || 'NVIDIA GTX 1070',
-                  storage: draft.minReq.storageNum
-                    ? `${draft.minReq.storageNum} ${draft.minReq.storageSuffix}`
-                    : reqEl.reqsMin?.storage?.replace(/NVMe SSD|Available Space/gi, '').trim() ||
-                      '85 GB',
-                },
-                reqsRec: {
-                  os:
-                    draft.recReq.os && draft.recReq.os.length > 0
-                      ? draft.recReq.os.join(', ')
-                      : reqEl.reqsRec?.os || 'Windows 11 (64-bit)',
-                  cpu: draft.recReq.cpu || reqEl.reqsRec?.cpu || 'Intel Core i7-12700K',
-                  ram: draft.recReq.ram
-                    ? draft.recReq.ram.toUpperCase().includes('GB')
-                      ? draft.recReq.ram
-                      : `${draft.recReq.ram} GB`
-                    : reqEl.reqsRec?.ram || '16 GB',
-                  gpu: draft.recReq.gpu || reqEl.reqsRec?.gpu || 'NVIDIA RTX 4070',
-                  storage: draft.recReq.storageNum
-                    ? `${draft.recReq.storageNum} ${draft.recReq.storageSuffix}`
-                    : reqEl.reqsRec?.storage?.replace(/NVMe SSD|Available Space/gi, '').trim() ||
-                      '85 GB',
-                },
-              };
-            }
-            return el;
-          }),
+          elements: (col.elements || []).map((el) => syncElementWithDraft(el, draft)),
         })),
       };
     }
-    return sec;
+    return syncElementWithDraft(sec, draft);
   });
 }

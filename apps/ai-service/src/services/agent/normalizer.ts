@@ -110,7 +110,58 @@ export function normalizeThemeSections(theme: any): any {
       delete s.userReviews;
     }
 
-    // Clean misplaced catalog text fields (catalog fields are fetched dynamically from database)
+    // Clean database catalog fields from sections (these are strictly bound dynamically from the database)
+    if (s.type === 'game-header') {
+      delete s.title;
+      delete s.gameTitle;
+      delete s.desc;
+      delete s.description;
+      delete s.gameDesc;
+      delete s.dev;
+      delete s.developer;
+      delete s.gameDev;
+      delete s.category;
+      delete s.gameCategory;
+      delete s.releaseDate;
+      delete s.gameReleaseDate;
+      delete s.date;
+      delete s.tags;
+      delete s.gameTags;
+      delete s.ratingScore;
+      delete s.gameRatingScore;
+      delete s.reviewCount;
+      delete s.gameReviewCount;
+    }
+
+    if (s.type === 'system-reqs') {
+      delete s.min;
+      delete s.reqsMin;
+      delete s.minimum;
+      delete s.rec;
+      delete s.reqsRec;
+      delete s.recommended;
+      delete s.specs;
+      delete s.requirements;
+    }
+
+    if (s.type === 'sidebar-info') {
+      delete s.dev;
+      delete s.sideDev;
+      delete s.developer;
+      delete s.pub;
+      delete s.sidePub;
+      delete s.publisher;
+      delete s.date;
+      delete s.sideDate;
+      delete s.releaseDate;
+      delete s.genre;
+      delete s.sideGenre;
+      delete s.category;
+      delete s.platforms;
+      delete s.sidePlatforms;
+    }
+
+    // Scrub legacy catalog field aliases from any component
     delete s.gameTitle;
     delete s.gameDev;
     delete s.gameDesc;
@@ -169,9 +220,10 @@ export function normalizeThemeSections(theme: any): any {
     rawSections = theme;
   }
 
-  const sanitizedSections = rawSections.map((sec: any, idx: number) => sanitizeSection(sec, idx));
   const pageSettings =
     targetTheme.pageSettings || theme.pageSettings || targetTheme.settings || theme.settings || {};
+
+  const sanitizedSections = rawSections.map((sec: any, idx: number) => sanitizeSection(sec, idx));
 
   return {
     pageSettings,
